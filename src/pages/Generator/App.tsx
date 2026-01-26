@@ -3,6 +3,7 @@ import { Camera, Upload, Trash2, Download, Plus, Sparkles, Image as ImageIcon, K
 import JSZip from 'jszip';
 import { useTranslation } from 'react-i18next';
 import Button from './components/Button';
+import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
 import { generateSticker } from './services/geminiService';
 import { THEMES, Sticker, StickerTheme } from './types';
 
@@ -396,8 +397,8 @@ const App: React.FC = () => {
 
       {/* Unified Header - Mobile: Controls Only, Desktop: Full */}
       <nav className="fixed top-4 left-4 right-4 z-50">
-        <div className="max-w-7xl mx-auto rounded-2xl px-6 py-3 flex items-center justify-end md:justify-between md:bg-white/70 md:backdrop-blur-xl md:shadow-lg md:border md:border-white/50">
-          <div className="items-center gap-4 hidden md:flex">
+        <div className="max-w-7xl mx-auto rounded-2xl px-6 py-3 flex items-center justify-between bg-white/70 backdrop-blur-xl shadow-lg border border-white/50">
+          <div className="flex items-center gap-4">
             {/* AppSwitcher removed */}
 
             <div className="flex items-center gap-3">
@@ -416,6 +417,12 @@ const App: React.FC = () => {
           </div>
           {/* Right Side Header */}
           <div className="flex items-center gap-2">
+            <div className="hidden sm:block">
+              <LanguageSwitcher />
+            </div>
+            <div className="sm:hidden">
+              <LanguageSwitcher />
+            </div>
             <button
               onClick={() => { setTempKey(apiKey); setShowKeyModal(true); }}
               className={`p-2 rounded-xl transition-all border ${apiKey ? 'hover:bg-slate-50 border-transparent text-slate-400 hover:text-violet-500' : 'bg-red-50 border-red-200 text-red-500 animate-pulse'}`}
