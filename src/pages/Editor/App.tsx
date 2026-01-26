@@ -215,7 +215,7 @@ const App: React.FC = () => {
     const newLayer: Layer = {
       ...layerToCopy,
       id: generateId(),
-      id: generateId(),
+
       name: layerToCopy.name ? `${layerToCopy.name} ${t('editor.layers.copy')}` : `Layer ${t('editor.layers.copy')}`,
       x: layerToCopy.x + 20, // Offset slightly
       y: layerToCopy.y + 20,
@@ -325,7 +325,11 @@ const App: React.FC = () => {
   const selectedLayer = layers.find(l => l.id === selectedLayerId);
 
   return (
-    <div className="flex h-[85vh] w-full flex-col overflow-hidden bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-100/50 via-slate-50 to-pink-50/30 rounded-3xl border border-slate-200/50 shadow-inner">
+    <div className="flex min-h-screen w-full flex-col overflow-hidden bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-100/50 via-slate-50 to-pink-50/30">
+
+      {/* Unified Header */}
+
+
       {showGallery && (
         <GalleryPicker
           onSelect={(blob) => handleAddLayer('image', blob)}
@@ -351,7 +355,7 @@ const App: React.FC = () => {
         onSaveToGallery={handleSaveToGallery}
       />
 
-      <div className={`flex flex-1 overflow-hidden pt-20 transition-opacity duration-700 ${isReady ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`flex flex-1 overflow-hidden pt-28 transition-opacity duration-700 ${isReady ? 'opacity-100' : 'opacity-0'}`}>
         {/* Canvas Area */}
         <div
           id="canvas-container"
@@ -429,17 +433,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <footer className="fixed bottom-4 right-6 z-40 hidden md:block text-right pointer-events-none">
-        <div className="pointer-events-auto inline-block">
-          <div className="glass-panel px-4 py-2 rounded-xl text-[10px] text-slate-400 font-bold uppercase tracking-widest hover:text-violet-600 transition-colors cursor-default border-slate-200/50 flex items-center gap-3">
-            <span>{canvasConfig.width} x {canvasConfig.height} PX</span>
-            <span className="opacity-30">|</span>
-            <span>TingYu’s Creative OS</span>
-            <span className="opacity-30 mx-1">|</span>
-            <span>v2.0</span>
-          </div>
-        </div>
-      </footer>
+
     </div>
   );
 };

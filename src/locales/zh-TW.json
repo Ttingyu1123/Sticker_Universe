@@ -8,7 +8,7 @@
         "backHome": "返回首頁",
         "generator": "生成器",
         "editor": "編輯器",
-        "packager": "打包器",
+        "packager": "美工",
         "eraser": "橡皮擦",
         "gallery": "作品集",
         "generate": "生成"
@@ -25,7 +25,14 @@
         "deleteConfirm": "刪除此貼圖？",
         "selected": "已選擇",
         "downloadZip": "下載 ZIP",
-        "loading": "載入中..."
+        "downloadZip": "下載 ZIP",
+        "loading": "載入中...",
+        "selectionMode": "選取",
+        "selectAll": "全選",
+        "deselectAll": "取消全選",
+        "cancelSelection": "完成",
+        "downloadSelected": "下載 ({{count}})",
+        "deleteSelected": "刪除 ({{count}})"
     },
     "landing": {
         "tagline": "終極創意套件",
@@ -41,8 +48,8 @@
             "editorDesc": "強大的圖層編輯器。組合圖像、添加文字、調整版面並微調您的設計细节。",
             "eraserTitle": "魔術橡皮擦",
             "eraserDesc": "智慧去背工具。立即清理圖像背景並導出透明 PNG。",
-            "packagerTitle": "打包工具",
-            "packagerDesc": "批次處理並自動調整貼圖大小，符合 LINE、Telegram 和 WhatsApp 的上架要求。"
+            "packagerTitle": "美工",
+            "packagerDesc": "批次裁切、去背並添加描邊，快速完成貼圖後製。"
         },
         "footer": "由 Google Gemini Pro 驅動 • 需在瀏覽器中直接使用 API Key"
     },

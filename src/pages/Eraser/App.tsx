@@ -1,7 +1,7 @@
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
-  Upload, Scissors, Download, RefreshCw, AlertCircle, Image as ImageIcon,
-  Info, Undo2, Redo2, Files, Settings, Star, Minimize2, Check, Minus, Home
+  Scissors, Download, Undo2, Redo2, Home
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ImageUploader from './components/ImageUploader';
@@ -135,7 +135,7 @@ const App: React.FC = () => {
     const currentImage = history[historyIndex];
     try {
       await saveStickerToDB({
-        id: `eraser_${Date.now()}`,
+        id: `eraser_${Date.now()} `,
         imageUrl: currentImage,
         phrase: 'Eraser Edit',
         timestamp: Date.now()
@@ -260,13 +260,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Global Footer (Unified) */}
-      <footer className="fixed bottom-4 right-6 z-40 hidden md:block text-right pointer-events-none">
-        <div className="pointer-events-auto inline-block">
-          <div className="glass-panel px-4 py-2 rounded-xl text-[10px] text-slate-400 font-bold uppercase tracking-widest hover:text-violet-600 transition-colors cursor-default border-slate-200/50">
-            TingYu’s Creative OS <span className="opacity-30 mx-2">|</span> v2.0
-          </div>
-        </div>
-      </footer>
+
 
       {showGallery && (
         <GalleryPicker

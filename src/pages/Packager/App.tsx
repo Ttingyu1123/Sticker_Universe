@@ -707,13 +707,7 @@ const App: React.FC = () => {
           </section>
         </div>
       </main>
-      <footer className="fixed bottom-4 right-6 z-40 hidden md:block text-right pointer-events-none">
-        <div className="pointer-events-auto inline-block">
-          <div className="glass-panel px-4 py-2 rounded-xl text-[10px] text-slate-400 font-bold uppercase tracking-widest hover:text-violet-600 transition-colors cursor-default border-slate-200/50">
-            TingYu’s Creative OS <span className="opacity-30 mx-2">|</span> v2.0
-          </div>
-        </div>
-      </footer>
+
     </div>
   );
 };

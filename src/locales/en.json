@@ -8,7 +8,7 @@
         "backHome": "Back Home",
         "generator": "Generator",
         "editor": "Editor",
-        "packager": "Packager",
+        "packager": "Refiner",
         "eraser": "Eraser",
         "gallery": "Collection",
         "generate": "Generate"
@@ -25,7 +25,14 @@
         "deleteConfirm": "Delete this sticker?",
         "selected": "Selected",
         "downloadZip": "Download ZIP",
-        "loading": "Loading Gallery..."
+        "downloadZip": "Download ZIP",
+        "loading": "Loading Gallery...",
+        "selectionMode": "Select",
+        "selectAll": "Select All",
+        "deselectAll": "Deselect All",
+        "cancelSelection": "Done",
+        "downloadSelected": "Download ({{count}})",
+        "deleteSelected": "Delete ({{count}})"
     },
     "landing": {
         "tagline": "The Ultimate Creative Suite",
@@ -41,8 +48,8 @@
             "editorDesc": "Powerful layer-based editor. Compose images, add text, adjust layouts, and fine-tune your designs.",
             "eraserTitle": "Eraser",
             "eraserDesc": "Smart background removal. Clean up your images instantly and export transparent PNGs.",
-            "packagerTitle": "Packager",
-            "packagerDesc": "Batch process and resize your stickers for LINE, Telegram, and WhatsApp requirements."
+            "packagerTitle": "Refiner",
+            "packagerDesc": "Batch process, crop, and polish your stickers with ease."
         },
         "footer": "Powered by Google Gemini Pro • Requires API Key used directly in browser"
     },

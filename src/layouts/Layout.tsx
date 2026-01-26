@@ -75,6 +75,12 @@ export const Layout = () => {
                         <Home size={20} />
                         <span className="text-sm font-bold">{t('app.backHome')}</span>
                     </a>
+
+                    <div className="px-4 py-2 mt-2">
+                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest opacity-50">
+                            TingYu’s Creative OS <span className="mx-1">|</span> v2.0
+                        </div>
+                    </div>
                 </div>
             </aside>
 
