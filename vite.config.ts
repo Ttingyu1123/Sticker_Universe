@@ -4,8 +4,34 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
+import { VitePWA } from 'vite-plugin-pwa'
+
 export default defineConfig({
-    plugins: [react(), tailwindcss()],
+    plugins: [
+        react(),
+        tailwindcss(),
+        VitePWA({
+            registerType: 'autoUpdate',
+            includeAssets: ['icon.svg'],
+            manifest: {
+                name: 'StickerOS',
+                short_name: 'StickerOS',
+                description: 'The Ultimate AI Sticker Creative Suite',
+                theme_color: '#ffffff',
+                icons: [
+                    {
+                        src: 'icon.svg',
+                        sizes: '512x512',
+                        type: 'image/svg+xml',
+                        purpose: 'any maskable'
+                    }
+                ],
+                start_url: '/',
+                display: 'standalone',
+                background_color: '#ffffff'
+            }
+        })
+    ],
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),
