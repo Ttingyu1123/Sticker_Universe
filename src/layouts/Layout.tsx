@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Sparkles, Layers, Eraser, Palette, Home, Settings } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -25,6 +25,7 @@ const NavItem = ({ to, icon: Icon, label, disabled = false }: { to: string, icon
 );
 
 export const Layout = () => {
+    const location = useLocation();
     return (
         <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-violet-200 selection:text-violet-900">
             {/* Desktop Sidebar */}
@@ -111,17 +112,19 @@ export const Layout = () => {
 
             {/* Main Content */}
             <main className="flex-1 min-w-0 md:ml-64 pb-20 md:pb-0">
-                {/* Mobile Header Logo */}
-                <div className="md:hidden flex items-center justify-center py-4 bg-white/50 backdrop-blur-sm border-b border-slate-100 sticky top-0 z-40">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 rounded-lg flex items-center justify-center text-white shadow-md">
-                            <Sparkles size={16} fill="currentColor" className="text-white/90" />
+                {/* Mobile Header Logo - Hidden on Landing Page */}
+                {location.pathname !== '/' && (
+                    <div className="md:hidden flex items-center justify-center py-4 bg-white/50 backdrop-blur-sm border-b border-slate-100 sticky top-0 z-40">
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 rounded-lg flex items-center justify-center text-white shadow-md">
+                                <Sparkles size={16} fill="currentColor" className="text-white/90" />
+                            </div>
+                            <h1 className="text-lg font-black tracking-tight text-slate-800 leading-none">
+                                Sticker<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-500">OS</span>
+                            </h1>
                         </div>
-                        <h1 className="text-lg font-black tracking-tight text-slate-800 leading-none">
-                            Sticker<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-500">OS</span>
-                        </h1>
                     </div>
-                </div>
+                )}
                 <Outlet />
             </main>
         </div>
