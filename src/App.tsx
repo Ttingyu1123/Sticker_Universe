@@ -8,6 +8,7 @@ const GeneratorApp = React.lazy(() => import('./pages/Generator/App').catch(err 
 const EditorApp = React.lazy(() => import('./pages/Editor/App').catch(err => { console.error("Failed to load Editor:", err); return { default: () => <div className="p-10 text-red-500">Editor Load Error: {err.message}</div> }; }));
 const PackagerApp = React.lazy(() => import('./pages/Packager/App').catch(err => { console.error("Failed to load Packager:", err); return { default: () => <div className="p-10 text-red-500">Packager Load Error: {err.message}</div> }; }));
 const EraserApp = React.lazy(() => import('./pages/Eraser/App').catch(err => { console.error("Failed to load Eraser:", err); return { default: () => <div className="p-10 text-red-500">Eraser Load Error: {err.message}</div> }; }));
+const GalleryApp = React.lazy(() => import('./pages/Gallery/App').catch(err => { console.error("Failed to load Gallery:", err); return { default: () => <div className="p-10 text-red-500">Gallery Load Error: {err.message}</div> }; }));
 
 const Loading = () => (
     <div className="flex items-center justify-center min-h-[50vh]">
@@ -53,6 +54,14 @@ function App() {
                     <Suspense fallback={<Loading />}>
                         <div className="p-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <EraserApp />
+                        </div>
+                    </Suspense>
+                } />
+
+                <Route path="/gallery" element={
+                    <Suspense fallback={<Loading />}>
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <GalleryApp />
                         </div>
                     </Suspense>
                 } />

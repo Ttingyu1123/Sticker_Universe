@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Sparkles, Layers, Eraser, Palette, Home, Settings } from 'lucide-react';
+import { Sparkles, Layers, Eraser, Palette, Home, Settings, FolderHeart } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
@@ -58,6 +58,7 @@ export const Layout = () => {
                     <NavItem to="/editor" icon={Palette} label={t('app.editor')} />
                     <NavItem to="/packager" icon={Layers} label={t('app.packager')} />
                     <NavItem to="/eraser" icon={Eraser} label={t('app.eraser')} />
+                    <NavItem to="/gallery" icon={FolderHeart} label={t('app.gallery')} />
                 </nav>
 
                 {/* Footer / User */}
@@ -109,6 +110,14 @@ export const Layout = () => {
                             <>
                                 <Eraser size={20} strokeWidth={isActive ? 2.5 : 2} />
                                 <span className="text-[10px] font-bold">{t('app.eraser')}</span>
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink to="/gallery" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                        {({ isActive }) => (
+                            <>
+                                <FolderHeart size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[10px] font-bold">{t('app.gallery')}</span>
                             </>
                         )}
                     </NavLink>

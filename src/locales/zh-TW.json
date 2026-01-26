@@ -10,6 +10,7 @@
         "editor": "編輯器",
         "packager": "打包器",
         "eraser": "橡皮擦",
+        "gallery": "作品集",
         "generate": "生成"
     },
     "landing": {
@@ -479,6 +480,19 @@
             "addImage": "新增圖片",
             "noLayers": "尚無圖層",
             "useButtons": "使用上方按鈕新增內容"
+        },
+        "gallery": {
+            "title": "作品集",
+            "subtitle": "您的創意收藏",
+            "empty": "尚無儲存的貼圖",
+            "emptyDesc": "前往生成器創造一些魔法吧！",
+            "download": "下載",
+            "delete": "刪除",
+            "clearAll": "全部清除",
+            "clearConfirm": "確定要刪除所有貼圖嗎？",
+            "deleteConfirm": "刪除此貼圖？",
+            "selected": "已選擇",
+            "downloadZip": "下載 ZIP"
         }
     }
 }

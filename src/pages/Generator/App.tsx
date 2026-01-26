@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Button from './components/Button';
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
 import { generateSticker } from './services/geminiService';
+import { saveStickerToDB } from '../../db';
 import { THEMES, Sticker, StickerTheme } from './types';
 
 // ... (Keep existing AppSwitcher)
@@ -273,6 +274,9 @@ const App: React.FC = () => {
 
         setStickers(prev => [newSticker, ...prev]);
         setProgress(prev => ({ ...prev, current: i + 1 }));
+
+        // Auto-save to gallery
+        saveStickerToDB(newSticker).catch(err => console.error("Failed to auto-save:", err));
       }
     } catch (err: any) {
       console.error(err);
@@ -296,7 +300,12 @@ const App: React.FC = () => {
 
     try {
       const processedImageUrl = await smartRemoveBackground(stickerToProcess.imageUrl);
-      setStickers(prev => prev.map(s => s.id === stickerId ? { ...s, imageUrl: processedImageUrl } : s));
+
+      const updatedSticker = { ...stickerToProcess, imageUrl: processedImageUrl };
+      setStickers(prev => prev.map(s => s.id === stickerId ? updatedSticker : s));
+
+      // Update in DB
+      saveStickerToDB(updatedSticker).catch(err => console.error("Failed to update sticker in DB:", err));
     } catch (err: any) {
       console.error("Failed to remove background:", err);
       setError(`背景移除失敗: ${err.message || '未知錯誤'}`);

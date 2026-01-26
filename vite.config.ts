@@ -15,6 +15,8 @@ export default defineConfig({
             includeAssets: ['icon.svg'],
             workbox: {
                 maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
+                globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm,json}'],
+                navigateFallbackDenylist: [/^\/imgly-data/]
             },
             manifest: {
                 name: 'StickerOS',

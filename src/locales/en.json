@@ -10,6 +10,7 @@
         "editor": "Editor",
         "packager": "Packager",
         "eraser": "Eraser",
+        "gallery": "Collection",
         "generate": "Generate"
     },
     "landing": {
@@ -479,6 +480,19 @@
             "addImage": "Add Image",
             "noLayers": "No layers yet",
             "useButtons": "Use buttons above to add content."
+        },
+        "gallery": {
+            "title": "Collection",
+            "subtitle": "Your creative works",
+            "empty": "No saved stickers yet.",
+            "emptyDesc": "Go to Generator to create some magic!",
+            "download": "Download",
+            "delete": "Delete",
+            "clearAll": "Clear All",
+            "clearConfirm": "Are you sure you want to delete all stickers?",
+            "deleteConfirm": "Delete this sticker?",
+            "selected": "Selected",
+            "downloadZip": "Download ZIP"
         }
     }
 }
