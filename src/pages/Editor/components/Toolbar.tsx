@@ -36,7 +36,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   };
 
   return (
-    <nav className="fixed top-4 left-4 right-4 z-50">
+    <nav className="hidden md:block fixed top-4 left-4 right-4 z-50">
       <div className="max-w-7xl mx-auto glass-panel rounded-2xl px-6 py-3 flex items-center justify-between">
 
         {/* Left Side: Navigation & Title */}
@@ -50,10 +50,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             </div>
             <div className="hidden sm:block">
               <h1 className="text-lg font-bold tracking-tight text-slate-800 leading-none">
-                LayerLab <span className="text-[10px] px-1.5 py-0.5 rounded-md ml-1 align-top text-violet-600 bg-violet-50">Editor</span>
+                StickerOS <span className="text-[10px] px-1.5 py-0.5 rounded-md ml-1 align-top text-violet-600 bg-violet-50">Editor</span>
               </h1>
               <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">
-                Visual Composition Tool
+                Layer Composition
               </p>
             </div>
           </div>

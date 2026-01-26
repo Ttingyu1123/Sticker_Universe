@@ -392,10 +392,10 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Unified Header */}
+      {/* Unified Header - Mobile: Controls Only, Desktop: Full */}
       <nav className="fixed top-4 left-4 right-4 z-50">
-        <div className="max-w-7xl mx-auto glass-panel rounded-2xl px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="max-w-7xl mx-auto rounded-2xl px-6 py-3 flex items-center justify-end md:justify-between md:bg-white/70 md:backdrop-blur-xl md:shadow-lg md:border md:border-white/50">
+          <div className="items-center gap-4 hidden md:flex">
             {/* AppSwitcher removed */}
 
             <div className="flex items-center gap-3">
@@ -404,10 +404,10 @@ const App: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-lg font-bold tracking-tight text-slate-800 leading-none">
-                  Sticker Maker <span className={`text-[10px] px-1.5 py-0.5 rounded-md ml-1 align-top ${currentTheme.id === 'taiwanese' ? 'text-pink-500 bg-pink-50' : 'text-teal-600 bg-teal-50'}`}>AI</span>
+                  StickerOS <span className={`text-[10px] px-1.5 py-0.5 rounded-md ml-1 align-top ${currentTheme.id === 'taiwanese' ? 'text-pink-500 bg-pink-50' : 'text-teal-600 bg-teal-50'}`}>Generator</span>
                 </h1>
                 <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">
-                  {currentTheme.name} Edition
+                  AI Sticker Creation
                 </p>
               </div>
             </div>

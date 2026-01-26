@@ -27,13 +27,13 @@ const NavItem = ({ to, icon: Icon, label, disabled = false }: { to: string, icon
 export const Layout = () => {
     return (
         <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-violet-200 selection:text-violet-900">
-            {/* Sidebar */}
-            <aside className="w-64 fixed inset-y-0 left-0 z-50 bg-slate-50/50 backdrop-blur-xl border-r border-slate-200/50 p-4 flex flex-col gap-2">
+            {/* Desktop Sidebar */}
+            <aside className="w-64 fixed inset-y-0 left-0 z-50 bg-slate-50/50 backdrop-blur-xl border-r border-slate-200/50 p-4 hidden md:flex flex-col gap-2">
                 {/* Header */}
                 <div className="px-4 py-6 mb-2">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-violet-500/20">
-                            <Sparkles size={24} fill="currentColor" className="text-white/90" />
+                            <Sparkles size={18} fill="currentColor" className="text-white/90" />
                         </div>
                         <div>
                             <h1 className="text-xl font-black tracking-tight text-slate-800 leading-none">
@@ -71,8 +71,57 @@ export const Layout = () => {
                 </div>
             </aside>
 
+            {/* Mobile Bottom Navigation */}
+            <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t border-slate-200/50 p-2 md:hidden">
+                <nav className="flex items-center justify-around">
+                    <NavLink to="/generator" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                        {({ isActive }) => (
+                            <>
+                                <Sparkles size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[10px] font-bold">Generate</span>
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink to="/editor" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                        {({ isActive }) => (
+                            <>
+                                <Palette size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[10px] font-bold">Editor</span>
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink to="/packager" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                        {({ isActive }) => (
+                            <>
+                                <Layers size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[10px] font-bold">Packager</span>
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink to="/eraser" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                        {({ isActive }) => (
+                            <>
+                                <Eraser size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[10px] font-bold">Eraser</span>
+                            </>
+                        )}
+                    </NavLink>
+                </nav>
+            </div>
+
             {/* Main Content */}
-            <main className="flex-1 ml-64 min-w-0">
+            <main className="flex-1 min-w-0 md:ml-64 pb-20 md:pb-0">
+                {/* Mobile Header Logo */}
+                <div className="md:hidden flex items-center justify-center py-4 bg-white/50 backdrop-blur-sm border-b border-slate-100 sticky top-0 z-40">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 rounded-lg flex items-center justify-center text-white shadow-md">
+                            <Sparkles size={16} fill="currentColor" className="text-white/90" />
+                        </div>
+                        <h1 className="text-lg font-black tracking-tight text-slate-800 leading-none">
+                            Sticker<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-500">OS</span>
+                        </h1>
+                    </div>
+                </div>
                 <Outlet />
             </main>
         </div>

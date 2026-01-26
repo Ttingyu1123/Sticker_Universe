@@ -113,8 +113,8 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen pb-20 select-none font-sans text-slate-700 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-100/50 via-slate-50 to-pink-50/30">
 
-      {/* Unified Header - Glass Floating Bar */}
-      <nav className="fixed top-4 left-4 right-4 z-50">
+      {/* Unified Header - Glass Floating Bar - Hidden on mobile, shown on desktop */}
+      <nav className="hidden md:block fixed top-4 left-4 right-4 z-50">
         <div className="max-w-7xl mx-auto glass-panel rounded-2xl px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* App Switcher Trigger */}
@@ -129,9 +129,9 @@ const App: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-lg font-bold tracking-tight text-slate-800 leading-none">
-                  Sticker Toolbox <span className="text-[10px] text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded-md ml-1 align-top">PRO</span>
+                  StickerOS <span className="text-[10px] text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded-md ml-1 align-top">Eraser</span>
                 </h1>
-                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">Creative Studio</p>
+                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">Magic Background Tool</p>
               </div>
             </div>
           </div>
