@@ -1,0 +1,484 @@
+{
+    "app": {
+        "title": "StickerOS",
+        "subtitle": "創意套件",
+        "apps": "應用程式",
+        "system": "系統",
+        "settings": "設定",
+        "backHome": "返回首頁",
+        "generator": "生成器",
+        "editor": "編輯器",
+        "packager": "打包器",
+        "eraser": "橡皮擦",
+        "generate": "生成"
+    },
+    "landing": {
+        "tagline": "終極創意套件",
+        "heroTitle": "用 AI 創造魔法貼圖",
+        "heroDesc": "一套強大的整合工具，讓您輕鬆生成、編輯、去背並打包符合 LINE 與 Telegram 規格的貼圖。",
+        "startCreating": "開始創作",
+        "exploreTools": "探索工具",
+        "launchApp": "啟動程式",
+        "features": {
+            "generatorTitle": "AI 生成器",
+            "generatorDesc": "使用 Google Gemini AI 將文字提示轉化為精美的貼圖包。無需任何設計技能。",
+            "editorTitle": "編輯器",
+            "editorDesc": "強大的圖層編輯器。組合圖像、添加文字、調整版面並微調您的設計细节。",
+            "eraserTitle": "魔術橡皮擦",
+            "eraserDesc": "智慧去背工具。立即清理圖像背景並導出透明 PNG。",
+            "packagerTitle": "打包工具",
+            "packagerDesc": "批次處理並自動調整貼圖大小，符合 LINE、Telegram 和 WhatsApp 的上架要求。"
+        },
+        "footer": "由 Google Gemini Pro 驅動 • 需在瀏覽器中直接使用 API Key"
+    },
+    "generator": {
+        "title": "生成器",
+        "subtitle": "AI 貼圖創作",
+        "apiKey": {
+            "title": "輸入您的 Gemini API Key",
+            "desc": "我們需要您的 Google Gemini API Key 來生成貼圖。它將直接存儲在您的瀏覽器中。",
+            "placeholder": "在此輸入您的 API Key...",
+            "save": "儲存金鑰",
+            "clear": "清除金鑰",
+            "get": "獲取 API Key",
+            "invalid": "請輸入有效的 API Key",
+            "expired": "API Key 無效或已過期，請重新輸入。",
+            "notFound": "找不到 API Key 或無效。"
+        },
+        "phases": {
+            "upload": "第一步：上傳",
+            "style": "第二步：風格",
+            "phrase": "第三步：台詞",
+            "settings": "第四步：設定"
+        },
+        "upload": {
+            "dragDrop": "點擊或拖放照片至此",
+            "support": "支援 JPG, PNG, WebP",
+            "remove": "移除",
+            "errorNoImage": "請先上傳照片！"
+        },
+        "phrase": {
+            "customPlaceholder": "或輸入自訂台詞...",
+            "errorNoPhrase": "請選擇或輸入一個台詞！"
+        },
+        "settings": {
+            "batchSize": "批次數量",
+            "textOverlay": "文字疊加",
+            "showText": "顯示文字",
+            "noText": "不顯示",
+            "postProcessing": "後製處理",
+            "smartRemoveBg": "智慧去背"
+        },
+        "action": {
+            "generate": "生成貼圖",
+            "generating": "正在施展魔法...",
+            "downloadZip": "下載 ZIP",
+            "results": "生成結果",
+            "batchProcessing": "批次處理中",
+            "generatingArt": "正在生成 AI 藝術...",
+            "applyingMagic": "正在進行綠幕去背..."
+        },
+        "errors": {
+            "general": "生成失敗：",
+            "bgRemoval": "背景移除失敗：",
+            "noStickers": "沒有貼圖可以下載",
+            "zipFailed": "壓縮檔案失敗"
+        },
+        "themes": {
+            "taiwanese": {
+                "name": "台味霓虹",
+                "styles": {
+                    "cel-shaded": {
+                        "name": "賽璐璐動漫"
+                    },
+                    "retro-90s": {
+                        "name": "90年代復古"
+                    },
+                    "pop-art": {
+                        "name": "波普風"
+                    },
+                    "realistic": {
+                        "name": "寫實貼紙"
+                    },
+                    "chibi-cute": {
+                        "name": "Q版可愛"
+                    },
+                    "gameboy-pixel": {
+                        "name": "懷舊像素"
+                    }
+                },
+                "phrases": {
+                    "歸剛欸": "歸剛欸",
+                    "修但幾勒": "修但幾勒",
+                    "我就爛": "我就爛",
+                    "是在哈囉": "是在哈囉",
+                    "笑死": "笑死",
+                    "母湯喔": "母湯喔",
+                    "真的假的": "真的假的",
+                    "有料喔": "有料喔",
+                    "蛤？": "蛤？",
+                    "雀食": "雀食",
+                    "哭阿": "哭阿",
+                    "好喔": "好喔"
+                }
+            },
+            "literary": {
+                "name": "文青手繪",
+                "styles": {
+                    "watercolor": {
+                        "name": "透明水彩"
+                    },
+                    "crayon": {
+                        "name": "童趣蠟筆"
+                    },
+                    "risograph": {
+                        "name": "孔版印刷"
+                    },
+                    "colored-pencil": {
+                        "name": "溫暖色鉛筆"
+                    },
+                    "matisse": {
+                        "name": "馬蒂斯剪紙"
+                    },
+                    "fountain-pen": {
+                        "name": "鋼筆淡彩"
+                    },
+                    "ukiyo-e": {
+                        "name": "浮世繪"
+                    },
+                    "stamp-art": {
+                        "name": "橡皮章"
+                    }
+                },
+                "phrases": {
+                    "歲月靜好": "歲月靜好",
+                    "可可愛愛": "可可愛愛",
+                    "早安晨之美": "早安晨之美",
+                    "今天也要加油": "今天也要加油",
+                    "休息一下": "休息一下",
+                    "小確幸": "小確幸",
+                    "收到": "收到",
+                    "謝謝你": "謝謝你",
+                    "日日是好日": "日日是好日",
+                    "慢慢來": "慢慢來",
+                    "保持善良": "保持善良",
+                    "生活明朗": "生活明朗"
+                }
+            },
+            "3d-clay": {
+                "name": "3D軟糖黏土",
+                "styles": {
+                    "claymation": {
+                        "name": "黏土定格"
+                    },
+                    "fluffy-fur": {
+                        "name": "毛絨絨"
+                    },
+                    "glossy-balloon": {
+                        "name": "亮面氣球"
+                    },
+                    "felt-art": {
+                        "name": "羊毛氈"
+                    },
+                    "ceramic": {
+                        "name": "陶瓷娃娃"
+                    },
+                    "low-poly": {
+                        "name": "低多邊形"
+                    }
+                },
+                "phrases": {
+                    "不想努力了": "不想努力了",
+                    "融化中": "融化中",
+                    "抱抱": "抱抱",
+                    "軟爛每一天": "軟爛每一天",
+                    "摸摸頭": "摸摸頭",
+                    "我就廢": "我就廢",
+                    "登出人生": "登出人生",
+                    "想睡覺": "想睡覺",
+                    "充電中": "充電中",
+                    "耍廢無罪": "耍廢無罪",
+                    "好像可以": "好像可以",
+                    "隨便啦": "隨便啦"
+                }
+            },
+            "y2k": {
+                "name": "Y2K千禧辣妹",
+                "styles": {
+                    "liquid-metal": {
+                        "name": "液態金屬"
+                    },
+                    "acid-graphics": {
+                        "name": "酸性設計"
+                    },
+                    "pixel-glitch": {
+                        "name": "像素故障"
+                    },
+                    "vaporwave": {
+                        "name": "蒸氣波"
+                    },
+                    "holographic": {
+                        "name": "雷射貼紙"
+                    },
+                    "cyberpunk": {
+                        "name": "賽博龐克"
+                    }
+                },
+                "phrases": {
+                    "少來煩我": "少來煩我",
+                    "登入中...": "登入中...",
+                    "EMO了": "EMO了",
+                    "太無聊": "太無聊",
+                    "心情複雜": "心情複雜",
+                    "保持聯絡": "保持聯絡",
+                    "拒絕往來": "拒絕往來",
+                    "沒有靈魂": "沒有靈魂",
+                    "禁止觸摸": "禁止觸摸",
+                    "載入錯誤": "載入錯誤",
+                    "誰理你": "誰理你",
+                    "別吵": "別吵"
+                }
+            },
+            "american-retro": {
+                "name": "美式復古漫畫",
+                "styles": {
+                    "rubber-hose": {
+                        "name": "橡皮管動畫"
+                    },
+                    "pop-comic": {
+                        "name": "普普漫畫"
+                    },
+                    "vintage-poster": {
+                        "name": "復古海報"
+                    },
+                    "old-school-tattoo": {
+                        "name": "美式刺青"
+                    },
+                    "graffiti": {
+                        "name": "街頭塗鴉"
+                    },
+                    "noir-comic": {
+                        "name": "黑色漫畫"
+                    }
+                },
+                "phrases": {
+                    "OMG!": "OMG!",
+                    "NO WAY!": "NO WAY!",
+                    "BINGO!": "BINGO!",
+                    "WHOOPS!": "WHOOPS!",
+                    "NICE JOB!": "NICE JOB!",
+                    "COOL!": "COOL!",
+                    "POW!": "POW!",
+                    "YIKES!": "YIKES!",
+                    "HELLO!": "HELLO!",
+                    "WOW!": "WOW!",
+                    "OOPS!": "OOPS!",
+                    "YEAH!": "YEAH!"
+                }
+            },
+            "romantic": {
+                "name": "浪漫夢幻",
+                "styles": {
+                    "shojo-anime": {
+                        "name": "少女漫畫"
+                    },
+                    "art-nouveau": {
+                        "name": "慕夏風"
+                    },
+                    "webtoon": {
+                        "name": "韓漫唯美"
+                    },
+                    "rococo": {
+                        "name": "洛可可"
+                    },
+                    "stained-glass": {
+                        "name": "彩繪玻璃"
+                    },
+                    "tarot-card": {
+                        "name": "塔羅牌風"
+                    }
+                },
+                "phrases": {
+                    "心動": "心動",
+                    "愛你": "愛你",
+                    "想見你": "想見你",
+                    "晚安": "晚安",
+                    "抱一個": "抱一個",
+                    "在一起": "在一起",
+                    "小仙女": "小仙女",
+                    "花癡中": "花癡中",
+                    "戀愛腦": "戀愛腦",
+                    "浪漫突進": "浪漫突進",
+                    "美夢成真": "美夢成真",
+                    "唯美日常": "唯美日常"
+                }
+            }
+        }
+    },
+    "packager": {
+        "title": "打包器",
+        "subtitle": "資產處理",
+        "reset": "重置",
+        "home": "首頁",
+        "upload": {
+            "dragDrop": "點擊或拖放圖片至此",
+            "support": "支援 JPG, PNG, WebP"
+        },
+        "preview": {
+            "editAlignment": "編輯對位",
+            "previewResult": "美化預覽",
+            "aiDetect": "AI 邊界偵測"
+        },
+        "status": {
+            "detecting": "AI 正在分析物件邊界...",
+            "detectSuccess": "AI 自動對齊完成！",
+            "detectFail": "自動對齊失敗",
+            "coreProcessing": "核心處理中",
+            "coreComplete": "核心處理完成！現在可以進行美化加工。",
+            "processingFail": "處理失敗：",
+            "applying": "正在套用美化效果...",
+            "complete": "處理完成！",
+            "failed": "處理失敗："
+        },
+        "phase1": {
+            "title": "階段一：裁切與去背",
+            "queue": "{{count}} 張隊列中",
+            "rows": "橫列 Rows",
+            "cols": "直欄 Cols",
+            "scale": "輸出倍率",
+            "manualMode": "啟用手動對齊模式",
+            "outputSize": "輸出尺寸",
+            "aiRemoveBg": "自動 AI 智慧去背",
+            "advancedSettings": "進階去背設定",
+            "tolerance": "邊緣容差",
+            "protectClosed": "保護封閉區",
+            "enhanceText": "增強文字",
+            "runCore": "執行核心處理"
+        },
+        "phase2": {
+            "title": "階段二：美化加工與輸出",
+            "presets": "常用規格",
+            "custom": "自訂比例",
+            "line": "Line (320px)",
+            "telegram": "Telegram (512px)",
+            "margin": "留白間距",
+            "stroke": "物件描邊",
+            "strokeSize": "描邊粗細",
+            "strokeColor": "描邊顏色",
+            "shadow": "物件陰影",
+            "feather": "邊緣羽化",
+            "format": "輸出格式",
+            "prefix": "檔名前綴",
+            "apply": "套用並預覽",
+            "downloadZip": "下載全部成果 ZIP"
+        }
+    },
+    "eraser": {
+        "title": "橡皮擦",
+        "subtitle": "魔術去背工具",
+        "history": "紀錄",
+        "zoom": "縮放",
+        "upload": {
+            "title": "上傳圖片開始製作",
+            "dragDrop": "拖放圖片至此，或點擊選擇 (JPG, PNG)",
+            "smart": "智慧去背",
+            "manual": "手動擦除",
+            "repair": "邊緣修復"
+        },
+        "toolbar": {
+            "tools": "工具",
+            "eraser": "橡皮擦",
+            "restore": "還原筆刷",
+            "magic": "魔術棒",
+            "move": "移動",
+            "tolerance": "容差值",
+            "size": "筆刷大小",
+            "zoom": "畫布縮放",
+            "background": "背景顏色",
+            "undo": "復原",
+            "redo": "重做",
+            "resetImage": "重置圖片",
+            "export": "匯出 PNG"
+        }
+    },
+    "editor": {
+        "title": "編輯器",
+        "subtitle": "設計工作室",
+        "layers": {
+            "text": "文字圖層",
+            "image": "圖片圖層",
+            "defaultText": "文字",
+            "copy": "(副本)"
+        },
+        "controls": {
+            "zoomIn": "放大",
+            "zoomOut": "縮小",
+            "resetZoom": "重置縮放"
+        },
+        "toolbar": {
+            "editor": "編輯器",
+            "subtitle": "圖層組合",
+            "undo": "復原 (Ctrl+Z)",
+            "redo": "重做 (Ctrl+Y)",
+            "grid": "網格背景",
+            "black": "黑色背景",
+            "green": "綠幕背景",
+            "white": "白色背景",
+            "text": "文字",
+            "image": "圖片",
+            "export": "匯出",
+            "backHome": "返回首頁"
+        },
+        "sidebar": {
+            "title": "畫布設定",
+            "subtitle": "工作區配置",
+            "dimensions": "尺寸 (px)",
+            "width": "寬度",
+            "height": "高度",
+            "background": "背景設定",
+            "transparentGrid": "透明 (網格)",
+            "shape": "形狀",
+            "shapes": {
+                "rect": "矩形",
+                "rounded": "圓角",
+                "circle": "圓形"
+            },
+            "baseColor": "底色",
+            "presets": {
+                "title": "預設尺寸",
+                "line": "Line 貼圖",
+                "telegram": "Telegram",
+                "instagram": "Instagram",
+                "facebook": "Facebook",
+                "print": "A4 印刷",
+                "hd": "HD 高畫質"
+            },
+            "selectLayer": "選擇圖層以編輯屬性",
+            "layerName": "圖層名稱",
+            "arrange": "排列",
+            "mirror": "鏡像",
+            "duplicate": "複製",
+            "moveUp": "上移",
+            "moveDown": "下移",
+            "centerH": "水平置中",
+            "centerV": "垂直置中",
+            "content": "文字內容",
+            "typography": "文字樣式",
+            "size": "大小",
+            "fillColor": "填充顏色",
+            "uploadFont": "上傳字型",
+            "effects": "特效",
+            "outline": "描邊",
+            "doubleOutline": "雙重描邊",
+            "dropShadow": "陰影",
+            "xOffset": "X 偏移",
+            "yOffset": "Y 偏移",
+            "blur": "模糊半徑",
+            "delete": "刪除圖層",
+            "addText": "新增文字",
+            "addImage": "新增圖片",
+            "noLayers": "尚無圖層",
+            "useButtons": "使用上方按鈕新增內容"
+        }
+    }
+}

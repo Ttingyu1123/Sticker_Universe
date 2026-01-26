@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Undo, Redo, Image as ImageIcon, Type, Grid, Square, Sun, Download, Palette, Home, Key } from 'lucide-react';
 import { CanvasBackground } from '../types';
 
@@ -26,6 +27,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onAddText,
   onDownload,
 }) => {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,10 +52,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             </div>
             <div className="hidden sm:block">
               <h1 className="text-lg font-bold tracking-tight text-slate-800 leading-none">
-                StickerOS <span className="text-[10px] px-1.5 py-0.5 rounded-md ml-1 align-top text-violet-600 bg-violet-50">Editor</span>
+                StickerOS <span className="text-[10px] px-1.5 py-0.5 rounded-md ml-1 align-top text-violet-600 bg-violet-50">{t('editor.toolbar.editor')}</span>
               </h1>
               <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">
-                Layer Composition
+                {t('editor.toolbar.subtitle')}
               </p>
             </div>
           </div>
@@ -66,7 +68,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               onClick={onUndo}
               disabled={!canUndo}
               className="p-2 rounded-lg hover:bg-white hover:shadow-sm text-slate-400 hover:text-slate-700 disabled:opacity-30 transition-all"
-              title="Undo (Ctrl+Z)"
+              title={t('editor.toolbar.undo')}
             >
               <Undo size={18} />
             </button>
@@ -74,7 +76,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               onClick={onRedo}
               disabled={!canRedo}
               className="p-2 rounded-lg hover:bg-white hover:shadow-sm text-slate-400 hover:text-slate-700 disabled:opacity-30 transition-all"
-              title="Redo (Ctrl+Y)"
+              title={t('editor.toolbar.redo')}
             >
               <Redo size={18} />
             </button>
@@ -86,28 +88,28 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <button
               onClick={() => setBackground('grid')}
               className={`p-2 rounded-lg transition-all ${background === 'grid' ? 'bg-white shadow-sm text-blue-500' : 'text-slate-400 hover:bg-white/50'}`}
-              title="Grid Background"
+              title={t('editor.toolbar.grid')}
             >
               <Grid size={18} />
             </button>
             <button
               onClick={() => setBackground('black')}
               className={`p-2 rounded-lg transition-all ${background === 'black' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:bg-white/50'}`}
-              title="Black Background"
+              title={t('editor.toolbar.black')}
             >
               <Square size={18} fill="currentColor" />
             </button>
             <button
               onClick={() => setBackground('green')}
               className={`p-2 rounded-lg transition-all ${background === 'green' ? 'bg-white shadow-sm ring-2 ring-[#00ff2f]' : 'text-slate-400 hover:bg-white/50'}`}
-              title="Green Screen"
+              title={t('editor.toolbar.green')}
             >
               <div className="w-[18px] h-[18px] rounded bg-[#00ff2f] border border-slate-200" />
             </button>
             <button
               onClick={() => setBackground('white')}
               className={`p-2 rounded-lg transition-all ${background === 'white' ? 'bg-white shadow-sm text-yellow-500' : 'text-slate-400 hover:bg-white/50'}`}
-              title="White Background"
+              title={t('editor.toolbar.white')}
             >
               <Sun size={18} />
             </button>
@@ -121,7 +123,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             className="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-xs transition-colors"
           >
             <Type size={16} />
-            <span>Text</span>
+            <span>{t('editor.toolbar.text')}</span>
           </button>
 
           <button
@@ -129,7 +131,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             className="hidden sm:flex items-center gap-2 px-4 py-2 bg-violet-50 hover:bg-violet-100 text-violet-600 rounded-xl font-bold text-xs transition-colors border border-violet-200"
           >
             <ImageIcon size={16} />
-            <span>Image</span>
+            <span>{t('editor.toolbar.image')}</span>
           </button>
           <input
             type="file"
@@ -146,10 +148,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             className="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-pink-500 text-white px-5 py-2.5 rounded-xl hover:brightness-110 shadow-lg shadow-violet-500/20 font-bold text-xs transition-all active:scale-95"
           >
             <Download size={16} />
-            <span>Export</span>
+            <span>{t('editor.toolbar.export')}</span>
           </button>
 
-          <a href="https://tingyusdeco.com/" className="ml-2 text-slate-400 hover:text-violet-500 transition-colors" title="Back Home">
+          <a href="https://tingyusdeco.com/" className="ml-2 text-slate-400 hover:text-violet-500 transition-colors" title={t('editor.toolbar.backHome')}>
             <Home size={18} />
           </a>
         </div>

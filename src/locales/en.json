@@ -1,0 +1,484 @@
+{
+    "app": {
+        "title": "StickerOS",
+        "subtitle": "Creative Suite",
+        "apps": "Apps",
+        "system": "System",
+        "settings": "Settings",
+        "backHome": "Back Home",
+        "generator": "Generator",
+        "editor": "Editor",
+        "packager": "Packager",
+        "eraser": "Eraser",
+        "generate": "Generate"
+    },
+    "landing": {
+        "tagline": "The Ultimate Creative Suite",
+        "heroTitle": "Create Magical Stickers with AI",
+        "heroDesc": "A unified suite of powerful tools to generating, editing, removing backgrounds, and packaging stickers for LINE & Telegram.",
+        "startCreating": "Start Creating",
+        "exploreTools": "Explore Tools",
+        "launchApp": "Launch App",
+        "features": {
+            "generatorTitle": "Generator",
+            "generatorDesc": "Turn text prompts into stunning sticker packs using Google's Gemini AI. No design skills needed.",
+            "editorTitle": "Editor",
+            "editorDesc": "Powerful layer-based editor. Compose images, add text, adjust layouts, and fine-tune your designs.",
+            "eraserTitle": "Eraser",
+            "eraserDesc": "Smart background removal. Clean up your images instantly and export transparent PNGs.",
+            "packagerTitle": "Packager",
+            "packagerDesc": "Batch process and resize your stickers for LINE, Telegram, and WhatsApp requirements."
+        },
+        "footer": "Powered by Google Gemini Pro • Requires API Key used directly in browser"
+    },
+    "generator": {
+        "title": "Generator",
+        "subtitle": "AI Sticker Creation",
+        "apiKey": {
+            "title": "Enter Your Gemini API Key",
+            "desc": "We need your Google Gemini API Key to generate stickers. It's stored locally in your browser.",
+            "placeholder": "Enter your API Key here...",
+            "save": "Save Key",
+            "clear": "Clear Key",
+            "get": "Get your API Key",
+            "invalid": "Please enter a valid API Key",
+            "expired": "API Key invalid or expired, please re-enter.",
+            "notFound": "API Key not found or invalid."
+        },
+        "phases": {
+            "upload": "Phase 1: Upload",
+            "style": "Phase 2: Style",
+            "phrase": "Phase 3: Phrase",
+            "settings": "Phase 4: Settings"
+        },
+        "upload": {
+            "dragDrop": "Click or Drop Photo Here",
+            "support": "JPG, PNG, WebP Supported",
+            "remove": "Remove",
+            "errorNoImage": "Please upload a photo first!"
+        },
+        "phrase": {
+            "customPlaceholder": "Or type custom phrase...",
+            "errorNoPhrase": "Please select or type a phrase!"
+        },
+        "settings": {
+            "batchSize": "Batch Size",
+            "textOverlay": "Text Overlay",
+            "showText": "Show Text",
+            "noText": "No Text",
+            "postProcessing": "Post-Processing",
+            "smartRemoveBg": "Smart Remove BG"
+        },
+        "action": {
+            "generate": "Generate Stickers",
+            "generating": "Generating Magic...",
+            "downloadZip": "Download ZIP",
+            "results": "Results",
+            "batchProcessing": "Batch Processing",
+            "generatingArt": "Generating AI Art...",
+            "applyingMagic": "Applying Green Screen Magic & Removal"
+        },
+        "errors": {
+            "general": "Generation failed: ",
+            "bgRemoval": "Background removal failed: ",
+            "noStickers": "No stickers to download",
+            "zipFailed": "Failed to create ZIP"
+        },
+        "themes": {
+            "taiwanese": {
+                "name": "Taiwanese Neon",
+                "styles": {
+                    "cel-shaded": {
+                        "name": "Anime Cel-Shaded"
+                    },
+                    "retro-90s": {
+                        "name": "90s Retro"
+                    },
+                    "pop-art": {
+                        "name": "Pop Art"
+                    },
+                    "realistic": {
+                        "name": "Realistic Sticker"
+                    },
+                    "chibi-cute": {
+                        "name": "Chibi Cute"
+                    },
+                    "gameboy-pixel": {
+                        "name": "Pixel Art"
+                    }
+                },
+                "phrases": {
+                    "歸剛欸": "Always doing this",
+                    "修但幾勒": "Wait a sec",
+                    "我就爛": "I suck (proudly)",
+                    "是在哈囉": "Hello?! (WTF)",
+                    "笑死": "LMAO",
+                    "母湯喔": "No way/Bad idea",
+                    "真的假的": "For real?",
+                    "有料喔": "Legit/Cool",
+                    "蛤？": "Huh?",
+                    "雀食": "Facts",
+                    "哭阿": "Crying/Damn",
+                    "好喔": "Okay (whatever)"
+                }
+            },
+            "literary": {
+                "name": "Literary Hand-Drawn",
+                "styles": {
+                    "watercolor": {
+                        "name": "Watercolor"
+                    },
+                    "crayon": {
+                        "name": "Crayon"
+                    },
+                    "risograph": {
+                        "name": "Risograph"
+                    },
+                    "colored-pencil": {
+                        "name": "Colored Pencil"
+                    },
+                    "matisse": {
+                        "name": "Matisse Cutout"
+                    },
+                    "fountain-pen": {
+                        "name": "Fountain Pen"
+                    },
+                    "ukiyo-e": {
+                        "name": "Ukiyo-e"
+                    },
+                    "stamp-art": {
+                        "name": "Rubber Stamp"
+                    }
+                },
+                "phrases": {
+                    "歲月靜好": "Peaceful times",
+                    "可可愛愛": "So cute",
+                    "早安晨之美": "Lovely morning",
+                    "今天也要加油": "Do your best today",
+                    "休息一下": "Take a break",
+                    "小確幸": "Little happiness",
+                    "收到": "Received",
+                    "謝謝你": "Thank you",
+                    "日日是好日": "Every day is good",
+                    "慢慢來": "Take it slow",
+                    "保持善良": "Stay kind",
+                    "生活明朗": "Bright life"
+                }
+            },
+            "3d-clay": {
+                "name": "3D Clay/Soft",
+                "styles": {
+                    "claymation": {
+                        "name": "Claymation"
+                    },
+                    "fluffy-fur": {
+                        "name": "Fluffy Fur"
+                    },
+                    "glossy-balloon": {
+                        "name": "Glossy Balloon"
+                    },
+                    "felt-art": {
+                        "name": "Felt Art"
+                    },
+                    "ceramic": {
+                        "name": "Ceramic Doll"
+                    },
+                    "low-poly": {
+                        "name": "Low Poly"
+                    }
+                },
+                "phrases": {
+                    "不想努力了": "Don't want to try",
+                    "融化中": "Melting",
+                    "抱抱": "Hug me",
+                    "軟爛每一天": "Lazy every day",
+                    "摸摸頭": "Pat pat",
+                    "我就廢": "I'm useless",
+                    "登出人生": "Log out of life",
+                    "想睡覺": "Sleepy",
+                    "充電中": "Recharging",
+                    "耍廢無罪": "Lazy is okay",
+                    "好像可以": "Seems okay",
+                    "隨便啦": "Whatever"
+                }
+            },
+            "y2k": {
+                "name": "Y2K Cyber",
+                "styles": {
+                    "liquid-metal": {
+                        "name": "Liquid Metal"
+                    },
+                    "acid-graphics": {
+                        "name": "Acid Graphics"
+                    },
+                    "pixel-glitch": {
+                        "name": "Pixel Glitch"
+                    },
+                    "vaporwave": {
+                        "name": "Vaporwave"
+                    },
+                    "holographic": {
+                        "name": "Holographic"
+                    },
+                    "cyberpunk": {
+                        "name": "Cyberpunk"
+                    }
+                },
+                "phrases": {
+                    "少來煩我": "Don't bother me",
+                    "登入中...": "Logging in...",
+                    "EMO了": "Feeling EMO",
+                    "太無聊": "Boring",
+                    "心情複雜": "Complicated",
+                    "保持聯絡": "Keep in touch",
+                    "拒絕往來": "Blocked",
+                    "沒有靈魂": "Soulless",
+                    "禁止觸摸": "Don't touch",
+                    "載入錯誤": "Load Error",
+                    "誰理你": "Who cares",
+                    "別吵": "Shut up"
+                }
+            },
+            "american-retro": {
+                "name": "American Retro",
+                "styles": {
+                    "rubber-hose": {
+                        "name": "Rubber Hose"
+                    },
+                    "pop-comic": {
+                        "name": "Pop Comic"
+                    },
+                    "vintage-poster": {
+                        "name": "Vintage Poster"
+                    },
+                    "old-school-tattoo": {
+                        "name": "Old School Tattoo"
+                    },
+                    "graffiti": {
+                        "name": "Graffiti"
+                    },
+                    "noir-comic": {
+                        "name": "Noir Comic"
+                    }
+                },
+                "phrases": {
+                    "OMG!": "OMG!",
+                    "NO WAY!": "NO WAY!",
+                    "BINGO!": "BINGO!",
+                    "WHOOPS!": "WHOOPS!",
+                    "NICE JOB!": "NICE JOB!",
+                    "COOL!": "COOL!",
+                    "POW!": "POW!",
+                    "YIKES!": "YIKES!",
+                    "HELLO!": "HELLO!",
+                    "WOW!": "WOW!",
+                    "OOPS!": "OOPS!",
+                    "YEAH!": "YEAH!"
+                }
+            },
+            "romantic": {
+                "name": "Romantic",
+                "styles": {
+                    "shojo-anime": {
+                        "name": "Shojo Anime"
+                    },
+                    "art-nouveau": {
+                        "name": "Art Nouveau"
+                    },
+                    "webtoon": {
+                        "name": "Webtoon"
+                    },
+                    "rococo": {
+                        "name": "Rococo"
+                    },
+                    "stained-glass": {
+                        "name": "Stained Glass"
+                    },
+                    "tarot-card": {
+                        "name": "Tarot Card"
+                    }
+                },
+                "phrases": {
+                    "心動": "Heartbeat",
+                    "愛你": "Love You",
+                    "想見你": "Miss You",
+                    "晚安": "Good Night",
+                    "抱一個": "Hug",
+                    "在一起": "Be Together",
+                    "小仙女": "Fairy",
+                    "花癡中": "Crushing",
+                    "戀愛腦": "Love Struck",
+                    "浪漫突進": "Romantic Rush",
+                    "美夢成真": "Dreams Come True",
+                    "唯美日常": "Beautiful Life"
+                }
+            }
+        }
+    },
+    "packager": {
+        "title": "Packager",
+        "subtitle": "Asset Processing",
+        "reset": "Reset",
+        "home": "Home",
+        "upload": {
+            "dragDrop": "Click or Drop Images Here",
+            "support": "JPG, PNG, WebP Supported"
+        },
+        "preview": {
+            "editAlignment": "Edit Alignment",
+            "previewResult": "Preview Result",
+            "aiDetect": "AI Detect Bounds"
+        },
+        "status": {
+            "detecting": "AI Analyzing Bounds...",
+            "detectSuccess": "AI Alignment Complete!",
+            "detectFail": "Auto-alignment failed",
+            "coreProcessing": "Core Processing",
+            "coreComplete": "Core processing complete! Ready for beautification.",
+            "processingFail": "Processing failed: ",
+            "applying": "Applying beautification...",
+            "complete": "Processing Complete!",
+            "failed": "Processing Failed: "
+        },
+        "phase1": {
+            "title": "Phase 1: Crop & Remove BG",
+            "queue": "{{count}} images queued",
+            "rows": "Rows",
+            "cols": "Cols",
+            "scale": "Output Scale",
+            "manualMode": "Manual Alignment Mode",
+            "outputSize": "Output Size",
+            "aiRemoveBg": "Auto AI Remove BG",
+            "advancedSettings": "Advanced Settings",
+            "tolerance": "Tolerance",
+            "protectClosed": "Protect Closed Areas",
+            "enhanceText": "Enhance Text",
+            "runCore": "Run Core Process"
+        },
+        "phase2": {
+            "title": "Phase 2: Beautify & Export",
+            "presets": "Presets",
+            "custom": "Custom",
+            "line": "Line (320px)",
+            "telegram": "Telegram (512px)",
+            "margin": "Margin",
+            "stroke": "Stroke",
+            "strokeSize": "Stroke Size",
+            "strokeColor": "Stroke Color",
+            "shadow": "Shadow",
+            "feather": "Feathering",
+            "format": "Format",
+            "prefix": "Prefix",
+            "apply": "Apply & Preview",
+            "downloadZip": "Download ZIP"
+        }
+    },
+    "eraser": {
+        "title": "Eraser",
+        "subtitle": "Magic Background Tool",
+        "history": "History",
+        "zoom": "ZOOM",
+        "upload": {
+            "title": "Upload Image",
+            "dragDrop": "Drag & drop image here, or click to select (JPG, PNG)",
+            "smart": "Smart Remove",
+            "manual": "Manual Erase",
+            "repair": "Repair Edge"
+        },
+        "toolbar": {
+            "tools": "Tools",
+            "eraser": "Eraser",
+            "restore": "Restore",
+            "magic": "Magic",
+            "move": "Move",
+            "tolerance": "Tolerance",
+            "size": "Size",
+            "zoom": "Zoom",
+            "background": "Background",
+            "undo": "Undo",
+            "redo": "Redo",
+            "resetImage": "Reset Image",
+            "export": "Export PNG"
+        }
+    },
+    "editor": {
+        "title": "Editor",
+        "subtitle": "Design Studio",
+        "layers": {
+            "text": "Text Layer",
+            "image": "Image Layer",
+            "defaultText": "Text",
+            "copy": "(Copy)"
+        },
+        "controls": {
+            "zoomIn": "Zoom In",
+            "zoomOut": "Zoom Out",
+            "resetZoom": "Reset Zoom"
+        },
+        "toolbar": {
+            "editor": "Editor",
+            "subtitle": "Layer Composition",
+            "undo": "Undo (Ctrl+Z)",
+            "redo": "Redo (Ctrl+Y)",
+            "grid": "Grid Background",
+            "black": "Black Background",
+            "green": "Green Screen",
+            "white": "White Background",
+            "text": "Text",
+            "image": "Image",
+            "export": "Export",
+            "backHome": "Back Home"
+        },
+        "sidebar": {
+            "title": "Canvas Settings",
+            "subtitle": "Configure your workspace",
+            "dimensions": "Dimensions (px)",
+            "width": "Width",
+            "height": "Height",
+            "background": "Background",
+            "transparentGrid": "Transparent (Grid)",
+            "shape": "Shape",
+            "shapes": {
+                "rect": "Rect",
+                "rounded": "Rounded",
+                "circle": "Circle"
+            },
+            "baseColor": "Base Color",
+            "presets": {
+                "title": "Presets",
+                "line": "Line Sticker",
+                "telegram": "Telegram",
+                "instagram": "Instagram",
+                "facebook": "Facebook",
+                "print": "A4 (Print)",
+                "hd": "HD"
+            },
+            "selectLayer": "Select a layer to edit its properties",
+            "layerName": "Layer Name",
+            "arrange": "Arrange",
+            "mirror": "Mirror",
+            "duplicate": "Duplicate",
+            "moveUp": "Move Up",
+            "moveDown": "Move Down",
+            "centerH": "Center Horizontally",
+            "centerV": "Center Vertically",
+            "content": "Content",
+            "typography": "Typography",
+            "size": "Size",
+            "fillColor": "Fill Color",
+            "uploadFont": "Upload Font",
+            "effects": "Effects",
+            "outline": "Outline",
+            "doubleOutline": "Double Outline",
+            "dropShadow": "Drop Shadow",
+            "xOffset": "X Offset",
+            "yOffset": "Y Offset",
+            "blur": "Blur Radius",
+            "delete": "Delete Layer",
+            "addText": "Add Text",
+            "addImage": "Add Image",
+            "noLayers": "No layers yet",
+            "useButtons": "Use buttons above to add content."
+        }
+    }
+}

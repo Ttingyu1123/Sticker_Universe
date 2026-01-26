@@ -3,6 +3,7 @@ import {
   Upload, Scissors, Download, RefreshCw, AlertCircle, Image as ImageIcon,
   Info, Undo2, Redo2, Files, Settings, Star, Minimize2, Check, Minus, Home
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import ImageUploader from './components/ImageUploader';
 import CanvasEditor from './components/CanvasEditor';
 import Toolbar, { ToolMode } from './components/Toolbar';
@@ -13,6 +14,7 @@ import Toolbar, { ToolMode } from './components/Toolbar';
 const MAX_HISTORY_STEPS = 20;
 
 const App: React.FC = () => {
+  const { t } = useTranslation();
   const [image, setImage] = useState<HTMLImageElement | null>(null);
 
   // ... (keep other handlers)
@@ -129,16 +131,16 @@ const App: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-lg font-bold tracking-tight text-slate-800 leading-none">
-                  StickerOS <span className="text-[10px] text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded-md ml-1 align-top">Eraser</span>
+                  StickerOS <span className="text-[10px] text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded-md ml-1 align-top">{t('eraser.title')}</span>
                 </h1>
-                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">Magic Background Tool</p>
+                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">{t('eraser.subtitle')}</p>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <a href="https://tingyusdeco.com/" className="text-xs font-bold text-slate-400 hover:text-violet-600 flex items-center gap-1.5 transition-colors px-3 py-1.5 hover:bg-slate-50 rounded-lg">
-              <Home size={14} /> <span className="hidden sm:inline">Back Home</span>
+              <Home size={14} /> <span className="hidden sm:inline">{t('app.backHome')}</span>
             </a>
           </div>
         </div>
@@ -209,9 +211,9 @@ const App: React.FC = () => {
                 {image.width} x {image.height} PX
               </span>
               <span className="w-px h-3 bg-slate-200"></span>
-              <span>History: {historyIndex + 1}/{history.length}</span>
+              <span>{t('eraser.history')}: {historyIndex + 1}/{history.length}</span>
               <span className="w-px h-3 bg-slate-200"></span>
-              <span className="text-violet-500">{Math.round(zoom * 100)}% ZOOM</span>
+              <span className="text-violet-500">{Math.round(zoom * 100)}% {t('eraser.zoom')}</span>
             </div>
           )}
 

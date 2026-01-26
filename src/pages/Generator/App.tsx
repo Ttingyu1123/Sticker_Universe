@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Upload, Trash2, Download, Plus, Sparkles, Image as ImageIcon, Key, ExternalLink, Cpu, Settings, Palette, Type, Ban, FileArchive, Layers, Info, AlertTriangle, ExternalLink as LinkIcon, Scissors, Check, X, RefreshCw, Wand2, Star, ChevronRight, ShieldCheck, Ruler, Move, Home, LayoutGrid, Eraser, Zap, Feather, Cloud, Disc, Tv, Heart } from 'lucide-react';
 import JSZip from 'jszip';
+import { useTranslation } from 'react-i18next';
 import Button from './components/Button';
 import { generateSticker } from './services/geminiService';
 import { THEMES, Sticker, StickerTheme } from './types';
@@ -53,6 +54,7 @@ const getThemeIcon = (iconName: string) => {
 };
 
 const App: React.FC = () => {
+  const { t } = useTranslation();
   const [apiKey, setApiKey] = useState<string>('');
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [tempKey, setTempKey] = useState('');
@@ -357,26 +359,26 @@ const App: React.FC = () => {
           <div className="bg-white rounded-3xl p-8 shadow-2xl border border-slate-100 w-full max-w-md space-y-6 animate-in zoom-in-95 duration-300">
             <div className="text-center">
               <Key size={32} className="text-violet-500 mx-auto mb-4" />
-              <h3 className="text-xl font-black text-slate-800 mb-2">Enter Your Gemini API Key</h3>
+              <h3 className="text-xl font-black text-slate-800 mb-2">{t('generator.apiKey.title')}</h3>
               <p className="text-sm text-slate-500">
-                We need your Google Gemini API Key to generate stickers. It's stored locally in your browser.
+                {t('generator.apiKey.desc')}
               </p>
             </div>
             <input
               type="password"
               value={tempKey}
               onChange={(e) => setTempKey(e.target.value)}
-              placeholder="Enter your API Key here..."
+              placeholder={t('generator.apiKey.placeholder')}
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/10 text-slate-700 shadow-inner placeholder-slate-400"
             />
             {error && <p className="text-red-500 text-xs font-bold text-center">{error}</p>}
             <div className="flex gap-3">
               <Button onClick={handleSaveKey} className="w-full bg-violet-500 hover:bg-violet-600 text-white shadow-lg shadow-violet-500/20">
-                Save Key
+                {t('generator.apiKey.save')}
               </Button>
               {apiKey && (
                 <Button onClick={handleClearKey} className="w-full bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20">
-                  Clear Key
+                  {t('generator.apiKey.clear')}
                 </Button>
               )}
             </div>
@@ -386,7 +388,7 @@ const App: React.FC = () => {
               rel="noopener noreferrer"
               className="text-xs font-bold text-violet-500 hover:text-violet-600 flex items-center justify-center gap-1.5 transition-colors"
             >
-              Get your API Key <ExternalLink size={12} />
+              {t('generator.apiKey.get')} <ExternalLink size={12} />
             </a>
           </div>
         </div>
@@ -404,10 +406,10 @@ const App: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-lg font-bold tracking-tight text-slate-800 leading-none">
-                  StickerOS <span className={`text-[10px] px-1.5 py-0.5 rounded-md ml-1 align-top ${currentTheme.id === 'taiwanese' ? 'text-pink-500 bg-pink-50' : 'text-teal-600 bg-teal-50'}`}>Generator</span>
+                  StickerOS <span className={`text-[10px] px-1.5 py-0.5 rounded-md ml-1 align-top ${currentTheme.id === 'taiwanese' ? 'text-pink-500 bg-pink-50' : 'text-teal-600 bg-teal-50'}`}>{t('generator.title')}</span>
                 </h1>
                 <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">
-                  AI Sticker Creation
+                  {t('generator.subtitle')}
                 </p>
               </div>
             </div>
@@ -421,7 +423,7 @@ const App: React.FC = () => {
               <Key size={16} />
             </button>
             <a href="https://tingyusdeco.com/" className="text-xs font-bold text-slate-400 hover:text-violet-600 flex items-center gap-1.5 transition-colors px-3 py-1.5 hover:bg-slate-50 rounded-lg">
-              <Home size={14} /> <span className="hidden sm:inline">Back Home</span>
+              <Home size={14} /> <span className="hidden sm:inline">{t('app.backHome')}</span>
             </a>
           </div>
         </div>
@@ -441,7 +443,7 @@ const App: React.FC = () => {
                 {getThemeIcon(theme.icon)}
               </div>
               <div className="text-left">
-                <h3 className={`text-sm font-black ${currentTheme.id === theme.id ? theme.colors.primary : 'text-slate-500'}`}>{theme.name}</h3>
+                <h3 className={`text-sm font-black ${currentTheme.id === theme.id ? theme.colors.primary : 'text-slate-500'}`}>{t(`generator.themes.${theme.id}.name`)}</h3>
                 <p className="text-[10px] font-bold text-slate-400">{theme.styles.length} Styles • {theme.phrases.length} Phrases</p>
               </div>
             </button>
@@ -451,8 +453,8 @@ const App: React.FC = () => {
         {/* Upload Section */}
         <section className="glass-panel rounded-[2rem] p-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-sm font-black flex items-center gap-2 text-slate-500 uppercase tracking-widest"><ImageIcon size={18} className="text-violet-500" /> Phase 1: Upload</h2>
-            {image && <button onClick={() => setImage(null)} className="text-[10px] font-bold text-red-400 hover:text-red-500 flex items-center gap-1 bg-red-50 px-3 py-1.5 rounded-lg transition-colors"><Trash2 size={12} /> Remove</button>}
+            <h2 className="text-sm font-black flex items-center gap-2 text-slate-500 uppercase tracking-widest"><ImageIcon size={18} className="text-violet-500" /> {t('generator.phases.upload')}</h2>
+            {image && <button onClick={() => setImage(null)} className="text-[10px] font-bold text-red-400 hover:text-red-500 flex items-center gap-1 bg-red-50 px-3 py-1.5 rounded-lg transition-colors"><Trash2 size={12} /> {t('generator.upload.remove')}</button>}
           </div>
 
           {!image ? (
@@ -467,8 +469,8 @@ const App: React.FC = () => {
               <div className="bg-white p-6 rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-violet-500/10 border border-slate-100 text-violet-500 mb-6">
                 <Upload size={32} />
               </div>
-              <h3 className="text-lg font-black text-slate-700 tracking-tight">Click or Drop Photo Here</h3>
-              <p className="mt-2 text-slate-400 font-bold text-xs tracking-wide uppercase">JPG, PNG, WebP Supported</p>
+              <h3 className="text-lg font-black text-slate-700 tracking-tight">{t('generator.upload.dragDrop')}</h3>
+              <p className="mt-2 text-slate-400 font-bold text-xs tracking-wide uppercase">{t('generator.upload.support')}</p>
             </div>
           ) : (
             <div className="relative rounded-[2rem] overflow-hidden border border-slate-200 bg-slate-50/50 shadow-inner max-h-[500px] flex items-center justify-center p-4">
@@ -480,7 +482,7 @@ const App: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Style Selection */}
           <section className="glass-panel rounded-[2rem] p-8 space-y-6">
-            <h2 className="text-sm font-black flex items-center gap-2 text-slate-500 uppercase tracking-widest"><Palette size={18} className={currentTheme.id === 'taiwanese' ? 'text-pink-500' : 'text-teal-500'} /> Phase 2: Style</h2>
+            <h2 className="text-sm font-black flex items-center gap-2 text-slate-500 uppercase tracking-widest"><Palette size={18} className={currentTheme.id === 'taiwanese' ? 'text-pink-500' : 'text-teal-500'} /> {t('generator.phases.style')}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {currentTheme.styles.map((style) => (
                 <button
@@ -491,7 +493,7 @@ const App: React.FC = () => {
                   <div className={`p-2.5 rounded-full transition-colors ${selectedStyleId === style.id ? `${currentTheme.id === 'taiwanese' ? 'bg-pink-500' : 'bg-teal-500'} text-white shadow-md` : 'bg-slate-100 text-slate-400'}`}>
                     <Palette size={16} />
                   </div>
-                  <span className={`text-xs font-black ${selectedStyleId === style.id ? (currentTheme.id === 'taiwanese' ? 'text-pink-600' : 'text-teal-600') : 'text-slate-500'}`}>{style.name}</span>
+                  <span className={`text-xs font-black ${selectedStyleId === style.id ? (currentTheme.id === 'taiwanese' ? 'text-pink-600' : 'text-teal-600') : 'text-slate-500'}`}>{t(`generator.themes.${currentTheme.id}.styles.${style.id}.name`)}</span>
                 </button>
               ))}
             </div>
@@ -499,7 +501,7 @@ const App: React.FC = () => {
 
           {/* Phrase Selection */}
           <section className="glass-panel rounded-[2rem] p-8 space-y-6">
-            <h2 className="text-sm font-black flex items-center gap-2 text-slate-500 uppercase tracking-widest"><Type size={18} className={currentTheme.id === 'taiwanese' ? 'text-violet-500' : 'text-orange-500'} /> Phase 3: Phrase</h2>
+            <h2 className="text-sm font-black flex items-center gap-2 text-slate-500 uppercase tracking-widest"><Type size={18} className={currentTheme.id === 'taiwanese' ? 'text-violet-500' : 'text-orange-500'} /> {t('generator.phases.phrase')}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {currentTheme.phrases.map((phrase) => (
                 <button
@@ -507,13 +509,13 @@ const App: React.FC = () => {
                   onClick={() => { setSelectedPhrase(phrase.text); setCustomPhrase(''); setBatchSize(1); }}
                   className={`py-2 px-3 rounded-xl border text-[10px] font-bold transition-all ${selectedPhrase === phrase.text && batchSize === 1 ? `${currentTheme.id === 'taiwanese' ? 'bg-violet-500 border-violet-500' : 'bg-orange-400 border-orange-400'} text-white shadow-md` : 'bg-white border-slate-200 text-slate-500 hover:text-slate-800'}`}
                 >
-                  {phrase.text}
+                  {t(`generator.themes.${currentTheme.id}.phrases.${phrase.text}`)}
                 </button>
               ))}
             </div>
             <input
               type="text"
-              placeholder="Or type custom phrase..."
+              placeholder={t('generator.phrase.customPlaceholder')}
               value={customPhrase}
               onChange={(e) => { setCustomPhrase(e.target.value); setSelectedPhrase(''); setBatchSize(1); }}
               className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl font-bold text-xs outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/10 text-slate-700 shadow-inner placeholder-slate-400"
@@ -525,13 +527,13 @@ const App: React.FC = () => {
         <section className="glass-panel rounded-[2rem] p-8 space-y-6">
           {/* Settings and Generate Button */}
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-black flex items-center gap-2 text-slate-500 uppercase tracking-widest"><Settings size={18} className="text-slate-400" /> Phase 4: Settings</h2>
-            <span className="text-[9px] font-bold bg-slate-100 px-3 py-1 rounded-full text-slate-500 border border-slate-200">{batchSize} Stickers</span>
+            <h2 className="text-sm font-black flex items-center gap-2 text-slate-500 uppercase tracking-widest"><Settings size={18} className="text-slate-400" /> {t('generator.phases.settings')}</h2>
+            <span className="text-[9px] font-bold bg-slate-100 px-3 py-1 rounded-full text-slate-500 border border-slate-200">{batchSize} {t('generator.settings.batchSize')}</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-3">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Batch Size</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('generator.settings.batchSize')}</label>
               <div className="flex flex-wrap gap-2">
                 {[1, 8, 16, 24, 40].map((num) => (
                   <button
@@ -546,19 +548,19 @@ const App: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Text Overlay</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('generator.settings.textOverlay')}</label>
               <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 w-fit">
-                <button onClick={() => setIncludeText(true)} className={`px-4 py-2 rounded-lg text-[10px] font-bold transition-all ${includeText ? 'bg-white shadow-sm text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}>Show Text</button>
-                <button onClick={() => setIncludeText(false)} className={`px-4 py-2 rounded-lg text-[10px] font-bold transition-all ${!includeText ? 'bg-white shadow-sm text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}>No Text</button>
+                <button onClick={() => setIncludeText(true)} className={`px-4 py-2 rounded-lg text-[10px] font-bold transition-all ${includeText ? 'bg-white shadow-sm text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}>{t('generator.settings.showText')}</button>
+                <button onClick={() => setIncludeText(false)} className={`px-4 py-2 rounded-lg text-[10px] font-bold transition-all ${!includeText ? 'bg-white shadow-sm text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}>{t('generator.settings.noText')}</button>
               </div>
             </div>
 
             <div className="space-y-3">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Post-Processing</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('generator.settings.postProcessing')}</label>
               <div onClick={() => setAutoRemoveBg(!autoRemoveBg)} className={`flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition-all ${autoRemoveBg ? 'bg-white border-violet-500/30 shadow-sm ring-1 ring-violet-500/10' : 'bg-slate-50 border-slate-200 opacity-70'}`}>
                 <div className="flex items-center gap-3">
                   <Scissors size={16} className={autoRemoveBg ? 'text-violet-500' : 'text-slate-400'} />
-                  <span className="text-xs font-bold text-slate-600">Smart Remove BG</span>
+                  <span className="text-xs font-bold text-slate-600">{t('generator.settings.smartRemoveBg')}</span>
                 </div>
                 <div className={`w-8 h-5 rounded-full relative transition-colors ${autoRemoveBg ? 'bg-violet-500' : 'bg-slate-300'}`}>
                   <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all shadow-sm ${autoRemoveBg ? 'right-1' : 'left-1'}`} />
@@ -575,7 +577,7 @@ const App: React.FC = () => {
           )}
 
           <Button onClick={handleGenerate} isLoading={isGenerating} disabled={!image || (batchSize === 1 && !selectedPhrase && !customPhrase)} className="w-full text-lg h-16 shadow-xl shadow-violet-500/20 bg-gradient-to-r from-violet-600 to-pink-500 hover:brightness-110 active:scale-[0.99] transition-all rounded-2xl border-none">
-            <Wand2 size={24} className="mr-2" /> {isGenerating ? `Generating Magic...` : 'Generate Stickers'}
+            <Wand2 size={24} className="mr-2" /> {isGenerating ? t('generator.action.generating') : t('generator.action.generate')}
           </Button>
         </section>
 
@@ -583,9 +585,9 @@ const App: React.FC = () => {
         {stickers.length > 0 && (
           <section className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-black flex items-center gap-2 text-slate-500 uppercase tracking-widest"><Star size={18} className="text-yellow-400" /> Results ({stickers.length})</h2>
+              <h2 className="text-sm font-black flex items-center gap-2 text-slate-500 uppercase tracking-widest"><Star size={18} className="text-yellow-400" /> {t('generator.action.results')} ({stickers.length})</h2>
               <button onClick={downloadAllAsZip} disabled={isZipping} className="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-sm">
-                <FileArchive size={14} /> Download ZIP
+                <FileArchive size={14} /> {t('generator.action.downloadZip')}
               </button>
             </div>
 
@@ -625,8 +627,8 @@ const App: React.FC = () => {
               <Sparkles size={32} className="animate-pulse" />
             </div>
           </div>
-          <h3 className="text-xl font-black text-slate-700 mb-2">{batchSize > 1 ? `Batch Processing (${progress.current}/${batchSize})` : 'Generating AI Art...'}</h3>
-          <p className="text-slate-400 font-bold text-xs tracking-wide uppercase">Applying Green Screen Magic & Removal</p>
+          <h3 className="text-xl font-black text-slate-700 mb-2">{batchSize > 1 ? `${t('generator.action.batchProcessing')} (${progress.current}/${batchSize})` : t('generator.action.generatingArt')}</h3>
+          <p className="text-slate-400 font-bold text-xs tracking-wide uppercase">{t('generator.action.applyingMagic')}</p>
           {batchSize > 1 && (
             <div className="w-64 bg-slate-200 h-1.5 rounded-full mt-6 overflow-hidden">
               <div className="bg-gradient-to-r from-violet-500 to-pink-500 h-full transition-all duration-300" style={{ width: `${(progress.current / batchSize) * 100}%` }}></div>

@@ -2,6 +2,8 @@ import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Sparkles, Layers, Eraser, Palette, Home, Settings } from 'lucide-react';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
 
 const NavItem = ({ to, icon: Icon, label, disabled = false }: { to: string, icon: any, label: string, disabled?: boolean }) => (
     <NavLink
@@ -26,6 +28,8 @@ const NavItem = ({ to, icon: Icon, label, disabled = false }: { to: string, icon
 
 export const Layout = () => {
     const location = useLocation();
+    const { t } = useTranslation();
+
     return (
         <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-violet-200 selection:text-violet-900">
             {/* Desktop Sidebar */}
@@ -38,36 +42,37 @@ export const Layout = () => {
                         </div>
                         <div>
                             <h1 className="text-xl font-black tracking-tight text-slate-800 leading-none">
-                                Sticker<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-500">OS</span>
+                                {t('app.title')}<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-500"></span>
                             </h1>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Creative Suite</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{t('app.subtitle')}</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Navigation */}
                 <nav className="flex-1 space-y-1">
-                    <div className="px-4 pb-2">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Apps</p>
+                    <div className="px-4 pb-2 flex items-center justify-between">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('app.apps')}</p>
                     </div>
-                    <NavItem to="/generator" icon={Sparkles} label="Generator" />
-                    <NavItem to="/editor" icon={Palette} label="Editor" />
-                    <NavItem to="/packager" icon={Layers} label="Packager" />
-                    <NavItem to="/eraser" icon={Eraser} label="Eraser" />
+                    <NavItem to="/generator" icon={Sparkles} label={t('app.generator')} />
+                    <NavItem to="/editor" icon={Palette} label={t('app.editor')} />
+                    <NavItem to="/packager" icon={Layers} label={t('app.packager')} />
+                    <NavItem to="/eraser" icon={Eraser} label={t('app.eraser')} />
                 </nav>
 
                 {/* Footer / User */}
                 <div className="mt-auto pt-4 border-t border-slate-200/50 space-y-1">
-                    <div className="px-4 pb-2">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">System</p>
+                    <div className="px-4 pb-2 flex items-center justify-between">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('app.system')}</p>
+                        <LanguageSwitcher />
                     </div>
                     <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-slate-400 hover:bg-white hover:text-slate-600 hover:shadow-sm">
                         <Settings size={20} />
-                        <span className="text-sm font-bold">Settings</span>
+                        <span className="text-sm font-bold">{t('app.settings')}</span>
                     </button>
                     <a href="https://tingyusdeco.com/" target="_blank" rel="noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-slate-400 hover:bg-white hover:text-slate-600 hover:shadow-sm">
                         <Home size={20} />
-                        <span className="text-sm font-bold">Back Home</span>
+                        <span className="text-sm font-bold">{t('app.backHome')}</span>
                     </a>
                 </div>
             </aside>
@@ -79,7 +84,7 @@ export const Layout = () => {
                         {({ isActive }) => (
                             <>
                                 <Sparkles size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">Generate</span>
+                                <span className="text-[10px] font-bold">{t('app.generate')}</span>
                             </>
                         )}
                     </NavLink>
@@ -87,7 +92,7 @@ export const Layout = () => {
                         {({ isActive }) => (
                             <>
                                 <Palette size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">Editor</span>
+                                <span className="text-[10px] font-bold">{t('app.editor')}</span>
                             </>
                         )}
                     </NavLink>
@@ -95,7 +100,7 @@ export const Layout = () => {
                         {({ isActive }) => (
                             <>
                                 <Layers size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">Packager</span>
+                                <span className="text-[10px] font-bold">{t('app.packager')}</span>
                             </>
                         )}
                     </NavLink>
@@ -103,7 +108,7 @@ export const Layout = () => {
                         {({ isActive }) => (
                             <>
                                 <Eraser size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">Eraser</span>
+                                <span className="text-[10px] font-bold">{t('app.eraser')}</span>
                             </>
                         )}
                     </NavLink>
@@ -114,15 +119,16 @@ export const Layout = () => {
             <main className="flex-1 min-w-0 md:ml-64 pb-20 md:pb-0">
                 {/* Mobile Header Logo - Hidden on Landing Page */}
                 {location.pathname !== '/' && (
-                    <div className="md:hidden flex items-center justify-center py-4 bg-white/50 backdrop-blur-sm border-b border-slate-100 sticky top-0 z-40">
+                    <div className="md:hidden flex items-center justify-between py-4 px-6 bg-white/50 backdrop-blur-sm border-b border-slate-100 sticky top-0 z-40">
                         <div className="flex items-center gap-2">
                             <div className="w-8 h-8 bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 rounded-lg flex items-center justify-center text-white shadow-md">
                                 <Sparkles size={16} fill="currentColor" className="text-white/90" />
                             </div>
                             <h1 className="text-lg font-black tracking-tight text-slate-800 leading-none">
-                                Sticker<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-500">OS</span>
+                                {t('app.title')}
                             </h1>
                         </div>
+                        <LanguageSwitcher />
                     </div>
                 )}
                 <Outlet />
