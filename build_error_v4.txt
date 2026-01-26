@@ -1,0 +1,32 @@
+
+> sticker-universe@1.0.0 build
+> vite build
+
+[36mvite v6.4.1 [32mbuilding for production...[36m[39m
+transforming...
+Error: Cannot apply unknown utility class `bg-slate-50`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+    at onInvalidCandidate (D:\Antigravity\Sticker_Universe\node_modules\tailwindcss\dist\lib.js:21:1314)
+    at Te (D:\Antigravity\Sticker_Universe\node_modules\tailwindcss\dist\lib.js:16:36652)
+    at D:\Antigravity\Sticker_Universe\node_modules\tailwindcss\dist\lib.js:21:355
+    at Rr (D:\Antigravity\Sticker_Universe\node_modules\tailwindcss\dist\lib.js:3:1718)
+    at _ (D:\Antigravity\Sticker_Universe\node_modules\tailwindcss\dist\lib.js:3:1377)
+    at $e (D:\Antigravity\Sticker_Universe\node_modules\tailwindcss\dist\lib.js:21:172)
+    at un (D:\Antigravity\Sticker_Universe\node_modules\tailwindcss\dist\lib.js:38:294)
+    at async cn (D:\Antigravity\Sticker_Universe\node_modules\tailwindcss\dist\lib.js:38:631)
+    at async Xr (D:\Antigravity\Sticker_Universe\node_modules\@tailwindcss\node\dist\index.js:10:3417)
+    at async I (D:\Antigravity\Sticker_Universe\node_modules\@tailwindcss\postcss\dist\index.js:10:3977)
+[32m✓[39m 3 modules transformed.
+[31m✗[39m Build failed in 192ms
+[31merror during build:
+[31m[vite:css] [postcss] tailwindcss: D:/Antigravity/Sticker_Universe/src/index.css:1:1: Cannot apply unknown utility class `bg-slate-50`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive[31m
+file: [36mD:/Antigravity/Sticker_Universe/src/index.css:1:0[31m
+    at Input.error (D:\Antigravity\Sticker_Universe\node_modules\postcss\lib\input.js:135:16)
+    at Root.error (D:\Antigravity\Sticker_Universe\node_modules\postcss\lib\node.js:146:32)
+    at Object.Once (D:\Antigravity\Sticker_Universe\node_modules\@tailwindcss\postcss\dist\index.js:10:6911)
+    at async LazyResult.runAsync (D:\Antigravity\Sticker_Universe\node_modules\postcss\lib\lazy-result.js:293:11)
+    at async runPostCSS (file:///D:/Antigravity/Sticker_Universe/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:43853:21)
+    at async compilePostCSS (file:///D:/Antigravity/Sticker_Universe/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:43823:18)
+    at async compileCSS (file:///D:/Antigravity/Sticker_Universe/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:43678:27)
+    at async Object.handler (file:///D:/Antigravity/Sticker_Universe/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42994:11)
+    at async transform (file:///D:/Antigravity/Sticker_Universe/node_modules/rollup/dist/es/shared/node-entry.js:21239:16)
+    at async ModuleLoader.addModuleSource (file:///D:/Antigravity/Sticker_Universe/node_modules/rollup/dist/es/shared/node-entry.js:21453:36)[39m
