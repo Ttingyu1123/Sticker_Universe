@@ -13,6 +13,20 @@
         "gallery": "作品集",
         "generate": "生成"
     },
+    "gallery": {
+        "title": "作品集",
+        "subtitle": "您的創意收藏",
+        "empty": "尚無儲存的貼圖",
+        "emptyDesc": "前往生成器創造一些魔法吧！",
+        "download": "下載",
+        "delete": "刪除",
+        "clearAll": "全部清除",
+        "clearConfirm": "確定要刪除所有貼圖嗎？",
+        "deleteConfirm": "刪除此貼圖？",
+        "selected": "已選擇",
+        "downloadZip": "下載 ZIP",
+        "loading": "載入中..."
+    },
     "landing": {
         "tagline": "終極創意套件",
         "heroTitle": "用 AI 創造魔法貼圖",
@@ -323,7 +337,8 @@
         "home": "首頁",
         "upload": {
             "dragDrop": "點擊或拖放圖片至此",
-            "support": "支援 JPG, PNG, WebP"
+            "support": "支援 JPG, PNG, WebP",
+            "gallery": "從作品集選擇"
         },
         "preview": {
             "editAlignment": "編輯對位",
@@ -371,6 +386,7 @@
             "format": "輸出格式",
             "prefix": "檔名前綴",
             "apply": "套用並預覽",
+            "saveToGallery": "儲存至作品集",
             "downloadZip": "下載全部成果 ZIP"
         }
     },
@@ -384,7 +400,8 @@
             "dragDrop": "拖放圖片至此，或點擊選擇 (JPG, PNG)",
             "smart": "智慧去背",
             "manual": "手動擦除",
-            "repair": "邊緣修復"
+            "repair": "邊緣修復",
+            "gallery": "從作品集選擇"
         },
         "toolbar": {
             "tools": "工具",
@@ -399,6 +416,7 @@
             "undo": "復原",
             "redo": "重做",
             "resetImage": "重置圖片",
+            "saveToGallery": "儲存至作品集",
             "export": "匯出 PNG"
         }
     },
@@ -427,7 +445,9 @@
             "white": "白色背景",
             "text": "文字",
             "image": "圖片",
+            "gallery": "作品集",
             "export": "匯出",
+            "saveToGallery": "儲存至作品集",
             "backHome": "返回首頁"
         },
         "sidebar": {

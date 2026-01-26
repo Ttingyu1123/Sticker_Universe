@@ -1,12 +1,14 @@
 
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Image as ImageIcon } from 'lucide-react';
 
 interface ImageUploaderProps {
   onImageUpload: (image: HTMLImageElement) => void;
+  onGallerySelect?: () => void;
 }
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload }) => {
+const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload, onGallerySelect }) => {
   const { t } = useTranslation();
   const handleFile = useCallback((file: File) => {
     if (file && file.type.startsWith('image/')) {
@@ -63,6 +65,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload }) => {
         <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>{t('eraser.upload.manual')}</span>
         <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>{t('eraser.upload.repair')}</span>
       </div>
+
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onGallerySelect?.();
+        }}
+        className="mt-8 px-6 py-2 bg-white text-indigo-500 hover:text-indigo-600 rounded-full font-bold text-sm shadow-sm border border-slate-200 hover:bg-slate-50 transition-all z-10 flex items-center gap-2"
+      >
+        <span className="bg-indigo-100 p-1 rounded-full"><ImageIcon size={14} /></span>
+        {t('eraser.upload.gallery')}
+      </button>
     </div>
   );
 };

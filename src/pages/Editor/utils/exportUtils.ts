@@ -10,7 +10,7 @@ const loadImage = (src: string): Promise<HTMLImageElement> => {
   });
 };
 
-export const downloadCanvasAsImage = async (layers: Layer[], config: CanvasConfig) => {
+export const generateCanvasDataUrl = async (layers: Layer[], config: CanvasConfig): Promise<string | null> => {
   const { width, height, backgroundColor, showGrid, shape } = config;
 
   const canvas = document.createElement('canvas');
@@ -160,18 +160,27 @@ export const downloadCanvasAsImage = async (layers: Layer[], config: CanvasConfi
     ctx.restore();
   }
 
-  // 5. Download
+  // 5. Generate Data URL
   try {
-    const pngUrl = canvas.toDataURL('image/png');
+    return canvas.toDataURL('image/png');
+  } catch (e) {
+    console.error("Export failed", e);
+    return null;
+  }
+};
+
+export const downloadCanvasAsImage = async (layers: Layer[], config: CanvasConfig) => {
+  const dataUrl = await generateCanvasDataUrl(layers, config);
+  if (dataUrl) {
     const link = document.createElement('a');
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     link.download = `layer-lab-${timestamp}.png`;
-    link.href = pngUrl;
+    link.href = dataUrl;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  } catch (e) {
-    console.error("Export failed", e);
+  } else {
     alert("Export failed. The canvas might be tainted by external images.");
   }
 };
+

@@ -6,14 +6,19 @@ import { Layer, CanvasBackground, LayerType, TextProperties, CanvasConfig } from
 import { useHistory } from './hooks/useHistory';
 import { generateId } from './utils/idUtils';
 import { measureText } from './utils/textMeasurement';
-import { downloadCanvasAsImage } from './utils/exportUtils';
+import { downloadCanvasAsImage, generateCanvasDataUrl } from './utils/exportUtils';
 import { Grid, Square, Sun, Plus, Minus, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+
+import { GalleryPicker } from '../../components/GalleryPicker';
+import { useLocation } from 'react-router-dom';
+import { saveStickerToDB } from '../../db';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
   const [layers, setLayers] = useState<Layer[]>([]);
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
+  const [showGallery, setShowGallery] = useState(false);
 
   // Unified Canvas State
   const [canvasConfig, setCanvasConfig] = useState<CanvasConfig>({
@@ -26,6 +31,31 @@ const App: React.FC = () => {
 
   const [customFonts, setCustomFonts] = useState<string[]>([]);
   const [isReady, setIsReady] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const state = location.state as { image?: string };
+    if (state?.image) {
+      // Need to convert base64/url to Blob? handleAddLayer handles string if it's dataURL (via Image load)
+      // Actually handleAddLayer takes 'content' which is string | Blob.
+      // If it's string, we treat it as text usually for type 'text', but for 'image' it can be content??
+      // Looking at handleAddLayer:
+      // if type === 'text' ... content is default text
+      // if type === 'image' && content instanceof File ... name = content.name
+      // if type === 'image' && content instanceof Blob ... FileReader...
+      // Problem: handleAddLayer for 'image' expects Blob/File to read it.
+      // If I pass a base64 string, the current implementation might not handle it directly unless I modify handleAddLayer
+      // OR I convert base64 string to Blob here.
+      fetch(state.image)
+        .then(res => res.blob())
+        .then(blob => handleAddLayer('image', blob));
+
+      // Clear state to avoid re-adding on refresh? 
+      // Actually React Router state persists on refresh usually, but better to clear it or handle it once. 
+      // For now simple fetch is enough.
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
 
   // Zoom State
   const [zoom, setZoom] = useState(1);
@@ -66,7 +96,7 @@ const App: React.FC = () => {
     pushHistory(newLayers);
   }, [pushHistory]);
 
-  const handleAddLayer = (type: LayerType, content?: string | File) => {
+  const handleAddLayer = (type: LayerType, content?: string | Blob) => {
     const defaultTextProps: TextProperties = {
       fontSize: 60,
       fontFamily: 'Inter',
@@ -116,7 +146,7 @@ const App: React.FC = () => {
       height: initialHeight,
     };
 
-    if (type === 'image' && content instanceof File) {
+    if (type === 'image' && content instanceof Blob) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
@@ -201,6 +231,24 @@ const App: React.FC = () => {
     downloadCanvasAsImage(layers, canvasConfig);
   };
 
+  const handleSaveToGallery = async () => {
+    const dataUrl = await generateCanvasDataUrl(layers, canvasConfig);
+    if (dataUrl) {
+      try {
+        await saveStickerToDB({
+          id: `editor_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+          imageUrl: dataUrl,
+          phrase: 'Editor Composition',
+          timestamp: Date.now()
+        });
+        alert(t('packager.status.savedToCollection') || 'Saved to Collection');
+      } catch (err) {
+        console.error("Failed to save", err);
+        alert("Failed to save to gallery");
+      }
+    }
+  };
+
   // Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -278,6 +326,12 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-[85vh] w-full flex-col overflow-hidden bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-100/50 via-slate-50 to-pink-50/30 rounded-3xl border border-slate-200/50 shadow-inner">
+      {showGallery && (
+        <GalleryPicker
+          onSelect={(blob) => handleAddLayer('image', blob)}
+          onClose={() => setShowGallery(false)}
+        />
+      )}
 
       {/* Toolbar - passing dummy props for now or reusing state where possible. 
           The Toolbar's background controls will be deprecated in favor of Sidebar, 
@@ -291,8 +345,10 @@ const App: React.FC = () => {
         background={canvasConfig.showGrid ? 'grid' : 'white'} // Compatibility
         setBackground={() => { }} // No-op for now, moving to sidebar
         onAddImage={(file) => handleAddLayer('image', file)}
+        onAddFromGallery={() => setShowGallery(true)}
         onAddText={() => handleAddLayer('text')}
         onDownload={handleDownload}
+        onSaveToGallery={handleSaveToGallery}
       />
 
       <div className={`flex flex-1 overflow-hidden pt-20 transition-opacity duration-700 ${isReady ? 'opacity-100' : 'opacity-0'}`}>

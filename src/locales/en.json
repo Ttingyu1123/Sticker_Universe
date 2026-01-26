@@ -13,6 +13,20 @@
         "gallery": "Collection",
         "generate": "Generate"
     },
+    "gallery": {
+        "title": "Collection",
+        "subtitle": "Your Creative Works",
+        "empty": "No saved stickers yet.",
+        "emptyDesc": "Go to Generator to create some magic!",
+        "download": "Download",
+        "delete": "Delete",
+        "clearAll": "Clear All",
+        "clearConfirm": "Are you sure you want to delete all stickers?",
+        "deleteConfirm": "Delete this sticker?",
+        "selected": "Selected",
+        "downloadZip": "Download ZIP",
+        "loading": "Loading Gallery..."
+    },
     "landing": {
         "tagline": "The Ultimate Creative Suite",
         "heroTitle": "Create Magical Stickers with AI",
@@ -323,7 +337,8 @@
         "home": "Home",
         "upload": {
             "dragDrop": "Click or Drop Images Here",
-            "support": "JPG, PNG, WebP Supported"
+            "support": "JPG, PNG, WebP Supported",
+            "gallery": "Select from Gallery"
         },
         "preview": {
             "editAlignment": "Edit Alignment",
@@ -371,6 +386,7 @@
             "format": "Format",
             "prefix": "Prefix",
             "apply": "Apply & Preview",
+            "saveToGallery": "Save to Gallery",
             "downloadZip": "Download ZIP"
         }
     },
@@ -384,7 +400,8 @@
             "dragDrop": "Drag & drop image here, or click to select (JPG, PNG)",
             "smart": "Smart Remove",
             "manual": "Manual Erase",
-            "repair": "Repair Edge"
+            "repair": "Repair Edge",
+            "gallery": "Select from Gallery"
         },
         "toolbar": {
             "tools": "Tools",
@@ -399,6 +416,7 @@
             "undo": "Undo",
             "redo": "Redo",
             "resetImage": "Reset Image",
+            "saveToGallery": "Save to Gallery",
             "export": "Export PNG"
         }
     },
@@ -427,7 +445,9 @@
             "white": "White Background",
             "text": "Text",
             "image": "Image",
+            "gallery": "Gallery",
             "export": "Export",
+            "saveToGallery": "Save to Gallery",
             "backHome": "Back Home"
         },
         "sidebar": {

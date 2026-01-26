@@ -17,6 +17,7 @@ interface ToolbarProps {
   onUndo: () => void;
   onRedo: () => void;
   onDownload: () => void;
+  onSaveToGallery: () => void;
   onReset: () => void;
   canUndo: boolean;
   canRedo: boolean;
@@ -37,12 +38,15 @@ const Toolbar: React.FC<ToolbarProps> = ({
   onUndo,
   onRedo,
   onDownload,
+  onSaveToGallery,
   onReset,
   canUndo,
   canRedo,
   hasImage
 }) => {
   const { t } = useTranslation();
+  // ... (keep bgOptions)
+
   const bgOptions = [
     { value: 'checkerboard', label: 'Default', icon: '🏁' },
     { value: '#ffffff', label: 'White', icon: '', color: '#ffffff' },
@@ -54,6 +58,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
 
   return (
     <div className={`hud-panel p-4 w-full h-auto md:h-[calc(100vh-140px)] md:overflow-y-auto flex flex-col gap-6 transition-all duration-300 ${disabledClass}`}>
+      {/* ... (keep existing content up to Action Buttons) ... */}
 
       {/* Tool Mode Selector */}
       <div>
@@ -185,10 +190,20 @@ const Toolbar: React.FC<ToolbarProps> = ({
         )}
 
         <button
+          onClick={onSaveToGallery}
+          disabled={!hasImage}
+          className={`w-full py-3 rounded-xl font-bold shadow-lg shadow-pink-500/20 text-sm transition-all active:scale-95 flex items-center justify-center gap-2 ${hasImage ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:brightness-110' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>
+          {t('eraser.toolbar.saveToGallery')}
+        </button>
+
+        <button
           onClick={onDownload}
           disabled={!hasImage}
-          className={`w-full py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/20 text-sm transition-all active:scale-95 ${hasImage ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:brightness-110' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}
+          className={`w-full py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/20 text-sm transition-all active:scale-95 flex items-center justify-center gap-2 ${hasImage ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:brightness-110' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}
         >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
           {t('eraser.toolbar.export')}
         </button>
       </div>

@@ -13,6 +13,18 @@ import saveAs from 'file-saver';
 import { useTranslation } from 'react-i18next';
 import { ProcessingStatus, SplitConfig, ExportPreset, OutputFormat } from './types';
 import { loadImage } from './utils/helpers';
+import { GalleryPicker } from '../../components/GalleryPicker';
+import { saveStickerToDB } from '../../db';
+import { useLocation } from 'react-router-dom';
+
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
 
 interface ImageStats {
   width: number;
@@ -73,9 +85,6 @@ const Stepper = ({ label, value, min, max, onChange }: { label: string, value: n
   </div>
 );
 
-// AppSwitcher removed
-
-
 const App: React.FC = () => {
   const { t } = useTranslation();
   const [fileQueue, setFileQueue] = useState<FileItem[]>([]);
@@ -90,6 +99,25 @@ const App: React.FC = () => {
   const [helperBg, setHelperBg] = useState<'checkerboard' | 'green' | 'black' | 'white'>('checkerboard');
   const [showAdvancedAI, setShowAdvancedAI] = useState(false);
   const [elapsedTime, setElapsedTime] = useState<string | null>(null);
+  const [showGallery, setShowGallery] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const state = location.state as { image?: string };
+    if (state?.image) {
+      fetch(state.image)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], `from_gallery_${Date.now()}.png`, { type: blob.type });
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          handleFiles(dataTransfer.files);
+        });
+
+      // Clear state
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
 
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -399,8 +427,9 @@ const App: React.FC = () => {
         }
       }
       setZipBlob(await zip.generateAsync({ type: 'blob' })); setProcessedTiles(newProcessedTiles);
+      setZipBlob(await zip.generateAsync({ type: 'blob' })); setProcessedTiles(newProcessedTiles);
       setStatus('success'); setElapsedTime(((Date.now() - startTime) / 1000).toFixed(1));
-      setStatusMsg(t('packager.status.complete')); setViewMode('result');
+      setStatusMsg(`${t('packager.status.complete')}`); setViewMode('result');
     } catch (e: any) { setStatus('error'); setStatusMsg(`${t('packager.status.failed')}${e.message}`); }
   };
 
@@ -415,6 +444,18 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen pb-20 select-none font-sans text-slate-700 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-100/50 via-slate-50 to-pink-50/30">
+      {showGallery && (
+        <GalleryPicker
+          onSelect={(blob) => {
+            const file = new File([blob], `gallery_${Date.now()}.png`, { type: blob.type });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            handleFiles(dataTransfer.files);
+            setShowGallery(false);
+          }}
+          onClose={() => setShowGallery(false)}
+        />
+      )}
 
       {/* Unified Header - Mobile: Controls Only (Second Row), Desktop: Full (Top) */}
       <nav className="fixed top-[5rem] md:top-4 left-4 right-4 z-50">
@@ -462,11 +503,24 @@ const App: React.FC = () => {
               <div className="bg-white p-10 rounded-full group-hover:scale-110 transition-transform duration-500 shadow-xl shadow-violet-500/10 text-violet-500"><Upload size={48} /></div>
               <h3 className="mt-8 text-2xl font-black text-slate-700 tracking-tight">{t('packager.upload.dragDrop')}</h3>
               <p className="mt-3 text-slate-400 font-bold text-sm tracking-wide uppercase">{t('packager.upload.support')}</p>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowGallery(true);
+                }}
+                className="mt-8 px-6 py-2.5 bg-white text-indigo-500 hover:text-indigo-600 rounded-full font-bold text-sm shadow-sm border border-slate-200 hover:bg-slate-50 transition-all z-10 flex items-center gap-2 group/btn"
+              >
+                <div className="bg-indigo-50 text-indigo-500 p-1 rounded-full group-hover/btn:bg-indigo-100 transition-colors">
+                  <ImageIcon size={16} />
+                </div>
+                {t('packager.upload.gallery')}
+              </button>
             </div>
           ) : (
             <div className="space-y-4 animate-in fade-in duration-500">
               <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
                 <button onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 w-16 h-16 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center text-gray-400 hover:border-indigo-500 hover:text-indigo-500 transition-colors"><Plus size={20} /></button>
+                <button onClick={() => setShowGallery(true)} className="flex-shrink-0 w-16 h-16 border-2 border-dashed border-pink-200 bg-pink-50/30 rounded-xl flex items-center justify-center text-pink-400 hover:border-pink-500 hover:text-pink-500 transition-colors"><ImageIcon size={20} /></button>
                 {fileQueue.map(item => (
                   <div key={item.id} className="relative group flex-shrink-0">
                     <img src={item.preview} onClick={() => { setActiveFileId(item.id); setViewMode(item.baseTiles ? 'result' : 'original'); }} className={`w-16 h-16 object-cover rounded-xl cursor-pointer border-2 transition-all ${activeFileId === item.id ? 'border-indigo-600 shadow-md ring-2 ring-indigo-100 scale-105' : 'border-white grayscale-[40%] hover:grayscale-0'}`} />
@@ -604,8 +658,52 @@ const App: React.FC = () => {
               <div className="space-y-1"><label className="text-[10px] font-bold text-gray-400 uppercase">{t('packager.phase2.format')}</label><select value={config.outputFormat} onChange={(e) => setConfig(prev => ({ ...prev, outputFormat: e.target.value as any }))} className="w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-[10px] outline-none shadow-inner"><option value="png">PNG</option><option value="webp">WebP</option></select></div>
               <div className="space-y-1"><label className="text-[10px] font-bold text-gray-400 uppercase">{t('packager.phase2.prefix')}</label><input type="text" value={config.filenamePrefix} onChange={(e) => setConfig(prev => ({ ...prev, filenamePrefix: e.target.value }))} className="w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-[10px] outline-none shadow-inner" /></div>
             </div>
-            <button onClick={applyBeautification} className="w-full bg-[#6D6875] hover:bg-[#5E5966] text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-[#6D6875]/20 transition-all active:scale-95"><Sparkles size={22} /> {t('packager.phase2.apply')}</button>
-            {zipBlob && <button onClick={() => saveAs(zipBlob, `${config.filenamePrefix}_batch_${Date.now()}.zip`)} className="w-full bg-[#B0C4B1] hover:bg-[#9CAF9D] text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-[#B0C4B1]/20 active:scale-95 animate-in zoom-in-95"><FileArchive size={22} /> {t('packager.phase2.downloadZip')}</button>}
+
+            <div className="flex flex-col gap-3 pt-4">
+              <button onClick={applyBeautification} className="w-full bg-[#6D6875] hover:bg-[#5E5966] text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-[#6D6875]/20 transition-all active:scale-95">
+                <Sparkles size={22} /> {t('packager.phase2.apply')}
+              </button>
+
+              {processedTiles.length > 0 && (
+                <div className="grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-bottom-4">
+                  <button
+                    onClick={async () => {
+                      if (processedTiles.length === 0) return;
+                      let savedCount = 0;
+                      try {
+                        for (let i = 0; i < processedTiles.length; i++) {
+                          const tile = processedTiles[i];
+                          const blob = await fetch(tile.url).then(r => r.blob());
+                          const base64 = await blobToBase64(blob);
+                          await saveStickerToDB({
+                            id: `pkg_${Date.now()}_${i}_${Math.random().toString(36).substr(2, 5)}`,
+                            imageUrl: base64,
+                            phrase: `${config.filenamePrefix} #${i + 1}`,
+                            timestamp: Date.now()
+                          });
+                          savedCount++;
+                        }
+                        alert(`${t('packager.status.savedToCollection') || 'Saved'} (${savedCount})`);
+                      } catch (err) {
+                        console.error("Failed to save", err);
+                        alert("Failed to save some stickers");
+                      }
+                    }}
+                    className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:brightness-110 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-pink-500/20 active:scale-95 transition-all"
+                  >
+                    <Download size={20} className="rotate-180" /> {t('packager.phase2.saveToGallery')}
+                  </button>
+
+                  <button
+                    onClick={() => zipBlob && saveAs(zipBlob, `${config.filenamePrefix}_batch_${Date.now()}.zip`)}
+                    disabled={!zipBlob}
+                    className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <FileArchive size={20} /> {t('packager.phase2.downloadZip')}
+                  </button>
+                </div>
+              )}
+            </div>
           </section>
         </div>
       </main>

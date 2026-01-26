@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   Upload, Scissors, Download, RefreshCw, AlertCircle, Image as ImageIcon,
   Info, Undo2, Redo2, Files, Settings, Star, Minimize2, Check, Minus, Home
@@ -13,9 +13,27 @@ import Toolbar, { ToolMode } from './components/Toolbar';
 
 const MAX_HISTORY_STEPS = 20;
 
+import { GalleryPicker } from '../../components/GalleryPicker';
+import { useLocation } from 'react-router-dom';
+import { saveStickerToDB } from '../../db';
+
 const App: React.FC = () => {
   const { t } = useTranslation();
   const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [showGallery, setShowGallery] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const state = location.state as { image?: string };
+    if (state?.image) {
+      const img = new Image();
+      img.onload = () => handleImageUpload(img);
+      img.src = state.image; // Assuming base64 dataURI or blob URL
+
+      // Clear state
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
 
   // ... (keep other handlers)
 
@@ -112,6 +130,23 @@ const App: React.FC = () => {
     setBgColor('checkerboard');
   };
 
+  const handleSaveToGallery = async () => {
+    if (history.length === 0 || historyIndex < 0) return;
+    const currentImage = history[historyIndex];
+    try {
+      await saveStickerToDB({
+        id: `eraser_${Date.now()}`,
+        imageUrl: currentImage,
+        phrase: 'Eraser Edit',
+        timestamp: Date.now()
+      });
+      alert(t('packager.status.savedToCollection') || 'Saved to Collection');
+    } catch (e) {
+      console.error(e);
+      alert('Failed to save to collection');
+    }
+  };
+
   return (
     <div className="min-h-screen pb-20 select-none font-sans text-slate-700 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-100/50 via-slate-50 to-pink-50/30">
 
@@ -165,6 +200,7 @@ const App: React.FC = () => {
             onUndo={handleUndo}
             onRedo={handleRedo}
             onDownload={handleDownload}
+            onSaveToGallery={handleSaveToGallery}
             onReset={handleReset}
             canUndo={historyIndex > 0}
             canRedo={historyIndex < history.length - 1}
@@ -196,7 +232,10 @@ const App: React.FC = () => {
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center p-12">
                   <div className="bg-white/80 p-8 rounded-3xl shadow-xl border border-white/50 max-w-lg w-full">
-                    <ImageUploader onImageUpload={handleImageUpload} />
+                    <ImageUploader
+                      onImageUpload={handleImageUpload}
+                      onGallerySelect={() => setShowGallery(true)}
+                    />
                   </div>
                 </div>
               )}
@@ -228,6 +267,21 @@ const App: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {showGallery && (
+        <GalleryPicker
+          onSelect={(blob) => {
+            const url = URL.createObjectURL(blob);
+            const img = new Image();
+            img.onload = () => {
+              handleImageUpload(img);
+              setShowGallery(false);
+            };
+            img.src = url;
+          }}
+          onClose={() => setShowGallery(false)}
+        />
+      )}
 
     </div>
   );

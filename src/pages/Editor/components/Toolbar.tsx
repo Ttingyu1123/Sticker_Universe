@@ -12,8 +12,10 @@ interface ToolbarProps {
   background: CanvasBackground;
   setBackground: (bg: CanvasBackground) => void;
   onAddImage: (file: File) => void;
+  onAddFromGallery: () => void;
   onAddText: () => void;
   onDownload: () => void;
+  onSaveToGallery: () => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -24,8 +26,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   background,
   setBackground,
   onAddImage,
+  onAddFromGallery,
   onAddText,
   onDownload,
+  onSaveToGallery,
 }) => {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -141,14 +145,29 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             onChange={handleFileChange}
           />
 
+          <button
+            onClick={onAddFromGallery}
+            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-xl font-bold text-xs transition-colors border border-pink-200"
+          >
+            <ImageIcon size={16} />
+            <span>{t('editor.toolbar.gallery')}</span>
+          </button>
+
           <div className="w-px h-6 bg-slate-200 mx-1"></div>
 
           <button
             onClick={onDownload}
             className="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-pink-500 text-white px-5 py-2.5 rounded-xl hover:brightness-110 shadow-lg shadow-violet-500/20 font-bold text-xs transition-all active:scale-95"
           >
-            <Download size={16} />
             <span>{t('editor.toolbar.export')}</span>
+          </button>
+
+          <button
+            onClick={onSaveToGallery}
+            className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-5 py-2.5 rounded-xl hover:brightness-110 shadow-lg shadow-pink-500/20 font-bold text-xs transition-all active:scale-95 border border-pink-400/20"
+          >
+            <Download size={16} className="rotate-180" />
+            <span>{t('editor.toolbar.saveToGallery')}</span>
           </button>
 
           <a href="https://tingyusdeco.com/" className="ml-2 text-slate-400 hover:text-violet-500 transition-colors" title={t('editor.toolbar.backHome')}>
