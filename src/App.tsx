@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './layouts/Layout';
 
 // Lazy load pages for better performance
+const LandingApp = React.lazy(() => import('./pages/Landing/App').catch(err => { console.error("Failed to load Landing:", err); return { default: () => <div className="p-10 text-red-500">Landing Load Error: {err.message}</div> }; }));
 const GeneratorApp = React.lazy(() => import('./pages/Generator/App').catch(err => { console.error("Failed to load Generator:", err); return { default: () => <div className="p-10 text-red-500">Generator Load Error: {err.message}</div> }; }));
 const EditorApp = React.lazy(() => import('./pages/Editor/App').catch(err => { console.error("Failed to load Editor:", err); return { default: () => <div className="p-10 text-red-500">Editor Load Error: {err.message}</div> }; }));
 const PackagerApp = React.lazy(() => import('./pages/Packager/App').catch(err => { console.error("Failed to load Packager:", err); return { default: () => <div className="p-10 text-red-500">Packager Load Error: {err.message}</div> }; }));
@@ -18,7 +19,11 @@ function App() {
     return (
         <Routes>
             <Route element={<Layout />}>
-                <Route path="/" element={<Navigate to="/generator" replace />} />
+                <Route path="/" element={
+                    <Suspense fallback={<Loading />}>
+                        <LandingApp />
+                    </Suspense>
+                } />
 
                 <Route path="/generator/*" element={
                     <Suspense fallback={<Loading />}>

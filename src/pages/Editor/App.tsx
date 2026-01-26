@@ -316,7 +316,7 @@ const App: React.FC = () => {
           />
 
           {/* Floating Zoom Controls */}
-          <div className="absolute bottom-6 left-6 flex items-center gap-2 bg-white/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-200/50 shadow-lg z-50">
+          <div className="absolute bottom-24 md:bottom-6 left-6 flex items-center gap-2 bg-white/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-200/50 shadow-lg z-40">
             <button onClick={handleZoomOut} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-blue-600 transition-colors" title="Zoom Out">
               <Minus size={16} />
             </button>
@@ -362,7 +362,7 @@ const App: React.FC = () => {
         {!isSidebarOpen && (
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="md:hidden fixed bottom-6 right-6 z-50 bg-blue-600 text-white p-4 rounded-full shadow-xl hover:bg-blue-700 transition-all active:scale-95"
+            className="md:hidden fixed bottom-24 right-6 z-50 bg-blue-600 text-white p-4 rounded-full shadow-xl hover:bg-blue-700 transition-all active:scale-95"
           >
             <Settings size={24} />
           </button>
