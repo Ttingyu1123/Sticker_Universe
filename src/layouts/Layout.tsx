@@ -120,6 +120,14 @@ export const Layout = () => {
                             </>
                         )}
                     </NavLink>
+                    <NavLink to="/svg-converter" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                        {({ isActive }) => (
+                            <>
+                                <FileCode size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[10px] font-bold">{t('app.svgConverter')}</span>
+                            </>
+                        )}
+                    </NavLink>
                     <NavLink to="/gallery" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
                         {({ isActive }) => (
                             <>

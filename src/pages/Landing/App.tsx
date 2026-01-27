@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Sparkles, Palette, Layers, Eraser, ArrowRight, Zap, FileCode } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
 
 const FeatureCard = ({ to, icon: Icon, title, desc, color, cta }: { to: string, icon: any, title: string, desc: string, color: string, cta: string }) => (
     <Link to={to} className="group relative overflow-hidden rounded-3xl bg-white/50 backdrop-blur-md border border-white/60 p-6 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-violet-500/10 hover:-translate-y-1 transition-all duration-300">
@@ -41,10 +42,13 @@ const Landing = () => {
                         </span>
                     </div>
 
-                    <a href="https://github.com/Ttingy/Sticker_Universe" target="_blank" rel="noopener noreferrer" className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/80 backdrop-blur border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white hover:shadow-lg transition-all">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        v1.0.0
-                    </a>
+                    <div className="flex items-center gap-3">
+                        <a href="https://github.com/Ttingy/Sticker_Universe" target="_blank" rel="noopener noreferrer" className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/80 backdrop-blur border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white hover:shadow-lg transition-all">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            v1.0.0
+                        </a>
+                        <LanguageSwitcher />
+                    </div>
                 </div>
             </nav>
 
