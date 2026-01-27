@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { Layout } from './layouts/Layout';
 
 // Lazy load pages for better performance
@@ -11,6 +11,7 @@ const EraserApp = React.lazy(() => import('./pages/Eraser/App').catch(err => { c
 const SvgConverterApp = React.lazy(() => import('./pages/SvgConverter/App').catch(err => { console.error("Failed to load SvgConverter:", err); return { default: () => <div className="p-10 text-red-500">SvgConverter Load Error: {err.message}</div> }; }));
 const PrintSheetApp = React.lazy(() => import('./pages/PrintSheet/App').catch(err => { console.error("Failed to load PrintSheet:", err); return { default: () => <div className="p-10 text-red-500">PrintSheet Load Error: {err.message}</div> }; }));
 const GalleryApp = React.lazy(() => import('./pages/Gallery/App').catch(err => { console.error("Failed to load Gallery:", err); return { default: () => <div className="p-10 text-red-500">Gallery Load Error: {err.message}</div> }; }));
+const AnimatorApp = React.lazy(() => import('./pages/Animator/App').then(module => ({ default: module.AnimatorApp })).catch(err => { console.error("Failed to load Animator:", err); return { default: () => <div className="p-10 text-red-500">Animator Load Error: {err.message}</div> }; }));
 
 const Loading = () => (
     <div className="flex items-center justify-center min-h-[50vh]">
@@ -80,6 +81,14 @@ function App() {
                     <Suspense fallback={<Loading />}>
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <GalleryApp />
+                        </div>
+                    </Suspense>
+                } />
+
+                <Route path="/animator" element={
+                    <Suspense fallback={<Loading />}>
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <AnimatorApp />
                         </div>
                     </Suspense>
                 } />

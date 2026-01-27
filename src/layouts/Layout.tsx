@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Sparkles, Layers, Eraser, Palette, Home, Settings, FolderHeart, FileCode, Printer } from 'lucide-react';
+import { Sparkles, Layers, Eraser, Palette, Home, Settings, FolderHeart, FileCode, Printer, Video } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
@@ -60,6 +60,8 @@ export const Layout = () => {
                     <NavItem to="/eraser" icon={Eraser} label={t('app.eraser')} />
                     <NavItem to="/svg-converter" icon={FileCode} label={t('app.svgConverter')} />
                     <NavItem to="/print-sheet" icon={Printer} label={t('app.printSheet')} />
+                    <NavItem to="/print-sheet" icon={Printer} label={t('app.printSheet')} />
+                    <NavItem to="/animator" icon={Video} label={t('app.animator') || 'Animator'} />
                     <NavItem to="/gallery" icon={FolderHeart} label={t('app.gallery')} />
                 </nav>
 
