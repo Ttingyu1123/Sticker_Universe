@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Palette, Layers, Eraser, ArrowRight, Zap } from 'lucide-react';
+import { Sparkles, Palette, Layers, Eraser, ArrowRight, Zap, FileCode } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const FeatureCard = ({ to, icon: Icon, title, desc, color, cta }: { to: string, icon: any, title: string, desc: string, color: string, cta: string }) => (
@@ -108,6 +108,14 @@ const Landing = () => {
                         title={t('landing.features.packagerTitle')}
                         desc={t('landing.features.packagerDesc')}
                         color="text-cyan-500"
+                        cta={t('landing.launchApp')}
+                    />
+                    <FeatureCard
+                        to="/svg-converter"
+                        icon={FileCode}
+                        title={t('landing.features.svgTitle')}
+                        desc={t('landing.features.svgDesc')}
+                        color="text-emerald-500"
                         cta={t('landing.launchApp')}
                     />
                 </div>

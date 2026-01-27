@@ -4,6 +4,7 @@
         "subtitle": "創意套件",
         "apps": "應用程式",
         "system": "系統",
+        "selectFromGallery": "從作品集選取",
         "settings": "設定",
         "backHome": "返回首頁",
         "generator": "生成器",
@@ -12,7 +13,29 @@
         "eraser": "橡皮擦",
         "gallery": "作品集",
         "generate": "生成",
+        "svgConverter": "轉向量圖",
         "captioning": "AI 智慧配文"
+    },
+    "svgConverterPage": {
+        "title": "SVG 魔法",
+        "description": "瞬間將您的點陣圖轉換為可縮放的向量圖形。",
+        "sourceImage": "來源圖片",
+        "clear": "清除",
+        "clickOrDrag": "點擊或拖曳上傳",
+        "supports": "支援 PNG, JPG, BMP",
+        "conversionStyle": "轉換風格",
+        "colorCount": "顏色數量",
+        "convert": "開始轉換",
+        "tracing": "處理中...",
+        "vectorResult": "向量結果",
+        "vectorized": "已轉換",
+        "previewHint": "SVG 預覽將顯示於此",
+        "download": "下載 SVG",
+        "styles": {
+            "default": "預設",
+            "posterized": "海報化",
+            "curvy": "圓滑"
+        }
     },
     "gallery": {
         "title": "作品集",
@@ -49,8 +72,10 @@
             "editorDesc": "強大的圖層編輯器。組合圖像、添加文字、調整版面並微調您的設計细节。",
             "eraserTitle": "魔術橡皮擦",
             "eraserDesc": "智慧去背工具。立即清理圖像背景並導出透明 PNG。",
-            "packagerTitle": "美工",
-            "packagerDesc": "批次裁切、去背並添加描邊，快速完成貼圖後製。"
+            "packagerTitle": "貼圖美工",
+            "packagerDesc": "自動排版、針對不同平台輸出與格式化。",
+            "svgTitle": "SVG 魔法",
+            "svgDesc": "將點陣圖轉為向量圖，無限縮放不失真。"
         },
         "footer": "由 Google Gemini Pro 驅動 • 需在瀏覽器中直接使用 API Key"
     },

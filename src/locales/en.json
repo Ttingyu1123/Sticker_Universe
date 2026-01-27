@@ -4,6 +4,7 @@
         "subtitle": "Creative Suite",
         "apps": "Apps",
         "system": "System",
+        "selectFromGallery": "Select from Gallery",
         "settings": "Settings",
         "backHome": "Back Home",
         "generator": "Generator",
@@ -12,7 +13,29 @@
         "eraser": "Eraser",
         "gallery": "Collection",
         "generate": "Generate",
+        "svgConverter": "SVG Magic",
         "captioning": "AI Captioning"
+    },
+    "svgConverterPage": {
+        "title": "SVG Magic",
+        "description": "Transform your raster images into scalable vector graphics instantaneously.",
+        "sourceImage": "Source Image",
+        "clear": "Clear",
+        "clickOrDrag": "Click or Drag Image",
+        "supports": "Supports PNG, JPG, BMP",
+        "conversionStyle": "Conversion Style",
+        "colorCount": "Color Count",
+        "convert": "Convert to SVG",
+        "tracing": "Tracing...",
+        "vectorResult": "Vector Result",
+        "vectorized": "Vectorized",
+        "previewHint": "SVG Preview will appear here",
+        "download": "Download SVG",
+        "styles": {
+            "default": "Default",
+            "posterized": "Posterized",
+            "curvy": "Curvy"
+        }
     },
     "gallery": {
         "title": "Collection",
@@ -49,8 +72,10 @@
             "editorDesc": "Powerful layer-based editor. Compose images, add text, adjust layouts, and fine-tune your designs.",
             "eraserTitle": "Eraser",
             "eraserDesc": "Smart background removal. Clean up your images instantly and export transparent PNGs.",
-            "packagerTitle": "Refiner",
-            "packagerDesc": "Batch process, crop, and polish your stickers with ease."
+            "packagerTitle": "Packager",
+            "packagerDesc": "Batch crop, remove background, and outline for Line/Telegram stickers.",
+            "svgTitle": "SVG Magic",
+            "svgDesc": "Convert raster images to infinite scalable vectors."
         },
         "footer": "Powered by Google Gemini Pro • Requires API Key used directly in browser"
     },
