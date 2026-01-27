@@ -14,7 +14,23 @@
         "gallery": "作品集",
         "generate": "生成",
         "svgConverter": "轉向量圖",
+        "printSheet": "貼紙列印室",
         "captioning": "AI 智慧配文"
+    },
+    "printSheet": {
+        "title": "貼紙列印室",
+        "description": "將您的貼紙排列在 A4 畫布上並列印成 PDF。",
+        "addStickers": "添加貼紙",
+        "upload": "上傳圖片",
+        "fromGallery": "從作品集選取",
+        "grid": "顯示格線",
+        "exportPDF": "匯出 PDF",
+        "exporting": "匯出中...",
+        "tips": "操作技巧",
+        "tipDrag": "拖曳可移動貼紙",
+        "tipWheel": "滾輪可縮放貼紙",
+        "tipDelete": "點擊 X 可刪除",
+        "exportFailed": "匯出失敗，請重試。"
     },
     "svgConverterPage": {
         "title": "SVG 魔法",
@@ -56,7 +72,11 @@
         "deselectAll": "取消全選",
         "cancelSelection": "完成",
         "downloadSelected": "下載 ({{count}})",
-        "deleteSelected": "刪除 ({{count}})"
+        "deleteSelected": "刪除 ({{count}})",
+        "selectionMode": "選取多張",
+        "selected": "已選取",
+        "addSelected": "添加選取項目",
+        "items": "項目"
     },
     "landing": {
         "tagline": "終極創意套件",

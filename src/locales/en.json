@@ -14,7 +14,23 @@
         "gallery": "Collection",
         "generate": "Generate",
         "svgConverter": "SVG Magic",
+        "printSheet": "Print Studio",
         "captioning": "AI Captioning"
+    },
+    "printSheet": {
+        "title": "Print Studio",
+        "description": "Arrange your stickers on an A4 canvas and export as PDF.",
+        "addStickers": "Add Stickers",
+        "upload": "Upload Images",
+        "fromGallery": "From Gallery",
+        "grid": "Show Grid",
+        "exportPDF": "Export PDF",
+        "exporting": "Exporting...",
+        "tips": "Tips",
+        "tipDrag": "Drag to move stickers",
+        "tipWheel": "Scroll wheel to resize",
+        "tipDelete": "Click X to remove",
+        "exportFailed": "Export failed, please try again."
     },
     "svgConverterPage": {
         "title": "SVG Magic",
@@ -56,7 +72,11 @@
         "deselectAll": "Deselect All",
         "cancelSelection": "Done",
         "downloadSelected": "Download ({{count}})",
-        "deleteSelected": "Delete ({{count}})"
+        "deleteSelected": "Delete ({{count}})",
+        "selectionMode": "Select Multiple",
+        "selected": "Selected",
+        "addSelected": "Add Selected",
+        "items": "Items"
     },
     "landing": {
         "tagline": "The Ultimate Creative Suite",

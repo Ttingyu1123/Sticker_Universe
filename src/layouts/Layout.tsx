@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Sparkles, Layers, Eraser, Palette, Home, Settings, FolderHeart, FileCode } from 'lucide-react';
+import { Sparkles, Layers, Eraser, Palette, Home, Settings, FolderHeart, FileCode, Printer } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
@@ -59,6 +59,7 @@ export const Layout = () => {
                     <NavItem to="/packager" icon={Layers} label={t('app.packager')} />
                     <NavItem to="/eraser" icon={Eraser} label={t('app.eraser')} />
                     <NavItem to="/svg-converter" icon={FileCode} label={t('app.svgConverter')} />
+                    <NavItem to="/print-sheet" icon={Printer} label={t('app.printSheet')} />
                     <NavItem to="/gallery" icon={FolderHeart} label={t('app.gallery')} />
                 </nav>
 
@@ -125,6 +126,14 @@ export const Layout = () => {
                             <>
                                 <FileCode size={20} strokeWidth={isActive ? 2.5 : 2} />
                                 <span className="text-[10px] font-bold">{t('app.svgConverter')}</span>
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink to="/print-sheet" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                        {({ isActive }) => (
+                            <>
+                                <Printer size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[10px] font-bold">{t('app.printSheet')}</span>
                             </>
                         )}
                     </NavLink>
