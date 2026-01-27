@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { DraggableImage } from './DraggableImage';
 import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';
-import { Download, Grid, Loader2, Check } from 'lucide-react';
+import { Download, Grid, Loader2, Check, Minus, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface StickerImage {
@@ -24,6 +24,7 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
     const [showGrid, setShowGrid] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
     const [bgColor, setBgColor] = useState<string>('#ffffff');
+    const [viewScale, setViewScale] = useState(0.4); // Default easier for mobile
 
     // A4 size in pixels at 96 DPI (standard screen)
     // A4 is 210mm x 297mm.
@@ -49,7 +50,9 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
             // @ts-ignore
             const dataUrl = await toPng(canvasRef.current, {
                 backgroundColor: exportBg || undefined,
-                pixelRatio: 300 / 96
+                pixelRatio: 300 / 96,
+                width: A4_WIDTH_PX,
+                height: A4_HEIGHT_PX
             });
 
             const link = document.createElement('a');
@@ -79,7 +82,9 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
             // @ts-ignore
             const dataUrl = await toPng(canvasRef.current, {
                 backgroundColor: exportBg || undefined,
-                pixelRatio: 300 / 96
+                pixelRatio: 300 / 96,
+                width: A4_WIDTH_PX,
+                height: A4_HEIGHT_PX
             });
 
             const pdf = new jsPDF('p', 'mm', 'a4');
@@ -101,6 +106,26 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
         <div className="flex flex-col items-center gap-6">
             {/* Toolbar */}
             <div className="flex flex-wrap justify-center gap-4 p-2 bg-white rounded-xl shadow-sm border border-slate-200">
+
+                {/* Scale Controls */}
+                <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+                    <button
+                        onClick={() => setViewScale(s => Math.max(0.2, s - 0.1))}
+                        className="p-1 hover:bg-white rounded-md transition-colors"
+                    >
+                        <Minus size={14} />
+                    </button>
+                    <span className="text-xs font-bold w-12 text-center select-none">{Math.round(viewScale * 100)}%</span>
+                    <button
+                        onClick={() => setViewScale(s => Math.min(1.5, s + 0.1))}
+                        className="p-1 hover:bg-white rounded-md transition-colors"
+                    >
+                        <Plus size={14} />
+                    </button>
+                </div>
+
+                <div className="w-px h-8 bg-slate-200 self-center mx-2" />
+
                 {/* Grid Toggle */}
                 <button
                     onClick={() => setShowGrid(!showGrid)}
@@ -184,14 +209,16 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
             </div>
 
             {/* Canvas Container - Scaled to fit screen */}
-            <div className="relative w-full overflow-auto flex justify-center bg-slate-100/50 rounded-2xl border border-slate-200 p-8 shadow-inner min-h-[600px]">
+            <div className="relative w-full overflow-hidden flex justify-center bg-slate-100/50 rounded-2xl border border-slate-200 p-8 shadow-inner min-h-[500px]">
                 {/* Visual Wrapper for Shadow and Checkerboard (NOT Exported) */}
                 <div
-                    className="relative transition-transform origin-top z-0"
+                    className="relative transition-transform origin-top z-0 flex-shrink-0"
                     style={{
                         width: A4_WIDTH_PX,
                         height: A4_HEIGHT_PX,
                         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                        transform: `scale(${viewScale})`,
+                        marginBottom: `-${A4_HEIGHT_PX * (1 - viewScale)}px` // Negative margin to reduce empty space when zoomed out
                     }}
                 >
                     {/* Checkerboard Pattern Layer */}
@@ -222,7 +249,7 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
                             <div
                                 className="absolute inset-0 pointer-events-none z-0 opacity-20"
                                 style={{
-                                    backgroundImage: 'linear-gradient(to right, #6366f1 1px, transparent 1px), linear-gradient(to bottom, #6366f1 1px, transparent 1px)',
+                                    backgroundImage: 'linear-gradient(to right, #6366f1 2px, transparent 2px), linear-gradient(to bottom, #6366f1 2px, transparent 2px)',
                                     backgroundSize: '50px 50px'
                                 }}
                             />

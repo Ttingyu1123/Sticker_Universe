@@ -57,6 +57,34 @@ export const DraggableImage: React.FC<DraggableImageProps> = ({
         window.addEventListener('mouseup', handleMouseUp);
     };
 
+    const handleResizeTouchStart = (e: React.TouchEvent) => {
+        e.stopPropagation();
+        // Don't prevent default here immediately or it might block other things, 
+        // but for a dedicated resize handle it's usually fine.
+        // e.preventDefault(); 
+        const touch = e.touches[0];
+        const startY = touch.clientY;
+        const startScale = scale;
+
+        const handleTouchMove = (moveEvent: TouchEvent) => {
+            // Prevent scrolling while resizing
+            if (moveEvent.cancelable) moveEvent.preventDefault();
+
+            const touchMove = moveEvent.touches[0];
+            const deltaY = touchMove.clientY - startY;
+            const newScale = Math.min(Math.max(0.5, startScale + deltaY * 0.01), 3);
+            setScale(newScale);
+        };
+
+        const handleTouchEnd = () => {
+            window.removeEventListener('touchmove', handleTouchMove);
+            window.removeEventListener('touchend', handleTouchEnd);
+        };
+
+        window.addEventListener('touchmove', handleTouchMove, { passive: false });
+        window.addEventListener('touchend', handleTouchEnd);
+    };
+
     return (
         <Draggable
             nodeRef={nodeRef}
@@ -96,6 +124,7 @@ export const DraggableImage: React.FC<DraggableImageProps> = ({
                         <div className={`export-ignore transition-opacity duration-200 ${isSelected ? 'opacity-100 pointer-events-auto' : 'opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto'}`}>
                             <button
                                 onClick={(e) => { e.stopPropagation(); onDelete(id); }}
+                                onTouchEnd={(e) => { e.stopPropagation(); onDelete(id); }} // Add touch support for delete
                                 className="absolute -top-3 -right-3 w-6 h-6 rounded-full flex items-center justify-center transition-colors z-50 hover:brightness-110"
                                 style={{
                                     backgroundColor: '#ef4444',
@@ -106,17 +135,18 @@ export const DraggableImage: React.FC<DraggableImageProps> = ({
                                 <X size={12} />
                             </button>
 
-                            {/* Resize Handle */}
+                            {/* Resize Handle - Increased touch target for mobile (40px) */}
                             <div
                                 onMouseDown={handleResizeMouseDown}
-                                className="absolute -bottom-3 -right-3 w-6 h-6 rounded-full flex items-center justify-center cursor-se-resize z-50 transition-transform active:scale-90 hover:brightness-110"
+                                onTouchStart={handleResizeTouchStart}
+                                className="absolute -bottom-5 -right-5 w-10 h-10 rounded-full flex items-center justify-center cursor-se-resize z-50 transition-transform active:scale-90 hover:brightness-110"
                                 style={{
                                     backgroundColor: '#7c3aed',
                                     color: '#ffffff',
                                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                                 }}
                             >
-                                <Maximize2 size={12} className="rotate-90" />
+                                <Maximize2 size={16} className="rotate-90" />
                             </div>
 
                             <div
