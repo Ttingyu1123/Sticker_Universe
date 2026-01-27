@@ -15,25 +15,26 @@ export default defineConfig({
             includeAssets: ['icon.svg'],
             workbox: {
                 maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
-                globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm,json}'],
+                globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
                 navigateFallbackDenylist: [/^\/imgly-data/]
             },
             manifest: {
                 name: 'StickerOS',
                 short_name: 'StickerOS',
-                description: 'The Ultimate AI Sticker Creative Suite',
+                description: 'Taiwanese-style Anime Sticker Generator',
                 theme_color: '#ffffff',
                 icons: [
                     {
                         src: 'icon.svg',
+                        sizes: '192x192',
+                        type: 'image/svg+xml'
+                    },
+                    {
+                        src: 'icon.svg',
                         sizes: '512x512',
-                        type: 'image/svg+xml',
-                        purpose: 'any maskable'
+                        type: 'image/svg+xml'
                     }
-                ],
-                start_url: '/',
-                display: 'standalone',
-                background_color: '#ffffff'
+                ]
             }
         })
     ],

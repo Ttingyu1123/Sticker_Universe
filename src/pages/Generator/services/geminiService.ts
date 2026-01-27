@@ -62,17 +62,19 @@ export async function generateSticker(
 
     const response = await ai.models.generateContent({
       model: model,
-      contents: {
-        parts: [
-          {
-            inlineData: {
-              data: base64Image.split(',')[1] || base64Image,
-              mimeType: 'image/jpeg',
+      contents: [
+        {
+          parts: [
+            {
+              inlineData: {
+                data: base64Image.split(',')[1] || base64Image,
+                mimeType: 'image/jpeg',
+              },
             },
-          },
-          { text: prompt },
-        ],
-      },
+            { text: prompt },
+          ],
+        },
+      ],
       config: config
     });
 
@@ -124,5 +126,70 @@ export async function generateSticker(
       throw new Error("KEY_NOT_FOUND");
     }
     throw error;
+  }
+}
+
+export async function generateCaptions(
+  apiKey: string,
+  base64Image: string,
+  model: string = "gemini-1.5-pro"
+): Promise<string[]> {
+  const ai = new GoogleGenAI({ apiKey });
+
+  const prompt = `
+    Analyze this image and suggest 5 short, funny, and relevant captions suitable for a LINE sticker.
+    
+    REQUIREMENTS:
+    - Use Traditional Chinese (Taiwan usage).
+    - Incorporate popular Taiwanese internet slang where appropriate (e.g. 歸剛欸, 真的假的, 笑死, 哭阿, 有料).
+    - Keep each caption under 10 characters.
+    - Return ONLY the 5 captions, separated by commas or newlines. No numbering, no introduction.
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: model,
+      contents: [
+        {
+          parts: [
+            {
+              inlineData: {
+                data: base64Image.split(',')[1] || base64Image,
+                mimeType: 'image/jpeg',
+              },
+            },
+            { text: prompt },
+          ],
+        },
+      ],
+    });
+
+    const candidate = response.candidates?.[0];
+    if (!candidate || !candidate.content?.parts?.[0]?.text) {
+      throw new Error("No captions generated.");
+    }
+
+    const text = candidate.content.parts[0].text;
+    const captions = text.split(/[\n,]+/).map(s => s.trim()).filter(s => s.length > 0);
+    return captions.slice(0, 5);
+
+  } catch (error) {
+    console.error("Error generating captions:", error);
+    throw error;
+  }
+}
+
+export async function listAvailableModels(apiKey: string): Promise<string[]> {
+  const ai = new GoogleGenAI({ apiKey });
+  try {
+    const response: any = await ai.models.list();
+    if (response.models) {
+      return response.models.map((m: any) => m.name.replace('models/', ''));
+    }
+    // Fallback if it's not structured as expected, return empty to avoid crash
+    return [];
+  } catch (error) {
+    console.error("Failed to list models:", error);
+    return [];
   }
 }

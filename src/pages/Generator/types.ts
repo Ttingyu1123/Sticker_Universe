@@ -7,12 +7,7 @@ export interface Sticker {
 }
 
 
-export interface Sticker {
-  id: string;
-  imageUrl: string;
-  phrase: string;
-  timestamp: number;
-}
+
 
 export interface PhraseOption {
   text: string;

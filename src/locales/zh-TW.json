@@ -11,7 +11,8 @@
         "packager": "美工",
         "eraser": "橡皮擦",
         "gallery": "作品集",
-        "generate": "生成"
+        "generate": "生成",
+        "captioning": "AI 智慧配文"
     },
     "gallery": {
         "title": "作品集",
@@ -66,6 +67,20 @@
             "invalid": "請輸入有效的 API Key",
             "expired": "API Key 無效或已過期，請重新輸入。",
             "notFound": "找不到 API Key 或無效。"
+        },
+        "mode": {
+            "textToSticker": "文字轉貼圖",
+            "aiCaptioning": "AI 智慧配文"
+        },
+        "caption": {
+            "title": "AI 靈感配文",
+            "suggested": "AI 推薦台詞",
+            "uploadTitle": "點擊或拖放圖片至此",
+            "uploadDesc": "上傳照片，讓 AI 幫你想梗",
+            "placeholder": "上傳圖片以獲取推薦台詞！",
+            "useThis": "選用",
+            "analyzing": "正在分析圖片...",
+            "thinking": "正在構思有趣的梗..."
         },
         "phases": {
             "upload": "第一步：上傳",
@@ -339,7 +354,7 @@
     },
     "packager": {
         "title": "打包器",
-        "subtitle": "資產處理",
+        "subtitle": "裁切去背",
         "reset": "重置",
         "home": "首頁",
         "upload": {

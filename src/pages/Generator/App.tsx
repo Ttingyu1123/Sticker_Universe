@@ -1,45 +1,19 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Download, Sparkles, Image as ImageIcon, Key, Wand2, Settings, Zap, Feather, Cloud, Disc, Tv, Heart, ExternalLink, Trash2, Palette, Type, Scissors, AlertTriangle, Star, FileArchive, Home } from 'lucide-react';
-import JSZip from 'jszip';
 import { useTranslation } from 'react-i18next';
-import Button from './components/Button';
-
-import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
-import { generateSticker } from './services/geminiService';
+import {
+  Upload, Wand2, Download, Share2, Sparkles, Type,
+  Palette, Image as ImageIcon, Zap, Feather, Cloud,
+  Disc, Tv, Heart, Key, ExternalLink, Home, FileArchive,
+  Scissors, AlertTriangle, ChevronRight, Check, Trash2, Settings, Star
+} from 'lucide-react';
+import { GoogleGenAI } from "@google/genai";
+import JSZip from 'jszip';
 import { saveStickerToDB } from '../../db';
-import { THEMES, Sticker, StickerTheme } from './types';
-
-// ... (Keep existing AppSwitcher)
-
-const Stepper = ({ label, value, min, max, onChange }: { label: string, value: number, min: number, max: number, onChange: (val: number) => void }) => (
-  <div className="space-y-1">
-    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</label>
-    <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:border-violet-300 transition-colors">
-      <button
-        onClick={() => onChange(Math.max(min, value - 1))}
-        className="p-3 text-slate-400 hover:bg-slate-100 active:bg-slate-200 transition-colors"
-        disabled={value <= min}
-      >
-        <span className="text-sm font-bold">-</span>
-      </button>
-      <input
-        type="number"
-        value={value}
-        readOnly
-        className="w-full py-2 text-center bg-transparent font-bold text-sm outline-none appearance-none text-slate-700"
-      />
-      <button
-        onClick={() => onChange(Math.min(max, value + 1))}
-        className="p-3 text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition-colors"
-        disabled={value >= max}
-      >
-        <span className="text-sm font-bold">+</span>
-      </button>
-    </div>
-  </div>
-);
-
-// AppSwitcher removed
+import { Sticker, StickerTheme, THEMES } from './types';
+import { generateSticker, generateCaptions, listAvailableModels } from './services/geminiService';
+import { Button } from '../../components/ui/Button';
+import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
 
 
 
@@ -64,7 +38,7 @@ const App: React.FC = () => {
 
   const [currentTheme, setCurrentTheme] = useState<StickerTheme>(THEMES[0]);
 
-  const [selectedModel, setSelectedModel] = useState<string>('gemini-3-pro-image-preview');
+  const STICKER_MODEL = 'gemini-3-pro-image-preview';
   const [image, setImage] = useState<string | null>(null);
   const [selectedPhrase, setSelectedPhrase] = useState<string>('');
   const [customPhrase, setCustomPhrase] = useState<string>('');
@@ -73,12 +47,18 @@ const App: React.FC = () => {
   const [autoRemoveBg, setAutoRemoveBg] = useState<boolean>(true);
   const [batchSize, setBatchSize] = useState<number>(1);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isAnalyzingCaption, setIsAnalyzingCaption] = useState(false);
+  const [generatedCaptions, setGeneratedCaptions] = useState<string[]>([]);
+  const [captionImage, setCaptionImage] = useState<string | null>(null);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [stickers, setStickers] = useState<Sticker[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isZipping, setIsZipping] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // AI Caption State
+  const [mode, setMode] = useState<'text' | 'image-caption'>('text');
 
   // Update selected style when theme changes
   useEffect(() => {
@@ -114,9 +94,7 @@ const App: React.FC = () => {
     setShowKeyModal(true);
   };
 
-  const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedModel(e.target.value);
-  };
+
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -141,6 +119,70 @@ const App: React.FC = () => {
         setError(null);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCaptionImageSelect = async (file: File) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = e.target?.result as string;
+      setCaptionImage(base64);
+      setGeneratedCaptions([]);
+
+      if (!apiKey) {
+        setShowKeyModal(true);
+        return;
+      }
+
+      setIsAnalyzingCaption(true);
+      try {
+        const captions = await generateCaptions(apiKey, base64);
+        setGeneratedCaptions(captions);
+      } catch (err: any) {
+        console.error(err);
+        let errorMsg = `Failed: ${err.message || 'Unknown error'}`;
+
+        // Try to list available models to help debug
+        if (err.message?.includes('404') || err.message?.includes('not found')) {
+          try {
+            const models = await listAvailableModels(apiKey);
+            const modelNames = models.map(m => m.split('/').pop()).join(', ');
+            errorMsg += ` | Available models: ${modelNames}`;
+          } catch (mdlErr) {
+            console.error("Could not list models", mdlErr);
+          }
+        }
+
+        if (err.message === "KEY_NOT_FOUND") {
+          setError(t('generator.apiKey.invalid'));
+          setShowKeyModal(true);
+        } else {
+          setError(errorMsg);
+          console.error("Full Error:", err);
+        }
+      } finally {
+        setIsAnalyzingCaption(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCaptionSelect = (caption: string) => {
+    setSelectedPhrase(caption);
+    setCustomPhrase('');
+    setBatchSize(1);
+
+    // Use the caption image as the source image for generation
+    if (captionImage) {
+      setImage(captionImage);
+    }
+
+    // Automatically scroll to Style section
+    const styleSection = document.getElementById('style-section');
+    if (styleSection) {
+      styleSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 600, behavior: 'smooth' });
     }
   };
 
@@ -257,7 +299,7 @@ const App: React.FC = () => {
           apiKey,
           image,
           phraseToUse,
-          selectedModel,
+          STICKER_MODEL,
           style.promptSnippet,
           includeText
         );
@@ -340,7 +382,7 @@ const App: React.FC = () => {
         const blob = await response.blob();
         folder?.file(`${sticker.phrase.replace(/\s/g, '_')}_${sticker.id}.png`, blob);
       } catch (error) {
-        console.error(`Failed to add sticker ${sticker.id} to zip:`, error);
+        console.error(`Failed to add sticker ${sticker.id} to zip: `, error);
       }
     }
 
@@ -405,12 +447,10 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Unified Header - Mobile: Controls Only, Desktop: Full */}
+      {/* Unified Header */}
       <nav className="fixed top-4 left-4 right-4 z-50">
         <div className="max-w-7xl mx-auto rounded-2xl px-6 py-3 flex items-center justify-between bg-white/70 backdrop-blur-xl shadow-lg border border-white/50">
           <div className="flex items-center gap-4">
-            {/* AppSwitcher removed */}
-
             <div className="flex items-center gap-3">
               <div className={`bg-gradient-to-br p-2 rounded-xl text-white shadow-lg ${currentTheme.id === 'taiwanese' ? 'from-violet-500 to-pink-500 shadow-violet-500/20' : 'from-teal-500 to-emerald-500 shadow-teal-500/20'}`}>
                 <Sparkles size={18} strokeWidth={2.5} />
@@ -425,7 +465,6 @@ const App: React.FC = () => {
               </div>
             </div>
           </div>
-          {/* Right Side Header */}
           <div className="flex items-center gap-2">
             <div className="hidden sm:block">
               <LanguageSwitcher />
@@ -439,7 +478,7 @@ const App: React.FC = () => {
             >
               <Key size={16} />
             </button>
-            <a href="https://tingyusdeco.com/" className="text-xs font-bold text-slate-400 hover:text-violet-600 flex items-center gap-1.5 transition-colors px-3 py-1.5 hover:bg-slate-50 rounded-lg">
+            <a href="/" className="text-xs font-bold text-slate-400 hover:text-violet-600 flex items-center gap-1.5 transition-colors px-3 py-1.5 hover:bg-slate-50 rounded-lg">
               <Home size={14} /> <span className="hidden sm:inline">{t('app.backHome')}</span>
             </a>
           </div>
@@ -447,6 +486,7 @@ const App: React.FC = () => {
       </nav>
 
       <main className="pt-28 pb-12 px-6 max-w-5xl mx-auto space-y-8 relative z-0">
+
 
         {/* Theme Selector */}
         <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide snap-x">
@@ -498,7 +538,7 @@ const App: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Style Selection */}
-          <section className="glass-panel rounded-[2rem] p-8 space-y-6">
+          <section id="style-section" className="glass-panel rounded-[2rem] p-8 space-y-6">
             <h2 className="text-sm font-black flex items-center gap-2 text-slate-500 uppercase tracking-widest"><Palette size={18} className={currentTheme.id === 'taiwanese' ? 'text-pink-500' : 'text-teal-500'} /> {t('generator.phases.style')}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {currentTheme.styles.map((style) => (
@@ -627,29 +667,30 @@ const App: React.FC = () => {
       </main>
 
       {/* Footer and Loading Overlay */}
-
-
-      {isGenerating && (
-        <div className="fixed inset-0 bg-slate-50/80 backdrop-blur-lg z-[60] flex flex-col items-center justify-center p-6 text-center animate-in fade-in">
-          <div className="relative w-24 h-24 mb-6">
-            <div className="absolute inset-0 border-4 border-slate-200 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-violet-500 rounded-full border-t-transparent animate-spin"></div>
-            <div className="absolute inset-0 flex items-center justify-center text-violet-500">
-              <Sparkles size={32} className="animate-pulse" />
+      {
+        isGenerating && (
+          <div className="fixed inset-0 bg-slate-50/80 backdrop-blur-lg z-[60] flex flex-col items-center justify-center p-6 text-center animate-in fade-in">
+            <div className="relative w-24 h-24 mb-6">
+              <div className="absolute inset-0 border-4 border-slate-200 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-violet-500 rounded-full border-t-transparent animate-spin"></div>
+              <div className="absolute inset-0 flex items-center justify-center text-violet-500">
+                <Sparkles size={32} className="animate-pulse" />
+              </div>
             </div>
-          </div>
-          <h3 className="text-xl font-black text-slate-700 mb-2">{batchSize > 1 ? `${t('generator.action.batchProcessing')} (${progress.current}/${batchSize})` : t('generator.action.generatingArt')}</h3>
-          <p className="text-slate-400 font-bold text-xs tracking-wide uppercase">{t('generator.action.applyingMagic')}</p>
-          {batchSize > 1 && (
-            <div className="w-64 bg-slate-200 h-1.5 rounded-full mt-6 overflow-hidden">
-              <div className="bg-gradient-to-r from-violet-500 to-pink-500 h-full transition-all duration-300" style={{ width: `${(progress.current / batchSize) * 100}%` }}></div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+            <h3 className="text-xl font-black text-slate-700 mb-2">{batchSize > 1 ? `${t('generator.action.batchProcessing')} (${progress.current} /${batchSize})` : t('generator.action.generatingArt')}</h3 >
+            <p className="text-slate-400 font-bold text-xs tracking-wide uppercase">{t('generator.action.applyingMagic')}</p>
+            {
+              batchSize > 1 && (
+                <div className="w-64 bg-slate-200 h-1.5 rounded-full mt-6 overflow-hidden">
+                  <div className="bg-gradient-to-r from-violet-500 to-pink-500 h-full transition-all duration-300" style={{ width: `${(progress.current / batchSize) * 100}%` }}></div>
+                </div>
+              )
+            }
+          </div >
+        )
+      }
+    </div >
   );
-
 };
 
 export default App;
