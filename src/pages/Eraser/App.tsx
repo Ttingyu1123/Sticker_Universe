@@ -113,10 +113,34 @@ const App: React.FC = () => {
 
   const handleDownload = () => {
     if (historyIndex >= 0) {
-      const link = document.createElement('a');
-      link.download = `sticker-pro-${Date.now()}.png`;
-      link.href = history[historyIndex];
-      link.click();
+      const dataUrl = history[historyIndex];
+      // Convert DataURL to Blob to handle large files and mobile download better
+      try {
+        const byteString = atob(dataUrl.split(',')[1]);
+        const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([ab], { type: mimeString });
+        const blobUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.download = `sticker-pro-${Date.now()}.png`;
+        link.href = blobUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      } catch (e) {
+        console.error("Download failed", e);
+        // Fallback
+        const link = document.createElement('a');
+        link.download = `sticker-pro-${Date.now()}.png`;
+        link.href = dataUrl;
+        link.click();
+      }
     }
   };
 
@@ -264,14 +288,17 @@ const App: React.FC = () => {
 
       {showGallery && (
         <GalleryPicker
-          onSelect={(blob) => {
-            const url = URL.createObjectURL(blob);
-            const img = new Image();
-            img.onload = () => {
-              handleImageUpload(img);
-              setShowGallery(false);
-            };
-            img.src = url;
+          onSelect={(blobs) => {
+            if (blobs.length > 0) {
+              const blob = blobs[0];
+              const url = URL.createObjectURL(blob);
+              const img = new Image();
+              img.onload = () => {
+                handleImageUpload(img);
+                setShowGallery(false);
+              };
+              img.src = url;
+            }
           }}
           onClose={() => setShowGallery(false)}
         />
