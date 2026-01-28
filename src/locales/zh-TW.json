@@ -128,7 +128,9 @@
             "packagerTitle": "貼圖美工",
             "packagerDesc": "自動排版、針對不同平台輸出與格式化。",
             "svgTitle": "SVG 魔法",
-            "svgDesc": "將點陣圖轉為向量圖，無限縮放不失真。"
+            "svgDesc": "將點陣圖轉為向量圖，無限縮放不失真。",
+            "animatorTitle": "動態貼圖",
+            "animatorDesc": "製作多圖層動態貼圖，支援 APNG 與 GIF 格式匯出。"
         },
         "footer": "由 Google Gemini Pro 驅動 • 需在瀏覽器中直接使用 API Key"
     },

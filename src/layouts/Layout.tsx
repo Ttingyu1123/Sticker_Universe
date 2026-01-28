@@ -138,6 +138,14 @@ export const Layout = () => {
                             </>
                         )}
                     </NavLink>
+                    <NavLink to="/animator" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                        {({ isActive }) => (
+                            <>
+                                <Video size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[10px] font-bold">{t('app.animator') || 'Animator'}</span>
+                            </>
+                        )}
+                    </NavLink>
                     <NavLink to="/gallery" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
                         {({ isActive }) => (
                             <>

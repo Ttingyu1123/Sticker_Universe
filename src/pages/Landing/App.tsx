@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Palette, Layers, Eraser, ArrowRight, Zap, FileCode } from 'lucide-react';
+import { Sparkles, Palette, Layers, Eraser, ArrowRight, Zap, FileCode, Video } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
 
@@ -81,7 +81,7 @@ const Landing = () => {
                 </div>
 
                 {/* Feature Grid */}
-                <div id="features" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
+                <div id="features" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
                     <FeatureCard
                         to="/generator"
                         icon={Sparkles}
@@ -96,6 +96,14 @@ const Landing = () => {
                         title={t('landing.features.editorTitle')}
                         desc={t('landing.features.editorDesc')}
                         color="text-pink-500"
+                        cta={t('landing.launchApp')}
+                    />
+                    <FeatureCard
+                        to="/animator"
+                        icon={Video}
+                        title={t('landing.features.animatorTitle')}
+                        desc={t('landing.features.animatorDesc')}
+                        color="text-blue-500"
                         cta={t('landing.launchApp')}
                     />
                     <FeatureCard

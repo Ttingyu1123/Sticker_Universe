@@ -128,7 +128,9 @@
             "packagerTitle": "Packager",
             "packagerDesc": "Batch crop, remove background, and outline for Line/Telegram stickers.",
             "svgTitle": "SVG Magic",
-            "svgDesc": "Convert raster images to infinite scalable vectors."
+            "svgDesc": "Convert raster images to infinite scalable vectors.",
+            "animatorTitle": "Animator",
+            "animatorDesc": "Create dynamic stickers with multi-layer animations and export as APNG or GIF."
         },
         "footer": "Powered by Google Gemini Pro • Requires API Key used directly in browser"
     },
