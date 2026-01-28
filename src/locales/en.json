@@ -33,7 +33,22 @@
         "settings": "Animation Settings",
         "duration": "Duration (sec)",
         "fps": "Frame Rate (FPS)",
-        "canvasSize": "Canvas Size"
+        "canvasSize": "Canvas Size",
+        "stroke": "Stroke",
+        "strokeWidth": "Stroke Width",
+        "doubleStroke": "Double Stroke",
+        "font": "Font",
+        "uploadFont": "Upload Font",
+        "defaultFont": "Default Font",
+        "scale": "Scale",
+        "rotate": "Rotate",
+        "size": "Size",
+        "color": "Color",
+        "width": "Width",
+        "transform": "Transform",
+        "animation": "Animation",
+        "textStyle": "Text Style",
+        "deleteLayer": "Delete Layer"
     },
     "printSheet": {
         "title": "Print Studio",

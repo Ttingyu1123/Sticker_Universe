@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, Image as ImageIcon, Video, RotateCw, Activity, Move, Upload, Type, Plus, Layers, ChevronUp, ChevronDown, Settings } from 'lucide-react';
+import { Download, Image as ImageIcon, Video, RotateCw, Activity, Move, Upload, Type, Plus, Layers, ChevronUp, ChevronDown, Settings, ZoomIn, ZoomOut } from 'lucide-react';
 import './animations.css';
 import { GalleryPicker } from '../../components/GalleryPicker';
 // @ts-ignore
@@ -27,12 +27,17 @@ export const AnimatorApp = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const [zoom, setZoom] = useState(1);
+    const [canvasSize, setCanvasSize] = useState({ width: 320, height: 270 });
+    const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
+
     // Helpers
     const generateId = () => Math.random().toString(36).substr(2, 9);
 
     const handleSelectImage = (blobs: Blob[]) => {
-        const newLayers = blobs.map(blob => ({
+        const newLayers = blobs.map((blob, i) => ({
             id: generateId(),
+            name: `Image ${layers.length + i + 1}`,
             type: 'image' as const,
             content: URL.createObjectURL(blob),
             x: 0,
@@ -52,6 +57,7 @@ export const AnimatorApp = () => {
         if (file) {
             const newLayer: Layer = {
                 id: generateId(),
+                name: file.name.split('.')[0] || 'Image',
                 type: 'image',
                 content: URL.createObjectURL(file),
                 x: 0,
@@ -70,6 +76,7 @@ export const AnimatorApp = () => {
     const handleAddText = () => {
         const newLayer: Layer = {
             id: generateId(),
+            name: 'Text',
             type: 'text',
             content: 'Text',
             x: 0,
@@ -109,6 +116,15 @@ export const AnimatorApp = () => {
         });
     };
 
+    const handleRenameLayer = (id: string, newName: string) => {
+        setLayers(prev => prev.map(l => l.id === id ? { ...l, name: newName } : l));
+        setEditingLayerId(null);
+    };
+
+    const handleCanvasResize = (width: number, height: number) => {
+        setCanvasSize({ width, height });
+    };
+
     const handleExport = async (format: 'apng' | 'gif') => {
         if (!containerRef.current || layers.length === 0) return;
         setIsExporting(true);
@@ -144,8 +160,8 @@ export const AnimatorApp = () => {
             // LINE Configs
             const totalFrames = duration * fps;
             const delay = 1000 / fps;
-            const WIDTH = 320;
-            const HEIGHT = 270;
+            const WIDTH = canvasSize.width;
+            const HEIGHT = canvasSize.height;
 
             for (let i = 0; i < totalFrames; i++) {
                 const currentTime = i * delay;
@@ -241,8 +257,11 @@ export const AnimatorApp = () => {
         a.click();
     };
 
+    // ... (existing code)
+
     return (
         <div className="min-h-screen bg-slate-50 p-6 flex flex-col items-center">
+            {/* ... header ... */}
             <header className="w-full max-w-5xl flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
@@ -268,14 +287,44 @@ export const AnimatorApp = () => {
             <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Left: Canvas Area (Span 2) */}
                 <div className="md:col-span-2 flex flex-col items-center">
-                    <div className="bg-slate-200 p-10 rounded-3xl shadow-inner mb-4 flex items-center justify-center min-h-[400px] w-full">
-                        <LayerCanvas
-                            layers={layers}
-                            selectedLayerId={selectedLayerId}
-                            onSelectLayer={setSelectedLayerId}
-                            onUpdateLayer={handleUpdateLayer}
-                            canvasRef={containerRef}
-                        />
+                    {/* Zoom Controls */}
+                    <div className="flex items-center gap-2 mb-2 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-200">
+                        <button
+                            onClick={() => setZoom(z => Math.max(0.5, z - 0.1))}
+                            className="p-1 hover:bg-slate-100 rounded-full text-slate-500"
+                            title="Zoom Out"
+                        >
+                            <ZoomOut size={14} />
+                        </button>
+                        <span className="text-xs font-mono w-12 text-center">{Math.round(zoom * 100)}%</span>
+                        <button
+                            onClick={() => setZoom(z => Math.min(2.0, z + 0.1))}
+                            className="p-1 hover:bg-slate-100 rounded-full text-slate-500"
+                            title="Zoom In"
+                        >
+                            <ZoomIn size={14} />
+                        </button>
+                        <button
+                            onClick={() => setZoom(1)}
+                            className="text-[10px] text-slate-400 hover:text-slate-600 ml-1 uppercase"
+                        >
+                            Reset
+                        </button>
+                    </div>
+
+                    <div className="bg-slate-200 p-10 rounded-3xl shadow-inner mb-4 flex items-center justify-center min-h-[400px] w-full overflow-hidden">
+                        <div style={{ transform: `scale(${zoom})`, transition: 'transform 0.2s ease-out' }}>
+                            <LayerCanvas
+                                layers={layers}
+                                selectedLayerId={selectedLayerId}
+                                onSelectLayer={setSelectedLayerId}
+                                onUpdateLayer={handleUpdateLayer}
+                                canvasRef={containerRef}
+                                zoom={zoom}
+                                width={canvasSize.width}
+                                height={canvasSize.height}
+                            />
+                        </div>
                     </div>
                     <p className="text-slate-400 text-xs">{t('animator.dragHint')}</p>
                 </div>
@@ -287,6 +336,48 @@ export const AnimatorApp = () => {
                         <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
                             <Settings size={16} className="text-slate-400" /> {t('animator.settings')}
                         </h3>
+                        {/* Canvas Size */}
+                        <div className="mb-4 pb-4 border-b border-slate-100">
+                            <label className="text-xs font-bold text-slate-500 mb-1 block">Canvas Size</label>
+                            <div className="flex gap-2 mb-2">
+                                <select
+                                    className="flex-1 text-xs border border-slate-200 rounded p-1.5 bg-slate-50"
+                                    value={
+                                        canvasSize.width === 320 && canvasSize.height === 270 ? 'line' :
+                                            canvasSize.width === 1080 && canvasSize.height === 1080 ? 'square' : 'custom'
+                                    }
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (val === 'line') handleCanvasResize(320, 270);
+                                        else if (val === 'square') handleCanvasResize(1080, 1080);
+                                    }}
+                                >
+                                    <option value="line">LINE Sticker (320x270)</option>
+                                    <option value="square">Square / IG (1080x1080)</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                            </div>
+                            <div className="flex gap-2 items-center">
+                                <input
+                                    type="number"
+                                    className="w-16 text-xs p-1 border rounded"
+                                    value={canvasSize.width}
+                                    onChange={(e) => handleCanvasResize(Number(e.target.value), canvasSize.height)}
+                                    title="Width"
+                                    placeholder="W"
+                                />
+                                <span className="text-slate-400">x</span>
+                                <input
+                                    type="number"
+                                    className="w-16 text-xs p-1 border rounded"
+                                    value={canvasSize.height}
+                                    onChange={(e) => handleCanvasResize(canvasSize.width, Number(e.target.value))}
+                                    title="Height"
+                                    placeholder="H"
+                                />
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-xs font-bold text-slate-500 mb-1 block">{t('animator.duration')}</label>
@@ -318,7 +409,7 @@ export const AnimatorApp = () => {
                             </div>
                         </div>
                         <div className="mt-3 pt-3 border-t border-slate-100 text-[10px] text-slate-400 flex justify-between">
-                            <span>{t('animator.canvasSize')}: 320 x 270</span>
+                            <span>{t('animator.canvasSize')}: {canvasSize.width} x {canvasSize.height}</span>
                             <span>Total Frames: {duration * fps}</span>
                         </div>
                     </div>
@@ -339,6 +430,7 @@ export const AnimatorApp = () => {
                                     <div
                                         key={layer.id}
                                         onClick={() => setSelectedLayerId(layer.id)}
+                                        onDoubleClick={() => setEditingLayerId(layer.id)}
                                         className={`p-2 rounded-lg border flex items-center gap-2 cursor-pointer transition-all ${selectedLayerId === layer.id ? 'border-violet-500 bg-violet-50' : 'border-slate-100 hover:bg-slate-50'
                                             }`}
                                     >
@@ -362,7 +454,26 @@ export const AnimatorApp = () => {
                                         </div>
 
                                         {layer.type === 'image' ? <ImageIcon size={14} className="text-slate-400" /> : <Type size={14} className="text-slate-400" />}
-                                        <span className="text-xs font-bold truncate flex-1">{layer.type === 'text' ? layer.content : t('animator.imageLayer')}</span>
+
+                                        {/* Rename Input or Label */}
+                                        {editingLayerId === layer.id ? (
+                                            <input
+                                                autoFocus
+                                                type="text"
+                                                className="flex-1 text-xs border rounded p-1 bg-white"
+                                                defaultValue={layer.name || (layer.type === 'image' ? t('animator.imageLayer') : layer.content)}
+                                                onBlur={(e) => handleRenameLayer(layer.id, e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') handleRenameLayer(layer.id, e.currentTarget.value)
+                                                }}
+                                                onClick={(e) => e.stopPropagation()}
+                                            />
+                                        ) : (
+                                            <span className="text-xs font-bold truncate flex-1 leading-tight">
+                                                {layer.name || (layer.type === 'text' ? layer.content : t('animator.imageLayer'))}
+                                            </span>
+                                        )}
+
                                         <button onClick={(e) => { e.stopPropagation(); handleDeleteLayer(layer.id); }} className="text-xs text-red-300 hover:text-red-500 p-1 hover:bg-red-50 rounded">×</button>
                                     </div>
                                 );
@@ -403,20 +514,22 @@ export const AnimatorApp = () => {
             </div>
 
             {/* Gallery Modal */}
-            {showGallery && (
-                <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
-                        <div className="p-4 border-b flex justify-between items-center">
-                            <h3 className="font-bold">Select from Gallery</h3>
-                            <button onClick={() => setShowGallery(false)} className="p-2 hover:bg-slate-100 rounded-full">✕</button>
-                        </div>
-                        <div className="flex-1 overflow-auto p-4">
-                            <GalleryPicker onSelect={handleSelectImage} onClose={() => setShowGallery(false)} />
+            {
+                showGallery && (
+                    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+                            <div className="p-4 border-b flex justify-between items-center">
+                                <h3 className="font-bold">Select from Gallery</h3>
+                                <button onClick={() => setShowGallery(false)} className="p-2 hover:bg-slate-100 rounded-full">✕</button>
+                            </div>
+                            <div className="flex-1 overflow-auto p-4">
+                                <GalleryPicker onSelect={handleSelectImage} onClose={() => setShowGallery(false)} />
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
-        </div>
+        </div >
     );
 };

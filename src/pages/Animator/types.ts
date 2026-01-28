@@ -5,6 +5,7 @@ export type LayerType = 'image' | 'text';
 
 export interface Layer {
     id: string;
+    name?: string;
     type: LayerType;
     content: string; // Blob URL or text string
 
@@ -24,4 +25,8 @@ export interface Layer {
     color?: string;
     fontFamily?: string;
     fontWeight?: string;
+    strokeColor?: string;
+    strokeWidth?: number;
+    doubleStrokeColor?: string;
+    doubleStrokeWidth?: number;
 }

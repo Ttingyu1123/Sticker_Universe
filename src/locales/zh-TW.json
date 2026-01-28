@@ -33,7 +33,22 @@
         "settings": "動畫設定",
         "duration": "時間長度 (秒)",
         "fps": "幀率 (FPS)",
-        "canvasSize": "畫布尺寸"
+        "canvasSize": "畫布尺寸",
+        "stroke": "邊框",
+        "strokeWidth": "邊框寬度",
+        "doubleStroke": "雙重邊框",
+        "font": "字型",
+        "uploadFont": "上傳字型",
+        "defaultFont": "預設字型",
+        "scale": "縮放",
+        "rotate": "旋轉",
+        "size": "大小",
+        "color": "顏色",
+        "width": "寬度",
+        "transform": "變形",
+        "animation": "動畫",
+        "textStyle": "文字樣式",
+        "deleteLayer": "刪除圖層"
     },
     "printSheet": {
         "title": "貼紙列印室",
