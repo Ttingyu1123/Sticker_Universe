@@ -51,12 +51,12 @@ export const LayerCanvas: React.FC<LayerCanvasProps> = ({
 
     return (
         <div
-            className="w-[320px] h-[320px] border border-slate-200 relative overflow-hidden select-none bg-white"
+            className="w-[320px] h-[270px] border border-slate-200 relative overflow-hidden select-none bg-white shadow-lg mx-auto"
             style={{
                 backgroundImage: `
-                    linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
-                    linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
-                    linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+                    linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+                    linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+                    linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
                     linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)
                 `,
                 backgroundSize: '20px 20px',

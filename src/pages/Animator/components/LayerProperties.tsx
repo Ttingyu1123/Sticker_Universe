@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Layer, AnimationType } from '../types';
 import { Activity, RotateCw, Move, Type, Trash2, Maximize, RotateCcw } from 'lucide-react';
 import '../animations.css';
@@ -14,10 +15,12 @@ export const LayerProperties: React.FC<LayerPropertiesProps> = ({
     onUpdateLayer,
     onDeleteLayer
 }) => {
+    const { t } = useTranslation();
+
     if (!selectedLayer) {
         return (
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center text-slate-400">
-                <p>Select a layer to edit properties</p>
+                <p>{t('animator.selectLayerHint')}</p>
             </div>
         );
     }
@@ -45,8 +48,8 @@ export const LayerProperties: React.FC<LayerPropertiesProps> = ({
                             key={anim.id}
                             onClick={() => onUpdateLayer(selectedLayer.id, { animation: anim.id as AnimationType })}
                             className={`p-2 rounded-lg border flex flex-col items-center gap-1 transition-all ${selectedLayer.animation === anim.id
-                                    ? 'border-violet-500 bg-violet-50 text-violet-700'
-                                    : 'border-slate-100 hover:border-slate-300 text-slate-600'
+                                ? 'border-violet-500 bg-violet-50 text-violet-700'
+                                : 'border-slate-100 hover:border-slate-300 text-slate-600'
                                 }`}
                         >
                             {anim.icon}

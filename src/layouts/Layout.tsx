@@ -60,7 +60,6 @@ export const Layout = () => {
                     <NavItem to="/eraser" icon={Eraser} label={t('app.eraser')} />
                     <NavItem to="/svg-converter" icon={FileCode} label={t('app.svgConverter')} />
                     <NavItem to="/print-sheet" icon={Printer} label={t('app.printSheet')} />
-                    <NavItem to="/print-sheet" icon={Printer} label={t('app.printSheet')} />
                     <NavItem to="/animator" icon={Video} label={t('app.animator') || 'Animator'} />
                     <NavItem to="/gallery" icon={FolderHeart} label={t('app.gallery')} />
                 </nav>

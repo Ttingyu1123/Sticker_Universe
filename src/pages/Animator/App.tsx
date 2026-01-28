@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, Image as ImageIcon, Video, RotateCw, Activity, Move, Upload, Type, Plus, Layers, ChevronUp, ChevronDown } from 'lucide-react';
+import { Download, Image as ImageIcon, Video, RotateCw, Activity, Move, Upload, Type, Plus, Layers, ChevronUp, ChevronDown, Settings } from 'lucide-react';
 import './animations.css';
 import { GalleryPicker } from '../../components/GalleryPicker';
 // @ts-ignore
@@ -13,10 +13,15 @@ import { LayerProperties } from './components/LayerProperties';
 // import { v4 as uuidv4 } from 'uuid'; 
 
 export const AnimatorApp = () => {
+    const { t } = useTranslation();
     const [layers, setLayers] = useState<Layer[]>([]);
     const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
     const [isExporting, setIsExporting] = useState(false);
     const [showGallery, setShowGallery] = useState(false);
+
+    // Animation Settings (LINE Constraints)
+    const [duration, setDuration] = useState(2); // 1, 2, 3, 4
+    const [fps, setFps] = useState(10); // 5, 10, 15, 20 (LINE recommends < 20 for file size)
 
     // We target the Canvas wrapper for export
     const containerRef = useRef<HTMLDivElement>(null);
@@ -136,10 +141,11 @@ export const AnimatorApp = () => {
 
         try {
             const frames: string[] = [];
-            const fps = 20;
-            const duration = 2000;
-            const totalFrames = (duration / 1000) * fps;
+            // LINE Configs
+            const totalFrames = duration * fps;
             const delay = 1000 / fps;
+            const WIDTH = 320;
+            const HEIGHT = 270;
 
             for (let i = 0; i < totalFrames; i++) {
                 const currentTime = i * delay;
@@ -150,13 +156,12 @@ export const AnimatorApp = () => {
                 });
 
                 // Allow browser paint (awaiting tick)
-                // In some environments, we might need a requestAnimationFrame or tight timeout
                 // But usually toPng captures the current computed style.
 
                 // Capture
                 const dataUrl = await toPng(containerRef.current, {
-                    width: 320,
-                    height: 320,
+                    width: WIDTH,
+                    height: HEIGHT,
                     pixelRatio: 1,
                     cacheBust: false,
                     backgroundColor: null,
@@ -175,8 +180,8 @@ export const AnimatorApp = () => {
             // 2. Encode
             if (format === 'apng') {
                 const canvas = document.createElement('canvas');
-                canvas.width = 320;
-                canvas.height = 320;
+                canvas.width = WIDTH;
+                canvas.height = HEIGHT;
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
                 if (!ctx) throw new Error("No Canvas Context");
 
@@ -184,12 +189,12 @@ export const AnimatorApp = () => {
                 for (const frameUrl of frames) {
                     const img = new Image();
                     await new Promise((resolve) => { img.onload = resolve; img.src = frameUrl; });
-                    ctx.clearRect(0, 0, 320, 320);
-                    ctx.drawImage(img, 0, 0, 320, 320);
-                    rgbaFrames.push(ctx.getImageData(0, 0, 320, 320).data.buffer);
+                    ctx.clearRect(0, 0, WIDTH, HEIGHT);
+                    ctx.drawImage(img, 0, 0, WIDTH, HEIGHT);
+                    rgbaFrames.push(ctx.getImageData(0, 0, WIDTH, HEIGHT).data.buffer);
                 }
 
-                const apng = UPNG.encode(rgbaFrames, 320, 320, 0, new Array(rgbaFrames.length).fill(delay));
+                const apng = UPNG.encode(rgbaFrames, WIDTH, HEIGHT, 0, new Array(rgbaFrames.length).fill(delay));
                 const url = URL.createObjectURL(new Blob([apng], { type: 'image/png' }));
                 downloadFile(url, `sticker-animated-${Date.now()}.png`);
 
@@ -198,8 +203,8 @@ export const AnimatorApp = () => {
                 const gif = new GIF({
                     workers: 2,
                     quality: 10,
-                    width: 320,
-                    height: 320,
+                    width: WIDTH,
+                    height: HEIGHT,
                     workerScript: '/gif.worker.js',
                     transparent: 'rgba(0,0,0,0)'
                 });
@@ -242,20 +247,20 @@ export const AnimatorApp = () => {
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                         <Video className="text-violet-600" />
-                        Administrator
+                        {t('animator.title')}
                     </h1>
-                    <p className="text-slate-500">Video Animator - Multi-Layer Composition</p>
+                    <p className="text-slate-500">{t('animator.subtitle')}</p>
                 </div>
                 <div className="flex gap-2">
                     <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} title="Upload" />
                     <button onClick={() => setShowGallery(true)} className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 font-bold flex items-center gap-2">
-                        <ImageIcon size={18} /> Sticker
+                        <ImageIcon size={18} /> {t('animator.sticker')}
                     </button>
                     <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 font-bold flex items-center gap-2">
-                        <Upload size={18} /> Image
+                        <Upload size={18} /> {t('animator.image')}
                     </button>
                     <button onClick={handleAddText} className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 font-bold flex items-center gap-2">
-                        <Type size={18} /> Text
+                        <Type size={18} /> {t('animator.text')}
                     </button>
                 </div>
             </header>
@@ -263,7 +268,7 @@ export const AnimatorApp = () => {
             <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Left: Canvas Area (Span 2) */}
                 <div className="md:col-span-2 flex flex-col items-center">
-                    <div className="bg-slate-200 p-10 rounded-3xl shadow-inner mb-4">
+                    <div className="bg-slate-200 p-10 rounded-3xl shadow-inner mb-4 flex items-center justify-center min-h-[400px] w-full">
                         <LayerCanvas
                             layers={layers}
                             selectedLayerId={selectedLayerId}
@@ -272,16 +277,56 @@ export const AnimatorApp = () => {
                             canvasRef={containerRef}
                         />
                     </div>
-                    <p className="text-slate-400 text-xs">Drag to move layers • Click to select</p>
+                    <p className="text-slate-400 text-xs">{t('animator.dragHint')}</p>
                 </div>
 
                 {/* Right: Properties & Layers */}
                 <div className="flex flex-col gap-6">
+                    {/* Settings Panel */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
+                        <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
+                            <Settings size={16} className="text-slate-400" /> {t('animator.settings')}
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 mb-1 block">{t('animator.duration')}</label>
+                                <div className="flex bg-slate-100 rounded-lg p-1">
+                                    {[1, 2, 3, 4].map(s => (
+                                        <button
+                                            key={s}
+                                            onClick={() => setDuration(s)}
+                                            className={`flex-1 text-xs py-1 rounded font-bold transition-all ${duration === s ? 'bg-white shadow text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}
+                                        >
+                                            {s}s
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 mb-1 block">{t('animator.fps')}</label>
+                                <div className="flex bg-slate-100 rounded-lg p-1">
+                                    {[5, 10, 15, 20].map(f => (
+                                        <button
+                                            key={f}
+                                            onClick={() => setFps(f)}
+                                            className={`flex-1 text-xs py-1 rounded font-bold transition-all ${fps === f ? 'bg-white shadow text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}
+                                        >
+                                            {f}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mt-3 pt-3 border-t border-slate-100 text-[10px] text-slate-400 flex justify-between">
+                            <span>{t('animator.canvasSize')}: 320 x 270</span>
+                            <span>Total Frames: {duration * fps}</span>
+                        </div>
+                    </div>
+
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
                         <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
-                            <Layers size={16} /> Layers
+                            <Layers size={16} /> {t('animator.layers')}
                         </h3>
-                        {/* Layer List */}
                         {/* Layer List */}
                         <div className="max-h-48 overflow-y-auto space-y-2 mb-4 pr-2">
                             {[...layers].reverse().map((layer) => {
@@ -317,12 +362,12 @@ export const AnimatorApp = () => {
                                         </div>
 
                                         {layer.type === 'image' ? <ImageIcon size={14} className="text-slate-400" /> : <Type size={14} className="text-slate-400" />}
-                                        <span className="text-xs font-bold truncate flex-1">{layer.type === 'text' ? layer.content : 'Image Layer'}</span>
+                                        <span className="text-xs font-bold truncate flex-1">{layer.type === 'text' ? layer.content : t('animator.imageLayer')}</span>
                                         <button onClick={(e) => { e.stopPropagation(); handleDeleteLayer(layer.id); }} className="text-xs text-red-300 hover:text-red-500 p-1 hover:bg-red-50 rounded">×</button>
                                     </div>
                                 );
                             })}
-                            {layers.length === 0 && <p className="text-xs text-slate-300 text-center py-4">No layers added</p>}
+                            {layers.length === 0 && <p className="text-xs text-slate-300 text-center py-4">{t('animator.noLayers')}</p>}
                         </div>
                     </div>
 
@@ -333,22 +378,22 @@ export const AnimatorApp = () => {
                     />
 
                     {/* Export */}
-                    <div className="bg-slate-900 rounded-2xl p-6 text-white mt-auto">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-6 text-slate-900 mt-auto shadow-sm">
                         <h3 className="font-bold mb-4 flex items-center gap-2">
-                            <Download size={20} className="text-emerald-400" /> Export
+                            <Download size={20} className="text-emerald-500" /> {t('animator.export')}
                         </h3>
                         <div className="grid grid-cols-2 gap-3">
                             <button
                                 onClick={() => handleExport('apng')}
                                 disabled={isExporting || layers.length === 0}
-                                className="bg-emerald-500 hover:bg-emerald-600 py-2 rounded-lg font-bold text-sm disabled:opacity-50"
+                                className="bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg font-bold text-sm disabled:opacity-50 transition-colors"
                             >
                                 {isExporting ? '...' : 'APNG'}
                             </button>
                             <button
                                 onClick={() => handleExport('gif')}
                                 disabled={isExporting || layers.length === 0}
-                                className="bg-white/10 hover:bg-white/20 py-2 rounded-lg font-bold text-sm disabled:opacity-50"
+                                className="bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg font-bold text-sm disabled:opacity-50 transition-colors"
                             >
                                 {isExporting ? '...' : 'GIF'}
                             </button>

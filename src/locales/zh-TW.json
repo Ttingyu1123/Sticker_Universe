@@ -15,7 +15,25 @@
         "generate": "生成",
         "svgConverter": "轉向量圖",
         "printSheet": "貼紙列印室",
-        "captioning": "AI 智慧配文"
+        "captioning": "AI 智慧配文",
+        "animator": "動態貼圖"
+    },
+    "animator": {
+        "title": "動態貼圖",
+        "subtitle": "多圖層動畫合成",
+        "sticker": "從作品集選擇",
+        "image": "上傳圖片",
+        "text": "新增文字",
+        "layers": "圖層",
+        "export": "匯出",
+        "dragHint": "拖曳可移動圖層 • 點擊選取",
+        "noLayers": "尚無圖層",
+        "imageLayer": "圖片圖層",
+        "selectLayerHint": "選擇圖層以編輯屬性",
+        "settings": "動畫設定",
+        "duration": "時間長度 (秒)",
+        "fps": "幀率 (FPS)",
+        "canvasSize": "畫布尺寸"
     },
     "printSheet": {
         "title": "貼紙列印室",

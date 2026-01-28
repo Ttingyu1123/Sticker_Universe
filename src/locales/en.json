@@ -15,7 +15,25 @@
         "generate": "Generate",
         "svgConverter": "SVG Magic",
         "printSheet": "Print Studio",
-        "captioning": "AI Captioning"
+        "captioning": "AI Captioning",
+        "animator": "Animator"
+    },
+    "animator": {
+        "title": "Animator",
+        "subtitle": "Multi-Layer Composition",
+        "sticker": "From Gallery",
+        "image": "Upload Image",
+        "text": "Add Text",
+        "layers": "Layers",
+        "export": "Export",
+        "dragHint": "Drag to move layers • Click to select",
+        "noLayers": "No layers added",
+        "imageLayer": "Image Layer",
+        "selectLayerHint": "Select a layer to edit properties",
+        "settings": "Animation Settings",
+        "duration": "Duration (sec)",
+        "fps": "Frame Rate (FPS)",
+        "canvasSize": "Canvas Size"
     },
     "printSheet": {
         "title": "Print Studio",
