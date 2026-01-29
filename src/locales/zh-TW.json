@@ -16,7 +16,8 @@
         "svgConverter": "轉向量圖",
         "printSheet": "貼紙列印室",
         "captioning": "AI 智慧配文",
-        "animator": "動態貼圖"
+        "animator": "動態貼圖",
+        "smartEraser": "智慧去背"
     },
     "linePreview": {
         "title": "LINE 預覽 (Preview)",

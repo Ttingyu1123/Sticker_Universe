@@ -130,6 +130,14 @@ const Landing = () => {
                         color="text-emerald-500"
                         cta={t('landing.launchApp')}
                     />
+                    <FeatureCard
+                        to="/layer-lab"
+                        icon={Layers}
+                        title="LayerLab"
+                        desc="Non-destructive mask editor (BETA)"
+                        color="text-violet-600"
+                        cta={t('landing.launchApp')}
+                    />
                 </div>
 
                 {/* Info Section */}
