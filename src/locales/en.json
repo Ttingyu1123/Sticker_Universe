@@ -581,6 +581,9 @@
             "presets": {
                 "title": "Presets",
                 "line": "Line Sticker",
+                "lineMain": "Line Main",
+                "lineTab": "Line Tab",
+                "lineEmoji": "Line Emoji",
                 "telegram": "Telegram",
                 "instagram": "Instagram",
                 "facebook": "Facebook",

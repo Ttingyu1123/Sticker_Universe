@@ -257,6 +257,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="flex flex-wrap gap-2">
                 {[
                   { name: t('editor.sidebar.presets.line'), w: 370, h: 320 },
+                  { name: t('editor.sidebar.presets.lineMain'), w: 240, h: 240 },
+                  { name: t('editor.sidebar.presets.lineTab'), w: 96, h: 74 },
+                  { name: t('editor.sidebar.presets.lineEmoji'), w: 180, h: 180 },
                   { name: t('editor.sidebar.presets.telegram'), w: 512, h: 512 },
                   { name: t('editor.sidebar.presets.instagram'), w: 1080, h: 1080 },
                   { name: t('editor.sidebar.presets.facebook'), w: 1200, h: 630 },

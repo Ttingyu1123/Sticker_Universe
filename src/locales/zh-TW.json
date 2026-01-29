@@ -581,6 +581,9 @@
             "presets": {
                 "title": "預設尺寸",
                 "line": "Line 貼圖",
+                "lineMain": "Line 主圖",
+                "lineTab": "Line 標籤",
+                "lineEmoji": "Line 表情貼",
                 "telegram": "Telegram",
                 "instagram": "Instagram",
                 "facebook": "Facebook",
