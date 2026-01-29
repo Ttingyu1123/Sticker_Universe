@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, Image as ImageIcon, Video, RotateCw, Activity, Move, Upload, Type, Plus, Layers, ChevronUp, ChevronDown, Settings, ZoomIn, ZoomOut } from 'lucide-react';
+import { Download, Image as ImageIcon, Video, Upload, Type, Layers, ChevronUp, ChevronDown, Settings, ZoomIn, ZoomOut, Smartphone, Loader2 } from 'lucide-react';
 import './animations.css';
 import { GalleryPicker } from '../../components/GalleryPicker';
+import { LinePreviewModal } from '../../components/LinePreviewModal';
 // @ts-ignore
 import UPNG from 'upng-js';
 import GIF from 'gif.js';
@@ -18,6 +19,11 @@ export const AnimatorApp = () => {
     const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
     const [isExporting, setIsExporting] = useState(false);
     const [showGallery, setShowGallery] = useState(false);
+
+    // LINE Preview State
+    const [showLinePreview, setShowLinePreview] = useState(false);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
     // Animation Settings (LINE Constraints)
     const [duration, setDuration] = useState(2); // 1, 2, 3, 4
@@ -125,39 +131,27 @@ export const AnimatorApp = () => {
         setCanvasSize({ width, height });
     };
 
-    const handleExport = async (format: 'apng' | 'gif') => {
-        if (!containerRef.current || layers.length === 0) return;
-        setIsExporting(true);
+    const generateAnimation = async (format: 'apng' | 'gif'): Promise<string | null> => {
+        if (!containerRef.current || layers.length === 0) return null;
 
         const layerElements: { el: HTMLElement, originalState: string, originalDelay: string }[] = [];
 
-        // 1. Prepare Layers for Animation Seeking
+        // 1. Prepare Layers
         layers.forEach(layer => {
-            // Find specific element inside the DOM
-            // We search for #layer-{id} 
-            // Note: toPng might re-render, so we operate on the live DOM first.
-
             const wrapper = containerRef.current?.querySelector(`#layer-${layer.id}`);
-            // The animation class is on the direct child (img or div)
             const animElement = wrapper?.firstElementChild as HTMLElement;
-
             if (animElement) {
-                // Store original state
                 layerElements.push({
                     el: animElement,
                     originalState: animElement.style.animationPlayState,
                     originalDelay: animElement.style.animationDelay
                 });
-
-                // Set to paused initially
                 animElement.style.animationPlayState = 'paused';
             }
         });
 
-
         try {
             const frames: string[] = [];
-            // LINE Configs
             const totalFrames = duration * fps;
             const delay = 1000 / fps;
             const WIDTH = canvasSize.width;
@@ -165,24 +159,9 @@ export const AnimatorApp = () => {
 
             for (let i = 0; i < totalFrames; i++) {
                 const currentTime = i * delay;
-
-                // Sync all layers
-                layerElements.forEach(item => {
-                    item.el.style.animationDelay = `-${currentTime}ms`;
-                });
-
-                // Allow browser paint (awaiting tick)
-                // But usually toPng captures the current computed style.
-
-                // Capture
-                const dataUrl = await toPng(containerRef.current, {
-                    width: WIDTH,
-                    height: HEIGHT,
-                    pixelRatio: 1,
-                    cacheBust: false,
-                    backgroundColor: null,
-                });
-
+                layerElements.forEach(item => { item.el.style.animationDelay = `-${currentTime}ms`; });
+                // @ts-ignore
+                const dataUrl = await toPng(containerRef.current, { width: WIDTH, height: HEIGHT, pixelRatio: 1, cacheBust: false, backgroundColor: null });
                 frames.push(dataUrl);
             }
 
@@ -192,14 +171,12 @@ export const AnimatorApp = () => {
                 item.el.style.animationDelay = item.originalDelay || '';
             });
 
-
             // 2. Encode
             if (format === 'apng') {
                 const canvas = document.createElement('canvas');
-                canvas.width = WIDTH;
-                canvas.height = HEIGHT;
+                canvas.width = WIDTH; canvas.height = HEIGHT;
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                if (!ctx) throw new Error("No Canvas Context");
+                if (!ctx) throw new Error("No Context");
 
                 const rgbaFrames: ArrayBuffer[] = [];
                 for (const frameUrl of frames) {
@@ -211,43 +188,52 @@ export const AnimatorApp = () => {
                 }
 
                 const apng = UPNG.encode(rgbaFrames, WIDTH, HEIGHT, 0, new Array(rgbaFrames.length).fill(delay));
-                const url = URL.createObjectURL(new Blob([apng], { type: 'image/png' }));
-                downloadFile(url, `sticker-animated-${Date.now()}.png`);
+                return URL.createObjectURL(new Blob([apng], { type: 'image/png' }));
 
             } else if (format === 'gif') {
                 // @ts-ignore
-                const gif = new GIF({
-                    workers: 2,
-                    quality: 10,
-                    width: WIDTH,
-                    height: HEIGHT,
-                    workerScript: '/gif.worker.js',
-                    transparent: 'rgba(0,0,0,0)'
-                });
-
+                const gif = new GIF({ workers: 2, quality: 10, width: WIDTH, height: HEIGHT, workerScript: '/gif.worker.js', transparent: 'rgba(0,0,0,0)' });
                 for (const frameUrl of frames) {
                     const img = new Image();
                     await new Promise((resolve) => { img.onload = resolve; img.src = frameUrl; });
                     gif.addFrame(img, { delay: delay });
                 }
-
-                gif.on('finished', (blob: Blob) => {
-                    downloadFile(URL.createObjectURL(blob), `sticker-animated-${Date.now()}.gif`);
+                return new Promise((resolve) => {
+                    gif.on('finished', (blob: Blob) => resolve(URL.createObjectURL(blob)));
+                    gif.render();
                 });
-                gif.render();
             }
-
+            return null;
         } catch (err) {
             console.error(err);
-            alert("Export failed: " + err);
-            // Emergency Restore in case of error
             layerElements.forEach(item => {
                 item.el.style.animationPlayState = item.originalState || '';
                 item.el.style.animationDelay = item.originalDelay || '';
             });
-        } finally {
-            setIsExporting(false);
+            throw err;
         }
+    };
+
+    const handleExport = async (format: 'apng' | 'gif') => {
+        setIsExporting(true);
+        try {
+            const url = await generateAnimation(format);
+            if (url) downloadFile(url, `sticker-animated-${Date.now()}.${format === 'apng' ? 'png' : 'gif'}`);
+        } catch (e) { alert("Export failed: " + e); }
+        finally { setIsExporting(false); }
+    };
+
+    const handleLinePreview = async () => {
+        setIsPreviewLoading(true);
+        try {
+            // Generate APNG for preview (most accurate for stickers)
+            const url = await generateAnimation('apng');
+            if (url) {
+                setPreviewImage(url);
+                setShowLinePreview(true);
+            }
+        } catch (e) { alert("Preview failed: " + e); }
+        finally { setIsPreviewLoading(false); }
     };
 
     const downloadFile = (url: string, name: string) => {
@@ -308,7 +294,7 @@ export const AnimatorApp = () => {
                             onClick={() => setZoom(1)}
                             className="text-[10px] text-slate-400 hover:text-slate-600 ml-1 uppercase"
                         >
-                            Reset
+                            {t('animator.reset')}
                         </button>
                     </div>
 
@@ -338,7 +324,7 @@ export const AnimatorApp = () => {
                         </h3>
                         {/* Canvas Size */}
                         <div className="mb-4 pb-4 border-b border-slate-100">
-                            <label className="text-xs font-bold text-slate-500 mb-1 block">Canvas Size</label>
+                            <label className="text-xs font-bold text-slate-500 mb-1 block">{t('animator.canvasSize')}</label>
                             <div className="flex gap-2 mb-2">
                                 <select
                                     className="flex-1 text-xs border border-slate-200 rounded p-1.5 bg-slate-50"
@@ -410,7 +396,7 @@ export const AnimatorApp = () => {
                         </div>
                         <div className="mt-3 pt-3 border-t border-slate-100 text-[10px] text-slate-400 flex justify-between">
                             <span>{t('animator.canvasSize')}: {canvasSize.width} x {canvasSize.height}</span>
-                            <span>Total Frames: {duration * fps}</span>
+                            <span>{t('animator.totalFrames')}: {duration * fps}</span>
                         </div>
                     </div>
 
@@ -501,12 +487,21 @@ export const AnimatorApp = () => {
                             >
                                 {isExporting ? '...' : 'APNG'}
                             </button>
+
                             <button
                                 onClick={() => handleExport('gif')}
                                 disabled={isExporting || layers.length === 0}
                                 className="bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg font-bold text-sm disabled:opacity-50 transition-colors"
                             >
                                 {isExporting ? '...' : 'GIF'}
+                            </button>
+                            <button
+                                onClick={handleLinePreview}
+                                disabled={isExporting || isPreviewLoading || layers.length === 0}
+                                className="col-span-2 bg-green-50 hover:bg-green-100 text-[#06C755] py-2 rounded-lg font-bold text-sm disabled:opacity-50 transition-colors flex items-center justify-center gap-2 border border-green-200"
+                            >
+                                {isPreviewLoading ? <Loader2 size={16} className="animate-spin" /> : <Smartphone size={16} />}
+                                {t('animator.linePreview')}
                             </button>
                         </div>
                     </div>
@@ -529,6 +524,13 @@ export const AnimatorApp = () => {
                     </div>
                 )
             }
+
+            {/* LINE Preview Modal */}
+            <LinePreviewModal
+                isOpen={showLinePreview}
+                onClose={() => setShowLinePreview(false)}
+                imageSrc={previewImage}
+            />
 
         </div >
     );

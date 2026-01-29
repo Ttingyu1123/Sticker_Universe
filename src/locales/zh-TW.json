@@ -18,9 +18,19 @@
         "captioning": "AI 智慧配文",
         "animator": "動態貼圖"
     },
+    "linePreview": {
+        "title": "LINE 預覽 (Preview)",
+        "friend": "好友",
+        "message1": "看看貼圖效果如何？\n(Check this out!)",
+        "message2": "哇！這真的很可愛耶！\n(Wow! So cute!)",
+        "read": "已讀",
+        "inputPlaceholder": "Aa"
+    },
     "animator": {
         "title": "動態貼圖",
         "subtitle": "多圖層動畫合成",
+        "reset": "重置",
+        "totalFrames": "總幀數",
         "sticker": "從作品集選擇",
         "image": "上傳圖片",
         "text": "新增文字",
@@ -48,7 +58,8 @@
         "transform": "變形",
         "animation": "動畫",
         "textStyle": "文字樣式",
-        "deleteLayer": "刪除圖層"
+        "deleteLayer": "刪除圖層",
+        "linePreview": "LINE 預覽 (APNG)"
     },
     "printSheet": {
         "title": "貼紙列印室",
@@ -57,6 +68,7 @@
         "upload": "上傳圖片",
         "fromGallery": "從作品集選取",
         "grid": "顯示格線",
+        "background": "背景顏色",
         "exportPDF": "匯出 PDF",
         "exporting": "匯出中...",
         "tips": "操作技巧",
@@ -98,16 +110,13 @@
         "deleteConfirm": "刪除此貼圖？",
         "selected": "已選擇",
         "downloadZip": "下載 ZIP",
-        "downloadZip": "下載 ZIP",
         "loading": "載入中...",
-        "selectionMode": "選取",
+        "selectionMode": "選取多張",
         "selectAll": "全選",
         "deselectAll": "取消全選",
         "cancelSelection": "完成",
         "downloadSelected": "下載 ({{count}})",
         "deleteSelected": "刪除 ({{count}})",
-        "selectionMode": "選取多張",
-        "selected": "已選取",
         "addSelected": "添加選取項目",
         "items": "項目"
     },
@@ -548,6 +557,8 @@
             "text": "文字",
             "image": "圖片",
             "gallery": "作品集",
+            "linePreview": "LINE 預覽",
+            "linePreviewTooltip": "LINE 預覽 (Analyze on LINE)",
             "export": "匯出",
             "saveToGallery": "儲存至作品集",
             "backHome": "返回首頁"
@@ -600,6 +611,7 @@
             "delete": "刪除圖層",
             "addText": "新增文字",
             "addImage": "新增圖片",
+            "fromGallery": "從作品集選擇",
             "noLayers": "尚無圖層",
             "useButtons": "使用上方按鈕新增內容"
         },

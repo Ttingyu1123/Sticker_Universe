@@ -26,6 +26,7 @@ interface SidebarProps {
   config: CanvasConfig;
   setConfig: (config: CanvasConfig) => void;
   onAddImage: (file: File) => void;
+  onAddFromGallery: () => void;
   onAddText: () => void;
 }
 
@@ -44,6 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   config,
   setConfig,
   onAddImage,
+  onAddFromGallery,
   onAddText
 }) => {
   const fontInputRef = useRef<HTMLInputElement>(null);
@@ -551,6 +553,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           >
             <ImageIcon size={16} />
             <span>{t('editor.sidebar.addImage')}</span>
+          </button>
+          <button
+            onClick={onAddFromGallery}
+            className="col-span-2 flex items-center justify-center gap-2 py-3 bg-pink-50 border border-pink-200 hover:bg-white hover:border-pink-300 hover:text-pink-600 rounded-xl transition-all font-bold text-xs text-pink-500 shadow-sm"
+          >
+            <ImageIcon size={16} />
+            <span>{t('editor.sidebar.fromGallery') || 'From Gallery'}</span>
           </button>
           <input
             type="file"

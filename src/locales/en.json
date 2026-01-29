@@ -18,9 +18,19 @@
         "captioning": "AI Captioning",
         "animator": "Animator"
     },
+    "linePreview": {
+        "title": "LINE Preview",
+        "friend": "Friend",
+        "message1": "Check this out!",
+        "message2": "Wow! So cute!",
+        "read": "Read",
+        "inputPlaceholder": "Aa"
+    },
     "animator": {
         "title": "Animator",
         "subtitle": "Multi-Layer Composition",
+        "reset": "Reset",
+        "totalFrames": "Total Frames",
         "sticker": "From Gallery",
         "image": "Upload Image",
         "text": "Add Text",
@@ -48,7 +58,8 @@
         "transform": "Transform",
         "animation": "Animation",
         "textStyle": "Text Style",
-        "deleteLayer": "Delete Layer"
+        "deleteLayer": "Delete Layer",
+        "linePreview": "LINE Preview (APNG)"
     },
     "printSheet": {
         "title": "Print Studio",
@@ -57,6 +68,7 @@
         "upload": "Upload Images",
         "fromGallery": "From Gallery",
         "grid": "Show Grid",
+        "background": "Background",
         "exportPDF": "Export PDF",
         "exporting": "Exporting...",
         "tips": "Tips",
@@ -98,16 +110,13 @@
         "deleteConfirm": "Delete this sticker?",
         "selected": "Selected",
         "downloadZip": "Download ZIP",
-        "downloadZip": "Download ZIP",
         "loading": "Loading Gallery...",
-        "selectionMode": "Select",
+        "selectionMode": "Select Multiple",
         "selectAll": "Select All",
         "deselectAll": "Deselect All",
         "cancelSelection": "Done",
         "downloadSelected": "Download ({{count}})",
         "deleteSelected": "Delete ({{count}})",
-        "selectionMode": "Select Multiple",
-        "selected": "Selected",
         "addSelected": "Add Selected",
         "items": "Items"
     },
@@ -548,6 +557,8 @@
             "text": "Text",
             "image": "Image",
             "gallery": "Gallery",
+            "linePreview": "LINE Preview",
+            "linePreviewTooltip": "Analyze on LINE",
             "export": "Export",
             "saveToGallery": "Save to Gallery",
             "backHome": "Back Home"
@@ -600,6 +611,7 @@
             "delete": "Delete Layer",
             "addText": "Add Text",
             "addImage": "Add Image",
+            "fromGallery": "From Gallery",
             "noLayers": "No layers yet",
             "useButtons": "Use buttons above to add content."
         },

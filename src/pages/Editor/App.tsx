@@ -2,23 +2,29 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { EditorCanvas } from './components/EditorCanvas';
 import { Sidebar } from './components/Sidebar';
 import { Toolbar } from './components/Toolbar';
-import { Layer, CanvasBackground, LayerType, TextProperties, CanvasConfig } from './types';
+import { Layer, LayerType, TextProperties, CanvasConfig } from './types';
 import { useHistory } from './hooks/useHistory';
 import { generateId } from './utils/idUtils';
 import { measureText } from './utils/textMeasurement';
 import { downloadCanvasAsImage, generateCanvasDataUrl } from './utils/exportUtils';
-import { Grid, Square, Sun, Plus, Minus, Settings } from 'lucide-react';
+import { Plus, Minus, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { useLocation } from 'react-router-dom';
 import { saveStickerToDB } from '../../db';
 
+import { LinePreviewModal } from '../../components/LinePreviewModal';
+
 const App: React.FC = () => {
   const { t } = useTranslation();
   const [layers, setLayers] = useState<Layer[]>([]);
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
   const [showGallery, setShowGallery] = useState(false);
+
+  // Line Preview State
+  const [showLinePreview, setShowLinePreview] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   // Unified Canvas State
   const [canvasConfig, setCanvasConfig] = useState<CanvasConfig>({
@@ -249,6 +255,15 @@ const App: React.FC = () => {
     }
   };
 
+  const handleLinePreview = async () => {
+    // Generate current canvas as image
+    const dataUrl = await generateCanvasDataUrl(layers, canvasConfig);
+    if (dataUrl) {
+      setPreviewImage(dataUrl);
+      setShowLinePreview(true);
+    }
+  };
+
   // Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -332,10 +347,20 @@ const App: React.FC = () => {
 
       {showGallery && (
         <GalleryPicker
-          onSelect={(blob) => handleAddLayer('image', blob)}
+          onSelect={(blobs) => {
+            blobs.forEach(blob => handleAddLayer('image', blob));
+            setShowGallery(false);
+          }}
           onClose={() => setShowGallery(false)}
         />
       )}
+
+      {/* LINE Preview Modal */}
+      <LinePreviewModal
+        isOpen={showLinePreview}
+        onClose={() => setShowLinePreview(false)}
+        imageSrc={previewImage}
+      />
 
       {/* Toolbar - passing dummy props for now or reusing state where possible. 
           The Toolbar's background controls will be deprecated in favor of Sidebar, 
@@ -353,6 +378,7 @@ const App: React.FC = () => {
         onAddText={() => handleAddLayer('text')}
         onDownload={handleDownload}
         onSaveToGallery={handleSaveToGallery}
+        onLinePreview={handleLinePreview}
       />
 
       <div className={`flex flex-1 overflow-hidden pt-28 transition-opacity duration-700 ${isReady ? 'opacity-100' : 'opacity-0'}`}>
@@ -418,6 +444,7 @@ const App: React.FC = () => {
           config={canvasConfig}
           setConfig={setCanvasConfig}
           onAddImage={(file) => handleAddLayer('image', file)}
+          onAddFromGallery={() => setShowGallery(true)}
           onAddText={() => handleAddLayer('text')}
         />
 

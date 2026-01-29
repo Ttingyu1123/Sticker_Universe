@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Undo, Redo, Image as ImageIcon, Type, Grid, Square, Sun, Download, Palette, Home, Key } from 'lucide-react';
+import { Undo, Redo, Image as ImageIcon, Type, Grid, Square, Sun, Download, Palette, Home, Key, Smartphone } from 'lucide-react';
 import { CanvasBackground } from '../types';
 
 
@@ -16,6 +16,7 @@ interface ToolbarProps {
   onAddText: () => void;
   onDownload: () => void;
   onSaveToGallery: () => void;
+  onLinePreview: () => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -30,6 +31,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onAddText,
   onDownload,
   onSaveToGallery,
+  onLinePreview,
 }) => {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -153,6 +155,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <span>{t('editor.toolbar.gallery')}</span>
           </button>
 
+          <button
+            onClick={onLinePreview}
+            className="flex items-center gap-2 px-3 py-2 bg-green-50 hover:bg-green-100 text-[#06C755] rounded-xl font-bold text-xs transition-colors border border-green-200"
+            title={t('editor.toolbar.linePreviewTooltip')}
+          >
+            <Smartphone size={16} />
+            <span className="hidden sm:inline">{t('editor.toolbar.linePreview')}</span>
+          </button>
+
+          {/* Separator - make sure it exists or add new one */}
           <div className="w-px h-6 bg-slate-200 mx-1"></div>
 
           <button

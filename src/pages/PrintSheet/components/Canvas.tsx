@@ -140,7 +140,7 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
 
                 {/* Background Controls */}
                 <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">Background</span>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">{t('printSheet.background')}</span>
 
                     {/* Transparent Button */}
                     <button
