@@ -13,6 +13,18 @@ interface MaskCanvasProps {
     onPanChange?: (newPan: { x: number, y: number }) => void;
     onInteractionEnd?: () => void;
     historyVersion?: number;
+    // Effects
+    strokeConfig?: {
+        enabled: boolean;
+        color: string;
+        size: number;
+    };
+    shadowConfig?: {
+        enabled: boolean;
+        color: string;
+        blur: number;
+        offset: { x: number, y: number };
+    };
 }
 
 export const MaskCanvas: React.FC<MaskCanvasProps> = ({
@@ -26,14 +38,21 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
     bgColor = 'checkerboard',
     tolerance = 10,
     onPanChange,
+
     onInteractionEnd,
-    historyVersion = 0
+    historyVersion = 0,
+    strokeConfig,
+    shadowConfig
 }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
+
     const lastPanPos = useRef<{ x: number, y: number } | null>(null);
-    const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
+    const [cursorPos, setCursorPos] = useState({ x: -1000, y: -1000 });
+    // Cache for effects to avoid continuous re-calculation if possible, 
+    // though simplicity favors re-running render.
+
     const requestRef = useRef<number>();
 
     // Initial Setup & Redraw Loop
@@ -73,9 +92,118 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
         // We could run a loop, but we only strictly need to re-render when interactions happen.
         // For smoother brush strokes, we might trigger render on mouse move.
 
-    }, [originalImage, maskCanvas, tool, brushSize, bgColor, historyVersion]);
+    }, [originalImage, maskCanvas, tool, brushSize, bgColor, historyVersion, strokeConfig, shadowConfig]);
 
-    // Function to draw on the MASK canvas
+    const renderCanvas = () => {
+        if (!canvasRef.current || !originalImage || !maskCanvas) return;
+        const ctx = canvasRef.current.getContext('2d');
+        if (!ctx) return;
+
+        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+
+        // 1. Draw Original (or Effects Result)
+        // If we have effects, we need to process the whole stack
+        if ((strokeConfig?.enabled || shadowConfig?.enabled) && !isDrawing) {
+            drawWithEffects(ctx);
+        } else {
+            // Standard Fast Render
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.drawImage(originalImage, 0, 0);
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.drawImage(maskCanvas, 0, 0);
+            ctx.globalCompositeOperation = 'source-over';
+        }
+    };
+
+    const drawWithEffects = (ctx: CanvasRenderingContext2D) => {
+        if (!originalImage || !maskCanvas) return;
+        const w = originalImage.width;
+        const h = originalImage.height;
+
+        // 1. Create Cutout
+        const cutoutCanvas = document.createElement('canvas');
+        cutoutCanvas.width = w; cutoutCanvas.height = h;
+        const cCtx = cutoutCanvas.getContext('2d')!;
+        cCtx.drawImage(originalImage, 0, 0);
+        cCtx.globalCompositeOperation = 'destination-in';
+        cCtx.drawImage(maskCanvas, 0, 0);
+        cCtx.globalCompositeOperation = 'source-over';
+
+        // 2. Stroke
+        if (strokeConfig?.enabled) {
+            const sCanvas = document.createElement('canvas');
+            sCanvas.width = w; sCanvas.height = h;
+            const sCtx = sCanvas.getContext('2d')!;
+
+            // Naive multi-pass stroke
+            const size = strokeConfig.size;
+            const steps = 12; // Quality
+            for (let i = 0; i < steps; i++) {
+                const angle = (i * 2 * Math.PI) / steps;
+                const dx = Math.cos(angle) * size;
+                const dy = Math.sin(angle) * size;
+                sCtx.drawImage(cutoutCanvas, dx, dy);
+            }
+
+            // Colorize stroke
+            sCtx.globalCompositeOperation = 'source-in';
+            sCtx.fillStyle = strokeConfig.color;
+            sCtx.fillRect(0, 0, w, h);
+
+            // Draw stroke under cutout? No, usually stroke is behind.
+            // Actually stroke is bigger than cutout.
+            // We draw stroke first.
+
+            // Apply Shadow to Stroke + Cutout? Or just Cutout?
+            // Usually shadow applies to the whole opaque body.
+
+            // Let's combine Stroke + Cutout into one "Body" canvas
+            const bodyCanvas = document.createElement('canvas');
+            bodyCanvas.width = w; bodyCanvas.height = h;
+            const bCtx = bodyCanvas.getContext('2d')!;
+            bCtx.drawImage(sCanvas, 0, 0); // Draw Stroke
+            bCtx.drawImage(cutoutCanvas, 0, 0); // Draw Cutout on top
+
+            // Now draw Body to Main Context (with potential Shadow)
+            if (shadowConfig?.enabled) {
+                ctx.shadowColor = shadowConfig.color;
+                ctx.shadowBlur = shadowConfig.blur;
+                ctx.shadowOffsetX = shadowConfig.offset.x;
+                ctx.shadowOffsetY = shadowConfig.offset.y;
+            }
+            ctx.drawImage(bodyCanvas, 0, 0);
+
+            // Reset shadow
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+
+        } else {
+            // Just Shadow on Cutout
+            if (shadowConfig?.enabled) {
+                ctx.shadowColor = shadowConfig.color;
+                ctx.shadowBlur = shadowConfig.blur;
+                ctx.shadowOffsetX = shadowConfig.offset.x;
+                ctx.shadowOffsetY = shadowConfig.offset.y;
+            }
+            ctx.drawImage(cutoutCanvas, 0, 0);
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        }
+    };
+
+    // Update redrawing to use the new render logic
+    useEffect(() => {
+        renderCanvas();
+    }, [originalImage, maskCanvas, tool, brushSize, bgColor, historyVersion, strokeConfig, shadowConfig, isDrawing]);
+
+    // Override paint triggers
+    const redrawVisible = () => {
+        renderCanvas();
+    };
     const paint = (x: number, y: number) => {
         // Prevent drawing if no canvas or if tool is move/crop
         if (!maskCanvas || tool === 'move' || tool === 'crop') return;
@@ -136,23 +264,7 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
     };
 
     // We need a separate redraw function to call during painting
-    const redrawVisible = () => {
-        if (!canvasRef.current || !originalImage || !maskCanvas) return;
-        const ctx = canvasRef.current.getContext('2d');
-        if (!ctx) return;
 
-        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
-        // Draw Original
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.drawImage(originalImage, 0, 0);
-
-        // Apply Mask
-        ctx.globalCompositeOperation = 'destination-in';
-        ctx.drawImage(maskCanvas, 0, 0);
-
-        ctx.globalCompositeOperation = 'source-over';
-    };
 
 
 
@@ -313,24 +425,50 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
         lastPanPos.current = null;
     };
 
+    // Cursor Rendering
+    useEffect(() => {
+        if (!canvasRef.current || !originalImage) return;
+
+        // If we want a smooth 60fps cursor without lagging the React render cycle, 
+        // we might stick to simple CSS cursor or efficient overlay.
+        // But for "Brush Size", we need a circle.
+        // Let's attach a "pointer-move" listener that re-renders the canvas WITH the cursor.
+        // But wait, re-rendering the whole image on every mouse move is expensive (4k images).
+
+        // Better approach: Floating <div> cursor!
+        // Much cheaper.
+    }, []);
+
     return (
         <div
             ref={containerRef}
             className="relative overflow-hidden flex items-center justify-center p-0 m-0 w-full h-full touch-none select-none"
             style={{
-                cursor: tool === 'move' ? 'grab' : 'default'
+                cursor: tool === 'move' ? 'grab' : 'none' // Hide default cursor for brushes
             }}
             onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
+            onMouseMove={(e) => {
+                handleMouseMove(e);
+                // Update Cursor UI Pos
+                const rect = containerRef.current?.getBoundingClientRect();
+                if (rect) {
+                    const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+                    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+                    setCursorPos({ x: clientX - rect.left, y: clientY - rect.top });
+                }
+            }}
             onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
+            onMouseLeave={() => {
+                handleMouseUp();
+                setCursorPos({ x: -1000, y: -1000 });
+            }}
             onTouchStart={handleMouseDown}
             onTouchMove={handleMouseMove}
             onTouchEnd={handleMouseUp}
         >
             <canvas
                 ref={canvasRef}
-                className={`max-w-none block shadow-2xl origin-center ${tool === 'erase' || tool === 'restore' || tool === 'magic-wand' ? 'cursor-crosshair' : ''
+                className={`max-w-none block shadow-2xl origin-center ${tool === 'erase' || tool === 'restore' || tool === 'magic-wand' ? 'cursor-none' : ''
                     } ${bgColor === 'checkerboard' ? 'bg-[url(https://img.ly/assets/demo-assets/transparent-bg.png)]' : ''}`}
                 style={{
                     position: 'absolute',
@@ -347,6 +485,34 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
                     transform: `translate(-50%, -50%) translate(${pan.x}px, ${pan.y}px) scale(${zoom})`
                 }}
             />
+            {/* Custom Brush Cursor (High Performance CSS) */}
+            {(tool === 'erase' || tool === 'restore') && (
+                <div
+                    className="absolute pointer-events-none rounded-full border border-white shadow-[0_0_2px_rgba(0,0,0,0.8)] z-50 mix-blend-difference box-content"
+                    style={{
+                        // Account for shadowBlur spread (approx 2x softness on each side)
+                        width: (brushSize * 2 + (1 - brushHardness) * 40) * zoom,
+                        height: (brushSize * 2 + (1 - brushHardness) * 40) * zoom,
+                        left: cursorPos.x,
+                        top: cursorPos.y,
+                        transform: 'translate(-50%, -50%)',
+                        // backgroundColor: 'rgba(255, 255, 255, 0.1)' // Optional: Slight fill
+                    }}
+                />
+            )}
+            {/* Crosshair for Magic Wand */}
+            {tool === 'magic-wand' && (
+                <div
+                    className="absolute pointer-events-none text-white drop-shadow-md z-50 mix-blend-difference"
+                    style={{
+                        left: cursorPos.x,
+                        top: cursorPos.y,
+                        transform: 'translate(-50%, -50%)'
+                    }}
+                >
+                    +
+                </div>
+            )}
         </div>
     );
 };

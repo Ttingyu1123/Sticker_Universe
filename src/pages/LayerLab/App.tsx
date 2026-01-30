@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Upload, Eraser, Brush, Download, Image as ImageIcon, Loader2, Layers, Undo, Redo, Save } from 'lucide-react';
+import { ArrowLeft, Upload, Eraser, Brush, Download, Image as ImageIcon, Loader2, Layers, Undo, Redo, Save, Palette, Sun, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MaskCanvas } from './components/MaskCanvas';
 import { generateMaskFromAI } from './utils/maskUtils';
@@ -30,6 +30,10 @@ export const LayerLabApp = () => {
     const [historyVersion, setHistoryVersion] = useState(0); // To force re-render
     const [showGalleryPicker, setShowGalleryPicker] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+
+    // Effects State
+    const [strokeConfig, setStrokeConfig] = useState({ enabled: false, color: '#ffffff', size: 10 });
+    const [shadowConfig, setShadowConfig] = useState({ enabled: false, color: 'rgba(0,0,0,0.5)', blur: 20, offset: { x: 5, y: 5 } });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const workspaceRef = useRef<HTMLDivElement>(null);
@@ -349,6 +353,77 @@ export const LayerLabApp = () => {
                         </div>
                     </div>
 
+                    {/* Effects Controls */}
+                    <div className="space-y-4 pt-4 border-t border-slate-100">
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('packager.phase2.stroke') || 'Stroke'}</label>
+
+                        {/* Stroke Toggle */}
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Palette size={18} className={strokeConfig.enabled ? 'text-violet-600' : 'text-slate-400'} />
+                                <span className="text-xs font-bold text-slate-700">Enable Stroke</span>
+                            </div>
+                            <div
+                                onClick={() => setStrokeConfig(prev => ({ ...prev, enabled: !prev.enabled }))}
+                                className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${strokeConfig.enabled ? 'bg-violet-600' : 'bg-slate-200'}`}
+                            >
+                                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${strokeConfig.enabled ? 'right-1' : 'left-1'}`} />
+                            </div>
+                        </div>
+
+                        {strokeConfig.enabled && (
+                            <div className="space-y-3 pl-2 animate-in slide-in-from-left-2">
+                                {/* Size */}
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-xs font-bold text-slate-600">
+                                        <span>Size</span>
+                                        <span>{strokeConfig.size}px</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="1" max="50"
+                                        value={strokeConfig.size}
+                                        onChange={(e) => setStrokeConfig(prev => ({ ...prev, size: Number(e.target.value) }))}
+                                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-violet-600"
+                                    />
+                                </div>
+                                {/* Color */}
+                                <div className="flex gap-2 flex-wrap">
+                                    {['#ffffff', '#000000', '#FF0000', '#FFFF00', '#0000FF'].map(c => (
+                                        <button
+                                            key={c}
+                                            onClick={() => setStrokeConfig(prev => ({ ...prev, color: c }))}
+                                            className={`w-5 h-5 rounded-full border border-slate-200 ${strokeConfig.color === c ? 'ring-2 ring-violet-500 scale-110' : ''}`}
+                                            style={{ backgroundColor: c }}
+                                        />
+                                    ))}
+                                    <input
+                                        type="color"
+                                        value={strokeConfig.color}
+                                        onChange={(e) => setStrokeConfig(prev => ({ ...prev, color: e.target.value }))}
+                                        className="w-6 h-6 p-0 border-0 rounded overflow-hidden"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Shadow Toggle */}
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-4 block">{t('packager.phase2.shadow') || 'Shadow'}</label>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Sun size={18} className={shadowConfig.enabled ? 'text-indigo-600' : 'text-slate-400'} />
+                                <span className="text-xs font-bold text-slate-700">Enable Shadow</span>
+                            </div>
+                            <div
+                                onClick={() => setShadowConfig(prev => ({ ...prev, enabled: !prev.enabled }))}
+                                className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${shadowConfig.enabled ? 'bg-indigo-600' : 'bg-slate-200'}`}
+                            >
+                                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${shadowConfig.enabled ? 'right-1' : 'left-1'}`} />
+                            </div>
+                        </div>
+
+                    </div>
+
                     {/* View Controls */}
                     <div className="space-y-4 pt-4 border-t border-slate-100">
                         <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('eraser.zoom') || 'View'}</label>
@@ -405,13 +480,7 @@ export const LayerLabApp = () => {
                     )}
 
                     {originalImage ? (
-                        <div
-                            className="relative shadow-2xl rounded-lg overflow-hidden bg-white"
-                            style={{
-                                width: layoutDims ? layoutDims.width : 'auto',
-                                height: layoutDims ? layoutDims.height : 'auto'
-                            }}
-                        >
+                        <div className="relative w-full h-full">
                             {maskCanvas ? (
                                 <MaskCanvas
                                     originalImage={originalImage}
@@ -426,15 +495,29 @@ export const LayerLabApp = () => {
                                     onPanChange={setPan}
                                     onInteractionEnd={handleInteractionEnd}
                                     historyVersion={historyVersion}
+                                    strokeConfig={strokeConfig}
+                                    shadowConfig={shadowConfig}
                                 />
                             ) : (
-                                <img src={originalImage.src} alt="Original" className="max-w-full max-h-[80vh] object-contain" />
+                                <img
+                                    src={originalImage.src}
+                                    alt="Original"
+                                    className="absolute left-1/2 top-1/2 shadow-2xl pointer-events-none"
+                                    style={{
+                                        maxWidth: 'none',
+                                        maxHeight: 'none',
+                                        width: `${originalImage.width}px`,
+                                        height: `${originalImage.height}px`,
+                                        transform: `translate(-50%, -50%) translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                                        transformOrigin: 'center center' // Ensure origin matches
+                                    }}
+                                />
                             )}
 
                             {/* Quick Hint if no mask yet */}
                             {!maskCanvas && !isProcessing && (
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                    <div className="bg-black/60 text-white px-4 py-2 rounded-full font-bold backdrop-blur-sm animate-pulse">
+                                    <div className="bg-black/60 text-white px-4 py-2 rounded-full font-bold backdrop-blur-sm animate-pulse z-10">
                                         Click "AI Auto Remove" to start
                                     </div>
                                 </div>
@@ -473,7 +556,7 @@ export const LayerLabApp = () => {
                 ref={fileInputRef}
                 className="hidden"
                 accept="image/*"
-                accept="image/*"
+
                 onChange={handleFileUpload}
             />
 
