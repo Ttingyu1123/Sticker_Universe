@@ -447,45 +447,9 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Unified Header */}
-      <nav className="fixed top-4 left-4 right-4 z-50">
-        <div className="max-w-7xl mx-auto rounded-2xl px-6 py-3 flex items-center justify-between bg-white/70 backdrop-blur-xl shadow-lg border border-white/50">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className={`bg-gradient-to-br p-2 rounded-xl text-white shadow-lg ${currentTheme.id === 'taiwanese' ? 'from-violet-500 to-pink-500 shadow-violet-500/20' : 'from-teal-500 to-emerald-500 shadow-teal-500/20'}`}>
-                <Sparkles size={18} strokeWidth={2.5} />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold tracking-tight text-slate-800 leading-none">
-                  StickerOS <span className={`text-[10px] px-1.5 py-0.5 rounded-md ml-1 align-top ${currentTheme.id === 'taiwanese' ? 'text-pink-500 bg-pink-50' : 'text-teal-600 bg-teal-50'}`}>{t('generator.title')}</span>
-                </h1>
-                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">
-                  {t('generator.subtitle')}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:block">
-              <LanguageSwitcher />
-            </div>
-            <div className="sm:hidden">
-              <LanguageSwitcher />
-            </div>
-            <button
-              onClick={() => { setTempKey(apiKey); setShowKeyModal(true); }}
-              className={`p-2 rounded-xl transition-all border ${apiKey ? 'hover:bg-slate-50 border-transparent text-slate-400 hover:text-violet-500' : 'bg-red-50 border-red-200 text-red-500 animate-pulse'}`}
-            >
-              <Key size={16} />
-            </button>
-            <a href="/" className="text-xs font-bold text-slate-400 hover:text-violet-600 flex items-center gap-1.5 transition-colors px-3 py-1.5 hover:bg-slate-50 rounded-lg">
-              <Home size={14} /> <span className="hidden sm:inline">{t('app.backHome')}</span>
-            </a>
-          </div>
-        </div>
-      </nav>
 
-      <main className="pt-28 pb-12 px-6 max-w-5xl mx-auto space-y-8 relative z-0">
+
+      <main className="pt-6 pb-12 px-6 max-w-5xl mx-auto space-y-8 relative z-0">
 
 
         {/* Theme Selector */}

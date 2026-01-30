@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Sparkles, Layers, Eraser, Palette, Home, Settings, FolderHeart, FileCode, Printer, Video, Wand2 } from 'lucide-react';
+import { Sparkles, Layers, Eraser, Palette, Home, Settings, FolderHeart, FileCode, Printer, Video, Wand2, ArrowLeft } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
@@ -30,67 +30,78 @@ const NavItem = ({ to, icon: Icon, label, disabled = false }: { to: string, icon
 export const Layout = () => {
     const location = useLocation();
     const { t } = useTranslation();
-    const isLayerLab = location.pathname === '/layer-lab' || location.pathname === '/eraser';
+
+    // Helper to get page title based on route
+    const getPageTitle = () => {
+        const path = location.pathname;
+        if (path === '/layer-lab') return t('app.smartEraser') || 'Smart Eraser';
+        if (path === '/eraser') return t('eraser.title') || 'Eraser';
+        if (path === '/generator') return t('generator.title') || 'Generator';
+        if (path === '/svg-converter') return t('app.svgConverter') || 'SVG Magic';
+        if (path === '/print-sheet') return t('app.printSheet') || 'Print Studio';
+        if (path === '/animator') return t('app.animator') || 'Animator';
+        if (path === '/gallery') return t('app.gallery') || 'Gallery';
+        // For other pages or root, return app title
+        return t('app.title');
+    };
 
     return (
         <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-violet-200 selection:text-violet-900">
-            {/* Desktop Sidebar - Hidden on LayerLab */}
-            {!isLayerLab && (
-                <aside className="w-64 fixed inset-y-0 left-0 z-50 bg-slate-50/50 backdrop-blur-xl border-r border-slate-200/50 p-4 hidden lg:flex flex-col gap-2">
-                    {/* Header */}
-                    <div className="px-4 py-6 mb-2">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-violet-500/20">
-                                <Sparkles size={18} fill="currentColor" className="text-white/90" />
-                            </div>
-                            <div>
-                                <h1 className="text-xl font-black tracking-tight text-slate-800 leading-none">
-                                    {t('app.title')}<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-500"></span>
-                                </h1>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{t('app.subtitle')}</p>
-                            </div>
+            {/* Desktop Sidebar - Always visible on Desktop */}
+            <aside className="w-64 fixed inset-y-0 left-0 z-50 bg-slate-50/50 backdrop-blur-xl border-r border-slate-200/50 p-4 hidden lg:flex flex-col gap-2">
+                {/* Header */}
+                <div className="px-4 py-6 mb-2">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-violet-500/20">
+                            <Sparkles size={18} fill="currentColor" className="text-white/90" />
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-black tracking-tight text-slate-800 leading-none">
+                                {t('app.title')}<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-500"></span>
+                            </h1>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{t('app.subtitle')}</p>
                         </div>
                     </div>
+                </div>
 
-                    {/* Navigation */}
-                    <nav className="flex-1 space-y-1">
-                        <div className="px-4 pb-2 flex items-center justify-between">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('app.apps')}</p>
-                        </div>
-                        <NavItem to="/generator" icon={Sparkles} label={t('app.generator')} />
-                        <NavItem to="/editor" icon={Palette} label={t('app.editor')} />
-                        <NavItem to="/packager" icon={Layers} label={t('app.packager')} />
-                        <NavItem to="/eraser" icon={Eraser} label={t('app.eraser')} />
-                        <NavItem to="/layer-lab" icon={Wand2} label={t('app.smartEraser') || 'Smart Eraser'} />
-                        <NavItem to="/svg-converter" icon={FileCode} label={t('app.svgConverter')} />
-                        <NavItem to="/print-sheet" icon={Printer} label={t('app.printSheet')} />
-                        <NavItem to="/animator" icon={Video} label={t('app.animator') || 'Animator'} />
-                        <NavItem to="/gallery" icon={FolderHeart} label={t('app.gallery')} />
-                    </nav>
+                {/* Navigation */}
+                <nav className="flex-1 space-y-1">
+                    <div className="px-4 pb-2 flex items-center justify-between">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('app.apps')}</p>
+                    </div>
+                    <NavItem to="/generator" icon={Sparkles} label={t('app.generator')} />
+                    <NavItem to="/editor" icon={Palette} label={t('app.editor')} />
+                    <NavItem to="/packager" icon={Layers} label={t('app.packager')} />
+                    <NavItem to="/eraser" icon={Eraser} label={t('app.eraser')} />
+                    <NavItem to="/layer-lab" icon={Wand2} label={t('app.smartEraser') || 'Smart Eraser'} />
+                    <NavItem to="/svg-converter" icon={FileCode} label={t('app.svgConverter')} />
+                    <NavItem to="/print-sheet" icon={Printer} label={t('app.printSheet')} />
+                    <NavItem to="/animator" icon={Video} label={t('app.animator') || 'Animator'} />
+                    <NavItem to="/gallery" icon={FolderHeart} label={t('app.gallery')} />
+                </nav>
 
-                    {/* Footer / User */}
-                    <div className="mt-auto pt-4 border-t border-slate-200/50 space-y-1">
-                        <div className="px-4 pb-2 flex items-center justify-between">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('app.system')}</p>
-                            <LanguageSwitcher />
-                        </div>
-                        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-slate-400 hover:bg-white hover:text-slate-600 hover:shadow-sm">
-                            <Settings size={20} />
-                            <span className="text-sm font-bold">{t('app.settings')}</span>
-                        </button>
-                        <a href="https://tingyusdeco.com/" target="_blank" rel="noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-slate-400 hover:bg-white hover:text-slate-600 hover:shadow-sm">
-                            <Home size={20} />
-                            <span className="text-sm font-bold">{t('app.backHome')}</span>
-                        </a>
+                {/* Footer / User */}
+                <div className="mt-auto pt-4 border-t border-slate-200/50 space-y-1">
+                    <div className="px-4 pb-2 flex items-center justify-between">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('app.system')}</p>
+                        <LanguageSwitcher />
+                    </div>
+                    <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-slate-400 hover:bg-white hover:text-slate-600 hover:shadow-sm">
+                        <Settings size={20} />
+                        <span className="text-sm font-bold">{t('app.settings')}</span>
+                    </button>
+                    <a href="https://tingyusdeco.com/" target="_blank" rel="noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-slate-400 hover:bg-white hover:text-slate-600 hover:shadow-sm">
+                        <Home size={20} />
+                        <span className="text-sm font-bold">{t('app.backHome')}</span>
+                    </a>
 
-                        <div className="px-4 py-2 mt-2">
-                            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest opacity-50">
-                                TingYu’s Creative OS <span className="mx-1">|</span> v2.0
-                            </div>
+                    <div className="px-4 py-2 mt-2">
+                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest opacity-50">
+                            TingYu’s Creative OS <span className="mx-1">|</span> v2.0
                         </div>
                     </div>
-                </aside>
-            )}
+                </div>
+            </aside>
 
             {/* Mobile Bottom Navigation - Hidden on LayerLab if desired, or kept for consistency */}
             {/* Keeping it consistent: It shows on LG-hidden, so mobile/tablet still sees bottom nav. */}
@@ -172,16 +183,16 @@ export const Layout = () => {
             </div>
 
             {/* Main Content */}
-            <main className={`flex-1 min-w-0 pb-20 lg:pb-0 transition-all duration-300 ${!isLayerLab ? 'lg:ml-64' : ''}`}>
-                {/* Mobile Header Logo - Hidden on Landing Page and Generator Page (Generator has custom header) */}
-                {location.pathname !== '/' && location.pathname !== '/generator' && location.pathname !== '/layer-lab' && (
+            <main className="flex-1 min-w-0 pb-20 lg:pb-0 lg:ml-64 transition-all duration-300">
+                {/* Mobile Header Logo - Hidden on Landing Page */}
+                {location.pathname !== '/' && (
                     <div className="lg:hidden flex items-center justify-between py-4 px-6 bg-white/50 backdrop-blur-sm border-b border-slate-100 sticky top-0 z-40">
-                        <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 rounded-lg flex items-center justify-center text-white shadow-md">
-                                <Sparkles size={16} fill="currentColor" className="text-white/90" />
-                            </div>
+                        <div className="flex items-center gap-3">
+                            <NavLink to="/" className="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 transition-colors">
+                                <ArrowLeft size={18} strokeWidth={2.5} />
+                            </NavLink>
                             <h1 className="text-lg font-black tracking-tight text-slate-800 leading-none">
-                                {t('app.title')}
+                                {getPageTitle()}
                             </h1>
                         </div>
                         <LanguageSwitcher />
