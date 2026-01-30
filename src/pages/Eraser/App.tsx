@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
-  Scissors, Download, Undo2, Redo2, Home
+  Scissors, Home
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ImageUploader from './components/ImageUploader';
@@ -172,115 +172,108 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen pb-20 select-none font-sans text-slate-700 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-100/50 via-slate-50 to-pink-50/30">
+    <div className="h-screen overflow-hidden font-sans text-slate-700 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-100/50 via-slate-50 to-pink-50/30">
 
-      {/* Unified Header - Glass Floating Bar - Hidden on mobile, shown on desktop */}
-      <nav className="hidden md:block fixed top-4 left-4 right-4 z-50">
-        <div className="max-w-7xl mx-auto glass-panel rounded-2xl px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {/* App Switcher Trigger */}
-            {/* AppSwitcher removed */}
+      {/* Unified Main Workspace - Full Screen Layout */}
+      <div className="flex-1 flex flex-col md:flex-row h-screen overflow-hidden relative z-0">
 
+        {/* Canvas Stage - Order 1 on Mobile (Top), Order 2 on Desktop (Right) */}
+        <div className="flex-1 relative order-1 md:order-2 bg-slate-100 overflow-hidden flex flex-col">
+          {/* Decor */}
+          <div className={`absolute inset-0 ${bgColor === 'checkerboard' ? 'bg-grid-pattern' : bgColor === 'white' ? 'bg-white' : bgColor === 'black' ? 'bg-slate-900' : 'bg-[#00FF00]'} opacity-50`}></div>
 
-            <div className="h-6 w-px bg-slate-200"></div>
-
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-violet-500 to-pink-500 p-2 rounded-xl text-white shadow-lg shadow-violet-500/20">
-                <Scissors size={18} strokeWidth={2.5} />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold tracking-tight text-slate-800 leading-none">
-                  StickerOS <span className="text-[10px] text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded-md ml-1 align-top">{t('eraser.title')}</span>
-                </h1>
-                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">{t('eraser.subtitle')}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <a href="https://tingyusdeco.com/" className="text-xs font-bold text-slate-400 hover:text-violet-600 flex items-center gap-1.5 transition-colors px-3 py-1.5 hover:bg-slate-50 rounded-lg">
-              <Home size={14} /> <span className="hidden sm:inline">{t('app.backHome')}</span>
-            </a>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Workspace - Centered Floating Layout */}
-      <div className="pt-28 pb-12 px-6 max-w-[1800px] mx-auto min-h-screen flex flex-col md:flex-row gap-8 items-start relative z-0">
-
-        {/* Left HUD (Toolbar) - Sticky */}
-        <div className="w-full md:w-20 md:hover:w-72 transition-all duration-300 md:sticky md:top-28 shrink-0 z-30 group">
-          <Toolbar
-            toolMode={toolMode}
-            setToolMode={setToolMode}
-            brushSize={brushSize}
-            setBrushSize={setBrushSize}
-            tolerance={tolerance}
-            setTolerance={setTolerance}
-            zoom={zoom}
-            setZoom={setZoom}
-            bgColor={bgColor}
-            setBgColor={setBgColor}
-            onUndo={handleUndo}
-            onRedo={handleRedo}
-            onDownload={handleDownload}
-            onSaveToGallery={handleSaveToGallery}
-            onReset={handleReset}
-            canUndo={historyIndex > 0}
-            canRedo={historyIndex < history.length - 1}
-            hasImage={!!image}
-          />
-        </div>
-
-        {/* Center Canvas Stage */}
-        <div className="flex-1 w-full min-w-0 flex flex-col items-center gap-6">
-
-          {/* Canvas Container */}
-          <div className="w-full relative group">
-            {/* Decor */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/10 to-pink-500/10 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-            <div className="relative bg-white/50 backdrop-blur-sm rounded-[2rem] border border-white/60 shadow-2xl p-1 overflow-hidden min-h-[75vh] flex flex-col">
-              {image ? (
-                <CanvasEditor
-                  image={image}
-                  brushSize={brushSize}
-                  tolerance={tolerance}
-                  zoom={zoom}
-                  toolMode={toolMode}
-                  bgColor={bgColor}
-                  onSaveHistory={saveHistory}
-                  triggerUndo={triggerUndo}
-                  triggerRedo={triggerRedo}
-                />
-              ) : (
-                <div className="flex-1 flex flex-col items-center justify-center p-12">
-                  <div className="bg-white/80 p-8 rounded-3xl shadow-xl border border-white/50 max-w-lg w-full">
-                    <ImageUploader
-                      onImageUpload={handleImageUpload}
-                      onGallerySelect={() => setShowGallery(true)}
-                    />
-                  </div>
+          <div className="relative w-full h-full flex items-center justify-center p-4 md:p-8 overflow-hidden">
+            {image ? (
+              <CanvasEditor
+                image={image}
+                brushSize={brushSize}
+                tolerance={tolerance}
+                zoom={zoom}
+                toolMode={toolMode}
+                bgColor={bgColor}
+                onSaveHistory={saveHistory}
+                triggerUndo={triggerUndo}
+                triggerRedo={triggerRedo}
+              />
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center p-12 relative z-10">
+                <div className="bg-white/80 p-8 rounded-3xl shadow-xl border border-white/50 max-w-lg w-full backdrop-blur-sm">
+                  <ImageUploader
+                    onImageUpload={handleImageUpload}
+                    onGallerySelect={() => setShowGallery(true)}
+                  />
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
-          {/* Status Bar Floating */}
+          {/* Status Bar Floating Overlay */}
           {image && (
-            <div className="glass-panel px-6 py-2 rounded-full flex items-center gap-8 text-[10px] font-bold text-slate-400 tracking-wide uppercase shadow-lg mb-8">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 glass-panel px-4 py-1.5 rounded-full flex items-center gap-4 text-[10px] font-bold text-slate-400 tracking-wide uppercase shadow-sm z-20 pointer-events-none">
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-violet-500 rounded-full animate-pulse"></span>
-                {image.width} x {image.height} PX
+                {image.width} x {image.height}
               </span>
               <span className="w-px h-3 bg-slate-200"></span>
-              <span>{t('eraser.history')}: {historyIndex + 1}/{history.length}</span>
+              <span>{historyIndex + 1}/{history.length}</span>
               <span className="w-px h-3 bg-slate-200"></span>
-              <span className="text-violet-500">{Math.round(zoom * 100)}% {t('eraser.zoom')}</span>
+              <span className="text-violet-500">{Math.round(zoom * 100)}%</span>
             </div>
           )}
-
         </div>
+
+        {/* Toolbar Panel - Order 2 on Mobile (Bottom), Order 1 on Desktop (Left) */}
+        <div className="w-full md:w-80 bg-white border-t md:border-t-0 md:border-r border-slate-200 order-2 md:order-1 flex-shrink-0 z-30 flex flex-col shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none h-[45vh] md:h-auto overflow-y-auto">
+          <div className="p-4 md:p-6 space-y-6">
+
+            {/* Mobile Handle / Desktop Header */}
+            <div className="flex items-center justify-center md:justify-start pb-2">
+              <div className="w-12 h-1 bg-slate-200 rounded-full md:hidden mb-2"></div>
+              <div className="hidden md:flex items-center gap-3 w-full">
+                <div className="bg-gradient-to-br from-violet-500 to-pink-500 p-2 rounded-xl text-white shadow-lg shadow-violet-500/20">
+                  <Scissors size={20} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h1 className="text-lg font-bold tracking-tight text-slate-800 leading-none">
+                    StickerOS <span className="text-[10px] text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded-md ml-1 align-top">{t('eraser.title')}</span>
+                  </h1>
+                  <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">{t('eraser.subtitle')}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1">
+              <Toolbar
+                toolMode={toolMode}
+                setToolMode={setToolMode}
+                brushSize={brushSize}
+                setBrushSize={setBrushSize}
+                tolerance={tolerance}
+                setTolerance={setTolerance}
+                zoom={zoom}
+                setZoom={setZoom}
+                bgColor={bgColor}
+                setBgColor={setBgColor}
+                onUndo={handleUndo}
+                onRedo={handleRedo}
+                onDownload={handleDownload}
+                onSaveToGallery={handleSaveToGallery}
+                onReset={handleReset}
+                canUndo={historyIndex > 0}
+                canRedo={historyIndex < history.length - 1}
+                hasImage={!!image}
+              />
+            </div>
+
+            {/* Desktop Back Home */}
+            <div className="hidden md:block pt-4 border-t border-slate-100">
+              <button onClick={() => window.location.href = '/'} className="w-full py-2 flex items-center justify-center gap-2 text-slate-400 hover:text-slate-600 transition-colors text-sm font-medium">
+                <Home size={16} /> {t('app.backHome')}
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {/* Global Footer (Unified) */}

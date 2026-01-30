@@ -468,12 +468,10 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
         >
             <canvas
                 ref={canvasRef}
-                className={`max-w-none block shadow-2xl origin-center ${tool === 'erase' || tool === 'restore' || tool === 'magic-wand' ? 'cursor-none' : ''
+                className={`max-w-none shrink-0 block shadow-2xl origin-center ${tool === 'erase' || tool === 'restore' || tool === 'magic-wand' ? 'cursor-none' : ''
                     } ${bgColor === 'checkerboard' ? 'bg-[url(https://img.ly/assets/demo-assets/transparent-bg.png)]' : ''}`}
                 style={{
-                    position: 'absolute',
-                    left: '50%',
-                    top: '50%',
+                    display: 'block',
                     width: originalImage?.width ? `${originalImage.width}px` : 'auto',
                     height: originalImage?.height ? `${originalImage.height}px` : 'auto',
                     backgroundColor: bgColor === 'checkerboard' ? 'transparent' : bgColor,
@@ -482,7 +480,9 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
                         : 'none',
                     backgroundSize: '20px 20px',
                     backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
-                    transform: `translate(-50%, -50%) translate(${pan.x}px, ${pan.y}px) scale(${zoom})`
+                    // Flex parent centers us. We just scale/pan from center.
+                    transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                    transformOrigin: 'center center'
                 }}
             />
             {/* Custom Brush Cursor (High Performance CSS) */}
@@ -493,7 +493,11 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
                         // Account for shadowBlur spread (approx 2x softness on each side)
                         width: (brushSize * 2 + (1 - brushHardness) * 40) * zoom,
                         height: (brushSize * 2 + (1 - brushHardness) * 40) * zoom,
-                        left: cursorPos.x,
+                        // Cursor position is relative to the container (viewport), 
+                        // but getPointerPos calculates relative to unscaled canvas?
+                        // Wait, simple CSS cursor follows mouse pointer in the viewport.
+                        // But here we set left/top based on cursorPos.
+                        left: cursorPos.x, // These need to be viewport coordinates?
                         top: cursorPos.y,
                         transform: 'translate(-50%, -50%)',
                         // backgroundColor: 'rgba(255, 255, 255, 0.1)' // Optional: Slight fill

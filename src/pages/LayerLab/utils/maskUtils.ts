@@ -74,3 +74,126 @@ export const createBlankMask = (width: number, height: number): HTMLCanvasElemen
     }
     return canvas;
 };
+
+/**
+ * Settings for advanced mask processing.
+ */
+export interface AISettings {
+    edgeTolerance: number; // -10 to 10. < 0 = Erode (Shrink), > 0 = Dilate (Grow). Actually implemented as Alpha Shift.
+    protectHoles: boolean; // Fill holes inside the object
+    enhanceText: boolean; // Placeholder for now (maybe sharpen?)
+}
+
+/**
+ * Post-processes the generated mask based on settings.
+ * operations: Alpha Thresholding (Edge Tolerance), Hole Filling.
+ */
+export const processMask = (maskCanvas: HTMLCanvasElement, settings: AISettings): HTMLCanvasElement => {
+    const w = maskCanvas.width;
+    const h = maskCanvas.height;
+
+    // Create a working copy
+    const ctx = maskCanvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return maskCanvas;
+
+    const imageData = ctx.getImageData(0, 0, w, h);
+    const data = imageData.data;
+    const len = data.length;
+
+    // 1. Edge Tolerance (Alpha Shift)
+    // Tolerance range: -10 to 10.
+    // Negative = Shrink (Make semi-transparent pixels transparent) -> Increase Threshold
+    // Positive = Grow (Make semi-transparent pixels opaque) -> Decrease Threshold (or Boost Alpha)
+
+    // Base threshold for "ignoring" background is usually very low (e.g. 10).
+    // User tolerance shifts the curve.
+    // map tolerance -10..10 to a shift factor?
+
+    // Improved logic:
+    // If tolerance > 0 (Grow): Multiply Alpha.
+    // If tolerance < 0 (Shrink): Power curve or subtract Alpha.
+
+    if (settings.edgeTolerance !== 0) {
+        const t = settings.edgeTolerance; // -10 to 10
+
+        for (let i = 3; i < len; i += 4) {
+            let a = data[i];
+            if (a === 0) continue; // Pure transparent stays transparent (unless we do morphological dilation, which is hard per-pixel)
+
+            // Normalize 0-1
+            let norm = a / 255;
+
+            if (t > 0) {
+                // Dilate/Grow: Boost alpha. 
+                // Simple boost: a = a + t * 10?
+                // Curve: norm = norm ^ (1 - t/20)? (makes <1 values bigger)
+                norm = Math.pow(norm, 1 - (t / 15));
+            } else {
+                // Erode/Shrink: Cut alpha.
+                // Curve: norm = norm ^ (1 + |t|/5)? (makes <1 values smaller)
+                norm = Math.pow(norm, 1 + (Math.abs(t) / 5));
+            }
+
+            // Hard Cutoff for extreme shrinkage
+            if (t < -5 && norm < 0.2) norm = 0;
+
+            data[i] = Math.min(255, Math.floor(norm * 255));
+        }
+    }
+
+    // 2. Protect Holes (Fill Holes)
+    if (settings.protectHoles) {
+        // Algorithm: Flood fill visual background (alpha=0 or low) from corners.
+        // Any unvisited low-alpha pixel is a hole -> set to 255.
+
+        // Threshold for "background"
+        const bgThreshold = 50;
+        const visited = new Uint8Array(w * h); // 0=unvisited, 1=background
+        const stack: number[] = [];
+
+        // Seed corners
+        // Top-Left
+        stack.push(0);
+        // Top-Right
+        stack.push(w - 1);
+        // Bottom-Left
+        stack.push((h - 1) * w);
+        // Bottom-Right
+        stack.push((h - 1) * w + (w - 1));
+
+        while (stack.length > 0) {
+            const idx = stack.pop()!;
+            if (visited[idx]) continue;
+
+            // Check if this pixel is actually background
+            // If it's FOREGROUND (alpha > threshold), it block the flood fill
+            const alpha = data[idx * 4 + 3];
+            if (alpha > bgThreshold) {
+                continue; // It's a wall
+            }
+
+            visited[idx] = 1; // Mark as true background
+
+            // Add neighbors
+            const x = idx % w;
+            const y = Math.floor(idx / w);
+
+            if (x > 0) stack.push(idx - 1);
+            if (x < w - 1) stack.push(idx + 1);
+            if (y > 0) stack.push(idx - w);
+            if (y < h - 1) stack.push(idx + w);
+        }
+
+        // Now, fill holes
+        for (let i = 0; i < w * h; i++) {
+            if (!visited[i]) {
+                // If not visited by background flood fill, it's either object or hole.
+                // Make it fully opaque object.
+                data[i * 4 + 3] = 255;
+            }
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    return maskCanvas;
+};

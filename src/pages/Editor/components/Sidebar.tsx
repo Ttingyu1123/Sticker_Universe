@@ -246,7 +246,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <ColorPickerInput
                     label={t('editor.sidebar.baseColor')}
                     value={config.backgroundColor}
-                    onChange={(val) => setConfig({ ...config, backgroundColor: val })}
+                    onChange={(val) => setConfig({ ...config, backgroundColor: val, showGrid: false })}
                   />
                 </div>
               </div>

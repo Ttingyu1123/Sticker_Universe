@@ -371,8 +371,22 @@ const App: React.FC = () => {
         onRedo={redo}
         canUndo={canUndo}
         canRedo={canRedo}
-        background={canvasConfig.showGrid ? 'grid' : 'white'} // Compatibility
-        setBackground={() => { }} // No-op for now, moving to sidebar
+        background={canvasConfig.showGrid ? 'grid' : (
+          canvasConfig.backgroundColor === '#000000' ? 'black' :
+            canvasConfig.backgroundColor === '#00ff2f' ? 'green' : 'white'
+        )}
+        setBackground={(bg) => {
+          if (bg === 'grid') {
+            setCanvasConfig(prev => ({ ...prev, showGrid: true }));
+          } else {
+            const colorMap: Record<string, string> = {
+              'white': '#ffffff',
+              'black': '#000000',
+              'green': '#00ff2f'
+            };
+            setCanvasConfig(prev => ({ ...prev, showGrid: false, backgroundColor: colorMap[bg] || '#ffffff' }));
+          }
+        }}
         onAddImage={(file) => handleAddLayer('image', file)}
         onAddFromGallery={() => setShowGallery(true)}
         onAddText={() => handleAddLayer('text')}
