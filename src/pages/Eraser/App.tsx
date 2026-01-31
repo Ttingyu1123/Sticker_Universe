@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
-  Scissors, Home
+  Home
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ImageUploader from './components/ImageUploader';
@@ -175,10 +175,10 @@ const App: React.FC = () => {
     <div className="h-screen overflow-hidden font-sans text-slate-700 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-100/50 via-slate-50 to-pink-50/30">
 
       {/* Unified Main Workspace - Full Screen Layout */}
-      <div className="flex-1 flex flex-col md:flex-row h-screen overflow-hidden relative z-0">
+      <div className="flex-1 flex flex-col md:flex-row h-screen overflow-hidden relative z-0 bg-background">
 
         {/* Canvas Stage - Order 1 on Mobile (Top), Order 2 on Desktop (Right) */}
-        <div className="flex-1 relative order-1 md:order-2 bg-slate-100 overflow-hidden flex flex-col">
+        <div className="flex-1 relative order-1 md:order-2 bg-cream-medium/30 overflow-hidden flex flex-col">
           {/* Decor */}
           <div className={`absolute inset-0 ${bgColor === 'checkerboard' ? 'bg-grid-pattern' : bgColor === 'white' ? 'bg-white' : bgColor === 'black' ? 'bg-slate-900' : 'bg-[#00FF00]'} opacity-50`}></div>
 
@@ -209,37 +209,26 @@ const App: React.FC = () => {
 
           {/* Status Bar Floating Overlay */}
           {image && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 glass-panel px-4 py-1.5 rounded-full flex items-center gap-4 text-[10px] font-bold text-slate-400 tracking-wide uppercase shadow-sm z-20 pointer-events-none">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-xl border border-cream-dark px-4 py-1.5 rounded-full flex items-center gap-4 text-[10px] font-bold text-bronze-light tracking-wide uppercase shadow-sm z-20 pointer-events-none">
               <span className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-violet-500 rounded-full animate-pulse"></span>
+                <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></span>
                 {image.width} x {image.height}
               </span>
-              <span className="w-px h-3 bg-slate-200"></span>
+              <span className="w-px h-3 bg-cream-dark"></span>
               <span>{historyIndex + 1}/{history.length}</span>
-              <span className="w-px h-3 bg-slate-200"></span>
-              <span className="text-violet-500">{Math.round(zoom * 100)}%</span>
+              <span className="w-px h-3 bg-cream-dark"></span>
+              <span className="text-primary">{Math.round(zoom * 100)}%</span>
             </div>
           )}
         </div>
 
         {/* Toolbar Panel - Order 2 on Mobile (Bottom), Order 1 on Desktop (Left) */}
-        <div className="w-full md:w-80 bg-white border-t md:border-t-0 md:border-r border-slate-200 order-2 md:order-1 flex-shrink-0 z-30 flex flex-col shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none h-[45vh] md:h-auto overflow-y-auto">
+        <div className="w-full md:w-80 bg-white border-t md:border-t-0 md:border-r border-cream-dark order-2 md:order-1 flex-shrink-0 z-30 flex flex-col shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:shadow-none h-[45vh] md:h-auto overflow-y-auto">
           <div className="p-4 md:p-6 space-y-6">
 
-            {/* Mobile Handle / Desktop Header */}
-            <div className="flex items-center justify-center md:justify-start pb-2">
-              <div className="w-12 h-1 bg-slate-200 rounded-full md:hidden mb-2"></div>
-              <div className="hidden md:flex items-center gap-3 w-full">
-                <div className="bg-gradient-to-br from-violet-500 to-pink-500 p-2 rounded-xl text-white shadow-lg shadow-violet-500/20">
-                  <Scissors size={20} strokeWidth={2.5} />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold tracking-tight text-slate-800 leading-none">
-                    StickerOS <span className="text-[10px] text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded-md ml-1 align-top">{t('eraser.title')}</span>
-                  </h1>
-                  <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">{t('eraser.subtitle')}</p>
-                </div>
-              </div>
+            {/* Mobile Handle */}
+            <div className="flex items-center justify-center pb-2 md:hidden">
+              <div className="w-12 h-1 bg-cream-dark rounded-full mb-2"></div>
             </div>
 
             <div className="flex-1">
@@ -266,8 +255,8 @@ const App: React.FC = () => {
             </div>
 
             {/* Desktop Back Home */}
-            <div className="hidden md:block pt-4 border-t border-slate-100">
-              <button onClick={() => window.location.href = '/'} className="w-full py-2 flex items-center justify-center gap-2 text-slate-400 hover:text-slate-600 transition-colors text-sm font-medium">
+            <div className="hidden md:block pt-4 border-t border-cream-dark">
+              <button onClick={() => window.location.href = '/'} className="w-full py-2 flex items-center justify-center gap-2 text-bronze-light hover:text-bronze-text transition-colors text-sm font-medium">
                 <Home size={16} /> {t('app.backHome')}
               </button>
             </div>

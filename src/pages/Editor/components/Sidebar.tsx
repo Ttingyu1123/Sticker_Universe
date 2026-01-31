@@ -167,73 +167,73 @@ export const Sidebar: React.FC<SidebarProps> = ({
       return (
         <div className="space-y-6 p-6">
           <div className="text-center">
-            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center shadow-sm mx-auto mb-3 text-blue-500">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center shadow-sm mx-auto mb-3 text-primary">
               <Settings size={28} />
             </div>
-            <h3 className="text-sm font-bold text-slate-700">{t('editor.sidebar.title')}</h3>
-            <p className="text-xs text-slate-400 font-medium mt-1">{t('editor.sidebar.subtitle')}</p>
+            <h3 className="text-sm font-bold text-bronze-text">{t('editor.sidebar.title')}</h3>
+            <p className="text-xs text-bronze-light font-medium mt-1">{t('editor.sidebar.subtitle')}</p>
           </div>
 
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-4">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">{t('editor.sidebar.dimensions')}</label>
+          <div className="bg-cream-medium/50 p-4 rounded-xl border border-cream-dark/50 space-y-4">
+            <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest block mb-2">{t('editor.sidebar.dimensions')}</label>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">{t('editor.sidebar.width')}</span>
+                <span className="text-[10px] font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.width')}</span>
                 <input
                   type="number"
                   value={config.width}
                   onChange={(e) => setConfig({ ...config, width: Number(e.target.value) })}
-                  className="w-full text-sm font-bold p-2.5 bg-white border border-slate-200 rounded-xl text-center focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                  className="w-full text-sm font-bold p-2.5 bg-white border border-cream-dark rounded-xl text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-bronze-text"
                 />
               </div>
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">{t('editor.sidebar.height')}</span>
+                <span className="text-[10px] font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.height')}</span>
                 <input
                   type="number"
                   value={config.height}
                   onChange={(e) => setConfig({ ...config, height: Number(e.target.value) })}
-                  className="w-full text-sm font-bold p-2.5 bg-white border border-slate-200 rounded-xl text-center focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                  className="w-full text-sm font-bold p-2.5 bg-white border border-cream-dark rounded-xl text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-bronze-text"
                 />
               </div>
             </div>
 
             {/* Background Settings */}
             <div className="pt-2">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">{t('editor.sidebar.background')}</label>
+              <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest block mb-2">{t('editor.sidebar.background')}</label>
               <div className="space-y-3">
                 {/* Show Grid Toggle */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-500">{t('editor.sidebar.transparentGrid')}</span>
+                  <span className="text-xs font-bold text-bronze-text">{t('editor.sidebar.transparentGrid')}</span>
                   <div className="relative inline-block w-8 h-4 align-middle select-none">
                     <input
                       type="checkbox"
                       checked={config.showGrid}
                       onChange={(e) => setConfig({ ...config, showGrid: e.target.checked })}
-                      className="absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-blue-600"
+                      className="absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-primary"
                     />
-                    <label className={`block overflow-hidden h-4 rounded-full cursor-pointer ${config.showGrid ? 'bg-blue-200' : 'bg-slate-300'}`}></label>
+                    <label className={`block overflow-hidden h-4 rounded-full cursor-pointer ${config.showGrid ? 'bg-primary/30' : 'bg-cream-dark'}`}></label>
                   </div>
                 </div>
 
                 {/* Shape Toggle */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-500">{t('editor.sidebar.shape')}</span>
-                  <div className="flex bg-slate-200 rounded-lg p-0.5">
+                  <span className="text-xs font-bold text-bronze-text">{t('editor.sidebar.shape')}</span>
+                  <div className="flex bg-cream-dark/20 rounded-lg p-0.5">
                     <button
                       onClick={() => setConfig({ ...config, shape: 'rectangle' })}
-                      className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${config.shape === 'rectangle' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                      className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${config.shape === 'rectangle' ? 'bg-white text-primary shadow-sm' : 'text-bronze-light hover:text-bronze-text'}`}
                     >
                       {t('editor.sidebar.shapes.rect')}
                     </button>
                     <button
                       onClick={() => setConfig({ ...config, shape: 'rounded' })}
-                      className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${config.shape === 'rounded' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                      className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${config.shape === 'rounded' ? 'bg-white text-primary shadow-sm' : 'text-bronze-light hover:text-bronze-text'}`}
                     >
                       {t('editor.sidebar.shapes.rounded')}
                     </button>
                     <button
                       onClick={() => setConfig({ ...config, shape: 'circle' })}
-                      className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${config.shape === 'circle' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                      className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${config.shape === 'circle' ? 'bg-white text-primary shadow-sm' : 'text-bronze-light hover:text-bronze-text'}`}
                     >
                       {t('editor.sidebar.shapes.circle')}
                     </button>
@@ -241,7 +241,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
 
                 {/* Solid Color Picker */}
-                <div className="flex items-center gap-3 bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
+                <div className="flex items-center gap-3 bg-white p-2 rounded-xl border border-cream-dark shadow-sm">
                   {/* Solid Color Picker */}
                   <ColorPickerInput
                     label={t('editor.sidebar.baseColor')}
@@ -253,7 +253,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             <div className="pt-2">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">{t('editor.sidebar.presets.title')}</label>
+              <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest block mb-2">{t('editor.sidebar.presets.title')}</label>
               <div className="flex flex-wrap gap-2">
                 {[
                   { name: t('editor.sidebar.presets.line'), w: 370, h: 320 },
@@ -269,19 +269,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     key={preset.name}
                     onClick={() => setConfig({ ...config, width: preset.w, height: preset.h })}
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:text-blue-600 hover:border-blue-200 hover:shadow-sm transition-all flex flex-col items-start gap-0.5 min-w-[100px]"
+                    className="px-3 py-2 bg-white border border-cream-dark rounded-lg text-xs font-bold text-bronze-text hover:text-primary hover:border-primary/30 hover:shadow-sm transition-all flex flex-col items-start gap-0.5 min-w-[100px]"
                   >
                     <span>{preset.name}</span>
-                    <span className="text-[10px] text-slate-400 font-medium">{preset.w} x {preset.h}</span>
+                    <span className="text-[10px] text-bronze-light font-medium">{preset.w} x {preset.h}</span>
                   </button>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="h-px bg-slate-100 my-4" />
+          <div className="h-px bg-cream-dark/50 my-4" />
 
-          <div className="text-center p-4 border border-dashed border-slate-200 rounded-xl text-slate-400">
+          <div className="text-center p-4 border border-dashed border-cream-dark rounded-xl text-bronze-light">
             <p className="text-xs">{t('editor.sidebar.selectLayer')}</p>
           </div>
         </div>
@@ -293,37 +293,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Layer Name Input */}
         <div className="space-y-3">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('editor.sidebar.layerName')}</label>
+          <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.layerName')}</label>
           <input
             type="text"
             value={selectedLayer.name || ''}
             onChange={(e) => onUpdateLayer({ name: e.target.value })}
             placeholder={selectedLayer.type === 'text' ? selectedLayer.content : t('editor.layers.image')}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none text-sm font-bold text-slate-700 transition-all placeholder:font-normal"
+            className="w-full bg-cream-light border border-cream-dark rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm font-bold text-bronze-text transition-all placeholder:font-normal"
           />
         </div>
 
         {/* Alignment & Ordering */}
         <div className="space-y-3">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('editor.sidebar.arrange')}</label>
+          <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.arrange')}</label>
           <div className="grid grid-cols-4 gap-2">
-            <button onClick={() => handleLayerOrder(selectedLayer.id, 'up')} className="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-blue-300 hover:text-blue-500 transition-all flex justify-center text-slate-500 shadow-sm" title={t('editor.sidebar.moveUp')}>
+            <button onClick={() => handleLayerOrder(selectedLayer.id, 'up')} className="p-2.5 bg-white border border-cream-dark rounded-xl hover:bg-cream-light hover:border-primary/50 hover:text-primary transition-all flex justify-center text-bronze-light shadow-sm" title={t('editor.sidebar.moveUp')}>
               <ArrowUp size={16} />
             </button>
-            <button onClick={() => handleLayerOrder(selectedLayer.id, 'down')} className="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-blue-300 hover:text-blue-500 transition-all flex justify-center text-slate-500 shadow-sm" title={t('editor.sidebar.moveDown')}>
+            <button onClick={() => handleLayerOrder(selectedLayer.id, 'down')} className="p-2.5 bg-white border border-cream-dark rounded-xl hover:bg-cream-light hover:border-primary/50 hover:text-primary transition-all flex justify-center text-bronze-light shadow-sm" title={t('editor.sidebar.moveDown')}>
               <ArrowDown size={16} />
             </button>
-            <button onClick={() => handleAlign('horizontal')} className="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-blue-300 hover:text-blue-500 transition-all flex justify-center text-slate-500 shadow-sm" title={t('editor.sidebar.centerH')}>
+            <button onClick={() => handleAlign('horizontal')} className="p-2.5 bg-white border border-cream-dark rounded-xl hover:bg-cream-light hover:border-primary/50 hover:text-primary transition-all flex justify-center text-bronze-light shadow-sm" title={t('editor.sidebar.centerH')}>
               <AlignHorizontalJustifyCenter size={16} />
             </button>
-            <button onClick={() => handleAlign('vertical')} className="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-blue-300 hover:text-blue-500 transition-all flex justify-center text-slate-500 shadow-sm" title={t('editor.sidebar.centerV')}>
+            <button onClick={() => handleAlign('vertical')} className="p-2.5 bg-white border border-cream-dark rounded-xl hover:bg-cream-light hover:border-primary/50 hover:text-primary transition-all flex justify-center text-bronze-light shadow-sm" title={t('editor.sidebar.centerV')}>
               <AlignVerticalJustifyCenter size={16} />
             </button>
           </div>
           <div className="flex gap-2 mt-2">
             <button
               onClick={() => onUpdateLayer({ flipX: !selectedLayer.flipX })}
-              className={`flex-1 flex items-center justify-center space-x-2 p-2.5 border rounded-xl hover:shadow-sm transition-all text-xs font-bold ${selectedLayer.flipX ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-white hover:text-blue-600'}`}
+              className={`flex-1 flex items-center justify-center space-x-2 p-2.5 border rounded-xl hover:shadow-sm transition-all text-xs font-bold ${selectedLayer.flipX ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-cream-light border-cream-dark text-bronze-light hover:bg-white hover:text-primary'}`}
               title={t('editor.sidebar.mirror')}
             >
               <FlipHorizontal size={16} />
@@ -331,7 +331,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
             <button
               onClick={onDuplicateLayer}
-              className="flex-1 flex items-center justify-center space-x-2 p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:bg-white hover:shadow-sm hover:text-blue-600 transition-all text-xs font-bold text-slate-500"
+              className="flex-1 flex items-center justify-center space-x-2 p-2.5 bg-cream-light border border-cream-dark rounded-xl hover:bg-white hover:shadow-sm hover:text-primary transition-all text-xs font-bold text-bronze-light"
             >
               <Copy size={16} />
               <span>{t('editor.sidebar.duplicate')}</span>
@@ -342,23 +342,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {selectedLayer.type === 'text' && selectedLayer.textProps && (
           <>
             <div className="space-y-3">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('editor.sidebar.content')}</label>
+              <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.content')}</label>
               <input
                 type="text"
                 value={selectedLayer.content}
                 onChange={(e) => handleContentChange(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none text-sm font-bold text-slate-700"
+                className="w-full bg-cream-light border border-cream-dark rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm font-bold text-bronze-text"
               />
             </div>
 
             <div className="space-y-3">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('editor.sidebar.typography')}</label>
+              <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.typography')}</label>
 
               <div className="flex gap-2">
                 <select
                   value={selectedLayer.textProps.fontFamily}
                   onChange={(e) => updateTextProp('fontFamily', e.target.value)}
-                  className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-600 outline-none focus:border-blue-500 shadow-sm"
+                  className="flex-1 bg-white border border-cream-dark rounded-xl px-3 py-2 text-sm font-medium text-bronze-text outline-none focus:border-primary shadow-sm"
                 >
                   <optgroup label="Standard">
                     {FONTS.map(f => <option key={f} value={f}>{f}</option>)}
@@ -371,7 +371,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </select>
                 <button
                   onClick={() => fontInputRef.current?.click()}
-                  className="p-2 border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-500 bg-white shadow-sm"
+                  className="p-2 border border-cream-dark rounded-xl hover:bg-cream-light text-bronze-light bg-white shadow-sm"
                   title={t('editor.sidebar.uploadFont')}
                 >
                   <Upload size={16} />
@@ -380,10 +380,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
 
               {/* Font Size Slider */}
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2">
+              <div className="bg-cream-light p-3 rounded-xl border border-cream-dark space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-bold text-slate-500">{t('editor.sidebar.size')}</span>
-                  <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">{selectedLayer.textProps.fontSize}px</span>
+                  <span className="text-xs font-bold text-bronze-light">{t('editor.sidebar.size')}</span>
+                  <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">{selectedLayer.textProps.fontSize}px</span>
                 </div>
                 <input
                   type="range"
@@ -391,7 +391,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   max="200"
                   value={selectedLayer.textProps.fontSize}
                   onChange={(e) => updateTextProp('fontSize', Number(e.target.value))}
-                  className="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                  className="w-full accent-primary h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer"
                 />
               </div>
 
@@ -402,14 +402,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               />
             </div>
 
-            <div className="space-y-4 pt-2 border-t border-slate-100">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('editor.sidebar.effects')}</label>
+            <div className="space-y-4 pt-2 border-t border-cream-light">
+              <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.effects')}</label>
 
               {/* Primary Stroke */}
-              <div className="space-y-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <div className="space-y-3 bg-white p-4 rounded-xl border border-cream-dark shadow-sm">
                 <div className="flex justify-between items-center">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold text-slate-600">{t('editor.sidebar.outline')}</span>
+                    <span className="text-xs font-bold text-bronze-text">{t('editor.sidebar.outline')}</span>
                   </div>
                   <ColorPickerInput
                     label={t('editor.sidebar.fillColor')}
@@ -423,22 +423,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   max="40"
                   value={selectedLayer.textProps.strokeWidth}
                   onChange={(e) => updateTextProp('strokeWidth', Number(e.target.value))}
-                  className="w-full accent-blue-600 h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer"
+                  className="w-full accent-primary h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer"
                 />
               </div>
 
               {/* Double Stroke */}
-              <div className={`space-y-3 p-4 rounded-xl border transition-all ${selectedLayer.textProps.doubleStroke ? 'bg-white border-blue-200 shadow-md ring-1 ring-blue-500/10' : 'bg-slate-50 border-slate-100'}`}>
+              <div className={`space-y-3 p-4 rounded-xl border transition-all ${selectedLayer.textProps.doubleStroke ? 'bg-white border-primary/30 shadow-md ring-1 ring-primary/10' : 'bg-cream-light border-cream-dark'}`}>
                 <div className="flex items-center justify-between">
-                  <span className={`text-xs font-bold ${selectedLayer.textProps.doubleStroke ? 'text-blue-600' : 'text-slate-500'}`}>{t('editor.sidebar.doubleOutline')}</span>
+                  <span className={`text-xs font-bold ${selectedLayer.textProps.doubleStroke ? 'text-primary' : 'text-bronze-light'}`}>{t('editor.sidebar.doubleOutline')}</span>
                   <div className="relative inline-block w-8 h-4 align-middle select-none">
                     <input
                       type="checkbox"
                       checked={selectedLayer.textProps.doubleStroke}
                       onChange={(e) => updateTextProp('doubleStroke', e.target.checked)}
-                      className="absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-blue-600"
+                      className="absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-primary"
                     />
-                    <label className={`block overflow-hidden h-4 rounded-full cursor-pointer ${selectedLayer.textProps.doubleStroke ? 'bg-blue-200' : 'bg-slate-300'}`}></label>
+                    <label className={`block overflow-hidden h-4 rounded-full cursor-pointer ${selectedLayer.textProps.doubleStroke ? 'bg-primary/30' : 'bg-cream-medium'}`}></label>
                   </div>
                 </div>
 
@@ -455,25 +455,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       max="60"
                       value={selectedLayer.textProps.doubleStrokeWidth}
                       onChange={(e) => updateTextProp('doubleStrokeWidth', Number(e.target.value))}
-                      className="w-full accent-blue-600 h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer"
+                      className="w-full accent-primary h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer"
                     />
                   </div>
                 )}
               </div>
 
               {/* Drop Shadow */}
-              <div className={`space-y-3 p-4 rounded-xl border transition-all ${selectedLayer.textProps.shadow ? 'bg-white border-purple-200 shadow-md ring-1 ring-purple-500/10' : 'bg-slate-50 border-slate-100'}`}>
+              <div className={`space-y-3 p-4 rounded-xl border transition-all ${selectedLayer.textProps.shadow ? 'bg-white border-secondary/30 shadow-md ring-1 ring-secondary/10' : 'bg-cream-light border-cream-dark'}`}>
                 <div className="flex items-center justify-between">
-                  <span className={`text-xs font-bold ${selectedLayer.textProps.shadow ? 'text-purple-600' : 'text-slate-500'}`}>{t('editor.sidebar.dropShadow')}</span>
+                  <span className={`text-xs font-bold ${selectedLayer.textProps.shadow ? 'text-secondary' : 'text-bronze-light'}`}>{t('editor.sidebar.dropShadow')}</span>
 
                   <div className="relative inline-block w-8 h-4 align-middle select-none">
                     <input
                       type="checkbox"
                       checked={!!selectedLayer.textProps.shadow}
                       onChange={(e) => updateTextProp('shadow', e.target.checked)}
-                      className="absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-purple-600"
+                      className="absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-secondary"
                     />
-                    <label className={`block overflow-hidden h-4 rounded-full cursor-pointer ${selectedLayer.textProps.shadow ? 'bg-purple-200' : 'bg-slate-300'}`}></label>
+                    <label className={`block overflow-hidden h-4 rounded-full cursor-pointer ${selectedLayer.textProps.shadow ? 'bg-secondary/30' : 'bg-cream-medium'}`}></label>
                   </div>
                 </div>
 
@@ -486,33 +486,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     />
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">{t('editor.sidebar.xOffset')}</span>
+                        <span className="text-[10px] font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.xOffset')}</span>
                         <input
                           type="number"
                           value={selectedLayer.textProps.shadowOffsetX}
                           onChange={(e) => updateTextProp('shadowOffsetX', Number(e.target.value))}
-                          className="w-full text-xs font-bold p-2 bg-slate-50 border border-slate-200 rounded-lg text-center"
+                          className="w-full text-xs font-bold p-2 bg-cream-light border border-cream-dark rounded-lg text-center"
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">{t('editor.sidebar.yOffset')}</span>
+                        <span className="text-[10px] font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.yOffset')}</span>
                         <input
                           type="number"
                           value={selectedLayer.textProps.shadowOffsetY}
                           onChange={(e) => updateTextProp('shadowOffsetY', Number(e.target.value))}
-                          className="w-full text-xs font-bold p-2 bg-slate-50 border border-slate-200 rounded-lg text-center"
+                          className="w-full text-xs font-bold p-2 bg-cream-light border border-cream-dark rounded-lg text-center"
                         />
                       </div>
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">{t('editor.sidebar.blur')}</span>
+                      <span className="text-[10px] font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.blur')}</span>
                       <input
                         type="range"
                         min="0"
                         max="30"
                         value={selectedLayer.textProps.shadowBlur}
                         onChange={(e) => updateTextProp('shadowBlur', Number(e.target.value))}
-                        className="w-full accent-purple-600 h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer"
+                        className="w-full accent-secondary h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer"
                       />
                     </div>
                   </div>
@@ -525,7 +525,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="pt-6 mt-6 border-t border-slate-100">
           <button
             onClick={onDeleteLayer}
-            className="w-full flex items-center justify-center space-x-2 bg-red-50 text-red-500 py-3 rounded-xl hover:bg-red-100 hover:shadow-inner transition-colors font-bold text-xs"
+            className="w-full flex items-center justify-center space-x-2 bg-secondary/10 text-secondary py-3 rounded-xl hover:bg-secondary/20 hover:shadow-inner transition-colors font-bold text-xs"
           >
             <Trash2 size={16} />
             <span>{t('editor.sidebar.delete')}</span>
@@ -545,21 +545,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={onAddText}
-            className="flex items-center justify-center gap-2 py-3 bg-slate-50 border border-slate-200 hover:bg-white hover:border-blue-200 hover:text-blue-600 rounded-xl transition-all font-bold text-xs text-slate-600 shadow-sm"
+            className="flex items-center justify-center gap-2 py-3 bg-white border border-cream-dark hover:bg-cream-light hover:border-primary/50 hover:text-primary rounded-xl transition-all font-bold text-xs text-bronze-text shadow-sm"
           >
             <Type size={16} />
             <span>{t('editor.sidebar.addText')}</span>
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center justify-center gap-2 py-3 bg-slate-50 border border-slate-200 hover:bg-white hover:border-blue-200 hover:text-blue-600 rounded-xl transition-all font-bold text-xs text-slate-600 shadow-sm"
+            className="flex items-center justify-center gap-2 py-3 bg-white border border-cream-dark hover:bg-cream-light hover:border-primary/50 hover:text-primary rounded-xl transition-all font-bold text-xs text-bronze-text shadow-sm"
           >
             <ImageIcon size={16} />
             <span>{t('editor.sidebar.addImage')}</span>
           </button>
           <button
             onClick={onAddFromGallery}
-            className="col-span-2 flex items-center justify-center gap-2 py-3 bg-pink-50 border border-pink-200 hover:bg-white hover:border-pink-300 hover:text-pink-600 rounded-xl transition-all font-bold text-xs text-pink-500 shadow-sm"
+            className="col-span-2 flex items-center justify-center gap-2 py-3 bg-secondary/10 border border-secondary/20 hover:bg-white hover:border-secondary/50 hover:text-secondary rounded-xl transition-all font-bold text-xs text-secondary shadow-sm"
           >
             <ImageIcon size={16} />
             <span>{t('editor.sidebar.fromGallery') || 'From Gallery'}</span>
@@ -579,12 +579,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {layers.length === 0 ? (
-          <div className="flex flex-col items-center justify-center text-slate-400 py-8 text-center border-2 border-dashed border-slate-100 rounded-2xl">
-            <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
-              <Layers size={20} className="text-slate-300" />
+          <div className="flex flex-col items-center justify-center text-bronze-light py-8 text-center border-2 border-dashed border-cream-dark/50 rounded-2xl">
+            <div className="w-12 h-12 bg-cream-dark/20 rounded-full flex items-center justify-center mb-3">
+              <Layers size={20} className="text-bronze-light" />
             </div>
-            <p className="font-bold text-sm text-slate-500">{t('editor.sidebar.noLayers')}</p>
-            <p className="text-xs mt-1 text-slate-400">{t('editor.sidebar.useButtons')}</p>
+            <p className="font-bold text-sm text-bronze-text">{t('editor.sidebar.noLayers')}</p>
+            <p className="text-xs mt-1 text-bronze-light">{t('editor.sidebar.useButtons')}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -600,10 +600,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   key={layer.id}
                   onClick={() => onSelectLayer(layer.id)}
                   onDoubleClick={() => startRenaming(layer)}
-                  className={`flex items-center justify-between p-3 rounded-xl cursor-pointer border transition-all group ${isSelected ? 'bg-blue-50 border-blue-200 shadow-sm' : 'bg-white border-transparent hover:bg-slate-50 hover:border-slate-100'}`}
+                  className={`flex items-center justify-between p-3 rounded-xl cursor-pointer border transition-all group ${isSelected ? 'bg-primary/10 border-primary/20 shadow-sm' : 'bg-white border-transparent hover:bg-cream-medium hover:border-cream-dark'}`}
                 >
                   <div className="flex items-center space-x-3 overflow-hidden flex-1">
-                    <div className={`w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 flex-shrink-0 transition-colors ${isSelected ? 'bg-blue-100 text-blue-600' : 'bg-slate-100'}`}>
+                    <div className={`w-8 h-8 flex items-center justify-center rounded-lg text-bronze-light flex-shrink-0 transition-colors ${isSelected ? 'bg-white text-primary' : 'bg-cream-light'}`}>
                       {layer.type === 'text' ? <Type size={16} /> : <ImageIcon size={16} />}
                     </div>
                     <div className="flex flex-col overflow-hidden flex-1">
@@ -618,17 +618,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             if (e.key === 'Escape') cancelRename();
                           }}
                           autoFocus
-                          className="text-xs font-bold border border-blue-400 rounded px-1 py-0.5 w-full focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          className="text-xs font-bold border border-primary rounded px-1 py-0.5 w-full focus:outline-none focus:ring-1 focus:ring-primary text-bronze-text"
                           onClick={(e) => e.stopPropagation()}
                         />
                       ) : (
-                        <span className={`text-xs font-bold truncate select-none ${isSelected ? 'text-blue-700' : 'text-slate-700'}`} title={displayName}>
+                        <span className={`text-xs font-bold truncate select-none ${isSelected ? 'text-primary' : 'text-bronze-text'}`} title={displayName}>
                           {displayName}
                         </span>
                       )}
 
                       {!isEditing && (
-                        <span className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">{layer.type}</span>
+                        <span className="text-[9px] text-bronze-light uppercase tracking-wider font-bold">{layer.type}</span>
                       )}
                     </div>
                   </div>
@@ -637,14 +637,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <div className="flex items-center space-x-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={(e) => { e.stopPropagation(); handleLayerOrder(layer.id, 'up'); }}
-                        className="p-1 hover:bg-blue-100 rounded text-slate-400 hover:text-blue-600 transition-colors"
+                        className="p-1 hover:bg-white rounded text-bronze-light hover:text-primary transition-colors"
                         title="Move Up"
                       >
                         <ChevronUp size={14} />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleLayerOrder(layer.id, 'down'); }}
-                        className="p-1 hover:bg-blue-100 rounded text-slate-400 hover:text-blue-600 transition-colors"
+                        className="p-1 hover:bg-white rounded text-bronze-light hover:text-primary transition-colors"
                         title={t('editor.sidebar.moveDown')}
                       >
                         <ChevronDown size={14} />
@@ -662,11 +662,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <div className={`
-      fixed bottom-0 left-0 right-0 w-full h-[55vh] rounded-t-3xl border-t border-slate-200/50 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]
-      glass-panel flex flex-col overflow-hidden z-50 transform transition-transform duration-500 ease-spring
+      fixed bottom-0 left-0 right-0 w-full h-[55vh] rounded-t-3xl border-t border-cream-dark shadow-[0_-10px_40px_rgba(0,0,0,0.1)]
+      bg-cream-light/95 backdrop-blur-xl flex flex-col overflow-hidden z-50 transform transition-transform duration-500 ease-spring
       ${isOpen ? 'translate-y-0' : 'translate-y-full'}
       
-      md:translate-y-0 md:static md:w-80 md:h-[calc(100vh-2rem)] md:my-4 md:mr-4 md:rounded-3xl md:border md:shadow-sm
+      md:translate-y-0 md:static md:w-80 md:h-[calc(100vh-2rem)] md:my-4 md:mr-4 md:rounded-3xl md:border md:border-cream-dark md:shadow-sm
       md:animate-in md:slide-in-from-right-4
       ${!isOpen && 'md:hidden'}
     `}>
@@ -675,29 +675,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className="md:hidden w-full flex items-center justify-center pt-3 pb-1 cursor-pointer active:opacity-70"
         onClick={onClose}
       >
-        <div className="w-12 h-1.5 bg-slate-300/50 rounded-full" />
+        <div className="w-12 h-1.5 bg-cream-dark/50 rounded-full" />
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-100 bg-white/50 backdrop-blur-sm p-1">
+      <div className="flex border-b border-cream-dark bg-cream-medium/50 backdrop-blur-sm p-1">
         <button
           onClick={() => setActiveTab('settings')}
-          className={`flex-1 flex items-center justify-center py-2.5 text-xs font-bold rounded-xl transition-all ${activeTab === 'settings' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'}`}
+          className={`flex-1 flex items-center justify-center py-2.5 text-xs font-bold rounded-xl transition-all ${activeTab === 'settings' ? 'bg-white text-primary shadow-sm ring-1 ring-primary/10' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
         >
           <Settings size={14} className="mr-2" />
           {t('app.settings')}
         </button >
         <button
           onClick={() => setActiveTab('layers')}
-          className={`flex-1 flex items-center justify-center py-2.5 text-xs font-bold rounded-xl transition-all ${activeTab === 'layers' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'}`}
+          className={`flex-1 flex items-center justify-center py-2.5 text-xs font-bold rounded-xl transition-all ${activeTab === 'layers' ? 'bg-white text-primary shadow-sm ring-1 ring-primary/10' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
         >
           <Layers size={14} className="mr-2" />
           {t('editor.subtitle')}
-          <span className={`ml-2 px-1.5 py-0.5 rounded-md text-[9px] ${activeTab === 'layers' ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-500'}`}>{layers.length}</span>
+          <span className={`ml-2 px-1.5 py-0.5 rounded-md text-[9px] ${activeTab === 'layers' ? 'bg-primary/10 text-primary' : 'bg-cream-dark/20 text-bronze-light'}`}>{layers.length}</span>
         </button>
       </div >
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar bg-white/30">
+      <div className="flex-1 overflow-y-auto custom-scrollbar bg-cream-light/30">
         {activeTab === 'settings' ? renderSettingsContent() : renderLayersList()}
       </div>
     </div >

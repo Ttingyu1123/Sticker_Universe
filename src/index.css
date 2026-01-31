@@ -1,8 +1,30 @@
 @import "tailwindcss";
 
+@theme {
+    /* Vintage Palette */
+    --color-primary: #C496A1; /* Dusty Rose */
+    --color-primary-hover: #B08590;
+    --color-primary-light: #DCC0C8;
+
+    --color-secondary: #8E88A3; /* Lavender Purple */
+    --color-secondary-hover: #7D7791;
+
+    --color-accent: #919D85; /* Muted Sage */
+    --color-accent-hover: #7D8A72;
+
+    --color-cream: #EBE1C6; /* Vintage Cream */
+    --color-cream-light: #FDFCF8;
+    --color-cream-medium: #F5F0E6;
+    --color-cream-dark: #DDD0B0;
+
+    --color-bronze: #81785A; /* Antique Bronze */
+    --color-bronze-text: #5D5540;
+    --color-bronze-light: #A3997A;
+}
+
 @layer base {
     body {
-        @apply bg-slate-50 text-slate-900;
+        @apply bg-cream-light text-bronze-text;
     }
 }
 

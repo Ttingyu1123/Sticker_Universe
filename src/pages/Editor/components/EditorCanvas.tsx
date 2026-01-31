@@ -40,7 +40,7 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
   return (
     <div
       ref={containerRef}
-      className="w-full h-full overflow-auto flex items-center justify-center bg-slate-200/50 p-12 cursor-default select-none relative"
+      className="w-full h-full overflow-auto flex items-center justify-center bg-cream-medium/50 p-2 cursor-default select-none relative"
       onMouseDown={handleBackgroundClick}
     >
       {/* Artboard Wrapper to fix scale/scroll issues if needed, currently direct scale works with flex-center if items shrink/grow */}
@@ -56,15 +56,15 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
         {/* Content Layer (Clipped) */}
         <div
           className={`absolute inset-0 shadow-2xl ${config.showGrid && 'bg-grid-pattern'} ${config.shape === 'circle' ? 'rounded-full overflow-hidden' :
-              config.shape === 'rounded' ? 'rounded-[3rem] overflow-hidden' : ''
+            config.shape === 'rounded' ? 'rounded-[3rem] overflow-hidden' : ''
             }`}
           style={{ backgroundColor: config.showGrid ? 'transparent' : config.backgroundColor }}
         >
           {/* Center Marker for Visual Aid */}
           {config.showGrid && (
             <>
-              <div className="absolute top-1/2 left-1/2 w-4 h-0.5 bg-blue-500/30 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50" />
-              <div className="absolute top-1/2 left-1/2 w-0.5 h-4 bg-blue-500/30 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50" />
+              <div className="absolute top-1/2 left-1/2 w-4 h-0.5 bg-primary/30 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50" />
+              <div className="absolute top-1/2 left-1/2 w-0.5 h-4 bg-primary/30 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50" />
             </>
           )}
 

@@ -12,8 +12,8 @@ const NavItem = ({ to, icon: Icon, label, disabled = false }: { to: string, icon
             clsx(
                 "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group relative overflow-hidden",
                 isActive
-                    ? "bg-violet-500 text-white shadow-lg shadow-violet-500/25 scale-105 font-bold"
-                    : "text-slate-500 hover:bg-white hover:shadow-md hover:text-violet-600 hover:scale-[1.02]",
+                    ? "bg-primary text-white shadow-lg shadow-primary/25 scale-105 font-bold"
+                    : "text-bronze hover:bg-white hover:shadow-md hover:text-primary hover:scale-[1.02]",
                 disabled && "opacity-50 cursor-not-allowed pointer-events-none"
             )
         }
@@ -41,25 +41,28 @@ export const Layout = () => {
         if (path === '/print-sheet') return t('app.printSheet') || 'Print Studio';
         if (path === '/animator') return t('app.animator') || 'Animator';
         if (path === '/gallery') return t('app.gallery') || 'Gallery';
+        // Added specifically for consistency
+        if (path === '/editor') return t('app.editor') || '編輯器';
+        if (path === '/packager') return t('app.packager') || '美工';
         // For other pages or root, return app title
         return t('app.title');
     };
 
     return (
-        <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-violet-200 selection:text-violet-900">
+        <div className="flex min-h-screen bg-cream-light font-sans text-bronze-text selection:bg-primary-light selection:text-bronze-text">
             {/* Desktop Sidebar - Always visible on Desktop */}
-            <aside className="w-64 fixed inset-y-0 left-0 z-50 bg-slate-50/50 backdrop-blur-xl border-r border-slate-200/50 p-4 hidden lg:flex flex-col gap-2">
+            <aside className="w-64 fixed inset-y-0 left-0 z-50 bg-cream-light/80 backdrop-blur-xl border-r border-cream-dark p-4 hidden lg:flex flex-col gap-2">
                 {/* Header */}
                 <div className="px-4 py-6 mb-2">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-violet-500/20">
+                        <div className="w-10 h-10 bg-gradient-to-br from-primary via-primary-hover to-secondary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
                             <Sparkles size={18} fill="currentColor" className="text-white/90" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-black tracking-tight text-slate-800 leading-none">
-                                {t('app.title')}<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-500"></span>
+                            <h1 className="text-xl font-black tracking-tight text-bronze leading-none">
+                                {t('app.title')}<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary"></span>
                             </h1>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{t('app.subtitle')}</p>
+                            <p className="text-[10px] font-bold text-bronze-light uppercase tracking-widest mt-1">{t('app.subtitle')}</p>
                         </div>
                     </div>
                 </div>
@@ -67,7 +70,7 @@ export const Layout = () => {
                 {/* Navigation */}
                 <nav className="flex-1 space-y-1">
                     <div className="px-4 pb-2 flex items-center justify-between">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('app.apps')}</p>
+                        <p className="text-[10px] font-black text-bronze-light uppercase tracking-widest">{t('app.apps')}</p>
                     </div>
                     <NavItem to="/generator" icon={Sparkles} label={t('app.generator')} />
                     <NavItem to="/editor" icon={Palette} label={t('app.editor')} />
@@ -81,22 +84,22 @@ export const Layout = () => {
                 </nav>
 
                 {/* Footer / User */}
-                <div className="mt-auto pt-4 border-t border-slate-200/50 space-y-1">
+                <div className="mt-auto pt-4 border-t border-cream-dark space-y-1">
                     <div className="px-4 pb-2 flex items-center justify-between">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('app.system')}</p>
+                        <p className="text-[10px] font-black text-bronze-light uppercase tracking-widest">{t('app.system')}</p>
                         <LanguageSwitcher />
                     </div>
-                    <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-slate-400 hover:bg-white hover:text-slate-600 hover:shadow-sm">
+                    <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-bronze hover:bg-white hover:text-bronze-text hover:shadow-sm">
                         <Settings size={20} />
                         <span className="text-sm font-bold">{t('app.settings')}</span>
                     </button>
-                    <a href="https://tingyusdeco.com/" target="_blank" rel="noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-slate-400 hover:bg-white hover:text-slate-600 hover:shadow-sm">
+                    <a href="https://tingyusdeco.com/" target="_blank" rel="noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-bronze hover:bg-white hover:text-bronze-text hover:shadow-sm">
                         <Home size={20} />
                         <span className="text-sm font-bold">{t('app.backHome')}</span>
                     </a>
 
                     <div className="px-4 py-2 mt-2">
-                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest opacity-50">
+                        <div className="text-[10px] text-bronze-light font-bold uppercase tracking-widest opacity-50">
                             TingYu’s Creative OS <span className="mx-1">|</span> v2.0
                         </div>
                     </div>
@@ -184,18 +187,24 @@ export const Layout = () => {
 
             {/* Main Content */}
             <main className="flex-1 min-w-0 pb-20 lg:pb-0 lg:ml-64 transition-all duration-300">
-                {/* Mobile Header Logo - Hidden on Landing Page */}
+                {/* Unified Global Header - Visible on Mobile and Desktop */}
                 {location.pathname !== '/' && (
-                    <div className="lg:hidden flex items-center justify-between py-4 px-6 bg-white/50 backdrop-blur-sm border-b border-slate-100 sticky top-0 z-40">
+                    <div className="flex items-center justify-between py-4 px-6 bg-white/50 backdrop-blur-sm border-b border-slate-100 sticky top-0 z-40">
                         <div className="flex items-center gap-3">
                             <NavLink to="/" className="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 transition-colors">
                                 <ArrowLeft size={18} strokeWidth={2.5} />
                             </NavLink>
-                            <h1 className="text-lg font-black tracking-tight text-slate-800 leading-none">
+                            <h1 className="text-xl lg:text-2xl font-black tracking-tight text-slate-800 leading-none">
                                 {getPageTitle()}
                             </h1>
                         </div>
-                        <LanguageSwitcher />
+                        <div className="lg:hidden">
+                            <LanguageSwitcher />
+                        </div>
+                        {/* Desktop-only extra header items can go here if needed, or keeping it clean */}
+                        <div className="hidden lg:block">
+                            <LanguageSwitcher />
+                        </div>
                     </div>
                 )}
                 <Outlet />

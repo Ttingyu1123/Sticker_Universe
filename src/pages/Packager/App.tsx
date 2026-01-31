@@ -1,18 +1,11 @@
-
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import {
-  Upload, Scissors, Layers, Download, RefreshCw, AlertCircle, Image as ImageIcon,
-  CheckCircle2, ChevronRight, Info, FileArchive, LayoutGrid, Maximize2, Crop,
-  Settings2, Type, ShieldCheck, Plus, Move, Search, Ruler, Sparkles, Sun, Palette,
-  Wand2, Timer, Smartphone, ZoomIn, ZoomOut, RotateCcw, Undo2, Redo2, MousePointer2, Home,
-  Trash2, Files, FileImage, Settings, Star, Minimize2, Check, Minus, ExternalLink as LinkIcon, Eraser
-} from 'lucide-react';
+import { Upload, X, Check, Image as ImageIcon, Settings2, Download, RefreshCw, Layers, Zap, Maximize2, Move, Type, ShieldCheck, ChevronRight, Wand2, Palette, Sun, Sparkles, FileArchive, CheckCircle2, AlertCircle, Plus, Minus, ZoomIn, ZoomOut, RotateCcw, Undo2, Redo2, Star, Grip, Trash2, Ruler } from 'lucide-react';
 import { processImage } from './services/ai/backgroundRemoval';
+import { loadImage } from './utils/helpers';
 import JSZip from 'jszip';
 import saveAs from 'file-saver';
 import { useTranslation } from 'react-i18next';
-import { ProcessingStatus, SplitConfig, ExportPreset, OutputFormat } from './types';
-import { loadImage } from './utils/helpers';
+import { ProcessingStatus, SplitConfig } from './types';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { saveStickerToDB } from '../../db';
 import { useLocation } from 'react-router-dom';
@@ -56,11 +49,11 @@ interface FileItem {
 
 const Stepper = ({ label, value, min, max, onChange }: { label: string, value: number, min: number, max: number, onChange: (val: number) => void }) => (
   <div className="space-y-1">
-    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</label>
-    <div className="flex items-center bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+    <label className="text-[10px] font-bold text-bronze-light uppercase tracking-wider">{label}</label>
+    <div className="flex items-center bg-cream-medium/30 border border-cream-dark rounded-2xl overflow-hidden shadow-sm">
       <button
         onClick={() => onChange(Math.max(min, value - 1))}
-        className="p-3 text-slate-500 hover:bg-[#E6E2DE] active:bg-[#D8D4CF] transition-colors"
+        className="p-3 text-bronze-light hover:bg-cream-medium hover:text-primary active:bg-cream-dark transition-colors"
         disabled={value <= min}
       >
         <Minus size={14} />
@@ -72,11 +65,11 @@ const Stepper = ({ label, value, min, max, onChange }: { label: string, value: n
           const val = parseInt(e.target.value);
           if (!isNaN(val)) onChange(Math.min(max, Math.max(min, val)));
         }}
-        className="w-full py-2 text-center bg-transparent font-bold text-sm outline-none appearance-none"
+        className="w-full py-2 text-center bg-transparent font-bold text-sm text-bronze-text outline-none appearance-none"
       />
       <button
         onClick={() => onChange(Math.min(max, value + 1))}
-        className="p-3 text-gray-500 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+        className="p-3 text-bronze-light hover:bg-cream-medium hover:text-primary active:bg-cream-dark transition-colors"
         disabled={value >= max}
       >
         <Plus size={14} />
@@ -269,7 +262,7 @@ const App: React.FC = () => {
       const id = Math.random().toString(36).substr(2, 9);
       const preview = URL.createObjectURL(f);
       const img = await loadImage(preview);
-      newItems.push({ id, file: f, preview, stats: { width: img.width, height: img.height, aspectRatio: img.width / img.height, label: `${img.width}x${img.height}` } });
+      newItems.push({ id, file: f, preview, stats: { width: img.width, height: img.height, aspectRatio: img.width / img.height, label: `${img.width}x${img.height} ` } });
     }
     setFileQueue(prev => [...prev, ...newItems]);
     if (!activeFileId && newItems.length > 0) setActiveFileId(newItems[0].id);
@@ -328,7 +321,7 @@ const App: React.FC = () => {
     try {
       for (let fIdx = 0; fIdx < newQueue.length; fIdx++) {
         const item = newQueue[fIdx];
-        setStatusMsg(`${t('packager.status.coreProcessing')} (${fIdx + 1}/${newQueue.length}): ${item.file.name}`);
+        setStatusMsg(`${t('packager.status.coreProcessing')} (${fIdx + 1}/${newQueue.length}): ${item.file.name} `);
 
         let activeBlob: Blob | string = item.file;
         if (config.useAI) {
@@ -367,7 +360,7 @@ const App: React.FC = () => {
       setElapsedTime(((Date.now() - startTime) / 1000).toFixed(1));
       setStatusMsg(t('packager.status.coreComplete'));
       applyBeautification();
-    } catch (e: any) { setStatus('error'); setStatusMsg(`${t('packager.status.processingFail')}${e.message}`); }
+    } catch (e: any) { setStatus('error'); setStatusMsg(`${t('packager.status.processingFail')}${e.message} `); }
   };
 
   const applyBeautification = async () => {
@@ -446,10 +439,12 @@ const App: React.FC = () => {
     <div className="min-h-screen pb-20 select-none font-sans text-slate-700 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-100/50 via-slate-50 to-pink-50/30">
       {showGallery && (
         <GalleryPicker
-          onSelect={(blob) => {
-            const file = new File([blob], `gallery_${Date.now()}.png`, { type: blob.type });
+          onSelect={(blobs) => {
             const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
+            blobs.forEach(blob => {
+              const file = new File([blob], `gallery_${Date.now()}.png`, { type: blob.type });
+              dataTransfer.items.add(file);
+            });
             handleFiles(dataTransfer.files);
             setShowGallery(false);
           }}
@@ -457,29 +452,13 @@ const App: React.FC = () => {
         />
       )}
 
-      {/* Unified Header - Mobile: Controls Only (Second Row), Desktop: Full (Top) */}
-      <nav className="fixed top-[5rem] md:top-4 left-4 right-4 z-50">
-        <div className="max-w-7xl mx-auto rounded-2xl px-6 py-3 flex items-center justify-center md:justify-between bg-white/70 backdrop-blur-xl shadow-sm border border-white/50 md:shadow-lg">
-          <div className="items-center gap-4 hidden md:flex">
-            {/* App Switcher Trigger */}
-            {/* AppSwitcher removed */}
+      {/* Structural Header (Desktop) */}
+      <header className="hidden md:block bg-white border-b border-slate-200 px-6 py-3 sticky top-0 z-30 shadow-sm flex-shrink-0">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* Left Side Spacer */}
+          <div className="flex-1"></div>
 
-
-            <div className="h-6 w-px bg-slate-200"></div>
-
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-violet-500 to-pink-500 p-2 rounded-xl text-white shadow-lg shadow-violet-500/20">
-                <Scissors size={18} strokeWidth={2.5} />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold tracking-tight text-slate-800 leading-none">
-                  StickerOS <span className="text-[10px] text-pink-500 bg-pink-50 px-1.5 py-0.5 rounded-md ml-1 align-top">{t('packager.title')}</span>
-                </h1>
-                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">{t('packager.subtitle')}</p>
-              </div>
-            </div>
-          </div>
-
+          {/* Right Side Tools */}
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
               <button onClick={undo} disabled={historyIdx <= 0} className="p-1.5 sm:p-2 hover:bg-white rounded-lg disabled:opacity-30 text-slate-500 hover:text-violet-600 transition-all shadow-sm"><Undo2 size={16} /></button>
@@ -488,29 +467,31 @@ const App: React.FC = () => {
             <button onClick={reset} className="px-3 py-2 sm:px-4 bg-white border border-slate-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500 text-slate-500 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
               <RefreshCw size={14} /> <span className="hidden sm:inline">{t('packager.reset')}</span>
             </button>
-            <a href="https://tingyusdeco.com/" className="text-xs font-bold text-slate-400 hover:text-violet-600 flex items-center gap-1.5 transition-colors px-3 py-1.5 hover:bg-slate-50 rounded-lg">
-              <Home size={14} /> <span className="hidden sm:inline">{t('packager.home')}</span>
-            </a>
           </div>
         </div>
-      </nav>
+      </header>
 
-      <main className="max-w-7xl mx-auto px-6 pt-32 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* Mobile Controls (Keep as is just not fixed top overlap?) 
+          Actually mobile layout is complex. User specifically asked for DESKTOP parity with LayerLab.
+          I will leave mobile controls mostly as is but ensure main content isn't padded unnecessarily on desktop.
+      */}
+
+      <main className="max-w-7xl mx-auto px-6 pt-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-6">
           {fileQueue.length === 0 ? (
-            <div onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }} onDragLeave={() => setIsDragging(false)} onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files) handleFiles(e.dataTransfer.files); }} onClick={() => fileInputRef.current?.click()} className={`group border-3 border-dashed rounded-[2.5rem] p-20 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 min-h-[500px] ${isDragging ? 'drag-active border-violet-500 bg-violet-50/50' : 'border-slate-200 bg-slate-50/50 hover:border-violet-300 hover:bg-white/50'}`}>
+            <div onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }} onDragLeave={() => setIsDragging(false)} onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files) handleFiles(e.dataTransfer.files); }} onClick={() => fileInputRef.current?.click()} className={`group border-3 border-dashed rounded-[2.5rem] p-20 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 min-h-[500px] ${isDragging ? 'drag-active border-primary bg-primary/5' : 'border-cream-dark bg-cream-medium/50 hover:border-primary/50 hover:bg-white/50'}`}>
               <input ref={fileInputRef} type="file" multiple className="hidden" onChange={(e) => e.target.files && handleFiles(e.target.files)} accept="image/*" />
-              <div className="bg-white p-10 rounded-full group-hover:scale-110 transition-transform duration-500 shadow-xl shadow-violet-500/10 text-violet-500"><Upload size={48} /></div>
-              <h3 className="mt-8 text-2xl font-black text-slate-700 tracking-tight">{t('packager.upload.dragDrop')}</h3>
-              <p className="mt-3 text-slate-400 font-bold text-sm tracking-wide uppercase">{t('packager.upload.support')}</p>
+              <div className="bg-white p-10 rounded-full group-hover:scale-110 transition-transform duration-500 shadow-xl shadow-primary/10 text-primary"><Upload size={48} /></div>
+              <h3 className="mt-8 text-2xl font-black text-bronze-text tracking-tight">{t('packager.upload.dragDrop')}</h3>
+              <p className="mt-3 text-bronze-light font-bold text-sm tracking-wide uppercase">{t('packager.upload.support')}</p>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowGallery(true);
                 }}
-                className="mt-8 px-6 py-2.5 bg-white text-indigo-500 hover:text-indigo-600 rounded-full font-bold text-sm shadow-sm border border-slate-200 hover:bg-slate-50 transition-all z-10 flex items-center gap-2 group/btn"
+                className="mt-8 px-6 py-2.5 bg-white text-primary hover:text-primary-hover rounded-full font-bold text-sm shadow-sm border border-cream-dark hover:bg-cream-light transition-all z-10 flex items-center gap-2 group/btn"
               >
-                <div className="bg-indigo-50 text-indigo-500 p-1 rounded-full group-hover/btn:bg-indigo-100 transition-colors">
+                <div className="bg-primary/10 text-primary p-1 rounded-full group-hover/btn:bg-primary/20 transition-colors">
                   <ImageIcon size={16} />
                 </div>
                 {t('packager.upload.gallery')}
@@ -519,40 +500,40 @@ const App: React.FC = () => {
           ) : (
             <div className="space-y-4 animate-in fade-in duration-500">
               <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                <button onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 w-16 h-16 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center text-gray-400 hover:border-indigo-500 hover:text-indigo-500 transition-colors"><Plus size={20} /></button>
-                <button onClick={() => setShowGallery(true)} className="flex-shrink-0 w-16 h-16 border-2 border-dashed border-pink-200 bg-pink-50/30 rounded-xl flex items-center justify-center text-pink-400 hover:border-pink-500 hover:text-pink-500 transition-colors"><ImageIcon size={20} /></button>
+                <button onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 w-16 h-16 border-2 border-dashed border-cream-dark rounded-xl flex items-center justify-center text-bronze-light hover:border-primary hover:text-primary transition-colors"><Plus size={20} /></button>
+                <button onClick={() => setShowGallery(true)} className="flex-shrink-0 w-16 h-16 border-2 border-dashed border-secondary/20 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary hover:border-secondary hover:text-secondary transition-colors"><ImageIcon size={20} /></button>
                 {fileQueue.map(item => (
                   <div key={item.id} className="relative group flex-shrink-0">
-                    <img src={item.preview} onClick={() => { setActiveFileId(item.id); setViewMode(item.baseTiles ? 'result' : 'original'); }} className={`w-16 h-16 object-cover rounded-xl cursor-pointer border-2 transition-all ${activeFileId === item.id ? 'border-indigo-600 shadow-md ring-2 ring-indigo-100 scale-105' : 'border-white grayscale-[40%] hover:grayscale-0'}`} />
+                    <img src={item.preview} onClick={() => { setActiveFileId(item.id); setViewMode(item.baseTiles ? 'result' : 'original'); }} className={`w-16 h-16 object-cover rounded-xl cursor-pointer border-2 transition-all ${activeFileId === item.id ? 'border-primary shadow-md ring-2 ring-primary/20 scale-105' : 'border-white grayscale-[40%] hover:grayscale-0'}`} />
                     {item.isProcessed && <div className="absolute top-1 left-1 bg-green-500 text-white rounded-full p-0.5 shadow-sm"><Check size={8} /></div>}
                     <button onClick={() => removeFile(item.id)} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 shadow-sm transition-opacity"><Trash2 size={10} /></button>
                   </div>
                 ))}
               </div>
 
-              <div className="glass-panel rounded-3xl p-4 relative">
+              <div className="bg-cream-light/30 border border-cream-dark backdrop-blur-xl rounded-3xl p-4 relative shadow-sm">
                 <div className="flex items-center justify-between mb-4 px-2">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-black text-slate-700 uppercase tracking-widest truncate max-w-[200px]">{activeFile?.file.name}</span>
-                    <span className="text-[9px] text-slate-500 font-bold bg-slate-50 px-3 py-1 rounded-full border border-slate-200">{activeFile?.stats?.label}</span>
+                    <span className="text-xs font-black text-bronze-text uppercase tracking-widest truncate max-w-[200px]">{activeFile?.file.name}</span>
+                    <span className="text-[9px] text-bronze-light font-bold bg-cream-medium/50 px-3 py-1 rounded-full border border-cream-dark">{activeFile?.stats?.label}</span>
                   </div>
                   {isCoreProcessed && (
-                    <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-200">
-                      <button onClick={() => setViewMode('original')} className={`px-5 py-2 rounded-lg text-[10px] font-bold transition-all ${viewMode === 'original' ? 'bg-white shadow-sm text-violet-500' : 'text-slate-500'}`}>{t('packager.preview.editAlignment')}</button>
-                      <button onClick={() => setViewMode('result')} className={`px-5 py-2 rounded-lg text-[10px] font-bold transition-all ${viewMode === 'result' ? 'bg-white shadow-sm text-violet-500' : 'text-slate-500'}`}>{t('packager.preview.previewResult')}</button>
+                    <div className="flex bg-cream-medium/50 p-1 rounded-xl border border-cream-dark">
+                      <button onClick={() => setViewMode('original')} className={`px-5 py-2 rounded-lg text-[10px] font-bold transition-all ${viewMode === 'original' ? 'bg-white shadow-sm text-primary' : 'text-bronze-light'}`}>{t('packager.preview.editAlignment')}</button>
+                      <button onClick={() => setViewMode('result')} className={`px-5 py-2 rounded-lg text-[10px] font-bold transition-all ${viewMode === 'result' ? 'bg-white shadow-sm text-primary' : 'text-bronze-light'}`}>{t('packager.preview.previewResult')}</button>
                     </div>
                   )}
                 </div>
 
-                <div className="relative rounded-2xl border min-h-[500px] bg-slate-100 overflow-hidden flex items-center justify-center cursor-grab active:cursor-grabbing shadow-inner" onWheel={handleWheel} onMouseDown={startPan} onMouseMove={onPan} onMouseUp={() => setIsPanning(false)}>
+                <div className="relative rounded-2xl border border-cream-dark min-h-[500px] bg-cream-medium/20 overflow-hidden flex items-center justify-center cursor-grab active:cursor-grabbing shadow-inner" onWheel={handleWheel} onMouseDown={startPan} onMouseMove={onPan} onMouseUp={() => setIsPanning(false)}>
                   <div className="absolute top-4 left-4 z-40 flex flex-col gap-2">
                     <div className="bg-white/90 backdrop-blur-md p-1 rounded-xl shadow-lg border border-white flex flex-col gap-1">
-                      <button onClick={() => setZoom(prev => Math.min(5, prev + 0.25))} className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 transition-colors"><ZoomIn size={16} /></button>
-                      <button onClick={() => setZoom(prev => Math.max(0.5, prev - 0.25))} className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 transition-colors"><ZoomOut size={16} /></button>
-                      <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 transition-colors"><RotateCcw size={16} /></button>
+                      <button onClick={() => setZoom(prev => Math.min(5, prev + 0.25))} className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-colors"><ZoomIn size={16} /></button>
+                      <button onClick={() => setZoom(prev => Math.max(0.5, prev - 0.25))} className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-colors"><ZoomOut size={16} /></button>
+                      <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-colors"><RotateCcw size={16} /></button>
                     </div>
                     {viewMode === 'original' && activeFile && (
-                      <button onClick={autoDetectGrid} className="bg-indigo-600 text-white p-2.5 rounded-xl shadow-lg hover:bg-indigo-700 transition-all flex items-center gap-2 group overflow-hidden max-w-[42px] hover:max-w-[150px]">
+                      <button onClick={autoDetectGrid} className="bg-primary text-white p-2.5 rounded-xl shadow-lg hover:bg-primary-hover transition-all flex items-center gap-2 group overflow-hidden max-w-[42px] hover:max-w-[150px]">
                         <Sparkles size={18} className="shrink-0" /><span className="text-[10px] font-bold whitespace-nowrap opacity-0 group-hover:opacity-100">{t('packager.preview.aiDetect')}</span>
                       </button>
                     )}
@@ -573,7 +554,7 @@ const App: React.FC = () => {
                       ))}
                       {Array.from({ length: (config.rowLines.length - 1) * (config.colLines.length - 1) }).map((_, i) => {
                         const r = Math.floor(i / (config.colLines.length - 1)), c = i % (config.colLines.length - 1);
-                        return <div key={i} className="absolute border border-white/20 bg-indigo-500/10 pointer-events-none flex items-center justify-center overflow-hidden" style={{ top: `${config.rowLines[r] * 100}%`, left: `${config.colLines[c] * 100}%`, width: `${(config.colLines[c + 1] - config.colLines[c]) * 100}%`, height: `${(config.rowLines[r + 1] - config.rowLines[r]) * 100}%` }}>
+                        return <div key={i} className="absolute border border-white/20 bg-primary/10 pointer-events-none flex items-center justify-center overflow-hidden" style={{ top: `${config.rowLines[r] * 100}%`, left: `${config.colLines[c] * 100}%`, width: `${(config.colLines[c + 1] - config.colLines[c]) * 100}%`, height: `${(config.rowLines[r + 1] - config.rowLines[r]) * 100}%` }}>
                           <span className="text-[10px] font-black text-white bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm">#{r + 1}-{c + 1}</span>
                         </div>
                       })}
@@ -586,7 +567,7 @@ const App: React.FC = () => {
                             <div className="aspect-square w-full rounded-xl overflow-hidden border border-black/5 bg-transparent backdrop-blur-sm shadow-sm flex items-center justify-center p-1 group hover:scale-105 transition-transform">
                               <img src={tile.url} className="max-w-full max-h-full object-contain drop-shadow-xl" />
                             </div>
-                            <span className="text-[10px] font-black text-indigo-600 bg-white px-2 py-0.5 rounded-full border border-indigo-100 shadow-sm">{tile.width} × {tile.height}</span>
+                            <span className="text-[10px] font-black text-primary bg-white px-2 py-0.5 rounded-full border border-primary/20 shadow-sm">{tile.width} × {tile.height}</span>
                           </div>
                         ))}
                       </div>
@@ -606,61 +587,61 @@ const App: React.FC = () => {
 
         <div className="lg:col-span-4 space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] pr-2 scrollbar-thin">
           {status !== 'idle' && (
-            <div className={`p-4 rounded-2xl border transition-all shadow-lg animate-in slide-in-from-right-4 ${status === 'error' ? 'bg-red-50 border-red-100 text-red-700' : 'glass-panel'}`}>
+            <div className={`p-4 rounded-2xl border transition-all shadow-lg animate-in slide-in-from-right-4 ${status === 'error' ? 'bg-red-500/10 border-red-200 text-red-700' : 'bg-cream-light/30 border-cream-dark backdrop-blur-xl'}`}>
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-slate-50 text-slate-700 shadow-inner">
-                  {status === 'success' ? <CheckCircle2 size={22} className="text-[#B0C4B1]" /> : status === 'error' ? <AlertCircle size={22} /> : <div className="animate-spin rounded-full h-5 w-5 border-3 border-[#B5838D] border-t-transparent" />}
+                <div className="p-2.5 rounded-xl bg-cream-medium/50 text-bronze-text shadow-inner">
+                  {status === 'success' ? <CheckCircle2 size={22} className="text-emerald-500" /> : status === 'error' ? <AlertCircle size={22} /> : <div className="animate-spin rounded-full h-5 w-5 border-3 border-secondary border-t-transparent" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="block text-[10px] font-black uppercase tracking-tighter opacity-50 text-slate-500">{status === 'success' ? t('packager.status.complete') : t('packager.status.applying')}</span>
-                  <p className="text-xs font-bold truncate text-slate-700">{statusMsg}</p>
+                  <span className="block text-[10px] font-black uppercase tracking-tighter opacity-50 text-bronze-light">{status === 'success' ? t('packager.status.complete') : t('packager.status.applying')}</span>
+                  <p className="text-xs font-bold truncate text-bronze-text">{statusMsg}</p>
                 </div>
-                {elapsedTime && <div className="text-[10px] font-black px-2.5 py-1 bg-slate-50 rounded-lg text-slate-500">{elapsedTime}s</div>}
+                {elapsedTime && <div className="text-[10px] font-black px-2.5 py-1 bg-cream-medium rounded-lg text-bronze-light">{elapsedTime}s</div>}
               </div>
-              {progress > 0 && progress < 100 && <div className="mt-4 h-2 w-full bg-slate-50 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-gradient-to-r from-[#B5838D] to-[#6D6875] transition-all duration-300 shadow-lg" style={{ width: `${progress}%` }} /></div>}
+              {progress > 0 && progress < 100 && <div className="mt-4 h-2 w-full bg-cream-medium/30 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-gradient-to-r from-secondary to-primary transition-all duration-300 shadow-lg" style={{ width: `${progress}%` }} /></div>}
             </div>
           )}
 
-          <section className="glass-panel rounded-[2rem] p-8 space-y-6">
-            <div className="flex items-center justify-between"><h2 className="text-sm font-black flex items-center gap-2 text-slate-700 uppercase tracking-wider"><Layers size={18} className="text-violet-500" /> {t('packager.phase1.title')}</h2><span className="bg-slate-50 text-violet-500 text-[10px] font-black px-3 py-1 rounded-full border border-slate-200">{t('packager.phase1.queue', { count: fileQueue.length })}</span></div>
+          <section className="bg-cream-light/30 border border-cream-dark backdrop-blur-xl rounded-[2rem] p-8 space-y-6">
+            <div className="flex items-center justify-between"><h2 className="text-sm font-black flex items-center gap-2 text-bronze-text uppercase tracking-wider"><Layers size={18} className="text-primary" /> {t('packager.phase1.title')}</h2><span className="bg-cream-medium/50 text-primary text-[10px] font-black px-3 py-1 rounded-full border border-cream-dark">{t('packager.phase1.queue', { count: fileQueue.length })}</span></div>
             <div className="grid grid-cols-2 gap-3">
               <Stepper label={t('packager.phase1.rows')} value={config.rows} min={1} max={12} onChange={(val) => setConfig(prev => ({ ...prev, rows: val, manualMode: false }))} />
               <Stepper label={t('packager.phase1.cols')} value={config.cols} min={1} max={12} onChange={(val) => setConfig(prev => ({ ...prev, cols: val, manualMode: false }))} />
             </div>
             <div className="space-y-2 pt-1">
-              <div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase flex items-center gap-1"><Maximize2 size={10} /> {t('packager.phase1.scale')}</label><span className="text-[10px] font-black text-violet-500 bg-slate-50 px-2.5 py-0.5 rounded-full">{config.scaleFactor}x</span></div>
-              <input type="range" min="1" max="4" step="0.5" value={config.scaleFactor} onChange={(e) => setConfig(prev => ({ ...prev, scaleFactor: parseFloat(e.target.value) }))} className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#B5838D]" />
+              <div className="flex justify-between items-center"><label className="text-[10px] font-bold text-bronze-light uppercase flex items-center gap-1"><Maximize2 size={10} /> {t('packager.phase1.scale')}</label><span className="text-[10px] font-black text-primary bg-cream-medium/50 px-2.5 py-0.5 rounded-full">{config.scaleFactor}x</span></div>
+              <input type="range" min="1" max="4" step="0.5" value={config.scaleFactor} onChange={(e) => setConfig(prev => ({ ...prev, scaleFactor: parseFloat(e.target.value) }))} className="w-full h-2 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-secondary" />
             </div>
-            <div onClick={() => setConfig(prev => ({ ...prev, manualMode: !prev.manualMode }))} className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${config.manualMode ? 'bg-[#FCF5F3] border-[#E5989B] shadow-sm' : 'bg-white border-[#F2EFE9]'}`}><div className="flex items-center gap-3"><Move size={18} className={config.manualMode ? 'text-[#E5989B]' : 'text-[#C5C6C7]'} /><span className="text-xs font-bold text-slate-700">{t('packager.phase1.manualMode')}</span></div><div className={`w-10 h-6 rounded-full relative transition-colors ${config.manualMode ? 'bg-[#E5989B]' : 'bg-[#E6E2DE]'}`}><div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${config.manualMode ? 'right-1' : 'left-1'}`} /></div></div>
-            {estimatedSize && <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-3 shadow-sm"><Ruler size={18} className="text-slate-500 shrink-0" /><div className="flex flex-col"><span className="text-[9px] font-black text-violet-500 uppercase leading-none mb-1">{estimatedSize.label}</span><span className="text-sm font-black text-slate-700">{estimatedSize.w} × {estimatedSize.h} <span className="text-[10px] opacity-60 font-medium">px</span></span></div></div>}
-            <div onClick={() => setConfig(prev => ({ ...prev, useAI: !prev.useAI }))} className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${config.useAI ? 'bg-[#F9F8F6] border-[#B5838D]/30 shadow-sm' : 'bg-white border-[#F2EFE9]'}`}><div className="flex items-center gap-3"><ImageIcon size={18} className={config.useAI ? 'text-violet-500' : 'text-[#C5C6C7]'} /><span className="text-xs font-bold text-slate-700">{t('packager.phase1.aiRemoveBg')}</span></div><div className={`w-10 h-6 rounded-full relative transition-colors ${config.useAI ? 'bg-violet-500' : 'bg-[#E6E2DE]'}`}><div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${config.useAI ? 'right-1' : 'left-1'}`} /></div></div>
+            <div onClick={() => setConfig(prev => ({ ...prev, manualMode: !prev.manualMode }))} className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${config.manualMode ? 'bg-cream-light border-secondary shadow-sm' : 'bg-white border-cream-dark'}`}><div className="flex items-center gap-3"><Move size={18} className={config.manualMode ? 'text-secondary' : 'text-cream-dark'} /><span className="text-xs font-bold text-bronze-text">{t('packager.phase1.manualMode')}</span></div><div className={`w-10 h-6 rounded-full relative transition-colors ${config.manualMode ? 'bg-secondary' : 'bg-cream-dark/30'}`}><div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${config.manualMode ? 'right-1' : 'left-1'}`} /></div></div>
+            {estimatedSize && <div className="p-3.5 bg-cream-medium/30 border border-cream-dark rounded-2xl flex items-center gap-3 shadow-sm"><Ruler size={18} className="text-bronze-light shrink-0" /><div className="flex flex-col"><span className="text-[9px] font-black text-primary uppercase leading-none mb-1">{estimatedSize.label}</span><span className="text-sm font-black text-bronze-text">{estimatedSize.w} × {estimatedSize.h} <span className="text-[10px] opacity-60 font-medium">px</span></span></div></div>}
+            <div onClick={() => setConfig(prev => ({ ...prev, useAI: !prev.useAI }))} className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${config.useAI ? 'bg-cream-light border-secondary/30 shadow-sm' : 'bg-white border-cream-dark'}`}><div className="flex items-center gap-3"><ImageIcon size={18} className={config.useAI ? 'text-primary' : 'text-cream-dark'} /><span className="text-xs font-bold text-bronze-text">{t('packager.phase1.aiRemoveBg')}</span></div><div className={`w-10 h-6 rounded-full relative transition-colors ${config.useAI ? 'bg-primary' : 'bg-cream-dark/30'}`}><div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${config.useAI ? 'right-1' : 'left-1'}`} /></div></div>
             {config.useAI && (
-              <div className="border rounded-2xl overflow-hidden bg-slate-50 shadow-inner">
-                <button onClick={() => setShowAdvancedAI(!showAdvancedAI)} className="w-full flex items-center justify-between p-3.5 text-xs font-bold text-gray-500 hover:bg-slate-100 transition-colors"><div className="flex items-center gap-2"><Settings2 size={15} /> {t('packager.phase1.advancedSettings')}</div><ChevronRight size={15} className={`transition-transform ${showAdvancedAI ? 'rotate-90' : ''}`} /></button>
-                {showAdvancedAI && <div className="p-4 space-y-4 animate-in slide-in-from-top-2"><div className="space-y-2"><div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase">{t('packager.phase1.tolerance')}</label><span className="text-[10px] font-black text-violet-500">{config.tolerance}</span></div><input type="range" min="0" max="100" value={config.tolerance} onChange={(e) => setConfig(prev => ({ ...prev, tolerance: parseInt(e.target.value) }))} className="w-full h-1.5 bg-slate-200 rounded-lg accent-[#B5838D]" /></div><div className="grid grid-cols-2 gap-2"><button onClick={() => setConfig(prev => ({ ...prev, protectInternal: !prev.protectInternal }))} className={`p-2 rounded-xl border text-[9px] font-bold flex items-center justify-center gap-2 transition-all ${config.protectInternal ? 'bg-violet-500 text-white shadow-md' : 'bg-white text-gray-500'}`}><ShieldCheck size={12} /> {t('packager.phase1.protectClosed')}</button><button onClick={() => setConfig(prev => ({ ...prev, retainText: !prev.retainText }))} className={`p-2 rounded-xl border text-[9px] font-bold flex items-center justify-center gap-2 transition-all ${config.retainText ? 'bg-violet-500 text-white shadow-md' : 'bg-white text-gray-500'}`}><Type size={12} /> {t('packager.phase1.enhanceText')}</button></div></div>}
+              <div className="border rounded-2xl overflow-hidden bg-cream-medium/30 border-cream-dark shadow-inner">
+                <button onClick={() => setShowAdvancedAI(!showAdvancedAI)} className="w-full flex items-center justify-between p-3.5 text-xs font-bold text-bronze-light hover:bg-cream-medium transition-colors"><div className="flex items-center gap-2"><Settings2 size={15} /> {t('packager.phase1.advancedSettings')}</div><ChevronRight size={15} className={`transition-transform ${showAdvancedAI ? 'rotate-90' : ''}`} /></button>
+                {showAdvancedAI && <div className="p-4 space-y-4 animate-in slide-in-from-top-2"><div className="space-y-2"><div className="flex justify-between items-center"><label className="text-[10px] font-bold text-bronze-light uppercase">{t('packager.phase1.tolerance')}</label><span className="text-[10px] font-black text-primary">{config.tolerance}</span></div><input type="range" min="0" max="100" value={config.tolerance} onChange={(e) => setConfig(prev => ({ ...prev, tolerance: parseInt(e.target.value) }))} className="w-full h-1.5 bg-cream-medium rounded-lg accent-secondary" /></div><div className="grid grid-cols-2 gap-2"><button onClick={() => setConfig(prev => ({ ...prev, protectInternal: !prev.protectInternal }))} className={`p-2 rounded-xl border text-[9px] font-bold flex items-center justify-center gap-2 transition-all ${config.protectInternal ? 'bg-primary text-white shadow-md' : 'bg-white text-bronze-light'}`}><ShieldCheck size={12} /> {t('packager.phase1.protectClosed')}</button><button onClick={() => setConfig(prev => ({ ...prev, retainText: !prev.retainText }))} className={`p-2 rounded-xl border text-[9px] font-bold flex items-center justify-center gap-2 transition-all ${config.retainText ? 'bg-primary text-white shadow-md' : 'bg-white text-bronze-light'}`}><Type size={12} /> {t('packager.phase1.enhanceText')}</button></div></div>}
               </div>
             )}
-            <button onClick={performCoreProcess} disabled={fileQueue.length === 0 || status === 'splitting' || status === 'removing_bg'} className="w-full bg-violet-500 hover:bg-[#A87680] disabled:bg-[#E6E2DE] disabled:text-slate-500 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-[#B5838D]/20 transition-all active:scale-95"><Wand2 size={22} /> {t('packager.phase1.runCore')} ({fileQueue.length})</button>
+            <button onClick={performCoreProcess} disabled={fileQueue.length === 0 || status === 'splitting' || status === 'removing_bg'} className="w-full bg-primary hover:bg-primary-hover disabled:bg-cream-medium disabled:text-bronze-light text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-primary/20 transition-all active:scale-95"><Wand2 size={22} /> {t('packager.phase1.runCore')} ({fileQueue.length})</button>
           </section>
 
-          <section className={`glass-panel rounded-[2rem] p-8 space-y-5 transition-all ${!isCoreProcessed ? 'opacity-50 pointer-events-none grayscale' : 'opacity-100'}`}>
-            <h2 className="text-sm font-black flex items-center gap-2 text-gray-700 uppercase tracking-wider"><Star size={16} className="text-purple-600" /> {t('packager.phase2.title')}</h2>
-            <div className="space-y-2"><label className="text-[10px] font-bold text-gray-400 uppercase">{t('packager.phase2.presets')}</label><div className="grid grid-cols-3 gap-2"><button onClick={() => setConfig(prev => ({ ...prev, preset: 'none' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'none' ? 'bg-violet-500 text-white border-[#B5838D] shadow-md' : 'bg-white text-gray-500 hover:border-[#B5838D]/30'}`}>{t('packager.phase2.custom')}</button><button onClick={() => setConfig(prev => ({ ...prev, preset: 'line' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'line' ? 'bg-[#9CAF9D] text-white border-[#9CAF9D] shadow-md' : 'bg-white text-gray-500 hover:border-[#9CAF9D]/30'}`}>{t('packager.phase2.line')}</button><button onClick={() => setConfig(prev => ({ ...prev, preset: 'telegram' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'telegram' ? 'bg-[#8DA3B5] text-white border-[#8DA3B5] shadow-md' : 'bg-white text-gray-500 hover:border-[#8DA3B5]/30'}`}>{t('packager.phase2.telegram')}</button></div></div>
-            <div className="space-y-2 pt-1"><div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase">{t('packager.phase2.margin')} {Math.round(config.margin * 100)}%</label></div><input type="range" min="0" max="0.3" step="0.01" value={config.margin} onChange={(e) => setConfig(prev => ({ ...prev, margin: parseFloat(e.target.value) }))} className="w-full h-1.5 bg-slate-200 rounded-lg accent-purple-600" /></div>
+          <section className={`bg-cream-light/30 border border-cream-dark backdrop-blur-xl rounded-[2rem] p-8 space-y-5 transition-all ${!isCoreProcessed ? 'opacity-50 pointer-events-none grayscale' : 'opacity-100'}`}>
+            <h2 className="text-sm font-black flex items-center gap-2 text-bronze-text uppercase tracking-wider"><Star size={16} className="text-secondary" /> {t('packager.phase2.title')}</h2>
+            <div className="space-y-2"><label className="text-[10px] font-bold text-bronze-light uppercase">{t('packager.phase2.presets')}</label><div className="grid grid-cols-3 gap-2"><button onClick={() => setConfig(prev => ({ ...prev, preset: 'none' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'none' ? 'bg-primary text-white border-secondary shadow-md' : 'bg-white text-bronze-light hover:border-secondary/30'}`}>{t('packager.phase2.custom')}</button><button onClick={() => setConfig(prev => ({ ...prev, preset: 'line' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'line' ? 'bg-accent text-white border-accent shadow-md' : 'bg-white text-bronze-light hover:border-accent/30'}`}>{t('packager.phase2.line')}</button><button onClick={() => setConfig(prev => ({ ...prev, preset: 'telegram' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'telegram' ? 'bg-primary/80 text-white border-primary/80 shadow-md' : 'bg-white text-bronze-light hover:border-primary/30'}`}>{t('packager.phase2.telegram')}</button></div></div>
+            <div className="space-y-2 pt-1"><div className="flex justify-between items-center"><label className="text-[10px] font-bold text-bronze-light uppercase">{t('packager.phase2.margin')} {Math.round(config.margin * 100)}%</label></div><input type="range" min="0" max="0.3" step="0.01" value={config.margin} onChange={(e) => setConfig(prev => ({ ...prev, margin: parseFloat(e.target.value) }))} className="w-full h-1.5 bg-cream-dark/50 rounded-lg accent-secondary" /></div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-slate-50"><div className="flex items-center gap-3"><Palette size={18} className={config.useStroke ? 'text-purple-600' : 'text-gray-400'} /><span className="text-xs font-bold text-gray-700">{t('packager.phase2.stroke')}</span></div><div onClick={() => setConfig(prev => ({ ...prev, useStroke: !prev.useStroke }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useStroke ? 'bg-purple-600' : 'bg-gray-200'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useStroke ? 'right-1' : 'left-1'}`} /></div></div>
-            {config.useStroke && <div className="pl-9 space-y-4 animate-in slide-in-from-left-4"><div className="space-y-2"><div className="flex justify-between items-center"><label className="text-[9px] font-bold text-gray-400 uppercase">{t('packager.phase2.strokeSize')}</label><span className="text-[9px] font-black text-purple-600">{config.strokeThickness}px</span></div><input type="range" min="1" max="25" value={config.strokeThickness} onChange={(e) => setConfig(prev => ({ ...prev, strokeThickness: parseInt(e.target.value) }))} className="w-full h-1 bg-purple-100 rounded-lg accent-purple-600" /></div><div className="flex items-center gap-3"><label className="text-[9px] font-bold text-gray-400 uppercase">{t('packager.phase2.strokeColor')}</label><div className="flex gap-2">{(['#ffffff', '#000000', '#facc15', '#f87171', '#818cf8']).map(c => (<button key={c} onClick={() => setConfig(prev => ({ ...prev, strokeColor: c }))} className={`w-5 h-5 rounded-full border border-slate-200 shadow-sm transition-transform ${config.strokeColor === c ? 'scale-125 ring-2 ring-purple-200' : ''}`} style={{ backgroundColor: c }} />))}<input type="color" value={config.strokeColor} onChange={(e) => setConfig(prev => ({ ...prev, strokeColor: e.target.value }))} className="w-5 h-5 p-0 border-0 bg-transparent cursor-pointer" /></div></div></div>}
+            <div className="flex items-center justify-between pt-2 border-t border-cream-medium"><div className="flex items-center gap-3"><Palette size={18} className={config.useStroke ? 'text-secondary' : 'text-bronze-light'} /><span className="text-xs font-bold text-bronze-text">{t('packager.phase2.stroke')}</span></div><div onClick={() => setConfig(prev => ({ ...prev, useStroke: !prev.useStroke }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useStroke ? 'bg-secondary' : 'bg-cream-dark/30'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useStroke ? 'right-1' : 'left-1'}`} /></div></div>
+            {config.useStroke && <div className="pl-9 space-y-4 animate-in slide-in-from-left-4"><div className="space-y-2"><div className="flex justify-between items-center"><label className="text-[9px] font-bold text-bronze-light uppercase">{t('packager.phase2.strokeSize')}</label><span className="text-[9px] font-black text-secondary">{config.strokeThickness}px</span></div><input type="range" min="1" max="25" value={config.strokeThickness} onChange={(e) => setConfig(prev => ({ ...prev, strokeThickness: parseInt(e.target.value) }))} className="w-full h-1 bg-secondary/10 rounded-lg accent-secondary" /></div><div className="flex items-center gap-3"><label className="text-[9px] font-bold text-bronze-light uppercase">{t('packager.phase2.strokeColor')}</label><div className="flex gap-2">{(['#ffffff', '#000000', '#facc15', '#f87171', '#818cf8']).map(c => (<button key={c} onClick={() => setConfig(prev => ({ ...prev, strokeColor: c }))} className={`w-5 h-5 rounded-full border border-cream-dark shadow-sm transition-transform ${config.strokeColor === c ? 'scale-125 ring-2 ring-secondary/20' : ''}`} style={{ backgroundColor: c }} />))}<input type="color" value={config.strokeColor} onChange={(e) => setConfig(prev => ({ ...prev, strokeColor: e.target.value }))} className="w-5 h-5 p-0 border-0 bg-transparent cursor-pointer" /></div></div></div>}
 
-            <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Sun size={18} className={config.useShadow ? 'text-indigo-600' : 'text-gray-400'} /><span className="text-xs font-bold text-gray-700">{t('packager.phase2.shadow')}</span></div><div onClick={() => setConfig(prev => ({ ...prev, useShadow: !prev.useShadow }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useShadow ? 'bg-indigo-600' : 'bg-gray-200'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useShadow ? 'right-1' : 'left-1'}`} /></div></div>
-            <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Sparkles size={18} className={config.useFeathering ? 'text-teal-600' : 'text-gray-400'} /><span className="text-xs font-bold text-gray-700">{t('packager.phase2.feather')}</span></div><div onClick={() => setConfig(prev => ({ ...prev, useFeathering: !prev.useFeathering }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useFeathering ? 'bg-teal-600' : 'bg-gray-200'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useFeathering ? 'right-1' : 'left-1'}`} /></div></div>
+            <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Sun size={18} className={config.useShadow ? 'text-primary' : 'text-bronze-light'} /><span className="text-xs font-bold text-bronze-text">{t('packager.phase2.shadow')}</span></div><div onClick={() => setConfig(prev => ({ ...prev, useShadow: !prev.useShadow }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useShadow ? 'bg-primary' : 'bg-cream-dark/30'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useShadow ? 'right-1' : 'left-1'}`} /></div></div>
+            <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Sparkles size={18} className={config.useFeathering ? 'text-accent' : 'text-bronze-light'} /><span className="text-xs font-bold text-bronze-text">{t('packager.phase2.feather')}</span></div><div onClick={() => setConfig(prev => ({ ...prev, useFeathering: !prev.useFeathering }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useFeathering ? 'bg-accent' : 'bg-cream-dark/30'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useFeathering ? 'right-1' : 'left-1'}`} /></div></div>
 
             <div className="grid grid-cols-2 gap-3 pt-2">
-              <div className="space-y-1"><label className="text-[10px] font-bold text-gray-400 uppercase">{t('packager.phase2.format')}</label><select value={config.outputFormat} onChange={(e) => setConfig(prev => ({ ...prev, outputFormat: e.target.value as any }))} className="w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-[10px] outline-none shadow-inner"><option value="png">PNG</option><option value="webp">WebP</option></select></div>
-              <div className="space-y-1"><label className="text-[10px] font-bold text-gray-400 uppercase">{t('packager.phase2.prefix')}</label><input type="text" value={config.filenamePrefix} onChange={(e) => setConfig(prev => ({ ...prev, filenamePrefix: e.target.value }))} className="w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-[10px] outline-none shadow-inner" /></div>
+              <div className="space-y-1"><label className="text-[10px] font-bold text-bronze-light uppercase">{t('packager.phase2.format')}</label><select value={config.outputFormat} onChange={(e) => setConfig(prev => ({ ...prev, outputFormat: e.target.value as any }))} className="w-full px-3 py-2 bg-cream-medium/50 border border-cream-dark rounded-xl font-bold text-[10px] text-bronze-text outline-none shadow-inner"><option value="png">PNG</option><option value="webp">WebP</option></select></div>
+              <div className="space-y-1"><label className="text-[10px] font-bold text-bronze-light uppercase">{t('packager.phase2.prefix')}</label><input type="text" value={config.filenamePrefix} onChange={(e) => setConfig(prev => ({ ...prev, filenamePrefix: e.target.value }))} className="w-full px-3 py-2 bg-cream-medium/50 border border-cream-dark rounded-xl font-bold text-[10px] text-bronze-text outline-none shadow-inner" /></div>
             </div>
 
             <div className="flex flex-col gap-3 pt-4">
-              <button onClick={applyBeautification} className="w-full bg-[#6D6875] hover:bg-[#5E5966] text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-[#6D6875]/20 transition-all active:scale-95">
+              <button onClick={applyBeautification} className="w-full bg-bronze-medium hover:bg-bronze-dark text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-bronze-medium/20 transition-all active:scale-95">
                 <Sparkles size={22} /> {t('packager.phase2.apply')}
               </button>
 
@@ -689,7 +670,7 @@ const App: React.FC = () => {
                         alert("Failed to save some stickers");
                       }
                     }}
-                    className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:brightness-110 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-pink-500/20 active:scale-95 transition-all"
+                    className="w-full bg-gradient-to-r from-secondary to-accent hover:brightness-110 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-secondary/20 active:scale-95 transition-all"
                   >
                     <Download size={20} className="rotate-180" /> {t('packager.phase2.saveToGallery')}
                   </button>
@@ -697,7 +678,7 @@ const App: React.FC = () => {
                   <button
                     onClick={() => zipBlob && saveAs(zipBlob, `${config.filenamePrefix}_batch_${Date.now()}.zip`)}
                     disabled={!zipBlob}
-                    className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-r from-primary to-primary-hover hover:brightness-110 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <FileArchive size={20} /> {t('packager.phase2.downloadZip')}
                   </button>

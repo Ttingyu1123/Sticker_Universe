@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Upload, Eraser, Brush, Download, Image as ImageIcon, Loader2, Layers, Undo, Redo, Save, Palette, Sun, Sparkles, Trash2, Settings, Sliders } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Upload, Eraser, Brush, Download, Image as ImageIcon, Loader2, Undo, Redo, Save, Palette, Sun, Sparkles, Trash2, Settings } from 'lucide-react';
 import { MaskCanvas } from './components/MaskCanvas';
 import { generateMaskFromAI, processMask, AISettings } from './utils/maskUtils';
 import { GalleryPicker } from '../../components/GalleryPicker';
@@ -30,7 +29,6 @@ export const LayerLabApp = () => {
     const [zoom, setZoom] = useState(1);
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const [bgColor, setBgColor] = useState<'checkerboard' | 'white' | 'black'>('checkerboard');
-    const [layoutDims, setLayoutDims] = useState<{ width: number, height: number } | null>(null);
 
     // History & Gallery
     const [history, setHistory] = useState<ImageData[]>([]);
@@ -60,10 +58,8 @@ export const LayerLabApp = () => {
 
             setZoom(fitScale);
             setPan({ x: 0, y: 0 });
-            setLayoutDims({
-                width: imgW * fitScale,
-                height: imgH * fitScale
-            });
+            setZoom(fitScale);
+            setPan({ x: 0, y: 0 });
         }
     }, [originalImage]);
 
@@ -281,27 +277,15 @@ export const LayerLabApp = () => {
     };
 
     return (
-        <div className="h-[100dvh] bg-slate-50 flex flex-col overflow-hidden">
+        <div className="h-[100dvh] bg-background flex flex-col overflow-hidden text-bronze-text">
             {/* Header */}
-            <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm flex-shrink-0">
-                <div className="flex items-center gap-4">
-                    <Link to="/" className="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors">
-                        <ArrowLeft size={20} />
-                    </Link>
-                    <div>
-                        <h1 className="text-xl font-black text-slate-800 flex items-center gap-2">
-                            <Layers className="text-violet-600" />
-                            <span className="hidden md:inline">{t('app.smartEraser') || 'Smart Eraser'}</span>
-                            <span className="md:hidden">Eraser</span>
-                        </h1>
-                        <p className="text-xs text-slate-500 font-medium hidden md:block">{t('eraser.subtitle') || 'Non-destructive Mask Editor'}</p>
-                    </div>
-                </div>
+            <header className="bg-white border-b border-cream-dark px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm flex-shrink-0">
+                <div className="flex-1"></div> {/* Spacer to push buttons right if justify-between is used, or just let justify-end work */}
 
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => fileInputRef.current?.click()}
-                        className="p-2 md:px-4 md:py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-sm transition-colors flex items-center gap-2"
+                        className="p-2 md:px-4 md:py-2 bg-cream-light hover:bg-cream-medium text-bronze-text border border-cream-dark hover:border-bronze-light rounded-xl font-bold text-sm transition-colors flex items-center gap-2"
                         title={t('eraser.upload.title') || 'Load Image'}
                     >
                         <Upload size={18} />
@@ -309,7 +293,7 @@ export const LayerLabApp = () => {
                     </button>
                     <button
                         onClick={() => setShowGalleryPicker(true)}
-                        className="p-2 md:px-4 md:py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-sm transition-colors flex items-center gap-2"
+                        className="p-2 md:px-4 md:py-2 bg-cream-light hover:bg-cream-medium text-bronze-text border border-cream-dark hover:border-bronze-light rounded-xl font-bold text-sm transition-colors flex items-center gap-2"
                         title={t('app.selectFromGallery')}
                     >
                         <ImageIcon size={18} />
@@ -318,7 +302,7 @@ export const LayerLabApp = () => {
                     <button
                         onClick={handleSaveToGallery}
                         disabled={!originalImage || !maskCanvas || isSaving}
-                        className="p-2 md:px-4 md:py-2 bg-pink-100 hover:bg-pink-200 text-pink-700 rounded-xl font-bold text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
+                        className="p-2 md:px-4 md:py-2 bg-secondary/10 hover:bg-secondary/20 text-secondary border border-secondary/30 rounded-xl font-bold text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
                         title={t('eraser.toolbar.saveToGallery')}
                     >
                         {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
@@ -327,7 +311,7 @@ export const LayerLabApp = () => {
                     <button
                         onClick={handleExport}
                         disabled={!originalImage || !maskCanvas}
-                        className="p-2 md:px-4 md:py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold text-sm transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 md:px-4 md:py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-sm transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         title={t('eraser.toolbar.export')}
                     >
                         <Download size={18} />
@@ -339,9 +323,10 @@ export const LayerLabApp = () => {
             {/* Main Workspace */}
             <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
                 {/* Center: Canvas Area (Top on mobile) */}
+                {/* Center: Canvas Area (Top on mobile) */}
                 <div
                     ref={workspaceRef}
-                    className={`flex-1 flex items-center justify-center p-4 lg:p-8 relative overflow-hidden transition-colors duration-300 lg:order-2 touch-none select-none cursor-grab active:cursor-grabbing ${bgColor === 'checkerboard' ? 'bg-slate-100' :
+                    className={`flex-1 flex items-center justify-center p-4 lg:p-8 relative overflow-hidden transition-colors duration-300 lg:order-2 touch-none select-none cursor-grab active:cursor-grabbing ${bgColor === 'checkerboard' ? 'bg-cream-medium' :
                         bgColor === 'white' ? 'bg-white' : bgColor === 'black' ? 'bg-slate-900' : 'bg-[#00FF00]'
                         }`}
                     onMouseDown={handlePointerDown}
@@ -408,7 +393,7 @@ export const LayerLabApp = () => {
                                 {/* Quick Hint if no mask yet */}
                                 {!maskCanvas && !isProcessing && (
                                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                        <div className="bg-black/60 text-white px-4 py-2 rounded-full font-bold backdrop-blur-sm animate-pulse z-10">
+                                        <div className="bg-bronze-text/80 text-white px-4 py-2 rounded-full font-bold backdrop-blur-sm animate-pulse z-10">
                                             Click "AI Auto Remove" to start
                                         </div>
                                     </div>
@@ -417,22 +402,22 @@ export const LayerLabApp = () => {
                                 {isProcessing && (
                                     <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-20">
                                         <div className="flex flex-col items-center">
-                                            <Loader2 size={40} className="text-violet-600 animate-spin mb-2" />
-                                            <span className="font-bold text-violet-800">Processing AI...</span>
+                                            <Loader2 size={40} className="text-primary animate-spin mb-2" />
+                                            <span className="font-bold text-primary-dark">Processing AI...</span>
                                         </div>
                                     </div>
                                 )}
                             </>
                         ) : (
-                            <div className="text-center text-slate-400">
-                                <div className="w-24 h-24 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <ImageIcon size={48} className="text-slate-300" />
+                            <div className="text-center text-bronze-light">
+                                <div className="w-24 h-24 bg-cream-light rounded-full flex items-center justify-center mx-auto mb-4 border border-cream-dark">
+                                    <ImageIcon size={48} className="text-bronze-light/50" />
                                 </div>
-                                <p className="text-lg font-bold text-slate-500">{t('eraser.upload.title')}</p>
-                                <p className="text-sm">{t('eraser.upload.dragDrop')}</p>
+                                <p className="text-lg font-bold text-bronze-text">{t('eraser.upload.title')}</p>
+                                <p className="text-sm text-bronze-light/80">{t('eraser.upload.dragDrop')}</p>
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="mt-4 px-6 py-2 bg-white border border-slate-300 hover:border-violet-500 hover:text-violet-600 rounded-lg font-bold text-sm transition-all"
+                                    className="mt-4 px-6 py-2 bg-white border border-cream-dark hover:border-primary/50 hover:text-primary rounded-lg font-bold text-sm transition-all shadow-sm"
                                 >
                                     {t('eraser.upload.title')}
                                 </button>
@@ -442,14 +427,14 @@ export const LayerLabApp = () => {
                 </div>
 
                 {/* Left: Toolbar (Bottom on mobile) */}
-                <div className="w-full lg:w-64 h-[45vh] lg:h-auto flex-shrink-0 bg-white border-t lg:border-t-0 lg:border-r border-slate-200 p-4 flex flex-col gap-6 z-10 overflow-y-auto lg:order-1 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] lg:shadow-none">
+                <div className="w-full lg:w-64 h-[45vh] lg:h-auto flex-shrink-0 bg-white border-t lg:border-t-0 lg:border-r border-cream-dark p-4 flex flex-col gap-6 z-10 overflow-y-auto lg:order-1 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] lg:shadow-none">
 
                     {/* Top: AI Actions & Reset */}
-                    <div className="space-y-3 pb-4 border-b border-slate-100">
+                    <div className="space-y-3 pb-4 border-b border-cream-light">
                         <button
                             onClick={handleRunAI}
                             disabled={!originalImage || isProcessing}
-                            className="w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-violet-200 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full py-3 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isProcessing ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
                             {t('packager.phase1.aiRemoveBg') || 'AI Auto Remove'}
@@ -458,15 +443,15 @@ export const LayerLabApp = () => {
                         {/* Advanced Settings */}
                         {
                             originalImage && (
-                                <div className="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                    <div className="flex items-center gap-2 text-xs font-bold text-slate-500 mb-2">
+                                <div className="space-y-3 bg-cream-light p-3 rounded-xl border border-cream-dark">
+                                    <div className="flex items-center gap-2 text-xs font-bold text-bronze-light mb-2">
                                         <Settings size={14} />
                                         <span>{t('eraser.toolbar.advancedSettings') || 'Advanced AI Settings'}</span>
                                     </div>
 
                                     {/* Edge Tolerance */}
                                     <div className="space-y-1">
-                                        <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase">
+                                        <div className="flex justify-between text-[10px] font-bold text-bronze-light uppercase">
                                             <span>{t('eraser.toolbar.edgeTolerance') || 'Edge Tolerance'}</span>
                                             <span>{aiSettings.edgeTolerance}</span>
                                         </div>
@@ -475,9 +460,9 @@ export const LayerLabApp = () => {
                                             min="-10" max="10"
                                             value={aiSettings.edgeTolerance}
                                             onChange={(e) => updateMaskSettings({ ...aiSettings, edgeTolerance: Number(e.target.value) })}
-                                            className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-violet-600"
+                                            className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
                                         />
-                                        <div className="flex justify-between text-[10px] text-slate-400">
+                                        <div className="flex justify-between text-[10px] text-bronze-light/70">
                                             <span>{t('eraser.toolbar.shrink') || 'Shrink'}</span>
                                             <span>{t('eraser.toolbar.grow') || 'Grow'}</span>
                                         </div>
@@ -486,21 +471,21 @@ export const LayerLabApp = () => {
                                     {/* Toggles */}
                                     <div className="flex flex-col gap-2">
                                         <label className="flex items-center justify-between cursor-pointer">
-                                            <span className="text-xs font-medium text-slate-600">{t('eraser.toolbar.protectClosed') || 'Protect Closed Areas'}</span>
+                                            <span className="text-xs font-medium text-bronze-text">{t('eraser.toolbar.protectClosed') || 'Protect Closed Areas'}</span>
                                             <input
                                                 type="checkbox"
                                                 checked={aiSettings.protectHoles}
                                                 onChange={(e) => updateMaskSettings({ ...aiSettings, protectHoles: e.target.checked })}
-                                                className="w-4 h-4 rounded text-violet-600 focus:ring-violet-500 border-gray-300"
+                                                className="w-4 h-4 rounded text-primary focus:ring-primary border-cream-dark"
                                             />
                                         </label>
                                         <label className="flex items-center justify-between cursor-pointer">
-                                            <span className="text-xs font-medium text-slate-600">{t('eraser.toolbar.enhanceText') || 'Enhance Text'}</span>
+                                            <span className="text-xs font-medium text-bronze-text">{t('eraser.toolbar.enhanceText') || 'Enhance Text'}</span>
                                             <input
                                                 type="checkbox"
                                                 checked={aiSettings.enhanceText}
                                                 onChange={(e) => updateMaskSettings({ ...aiSettings, enhanceText: e.target.checked })}
-                                                className="w-4 h-4 rounded text-violet-600 focus:ring-violet-500 border-gray-300"
+                                                className="w-4 h-4 rounded text-primary focus:ring-primary border-cream-dark"
                                             />
                                         </label>
                                     </div>
@@ -516,7 +501,7 @@ export const LayerLabApp = () => {
                                 rawAiMaskRef.current = null;
                             }}
                             disabled={!originalImage}
-                            className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold text-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                            className="w-full py-2 bg-cream-light hover:bg-cream-medium text-bronze-text rounded-lg font-bold text-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             <Trash2 size={16} />
                             {t('eraser.toolbar.reset') || 'Reset'}
@@ -525,32 +510,32 @@ export const LayerLabApp = () => {
 
                     {/* Tool Selection */}
                     <div className="space-y-3">
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('eraser.toolbar.tools')}</label>
+                        <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('eraser.toolbar.tools')}</label>
                         <div className="grid grid-cols-2 gap-2">
                             <button
                                 onClick={() => setTool('erase')}
-                                className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${tool === 'erase' ? 'border-violet-500 bg-violet-50 text-violet-700' : 'border-slate-100 hover:border-slate-200 text-slate-500'}`}
+                                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${tool === 'erase' ? 'border-primary bg-primary/10 text-primary font-bold shadow-sm' : 'border-cream-dark hover:border-primary/50 text-bronze-light hover:text-bronze-text hover:bg-cream-light'}`}
                             >
                                 <Eraser size={24} className="mb-1" />
                                 <span className="text-xs font-bold">{t('eraser.toolbar.eraser')}</span>
                             </button>
                             <button
                                 onClick={() => setTool('restore')}
-                                className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${tool === 'restore' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 hover:border-slate-200 text-slate-500'}`}
+                                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${tool === 'restore' ? 'border-secondary bg-secondary/10 text-secondary font-bold shadow-sm' : 'border-cream-dark hover:border-secondary/50 text-bronze-light hover:text-bronze-text hover:bg-cream-light'}`}
                             >
                                 <Brush size={24} className="mb-1" />
                                 <span className="text-xs font-bold">{t('eraser.toolbar.restore')}</span>
                             </button>
                             <button
                                 onClick={() => setTool('magic-wand')}
-                                className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${tool === 'magic-wand' ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-slate-100 hover:border-slate-200 text-slate-500'}`}
+                                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${tool === 'magic-wand' ? 'border-primary bg-primary/10 text-primary font-bold shadow-sm' : 'border-cream-dark hover:border-primary/50 text-bronze-light hover:text-bronze-text hover:bg-cream-light'}`}
                             >
                                 <div className="text-2xl mb-1">🪄</div>
                                 <span className="text-xs font-bold">{t('eraser.toolbar.magic')}</span>
                             </button>
                             <button
                                 onClick={() => setTool('move')}
-                                className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${tool === 'move' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-100 hover:border-slate-200 text-slate-500'}`}
+                                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${tool === 'move' ? 'border-bronze-text bg-bronze-light/10 text-bronze-text font-bold shadow-sm' : 'border-cream-dark hover:border-bronze-text/50 text-bronze-light hover:text-bronze-text hover:bg-cream-light'}`}
                             >
                                 <div className="text-2xl mb-1">✋</div>
                                 <span className="text-xs font-bold">{t('eraser.toolbar.move')}</span>
@@ -560,12 +545,12 @@ export const LayerLabApp = () => {
 
                     {/* Tool Settings (Dynamic based on Tool) */}
                     <div className="space-y-4">
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('app.settings')}</label>
+                        <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('app.settings')}</label>
 
                         {
                             tool === 'magic-wand' ? (
                                 <div className="space-y-2">
-                                    <div className="flex justify-between text-xs font-bold text-slate-600">
+                                    <div className="flex justify-between text-xs font-bold text-bronze-text">
                                         <span>{t('eraser.toolbar.tolerance')}</span>
                                         <span>{tolerance}</span>
                                     </div>
@@ -574,13 +559,13 @@ export const LayerLabApp = () => {
                                         min="1" max="100"
                                         value={tolerance}
                                         onChange={(e) => setTolerance(Number(e.target.value))}
-                                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                                        className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-accent"
                                     />
                                 </div>
                             ) : (tool === 'erase' || tool === 'restore') ? (
                                 <>
                                     <div className="space-y-2">
-                                        <div className="flex justify-between text-xs font-bold text-slate-600">
+                                        <div className="flex justify-between text-xs font-bold text-bronze-text">
                                             <span>{t('eraser.toolbar.size')}</span>
                                             <span>{brushSize}px</span>
                                         </div>
@@ -589,12 +574,12 @@ export const LayerLabApp = () => {
                                             min="1" max="200"
                                             value={brushSize}
                                             onChange={(e) => setBrushSize(Number(e.target.value))}
-                                            className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-violet-600"
+                                            className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
                                         />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <div className="flex justify-between text-xs font-bold text-slate-600">
+                                        <div className="flex justify-between text-xs font-bold text-bronze-text">
                                             <span>{t('eraser.toolbar.hardness') || 'Hardness'}</span>
                                             <span>{Math.round(brushHardness * 100)}%</span>
                                         </div>
@@ -603,24 +588,24 @@ export const LayerLabApp = () => {
                                             min="0" max="1" step="0.1"
                                             value={brushHardness}
                                             onChange={(e) => setBrushHardness(Number(e.target.value))}
-                                            className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-violet-600"
+                                            className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
                                         />
                                     </div>
                                 </>
                             ) : (
-                                <div className="text-xs text-slate-400 italic">No settings for this tool</div>
+                                <div className="text-xs text-bronze-light italic">No settings for this tool</div>
                             )
                         }
                     </div>
 
                     {/* History Controls */}
                     <div className="space-y-3">
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('eraser.history')}</label>
+                        <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('eraser.history')}</label>
                         <div className="flex gap-2">
                             <button
                                 onClick={handleUndo}
                                 disabled={historyIndex <= 0}
-                                className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
+                                className="flex-1 py-2 bg-cream-light hover:bg-cream-medium text-bronze-text rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
                                 title={t('eraser.toolbar.undo') || "Undo"}
                             >
                                 <Undo size={18} />
@@ -628,7 +613,7 @@ export const LayerLabApp = () => {
                             <button
                                 onClick={handleRedo}
                                 disabled={historyIndex >= history.length - 1}
-                                className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
+                                className="flex-1 py-2 bg-cream-light hover:bg-cream-medium text-bronze-text rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
                                 title={t('eraser.toolbar.redo') || "Redo"}
                             >
                                 <Redo size={18} />
@@ -637,18 +622,18 @@ export const LayerLabApp = () => {
                     </div>
 
                     {/* Effects Controls */}
-                    <div className="space-y-4 pt-4 border-t border-slate-100">
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('packager.phase2.stroke') || 'Stroke'}</label>
+                    <div className="space-y-4 pt-4 border-t border-cream-light">
+                        <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('packager.phase2.stroke') || 'Stroke'}</label>
 
                         {/* Stroke Toggle */}
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <Palette size={18} className={strokeConfig.enabled ? 'text-violet-600' : 'text-slate-400'} />
-                                <span className="text-xs font-bold text-slate-700">{t('eraser.toolbar.enableStroke') || 'Enable Stroke'}</span>
+                                <Palette size={18} className={strokeConfig.enabled ? 'text-primary' : 'text-bronze-light'} />
+                                <span className="text-xs font-bold text-bronze-text">{t('eraser.toolbar.enableStroke') || 'Enable Stroke'}</span>
                             </div>
                             <div
                                 onClick={() => setStrokeConfig(prev => ({ ...prev, enabled: !prev.enabled }))}
-                                className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${strokeConfig.enabled ? 'bg-violet-600' : 'bg-slate-200'}`}
+                                className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${strokeConfig.enabled ? 'bg-primary' : 'bg-cream-dark'}`}
                             >
                                 <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${strokeConfig.enabled ? 'right-1' : 'left-1'}`} />
                             </div>
@@ -659,7 +644,7 @@ export const LayerLabApp = () => {
                                 <div className="space-y-3 pl-2 animate-in slide-in-from-left-2">
                                     {/* Size */}
                                     <div className="space-y-2">
-                                        <div className="flex justify-between text-xs font-bold text-slate-600">
+                                        <div className="flex justify-between text-xs font-bold text-bronze-text">
                                             <span>Size</span>
                                             <span>{strokeConfig.size}px</span>
                                         </div>
@@ -668,7 +653,7 @@ export const LayerLabApp = () => {
                                             min="1" max="50"
                                             value={strokeConfig.size}
                                             onChange={(e) => setStrokeConfig(prev => ({ ...prev, size: Number(e.target.value) }))}
-                                            className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-violet-600"
+                                            className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
                                         />
                                     </div>
                                     {/* Color */}
@@ -677,7 +662,7 @@ export const LayerLabApp = () => {
                                             <button
                                                 key={c}
                                                 onClick={() => setStrokeConfig(prev => ({ ...prev, color: c }))}
-                                                className={`w-5 h-5 rounded-full border border-slate-200 ${strokeConfig.color === c ? 'ring-2 ring-violet-500 scale-110' : ''}`}
+                                                className={`w-5 h-5 rounded-full border border-cream-dark ${strokeConfig.color === c ? 'ring-2 ring-primary scale-110' : ''}`}
                                                 style={{ backgroundColor: c }}
                                             />
                                         ))}
@@ -693,15 +678,15 @@ export const LayerLabApp = () => {
                         }
 
                         {/* Shadow Toggle */}
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-4 block">{t('packager.phase2.shadow') || 'Shadow'}</label>
+                        <label className="text-xs font-bold text-bronze-light uppercase tracking-wider mt-4 block">{t('packager.phase2.shadow') || 'Shadow'}</label>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <Sun size={18} className={shadowConfig.enabled ? 'text-indigo-600' : 'text-slate-400'} />
-                                <span className="text-xs font-bold text-slate-700">{t('eraser.toolbar.enableShadow') || 'Enable Shadow'}</span>
+                                <Sun size={18} className={shadowConfig.enabled ? 'text-secondary' : 'text-bronze-light'} />
+                                <span className="text-xs font-bold text-bronze-text">{t('eraser.toolbar.enableShadow') || 'Enable Shadow'}</span>
                             </div>
                             <div
                                 onClick={() => setShadowConfig(prev => ({ ...prev, enabled: !prev.enabled }))}
-                                className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${shadowConfig.enabled ? 'bg-indigo-600' : 'bg-slate-200'}`}
+                                className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${shadowConfig.enabled ? 'bg-secondary' : 'bg-cream-dark'}`}
                             >
                                 <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${shadowConfig.enabled ? 'right-1' : 'left-1'}`} />
                             </div>
@@ -710,23 +695,23 @@ export const LayerLabApp = () => {
                     </div>
 
                     {/* View Controls */}
-                    <div className="space-y-4 pt-4 border-t border-slate-100">
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('eraser.zoom') || 'View'}</label>
+                    <div className="space-y-4 pt-4 border-t border-cream-light">
+                        <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('eraser.zoom') || 'View'}</label>
 
                         {/* Zoom */}
                         <div className="flex items-center gap-2">
-                            <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="p-1 bg-slate-100 rounded hover:bg-slate-200 w-8">-</button>
-                            <span className="text-xs font-bold text-slate-600 flex-1 text-center">{Math.round(zoom * 100)}%</span>
-                            <button onClick={() => setZoom(z => Math.min(5, z + 0.1))} className="p-1 bg-slate-100 rounded hover:bg-slate-200 w-8">+</button>
+                            <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="p-1 bg-cream-light rounded hover:bg-cream-medium w-8 text-bronze-text">-</button>
+                            <span className="text-xs font-bold text-bronze-text flex-1 text-center">{Math.round(zoom * 100)}%</span>
+                            <button onClick={() => setZoom(z => Math.min(5, z + 0.1))} className="p-1 bg-cream-light rounded hover:bg-cream-medium w-8 text-bronze-text">+</button>
                         </div>
 
                         {/* Background */}
-                        <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
+                        <div className="flex gap-1 bg-cream-light p-1 rounded-lg">
                             {['checkerboard', 'white', 'black', 'green'].map((bg) => (
                                 <button
                                     key={bg}
                                     onClick={() => setBgColor(bg as any)}
-                                    className={`flex-1 h-6 rounded-md border ${bgColor === bg ? 'border-violet-500 shadow-sm' : 'border-transparent'} ${bg === 'checkerboard' ? 'bg-[url(https://img.ly/assets/demo-assets/transparent-bg.png)] bg-[length:10px_10px]' : bg === 'white' ? 'bg-white' : bg === 'black' ? 'bg-black' : 'bg-[#00FF00]'}`}
+                                    className={`flex-1 h-6 rounded-md border ${bgColor === bg ? 'border-primary shadow-sm' : 'border-transparent'} ${bg === 'checkerboard' ? 'bg-[url(https://img.ly/assets/demo-assets/transparent-bg.png)] bg-[length:10px_10px]' : bg === 'white' ? 'bg-white' : bg === 'black' ? 'bg-black' : 'bg-[#00FF00]'}`}
                                     title={bg}
                                 />
                             ))}

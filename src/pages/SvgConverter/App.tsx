@@ -125,26 +125,19 @@ export default function SvgConverterApp() {
         <div className="w-full max-w-5xl mx-auto p-6 space-y-8 animate-in fade-in duration-500">
             {showGallery && <GalleryPicker onSelect={handleGallerySelect} onClose={() => setShowGallery(false)} />}
 
-            <header className="text-center space-y-4 mb-12">
-                <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-500 tracking-tighter filter drop-shadow-sm">
-                    {t('svgConverterPage.title') || 'SVG Magic'}
-                </h1>
-                <p className="text-slate-500 font-bold text-lg max-w-2xl mx-auto">
-                    {t('svgConverterPage.description') || 'Transform your raster images into scalable vector graphics instantaneously.'}
-                </p>
-            </header>
+
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Upload Section */}
-                <section className="glass-panel bg-white/60 backdrop-blur-xl border border-white/40 shadow-xl rounded-[2rem] p-8 flex flex-col h-full min-h-[500px]">
+                <section className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 flex flex-col h-full min-h-[500px]">
                     <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-sm font-black flex items-center gap-2 text-slate-500 uppercase tracking-widest">
-                            <ImageIcon size={18} className="text-emerald-500" /> {t('svgConverterPage.sourceImage') || 'Source Image'}
+                        <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest">
+                            <ImageIcon size={18} className="text-primary" /> {t('svgConverterPage.sourceImage') || 'Source Image'}
                         </h2>
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => setShowGallery(true)}
-                                className="text-[10px] font-bold text-violet-600 bg-violet-50 hover:bg-violet-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                                className="text-[10px] font-bold text-bronze-text bg-cream-medium hover:bg-cream-dark px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 border border-cream-dark"
                             >
                                 <FolderHeart size={12} /> {t('app.selectFromGallery')}
                             </button>
@@ -152,7 +145,7 @@ export default function SvgConverterApp() {
                             {image && (
                                 <button
                                     onClick={() => { setImage(null); setSvgContent(null); }}
-                                    className="text-[10px] font-bold text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                                    className="text-[10px] font-bold text-secondary bg-secondary/10 hover:bg-secondary/20 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
                                 >
                                     <Trash2 size={12} /> {t('svgConverterPage.clear') || 'Clear'}
                                 </button>
@@ -165,31 +158,31 @@ export default function SvgConverterApp() {
                             onDragOver={(e) => e.preventDefault()}
                             onDrop={handleDrop}
                             onClick={() => fileInputRef.current?.click()}
-                            className="flex-1 border-3 border-dashed border-slate-200 bg-slate-50/50 hover:bg-slate-100/50 hover:border-emerald-400 rounded-[2rem] flex flex-col items-center justify-center cursor-pointer transition-all group"
+                            className="flex-1 border-3 border-dashed border-cream-dark bg-cream-light/50 hover:bg-cream-medium/50 hover:border-primary rounded-[2rem] flex flex-col items-center justify-center cursor-pointer transition-all group"
                         >
                             <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                            <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-lg shadow-emerald-500/10 mb-6 group-hover:scale-110 transition-transform">
-                                <Upload size={32} className="text-emerald-500" />
+                            <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-lg shadow-primary/10 mb-6 group-hover:scale-110 transition-transform">
+                                <Upload size={32} className="text-primary" />
                             </div>
-                            <h3 className="text-lg font-black text-slate-700">{t('svgConverterPage.clickOrDrag') || 'Click or Drag Image'}</h3>
-                            <p className="text-slate-400 text-xs font-bold uppercase tracking-wide mt-2">{t('svgConverterPage.supports') || 'Supports PNG, JPG, BMP'}</p>
+                            <h3 className="text-lg font-black text-bronze-text">{t('svgConverterPage.clickOrDrag') || 'Click or Drag Image'}</h3>
+                            <p className="text-bronze-light text-xs font-bold uppercase tracking-wide mt-2">{t('svgConverterPage.supports') || 'Supports PNG, JPG, BMP'}</p>
                         </div>
                     ) : (
-                        <div className="flex-1 relative rounded-[2rem] overflow-hidden border border-slate-200 bg-slate-50/50 p-4 flex items-center justify-center">
+                        <div className="flex-1 relative rounded-[2rem] overflow-hidden border border-cream-dark bg-cream-light/50 p-4 flex items-center justify-center">
                             <img src={image} alt="Source" className="max-w-full max-h-full object-contain shadow-lg rounded-lg" />
                         </div>
                     )}
 
                     {/* Settings */}
-                    <div className="mt-8 pt-6 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="mt-8 pt-6 border-t border-cream-dark/50 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 block">{t('svgConverterPage.conversionStyle') || 'Conversion Style'}</label>
-                            <div className="flex bg-slate-100 p-1 rounded-xl mb-4">
+                            <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest mb-3 block">{t('svgConverterPage.conversionStyle') || 'Conversion Style'}</label>
+                            <div className="flex bg-cream-medium/50 p-1 rounded-xl mb-4 border border-cream-dark/50">
                                 {(['default', 'posterized', 'curvy'] as const).map(p => (
                                     <button
                                         key={p}
                                         onClick={() => setPreset(p)}
-                                        className={`flex-1 py-2 rounded-lg text-xs font-bold capitalize transition-all ${preset === p ? 'bg-white shadow-sm text-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
+                                        className={`flex-1 py-2 rounded-lg text-xs font-bold capitalize transition-all ${preset === p ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}
                                     >
                                         {t(`svgConverterPage.styles.${p}`) || p}
                                     </button>
@@ -197,9 +190,9 @@ export default function SvgConverterApp() {
                             </div>
 
                             <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex justify-between">
+                                <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest mb-2 flex justify-between">
                                     <span>{t('svgConverterPage.colorCount') || 'Color Count'}</span>
-                                    <span className="text-emerald-600">{colorCount}</span>
+                                    <span className="text-primary">{colorCount}</span>
                                 </label>
                                 <input
                                     type="range"
@@ -208,7 +201,7 @@ export default function SvgConverterApp() {
                                     step="2"
                                     value={colorCount}
                                     onChange={(e) => setColorCount(Number(e.target.value))}
-                                    className="w-full accent-emerald-500 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                                    className="w-full accent-primary h-2 bg-cream-medium rounded-lg appearance-none cursor-pointer"
                                 />
                             </div>
                         </div>
@@ -216,7 +209,7 @@ export default function SvgConverterApp() {
                             <Button
                                 onClick={convertToSvg}
                                 disabled={!image || isConverting}
-                                className="w-full h-12 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:brightness-110 text-white shadow-lg shadow-emerald-500/20 rounded-xl"
+                                className="w-full h-12 bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/20 rounded-xl"
                             >
                                 {isConverting ? <Loader2 size={18} className="animate-spin mr-2" /> : <Settings size={18} className="mr-2" />}
                                 {isConverting ? (t('svgConverterPage.tracing') || 'Tracing...') : (t('svgConverterPage.convert') || 'Convert to SVG')}
@@ -226,21 +219,21 @@ export default function SvgConverterApp() {
                 </section>
 
                 {/* Result Section */}
-                <section className="glass-panel bg-white/60 backdrop-blur-xl border border-white/40 shadow-xl rounded-[2rem] p-8 flex flex-col h-full min-h-[500px]">
+                <section className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 flex flex-col h-full min-h-[500px]">
                     <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-sm font-black flex items-center gap-2 text-slate-500 uppercase tracking-widest">
-                            <FileCode size={18} className="text-cyan-500" /> {t('svgConverterPage.vectorResult') || 'Vector Result'}
+                        <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest">
+                            <FileCode size={18} className="text-secondary" /> {t('svgConverterPage.vectorResult') || 'Vector Result'}
                         </h2>
                         {svgContent && (
-                            <span className="text-[10px] font-bold bg-cyan-50 text-cyan-600 px-3 py-1 rounded-full border border-cyan-100">
+                            <span className="text-[10px] font-bold bg-secondary/10 text-secondary px-3 py-1 rounded-full border border-secondary/20">
                                 {t('svgConverterPage.vectorized') || 'Vectorized'}
                             </span>
                         )}
                     </div>
 
-                    <div className="flex-1 border border-slate-200 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-slate-50 rounded-[2rem] overflow-hidden relative flex items-center justify-center p-8 group">
+                    <div className="flex-1 border border-cream-dark bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-cream-light rounded-[2rem] overflow-hidden relative flex items-center justify-center p-8 group">
                         {!svgContent ? (
-                            <div className="text-center text-slate-300">
+                            <div className="text-center text-bronze-light/50">
                                 <ImageIcon size={48} className="mx-auto mb-4 opacity-50" />
                                 <p className="font-bold">{t('svgConverterPage.previewHint') || 'SVG Preview will appear here'}</p>
                             </div>
@@ -252,11 +245,11 @@ export default function SvgConverterApp() {
                         )}
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-slate-100">
+                    <div className="mt-8 pt-6 border-t border-cream-dark/50">
                         <Button
                             onClick={downloadSvg}
                             disabled={!svgContent}
-                            className="w-full h-14 bg-slate-800 hover:bg-slate-700 text-white shadow-xl rounded-xl"
+                            className="w-full h-14 bg-bronze-text hover:bg-bronze-dark text-white shadow-xl rounded-xl"
                         >
                             <Download size={20} className="mr-2" /> {t('svgConverterPage.download') || 'Download SVG'}
                         </Button>

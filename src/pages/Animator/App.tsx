@@ -246,25 +246,25 @@ export const AnimatorApp = () => {
     // ... (existing code)
 
     return (
-        <div className="min-h-screen bg-slate-50 p-6 flex flex-col items-center">
+        <div className="min-h-screen bg-background p-6 flex flex-col items-center">
             {/* ... header ... */}
             <header className="w-full max-w-5xl flex justify-between items-center mb-8">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                        <Video className="text-violet-600" />
+                    <h1 className="text-3xl font-black text-bronze tracking-tight flex items-center gap-2">
+                        <Video className="text-primary" />
                         {t('animator.title')}
                     </h1>
-                    <p className="text-slate-500">{t('animator.subtitle')}</p>
+                    <p className="text-bronze-light">{t('animator.subtitle')}</p>
                 </div>
                 <div className="flex gap-2">
                     <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} title="Upload" />
-                    <button onClick={() => setShowGallery(true)} className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 font-bold flex items-center gap-2">
+                    <button onClick={() => setShowGallery(true)} className="px-4 py-2 bg-cream-medium text-bronze-text rounded-lg hover:bg-cream-dark font-bold flex items-center gap-2 border border-cream-dark">
                         <ImageIcon size={18} /> {t('animator.sticker')}
                     </button>
-                    <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 font-bold flex items-center gap-2">
+                    <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-cream-medium text-bronze-text rounded-lg hover:bg-cream-dark font-bold flex items-center gap-2 border border-cream-dark">
                         <Upload size={18} /> {t('animator.image')}
                     </button>
-                    <button onClick={handleAddText} className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 font-bold flex items-center gap-2">
+                    <button onClick={handleAddText} className="px-4 py-2 bg-cream-medium text-bronze-text rounded-lg hover:bg-cream-dark font-bold flex items-center gap-2 border border-cream-dark">
                         <Type size={18} /> {t('animator.text')}
                     </button>
                 </div>
@@ -274,31 +274,31 @@ export const AnimatorApp = () => {
                 {/* Left: Canvas Area (Span 2) */}
                 <div className="md:col-span-2 flex flex-col items-center">
                     {/* Zoom Controls */}
-                    <div className="flex items-center gap-2 mb-2 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-200">
+                    <div className="flex items-center gap-2 mb-2 bg-white/40 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-cream-dark">
                         <button
                             onClick={() => setZoom(z => Math.max(0.5, z - 0.1))}
-                            className="p-1 hover:bg-slate-100 rounded-full text-slate-500"
+                            className="p-1 hover:bg-cream-light rounded-full text-bronze-light"
                             title="Zoom Out"
                         >
                             <ZoomOut size={14} />
                         </button>
-                        <span className="text-xs font-mono w-12 text-center">{Math.round(zoom * 100)}%</span>
+                        <span className="text-xs font-mono w-12 text-center text-bronze-text">{Math.round(zoom * 100)}%</span>
                         <button
                             onClick={() => setZoom(z => Math.min(2.0, z + 0.1))}
-                            className="p-1 hover:bg-slate-100 rounded-full text-slate-500"
+                            className="p-1 hover:bg-cream-light rounded-full text-bronze-light"
                             title="Zoom In"
                         >
                             <ZoomIn size={14} />
                         </button>
                         <button
                             onClick={() => setZoom(1)}
-                            className="text-[10px] text-slate-400 hover:text-slate-600 ml-1 uppercase"
+                            className="text-[10px] text-bronze-light hover:text-bronze ml-1 uppercase"
                         >
                             {t('animator.reset')}
                         </button>
                     </div>
 
-                    <div className="bg-slate-200 p-10 rounded-3xl shadow-inner mb-4 flex items-center justify-center min-h-[400px] w-full overflow-hidden">
+                    <div className="bg-cream-medium/50 p-10 rounded-3xl shadow-inner mb-4 flex items-center justify-center min-h-[400px] w-full overflow-hidden border border-cream-dark">
                         <div style={{ transform: `scale(${zoom})`, transition: 'transform 0.2s ease-out' }}>
                             <LayerCanvas
                                 layers={layers}
@@ -312,22 +312,22 @@ export const AnimatorApp = () => {
                             />
                         </div>
                     </div>
-                    <p className="text-slate-400 text-xs">{t('animator.dragHint')}</p>
+                    <p className="text-bronze-light text-xs">{t('animator.dragHint')}</p>
                 </div>
 
                 {/* Right: Properties & Layers */}
                 <div className="flex flex-col gap-6">
                     {/* Settings Panel */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
-                        <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
-                            <Settings size={16} className="text-slate-400" /> {t('animator.settings')}
+                    <div className="bg-white/40 backdrop-blur-md rounded-2xl shadow-sm border border-cream-dark p-4">
+                        <h3 className="font-bold text-bronze-text mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
+                            <Settings size={16} className="text-bronze-light" /> {t('animator.settings')}
                         </h3>
                         {/* Canvas Size */}
-                        <div className="mb-4 pb-4 border-b border-slate-100">
-                            <label className="text-xs font-bold text-slate-500 mb-1 block">{t('animator.canvasSize')}</label>
+                        <div className="mb-4 pb-4 border-b border-cream-dark/50">
+                            <label className="text-xs font-bold text-bronze-light mb-1 block">{t('animator.canvasSize')}</label>
                             <div className="flex gap-2 mb-2">
                                 <select
-                                    className="flex-1 text-xs border border-slate-200 rounded p-1.5 bg-slate-50"
+                                    className="flex-1 text-xs border border-cream-dark rounded p-1.5 bg-cream-light text-bronze-text"
                                     value={
                                         canvasSize.width === 320 && canvasSize.height === 270 ? 'line' :
                                             canvasSize.width === 1080 && canvasSize.height === 1080 ? 'square' : 'custom'
@@ -346,16 +346,16 @@ export const AnimatorApp = () => {
                             <div className="flex gap-2 items-center">
                                 <input
                                     type="number"
-                                    className="w-16 text-xs p-1 border rounded"
+                                    className="w-16 text-xs p-1 border border-cream-dark rounded bg-cream-light text-bronze-text"
                                     value={canvasSize.width}
                                     onChange={(e) => handleCanvasResize(Number(e.target.value), canvasSize.height)}
                                     title="Width"
                                     placeholder="W"
                                 />
-                                <span className="text-slate-400">x</span>
+                                <span className="text-bronze-light">x</span>
                                 <input
                                     type="number"
-                                    className="w-16 text-xs p-1 border rounded"
+                                    className="w-16 text-xs p-1 border border-cream-dark rounded bg-cream-light text-bronze-text"
                                     value={canvasSize.height}
                                     onChange={(e) => handleCanvasResize(canvasSize.width, Number(e.target.value))}
                                     title="Height"
@@ -366,13 +366,13 @@ export const AnimatorApp = () => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="text-xs font-bold text-slate-500 mb-1 block">{t('animator.duration')}</label>
-                                <div className="flex bg-slate-100 rounded-lg p-1">
+                                <label className="text-xs font-bold text-bronze-light mb-1 block">{t('animator.duration')}</label>
+                                <div className="flex bg-cream-light/50 rounded-lg p-1 border border-cream-dark/50">
                                     {[1, 2, 3, 4].map(s => (
                                         <button
                                             key={s}
                                             onClick={() => setDuration(s)}
-                                            className={`flex-1 text-xs py-1 rounded font-bold transition-all ${duration === s ? 'bg-white shadow text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}
+                                            className={`flex-1 text-xs py-1 rounded font-bold transition-all ${duration === s ? 'bg-white shadow text-primary' : 'text-bronze-light hover:text-bronze-text'}`}
                                         >
                                             {s}s
                                         </button>
@@ -380,13 +380,13 @@ export const AnimatorApp = () => {
                                 </div>
                             </div>
                             <div>
-                                <label className="text-xs font-bold text-slate-500 mb-1 block">{t('animator.fps')}</label>
-                                <div className="flex bg-slate-100 rounded-lg p-1">
+                                <label className="text-xs font-bold text-bronze-light mb-1 block">{t('animator.fps')}</label>
+                                <div className="flex bg-cream-light/50 rounded-lg p-1 border border-cream-dark/50">
                                     {[5, 10, 15, 20].map(f => (
                                         <button
                                             key={f}
                                             onClick={() => setFps(f)}
-                                            className={`flex-1 text-xs py-1 rounded font-bold transition-all ${fps === f ? 'bg-white shadow text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}
+                                            className={`flex-1 text-xs py-1 rounded font-bold transition-all ${fps === f ? 'bg-white shadow text-primary' : 'text-bronze-light hover:text-bronze-text'}`}
                                         >
                                             {f}
                                         </button>
@@ -394,14 +394,14 @@ export const AnimatorApp = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-3 pt-3 border-t border-slate-100 text-[10px] text-slate-400 flex justify-between">
+                        <div className="mt-3 pt-3 border-t border-cream-dark/50 text-[10px] text-bronze-light flex justify-between">
                             <span>{t('animator.canvasSize')}: {canvasSize.width} x {canvasSize.height}</span>
                             <span>{t('animator.totalFrames')}: {duration * fps}</span>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-                        <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                    <div className="bg-white/40 backdrop-blur-md rounded-2xl shadow-sm border border-cream-dark p-4">
+                        <h3 className="font-bold text-bronze-text mb-2 flex items-center gap-2">
                             <Layers size={16} /> {t('animator.layers')}
                         </h3>
                         {/* Layer List */}
@@ -417,13 +417,13 @@ export const AnimatorApp = () => {
                                         key={layer.id}
                                         onClick={() => setSelectedLayerId(layer.id)}
                                         onDoubleClick={() => setEditingLayerId(layer.id)}
-                                        className={`p-2 rounded-lg border flex items-center gap-2 cursor-pointer transition-all ${selectedLayerId === layer.id ? 'border-violet-500 bg-violet-50' : 'border-slate-100 hover:bg-slate-50'
+                                        className={`p-2 rounded-lg border flex items-center gap-2 cursor-pointer transition-all ${selectedLayerId === layer.id ? 'border-primary bg-primary/10' : 'border-cream-dark/50 hover:bg-cream-light'
                                             }`}
                                     >
                                         <div className="flex flex-col gap-0.5" onClick={(e) => e.stopPropagation()}>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleMoveLayer(layer.id, 'up'); }}
-                                                className="p-0.5 hover:bg-slate-200 rounded text-slate-400 hover:text-slate-600 disabled:opacity-30"
+                                                className="p-0.5 hover:bg-cream-medium rounded text-bronze-light hover:text-bronze-text disabled:opacity-30"
                                                 disabled={isTop}
                                                 title="Move Up"
                                             >
@@ -431,7 +431,7 @@ export const AnimatorApp = () => {
                                             </button>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleMoveLayer(layer.id, 'down'); }}
-                                                className="p-0.5 hover:bg-slate-200 rounded text-slate-400 hover:text-slate-600 disabled:opacity-30"
+                                                className="p-0.5 hover:bg-cream-medium rounded text-bronze-light hover:text-bronze-text disabled:opacity-30"
                                                 disabled={isBottom}
                                                 title="Move Down"
                                             >
@@ -439,14 +439,14 @@ export const AnimatorApp = () => {
                                             </button>
                                         </div>
 
-                                        {layer.type === 'image' ? <ImageIcon size={14} className="text-slate-400" /> : <Type size={14} className="text-slate-400" />}
+                                        {layer.type === 'image' ? <ImageIcon size={14} className="text-bronze-light" /> : <Type size={14} className="text-bronze-light" />}
 
                                         {/* Rename Input or Label */}
                                         {editingLayerId === layer.id ? (
                                             <input
                                                 autoFocus
                                                 type="text"
-                                                className="flex-1 text-xs border rounded p-1 bg-white"
+                                                className="flex-1 text-xs border rounded p-1 bg-white text-bronze-text"
                                                 defaultValue={layer.name || (layer.type === 'image' ? t('animator.imageLayer') : layer.content)}
                                                 onBlur={(e) => handleRenameLayer(layer.id, e.target.value)}
                                                 onKeyDown={(e) => {
@@ -455,16 +455,16 @@ export const AnimatorApp = () => {
                                                 onClick={(e) => e.stopPropagation()}
                                             />
                                         ) : (
-                                            <span className="text-xs font-bold truncate flex-1 leading-tight">
+                                            <span className="text-xs font-bold truncate flex-1 leading-tight text-bronze-text">
                                                 {layer.name || (layer.type === 'text' ? layer.content : t('animator.imageLayer'))}
                                             </span>
                                         )}
 
-                                        <button onClick={(e) => { e.stopPropagation(); handleDeleteLayer(layer.id); }} className="text-xs text-red-300 hover:text-red-500 p-1 hover:bg-red-50 rounded">×</button>
+                                        <button onClick={(e) => { e.stopPropagation(); handleDeleteLayer(layer.id); }} className="text-xs text-secondary/70 hover:text-secondary p-1 hover:bg-secondary/10 rounded">×</button>
                                     </div>
                                 );
                             })}
-                            {layers.length === 0 && <p className="text-xs text-slate-300 text-center py-4">{t('animator.noLayers')}</p>}
+                            {layers.length === 0 && <p className="text-xs text-bronze-light text-center py-4">{t('animator.noLayers')}</p>}
                         </div>
                     </div>
 
@@ -475,15 +475,15 @@ export const AnimatorApp = () => {
                     />
 
                     {/* Export */}
-                    <div className="bg-white border border-slate-200 rounded-2xl p-6 text-slate-900 mt-auto shadow-sm">
+                    <div className="bg-white/40 backdrop-blur-md border border-cream-dark rounded-2xl p-6 text-bronze-text mt-auto shadow-sm">
                         <h3 className="font-bold mb-4 flex items-center gap-2">
-                            <Download size={20} className="text-emerald-500" /> {t('animator.export')}
+                            <Download size={20} className="text-secondary" /> {t('animator.export')}
                         </h3>
                         <div className="grid grid-cols-2 gap-3">
                             <button
                                 onClick={() => handleExport('apng')}
                                 disabled={isExporting || layers.length === 0}
-                                className="bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg font-bold text-sm disabled:opacity-50 transition-colors"
+                                className="bg-secondary hover:bg-secondary-hover text-white py-2 rounded-lg font-bold text-sm disabled:opacity-50 transition-colors shadow-lg shadow-secondary/20"
                             >
                                 {isExporting ? '...' : 'APNG'}
                             </button>
@@ -491,14 +491,14 @@ export const AnimatorApp = () => {
                             <button
                                 onClick={() => handleExport('gif')}
                                 disabled={isExporting || layers.length === 0}
-                                className="bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg font-bold text-sm disabled:opacity-50 transition-colors"
+                                className="bg-cream-medium hover:bg-cream-dark text-bronze-text py-2 rounded-lg font-bold text-sm disabled:opacity-50 transition-colors border border-cream-dark"
                             >
                                 {isExporting ? '...' : 'GIF'}
                             </button>
                             <button
                                 onClick={handleLinePreview}
                                 disabled={isExporting || isPreviewLoading || layers.length === 0}
-                                className="col-span-2 bg-green-50 hover:bg-green-100 text-[#06C755] py-2 rounded-lg font-bold text-sm disabled:opacity-50 transition-colors flex items-center justify-center gap-2 border border-green-200"
+                                className="col-span-2 bg-primary/10 hover:bg-primary/20 text-primary py-2 rounded-lg font-bold text-sm disabled:opacity-50 transition-colors flex items-center justify-center gap-2 border border-primary/20"
                             >
                                 {isPreviewLoading ? <Loader2 size={16} className="animate-spin" /> : <Smartphone size={16} />}
                                 {t('animator.linePreview')}

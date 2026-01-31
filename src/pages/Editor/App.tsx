@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { EditorCanvas } from './components/EditorCanvas';
 import { Sidebar } from './components/Sidebar';
 import { Toolbar } from './components/Toolbar';
@@ -64,7 +64,7 @@ const App: React.FC = () => {
   }, []);
 
   // Zoom State
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(0.6);
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.1, 3));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.1, 0.1));
   const handleResetZoom = () => setZoom(1);
@@ -339,8 +339,31 @@ const App: React.FC = () => {
 
   const selectedLayer = layers.find(l => l.id === selectedLayerId);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleAutoFit = useCallback(() => {
+    if (containerRef.current) {
+      const { clientWidth, clientHeight } = containerRef.current;
+      const padding = 20;
+      const availableWidth = clientWidth - padding;
+      const availableHeight = clientHeight - padding;
+      const scale = Math.min(availableWidth / canvasConfig.width, availableHeight / canvasConfig.height);
+      setZoom(Math.max(0.1, Math.min(scale, 1))); // Max 100% to avoid blur
+    }
+  }, [canvasConfig.width, canvasConfig.height]);
+
+  useEffect(() => {
+    // Initial fit
+    const timer = setTimeout(handleAutoFit, 100);
+    window.addEventListener('resize', handleAutoFit);
+    return () => {
+      window.removeEventListener('resize', handleAutoFit);
+      clearTimeout(timer);
+    };
+  }, [handleAutoFit]);
+
   return (
-    <div className="flex min-h-screen w-full flex-col overflow-hidden bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-100/50 via-slate-50 to-pink-50/30">
+    <div className="flex min-h-screen w-full flex-col overflow-hidden bg-background text-bronze-text">
 
       {/* Unified Header */}
 
@@ -395,10 +418,11 @@ const App: React.FC = () => {
         onLinePreview={handleLinePreview}
       />
 
-      <div className={`flex flex-1 overflow-hidden pt-28 transition-opacity duration-700 ${isReady ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`flex flex-1 overflow-hidden transition-opacity duration-700 ${isReady ? 'opacity-100' : 'opacity-0'}`}>
         {/* Canvas Area */}
         <div
           id="canvas-container"
+          ref={containerRef}
           className="relative flex-1 overflow-hidden flex items-center justify-center cursor-crosshair"
           onClick={() => {
             if (window.innerWidth < 768) {
@@ -419,14 +443,14 @@ const App: React.FC = () => {
           />
 
           {/* Floating Zoom Controls */}
-          <div className="absolute bottom-24 md:bottom-6 left-6 flex items-center gap-2 bg-white/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-200/50 shadow-lg z-40">
-            <button onClick={handleZoomOut} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-blue-600 transition-colors" title={t('editor.controls.zoomOut')}>
+          <div className="absolute bottom-24 md:bottom-6 left-6 flex items-center gap-2 bg-white/90 backdrop-blur-md p-1.5 rounded-xl border border-cream-dark shadow-lg z-40">
+            <button onClick={handleZoomOut} className="p-2 hover:bg-cream-light rounded-lg text-bronze-light hover:text-primary transition-colors" title={t('editor.controls.zoomOut')}>
               <Minus size={16} />
             </button>
-            <button onClick={handleResetZoom} className="px-2 text-xs font-bold text-slate-600 min-w-[3rem] text-center hover:text-blue-600 transition-colors" title={t('editor.controls.resetZoom')}>
+            <button onClick={handleResetZoom} className="px-2 text-xs font-bold text-bronze-text min-w-[3rem] text-center hover:text-primary transition-colors" title={t('editor.controls.resetZoom')}>
               {Math.round(zoom * 100)}%
             </button>
-            <button onClick={handleZoomIn} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-blue-600 transition-colors" title={t('editor.controls.zoomIn')}>
+            <button onClick={handleZoomIn} className="p-2 hover:bg-cream-light rounded-lg text-bronze-light hover:text-primary transition-colors" title={t('editor.controls.zoomIn')}>
               <Plus size={16} />
             </button>
           </div>
@@ -466,7 +490,7 @@ const App: React.FC = () => {
         {!isSidebarOpen && (
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="md:hidden fixed bottom-24 right-6 z-50 bg-blue-600 text-white p-4 rounded-full shadow-xl hover:bg-blue-700 transition-all active:scale-95"
+            className="md:hidden fixed bottom-24 right-6 z-50 bg-primary text-white p-4 rounded-full shadow-xl hover:bg-primary-hover transition-all active:scale-95"
           >
             <Settings size={24} />
           </button>

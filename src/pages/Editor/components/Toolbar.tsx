@@ -44,36 +44,19 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   };
 
   return (
-    <nav className="hidden md:block fixed top-4 left-4 right-4 z-50">
-      <div className="max-w-7xl mx-auto glass-panel rounded-2xl px-6 py-3 flex items-center justify-between">
+    <header className="hidden md:block bg-cream-medium/80 backdrop-blur-md border-b border-cream-dark px-6 py-3 sticky top-0 z-30 flex-shrink-0">
+      <div className="flex items-center justify-between">
 
-        {/* Left Side: Navigation & Title */}
-        <div className="flex items-center gap-4">
-
-          <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
-
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-violet-500 to-pink-500 p-2 rounded-xl text-white shadow-lg shadow-violet-500/20">
-              <Palette size={18} strokeWidth={2.5} />
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="text-lg font-bold tracking-tight text-slate-800 leading-none">
-                StickerOS <span className="text-[10px] px-1.5 py-0.5 rounded-md ml-1 align-top text-violet-600 bg-violet-50">{t('editor.toolbar.editor')}</span>
-              </h1>
-              <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">
-                {t('editor.toolbar.subtitle')}
-              </p>
-            </div>
-          </div>
-        </div>
+        {/* Left Side: Empty or Logo if needed (Global header handles title) */}
+        <div className="flex-1"></div>
 
         {/* Center: Tools (Undo/Redo, Background) */}
-        <div className="hidden md:flex items-center gap-4 bg-slate-50/50 p-1.5 rounded-xl border border-slate-200/50">
+        <div className="hidden md:flex items-center gap-4 bg-cream-light/50 p-1.5 rounded-xl border border-cream-dark">
           <div className="flex items-center">
             <button
               onClick={onUndo}
               disabled={!canUndo}
-              className="p-2 rounded-lg hover:bg-white hover:shadow-sm text-slate-400 hover:text-slate-700 disabled:opacity-30 transition-all"
+              className="p-2 rounded-lg hover:bg-white hover:shadow-sm text-bronze-light hover:text-bronze-text disabled:opacity-30 transition-all"
               title={t('editor.toolbar.undo')}
             >
               <Undo size={18} />
@@ -81,40 +64,40 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <button
               onClick={onRedo}
               disabled={!canRedo}
-              className="p-2 rounded-lg hover:bg-white hover:shadow-sm text-slate-400 hover:text-slate-700 disabled:opacity-30 transition-all"
+              className="p-2 rounded-lg hover:bg-white hover:shadow-sm text-bronze-light hover:text-bronze-text disabled:opacity-30 transition-all"
               title={t('editor.toolbar.redo')}
             >
               <Redo size={18} />
             </button>
           </div>
 
-          <div className="w-px h-4 bg-slate-200"></div>
+          <div className="w-px h-4 bg-cream-dark"></div>
 
           <div className="flex gap-1">
             <button
               onClick={() => setBackground('grid')}
-              className={`p-2 rounded-lg transition-all ${background === 'grid' ? 'bg-white shadow-sm text-blue-500' : 'text-slate-400 hover:bg-white/50'}`}
+              className={`p-2 rounded-lg transition-all ${background === 'grid' ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:bg-cream-light'}`}
               title={t('editor.toolbar.grid')}
             >
               <Grid size={18} />
             </button>
             <button
               onClick={() => setBackground('black')}
-              className={`p-2 rounded-lg transition-all ${background === 'black' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:bg-white/50'}`}
+              className={`p-2 rounded-lg transition-all ${background === 'black' ? 'bg-white shadow-sm text-bronze-text' : 'text-bronze-light hover:bg-cream-light'}`}
               title={t('editor.toolbar.black')}
             >
               <Square size={18} fill="currentColor" />
             </button>
             <button
               onClick={() => setBackground('green')}
-              className={`p-2 rounded-lg transition-all ${background === 'green' ? 'bg-white shadow-sm ring-2 ring-[#00ff2f]' : 'text-slate-400 hover:bg-white/50'}`}
+              className={`p-2 rounded-lg transition-all ${background === 'green' ? 'bg-white shadow-sm ring-2 ring-[#00ff2f]' : 'text-bronze-light hover:bg-cream-light'}`}
               title={t('editor.toolbar.green')}
             >
-              <div className="w-[18px] h-[18px] rounded bg-[#00ff2f] border border-slate-200" />
+              <div className="w-[18px] h-[18px] rounded bg-[#00ff2f] border border-cream-dark" />
             </button>
             <button
               onClick={() => setBackground('white')}
-              className={`p-2 rounded-lg transition-all ${background === 'white' ? 'bg-white shadow-sm text-yellow-500' : 'text-slate-400 hover:bg-white/50'}`}
+              className={`p-2 rounded-lg transition-all ${background === 'white' ? 'bg-white shadow-sm text-yellow-500' : 'text-bronze-light hover:bg-cream-light'}`}
               title={t('editor.toolbar.white')}
             >
               <Sun size={18} />
@@ -123,10 +106,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </div>
 
         {/* Right Side: Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex-1 flex justify-end items-center gap-3">
           <button
             onClick={onAddText}
-            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-xs transition-colors"
+            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-cream-light hover:bg-white text-bronze rounded-xl font-bold text-xs transition-colors border border-cream-dark"
           >
             <Type size={16} />
             <span>{t('editor.toolbar.text')}</span>
@@ -134,7 +117,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-violet-50 hover:bg-violet-100 text-violet-600 rounded-xl font-bold text-xs transition-colors border border-violet-200"
+            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl font-bold text-xs transition-colors border border-primary/20"
           >
             <ImageIcon size={16} />
             <span>{t('editor.toolbar.image')}</span>
@@ -149,7 +132,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           <button
             onClick={onAddFromGallery}
-            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-xl font-bold text-xs transition-colors border border-pink-200"
+            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-secondary rounded-xl font-bold text-xs transition-colors border border-secondary/20"
           >
             <ImageIcon size={16} />
             <span>{t('editor.toolbar.gallery')}</span>
@@ -157,7 +140,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           <button
             onClick={onLinePreview}
-            className="flex items-center gap-2 px-3 py-2 bg-green-50 hover:bg-green-100 text-[#06C755] rounded-xl font-bold text-xs transition-colors border border-green-200"
+            className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-green-50 text-[#06C755] rounded-xl font-bold text-xs transition-colors border border-[#06C755]/20 shadow-sm"
             title={t('editor.toolbar.linePreviewTooltip')}
           >
             <Smartphone size={16} />
@@ -165,28 +148,28 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           </button>
 
           {/* Separator - make sure it exists or add new one */}
-          <div className="w-px h-6 bg-slate-200 mx-1"></div>
+          <div className="w-px h-6 bg-cream-dark mx-1"></div>
 
           <button
             onClick={onDownload}
-            className="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-pink-500 text-white px-5 py-2.5 rounded-xl hover:brightness-110 shadow-lg shadow-violet-500/20 font-bold text-xs transition-all active:scale-95"
+            className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl hover:bg-primary-hover shadow-lg shadow-primary/20 font-bold text-xs transition-all active:scale-95"
           >
             <span>{t('editor.toolbar.export')}</span>
           </button>
 
           <button
             onClick={onSaveToGallery}
-            className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-5 py-2.5 rounded-xl hover:brightness-110 shadow-lg shadow-pink-500/20 font-bold text-xs transition-all active:scale-95 border border-pink-400/20"
+            className="hidden sm:flex items-center gap-2 bg-bronze text-white px-5 py-2.5 rounded-xl hover:bg-bronze-text shadow-lg shadow-bronze/20 font-bold text-xs transition-all active:scale-95"
           >
             <Download size={16} className="rotate-180" />
             <span>{t('editor.toolbar.saveToGallery')}</span>
           </button>
 
-          <a href="https://tingyusdeco.com/" className="ml-2 text-slate-400 hover:text-violet-500 transition-colors" title={t('editor.toolbar.backHome')}>
+          <a href="https://tingyusdeco.com/" className="ml-2 text-bronze-light hover:text-primary transition-colors" title={t('editor.toolbar.backHome')}>
             <Home size={18} />
           </a>
         </div>
       </div>
-    </nav>
+    </header>
   );
 };
