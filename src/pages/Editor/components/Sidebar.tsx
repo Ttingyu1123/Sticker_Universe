@@ -7,7 +7,7 @@ import {
   AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter,
   ArrowDown, ArrowUp, Trash2, Upload, Copy,
   Layers, Settings, Type, Image as ImageIcon, ChevronUp, ChevronDown,
-  FlipHorizontal, X
+  FlipHorizontal, X, ArrowRight
 } from 'lucide-react';
 import { ColorPickerInput } from './ColorPickerInput';
 
@@ -175,21 +175,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           <div className="bg-cream-medium/50 p-4 rounded-xl border border-cream-dark/50 space-y-4">
-            <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest block mb-2">{t('editor.sidebar.dimensions')}</label>
+            <label className="text-xs font-bold text-bronze-light uppercase tracking-widest block mb-2">{t('editor.sidebar.dimensions')}</label>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <span className="text-[10px] font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.width')}</span>
+                <span className="text-xs font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.width')}</span>
                 <input
                   type="number"
+                  aria-label={t('editor.sidebar.width')}
                   value={config.width}
                   onChange={(e) => setConfig({ ...config, width: Number(e.target.value) })}
                   className="w-full text-sm font-bold p-2.5 bg-white border border-cream-dark rounded-xl text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-bronze-text"
                 />
               </div>
               <div>
-                <span className="text-[10px] font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.height')}</span>
+                <span className="text-xs font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.height')}</span>
                 <input
                   type="number"
+                  aria-label={t('editor.sidebar.height')}
                   value={config.height}
                   onChange={(e) => setConfig({ ...config, height: Number(e.target.value) })}
                   className="w-full text-sm font-bold p-2.5 bg-white border border-cream-dark rounded-xl text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-bronze-text"
@@ -199,14 +201,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Background Settings */}
             <div className="pt-2">
-              <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest block mb-2">{t('editor.sidebar.background')}</label>
+              <label className="text-xs font-bold text-bronze-light uppercase tracking-widest block mb-2">{t('editor.sidebar.background')}</label>
               <div className="space-y-3">
                 {/* Show Grid Toggle */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-bronze-text">{t('editor.sidebar.transparentGrid')}</span>
+                  <span className="text-sm font-bold text-bronze-text">{t('editor.sidebar.transparentGrid')}</span>
                   <div className="relative inline-block w-8 h-4 align-middle select-none">
                     <input
                       type="checkbox"
+                      aria-label={t('editor.sidebar.transparentGrid')}
                       checked={config.showGrid}
                       onChange={(e) => setConfig({ ...config, showGrid: e.target.checked })}
                       className="absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-primary"
@@ -217,23 +220,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                 {/* Shape Toggle */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-bronze-text">{t('editor.sidebar.shape')}</span>
+                  <span className="text-sm font-bold text-bronze-text">{t('editor.sidebar.shape')}</span>
                   <div className="flex bg-cream-dark/20 rounded-lg p-0.5">
                     <button
                       onClick={() => setConfig({ ...config, shape: 'rectangle' })}
-                      className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${config.shape === 'rectangle' ? 'bg-white text-primary shadow-sm' : 'text-bronze-light hover:text-bronze-text'}`}
+                      className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${config.shape === 'rectangle' ? 'bg-white text-primary shadow-sm' : 'text-bronze-light hover:text-bronze-text'}`}
                     >
                       {t('editor.sidebar.shapes.rect')}
                     </button>
                     <button
                       onClick={() => setConfig({ ...config, shape: 'rounded' })}
-                      className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${config.shape === 'rounded' ? 'bg-white text-primary shadow-sm' : 'text-bronze-light hover:text-bronze-text'}`}
+                      className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${config.shape === 'rounded' ? 'bg-white text-primary shadow-sm' : 'text-bronze-light hover:text-bronze-text'}`}
                     >
                       {t('editor.sidebar.shapes.rounded')}
                     </button>
                     <button
                       onClick={() => setConfig({ ...config, shape: 'circle' })}
-                      className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${config.shape === 'circle' ? 'bg-white text-primary shadow-sm' : 'text-bronze-light hover:text-bronze-text'}`}
+                      className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${config.shape === 'circle' ? 'bg-white text-primary shadow-sm' : 'text-bronze-light hover:text-bronze-text'}`}
                     >
                       {t('editor.sidebar.shapes.circle')}
                     </button>
@@ -253,7 +256,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             <div className="pt-2">
-              <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest block mb-2">{t('editor.sidebar.presets.title')}</label>
+              <label className="text-xs font-bold text-bronze-light uppercase tracking-widest block mb-2">{t('editor.sidebar.presets.title')}</label>
               <div className="flex flex-wrap gap-2">
                 {[
                   { name: t('editor.sidebar.presets.line'), w: 370, h: 320 },
@@ -272,7 +275,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     className="px-3 py-2 bg-white border border-cream-dark rounded-lg text-xs font-bold text-bronze-text hover:text-primary hover:border-primary/30 hover:shadow-sm transition-all flex flex-col items-start gap-0.5 min-w-[100px]"
                   >
                     <span>{preset.name}</span>
-                    <span className="text-[10px] text-bronze-light font-medium">{preset.w} x {preset.h}</span>
+                    <span className="text-xs text-bronze-light font-medium">{preset.w} x {preset.h}</span>
                   </button>
                 ))}
               </div>
@@ -293,9 +296,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Layer Name Input */}
         <div className="space-y-3">
-          <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.layerName')}</label>
+          <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.layerName')}</label>
           <input
             type="text"
+            aria-label={t('editor.sidebar.layerName')}
             value={selectedLayer.name || ''}
             onChange={(e) => onUpdateLayer({ name: e.target.value })}
             placeholder={selectedLayer.type === 'text' ? selectedLayer.content : t('editor.layers.image')}
@@ -305,7 +309,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Alignment & Ordering */}
         <div className="space-y-3">
-          <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.arrange')}</label>
+          <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.arrange')}</label>
           <div className="grid grid-cols-4 gap-2">
             <button onClick={() => handleLayerOrder(selectedLayer.id, 'up')} className="p-2.5 bg-white border border-cream-dark rounded-xl hover:bg-cream-light hover:border-primary/50 hover:text-primary transition-all flex justify-center text-bronze-light shadow-sm" title={t('editor.sidebar.moveUp')}>
               <ArrowUp size={16} />
@@ -342,9 +346,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {selectedLayer.type === 'text' && selectedLayer.textProps && (
           <>
             <div className="space-y-3">
-              <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.content')}</label>
+              <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.content')}</label>
               <input
                 type="text"
+                aria-label={t('editor.sidebar.content')}
                 value={selectedLayer.content}
                 onChange={(e) => handleContentChange(e.target.value)}
                 className="w-full bg-cream-light border border-cream-dark rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm font-bold text-bronze-text"
@@ -352,10 +357,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             <div className="space-y-3">
-              <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.typography')}</label>
+              <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.typography')}</label>
 
               <div className="flex gap-2">
                 <select
+                  aria-label={t('editor.sidebar.typography')}
                   value={selectedLayer.textProps.fontFamily}
                   onChange={(e) => updateTextProp('fontFamily', e.target.value)}
                   className="flex-1 bg-white border border-cream-dark rounded-xl px-3 py-2 text-sm font-medium text-bronze-text outline-none focus:border-primary shadow-sm"
@@ -379,6 +385,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <input ref={fontInputRef} type="file" accept=".ttf,.otf,.woff" hidden onChange={handleFontUpload} />
               </div>
 
+              {/* Text Direction */}
+              <div className="flex bg-cream-dark/20 p-1 rounded-xl">
+                <button
+                  onClick={() => updateTextProp('direction', 'horizontal')}
+                  className={`flex-1 flex items-center justify-center py-1.5 rounded-lg text-xs font-bold transition-all ${!selectedLayer.textProps.direction || selectedLayer.textProps.direction === 'horizontal' ? 'bg-white text-primary shadow-sm' : 'text-bronze-light hover:text-bronze-text'}`}
+                  title={t('editor.sidebar.horizontal')}
+                >
+                  <ArrowRight size={14} className="mr-1" />
+                  {t('editor.sidebar.horizontal')}
+                </button>
+                <button
+                  onClick={() => updateTextProp('direction', 'vertical')}
+                  className={`flex-1 flex items-center justify-center py-1.5 rounded-lg text-xs font-bold transition-all ${selectedLayer.textProps.direction === 'vertical' ? 'bg-white text-primary shadow-sm' : 'text-bronze-light hover:text-bronze-text'}`}
+                  title={t('editor.sidebar.vertical')}
+                >
+                  <ArrowDown size={14} className="mr-1" />
+                  {t('editor.sidebar.vertical')}
+                </button>
+              </div>
+
               {/* Font Size Slider */}
               <div className="bg-cream-light p-3 rounded-xl border border-cream-dark space-y-2">
                 <div className="flex justify-between items-center">
@@ -387,6 +413,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 <input
                   type="range"
+                  aria-label={t('editor.sidebar.size')}
                   min="12"
                   max="200"
                   value={selectedLayer.textProps.fontSize}
@@ -403,7 +430,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             <div className="space-y-4 pt-2 border-t border-cream-light">
-              <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.effects')}</label>
+              <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('editor.sidebar.effects')}</label>
 
               {/* Primary Stroke */}
               <div className="space-y-3 bg-white p-4 rounded-xl border border-cream-dark shadow-sm">
@@ -421,6 +448,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   type="range"
                   min="0"
                   max="40"
+                  aria-label={t('editor.sidebar.outline')}
                   value={selectedLayer.textProps.strokeWidth}
                   onChange={(e) => updateTextProp('strokeWidth', Number(e.target.value))}
                   className="w-full accent-primary h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer"
@@ -434,6 +462,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <div className="relative inline-block w-8 h-4 align-middle select-none">
                     <input
                       type="checkbox"
+                      aria-label={t('editor.sidebar.doubleOutline')}
                       checked={selectedLayer.textProps.doubleStroke}
                       onChange={(e) => updateTextProp('doubleStroke', e.target.checked)}
                       className="absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-primary"
@@ -453,6 +482,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       type="range"
                       min="0"
                       max="60"
+                      aria-label={t('editor.sidebar.doubleOutline')}
                       value={selectedLayer.textProps.doubleStrokeWidth}
                       onChange={(e) => updateTextProp('doubleStrokeWidth', Number(e.target.value))}
                       className="w-full accent-primary h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer"
@@ -469,6 +499,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <div className="relative inline-block w-8 h-4 align-middle select-none">
                     <input
                       type="checkbox"
+                      aria-label={t('editor.sidebar.dropShadow')}
                       checked={!!selectedLayer.textProps.shadow}
                       onChange={(e) => updateTextProp('shadow', e.target.checked)}
                       className="absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-secondary"
@@ -486,18 +517,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     />
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <span className="text-[10px] font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.xOffset')}</span>
+                        <span className="text-xs font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.xOffset')}</span>
                         <input
                           type="number"
+                          aria-label={t('editor.sidebar.xOffset')}
                           value={selectedLayer.textProps.shadowOffsetX}
                           onChange={(e) => updateTextProp('shadowOffsetX', Number(e.target.value))}
                           className="w-full text-xs font-bold p-2 bg-cream-light border border-cream-dark rounded-lg text-center"
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.yOffset')}</span>
+                        <span className="text-xs font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.yOffset')}</span>
                         <input
                           type="number"
+                          aria-label={t('editor.sidebar.yOffset')}
                           value={selectedLayer.textProps.shadowOffsetY}
                           onChange={(e) => updateTextProp('shadowOffsetY', Number(e.target.value))}
                           className="w-full text-xs font-bold p-2 bg-cream-light border border-cream-dark rounded-lg text-center"
@@ -505,11 +538,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       </div>
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.blur')}</span>
+                      <span className="text-xs font-bold text-bronze-light uppercase mb-1 block">{t('editor.sidebar.blur')}</span>
                       <input
                         type="range"
                         min="0"
                         max="30"
+                        aria-label={t('editor.sidebar.blur')}
                         value={selectedLayer.textProps.shadowBlur}
                         onChange={(e) => updateTextProp('shadowBlur', Number(e.target.value))}
                         className="w-full accent-secondary h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer"
@@ -525,7 +559,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="pt-6 mt-6 border-t border-slate-100">
           <button
             onClick={onDeleteLayer}
-            className="w-full flex items-center justify-center space-x-2 bg-secondary/10 text-secondary py-3 rounded-xl hover:bg-secondary/20 hover:shadow-inner transition-colors font-bold text-xs"
+            className="w-full flex items-center justify-center space-x-2 bg-secondary/10 text-secondary py-3 rounded-xl hover:bg-secondary/20 hover:shadow-inner transition-colors font-bold text-sm"
           >
             <Trash2 size={16} />
             <span>{t('editor.sidebar.delete')}</span>
@@ -545,21 +579,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={onAddText}
-            className="flex items-center justify-center gap-2 py-3 bg-white border border-cream-dark hover:bg-cream-light hover:border-primary/50 hover:text-primary rounded-xl transition-all font-bold text-xs text-bronze-text shadow-sm"
+            className="flex items-center justify-center gap-2 py-3 bg-white border border-cream-dark hover:bg-cream-light hover:border-primary/50 hover:text-primary rounded-xl transition-all font-bold text-sm text-bronze-text shadow-sm"
           >
             <Type size={16} />
             <span>{t('editor.sidebar.addText')}</span>
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center justify-center gap-2 py-3 bg-white border border-cream-dark hover:bg-cream-light hover:border-primary/50 hover:text-primary rounded-xl transition-all font-bold text-xs text-bronze-text shadow-sm"
+            className="flex items-center justify-center gap-2 py-3 bg-white border border-cream-dark hover:bg-cream-light hover:border-primary/50 hover:text-primary rounded-xl transition-all font-bold text-sm text-bronze-text shadow-sm"
           >
             <ImageIcon size={16} />
             <span>{t('editor.sidebar.addImage')}</span>
           </button>
           <button
             onClick={onAddFromGallery}
-            className="col-span-2 flex items-center justify-center gap-2 py-3 bg-secondary/10 border border-secondary/20 hover:bg-white hover:border-secondary/50 hover:text-secondary rounded-xl transition-all font-bold text-xs text-secondary shadow-sm"
+            className="col-span-2 flex items-center justify-center gap-2 py-3 bg-secondary/10 border border-secondary/20 hover:bg-white hover:border-secondary/50 hover:text-secondary rounded-xl transition-all font-bold text-sm text-secondary shadow-sm"
           >
             <ImageIcon size={16} />
             <span>{t('editor.sidebar.fromGallery') || 'From Gallery'}</span>
@@ -618,17 +652,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             if (e.key === 'Escape') cancelRename();
                           }}
                           autoFocus
-                          className="text-xs font-bold border border-primary rounded px-1 py-0.5 w-full focus:outline-none focus:ring-1 focus:ring-primary text-bronze-text"
+                          className="text-sm font-bold border border-primary rounded px-1 py-0.5 w-full focus:outline-none focus:ring-1 focus:ring-primary text-bronze-text"
                           onClick={(e) => e.stopPropagation()}
                         />
                       ) : (
-                        <span className={`text-xs font-bold truncate select-none ${isSelected ? 'text-primary' : 'text-bronze-text'}`} title={displayName}>
+                        <span className={`text-sm font-bold truncate select-none ${isSelected ? 'text-primary' : 'text-bronze-text'}`} title={displayName}>
                           {displayName}
                         </span>
                       )}
 
                       {!isEditing && (
-                        <span className="text-[9px] text-bronze-light uppercase tracking-wider font-bold">{layer.type}</span>
+                        <span className="text-[10px] text-bronze-light uppercase tracking-wider font-bold">{layer.type}</span>
                       )}
                     </div>
                   </div>
@@ -682,14 +716,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="flex border-b border-cream-dark bg-cream-medium/50 backdrop-blur-sm p-1">
         <button
           onClick={() => setActiveTab('settings')}
-          className={`flex-1 flex items-center justify-center py-2.5 text-xs font-bold rounded-xl transition-all ${activeTab === 'settings' ? 'bg-white text-primary shadow-sm ring-1 ring-primary/10' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
+          className={`flex-1 flex items-center justify-center py-2.5 text-sm font-bold rounded-xl transition-all ${activeTab === 'settings' ? 'bg-white text-primary shadow-sm ring-1 ring-primary/10' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
         >
           <Settings size={14} className="mr-2" />
           {t('app.settings')}
         </button >
         <button
           onClick={() => setActiveTab('layers')}
-          className={`flex-1 flex items-center justify-center py-2.5 text-xs font-bold rounded-xl transition-all ${activeTab === 'layers' ? 'bg-white text-primary shadow-sm ring-1 ring-primary/10' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
+          className={`flex-1 flex items-center justify-center py-2.5 text-sm font-bold rounded-xl transition-all ${activeTab === 'layers' ? 'bg-white text-primary shadow-sm ring-1 ring-primary/10' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
         >
           <Layers size={14} className="mr-2" />
           {t('editor.subtitle')}

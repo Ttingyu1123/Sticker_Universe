@@ -6,14 +6,15 @@
         "system": "系統",
         "selectFromGallery": "從作品集選取",
         "settings": "設定",
+        "manual": "使用說明書",
         "backHome": "返回首頁",
-        "generator": "生成器",
+        "generator": "貼圖生成器",
         "editor": "編輯器",
-        "packager": "美工",
+        "packager": "裁切與加工",
         "eraser": "橡皮擦",
         "gallery": "作品集",
         "generate": "生成",
-        "svgConverter": "轉向量圖",
+        "svgConverter": "SVG 魔法",
         "printSheet": "貼紙列印室",
         "captioning": "AI 智慧配文",
         "animator": "動態貼圖",
@@ -134,13 +135,13 @@
         "exploreTools": "探索工具",
         "launchApp": "啟動程式",
         "features": {
-            "generatorTitle": "AI 生成器",
+            "generatorTitle": "貼圖生成器",
             "generatorDesc": "使用 Google Gemini AI 將文字提示轉化為精美的貼圖包。無需任何設計技能。",
             "editorTitle": "編輯器",
             "editorDesc": "強大的圖層編輯器。組合圖像、添加文字、調整版面並微調您的設計细节。",
             "eraserTitle": "魔術橡皮擦",
             "eraserDesc": "智慧去背工具。立即清理圖像背景並導出透明 PNG。",
-            "packagerTitle": "貼圖美工",
+            "packagerTitle": "裁切與加工",
             "packagerDesc": "自動排版、針對不同平台輸出與格式化。",
             "svgTitle": "SVG 魔法",
             "svgDesc": "將點陣圖轉為向量圖，無限縮放不失真。",
@@ -150,7 +151,7 @@
         "footer": "由 Google Gemini Pro 驅動 • 需在瀏覽器中直接使用 API Key"
     },
     "generator": {
-        "title": "生成器",
+        "title": "貼圖生成器",
         "subtitle": "AI 貼圖創作",
         "apiKey": {
             "title": "輸入您的 Gemini API Key",
@@ -159,6 +160,7 @@
             "save": "儲存金鑰",
             "clear": "清除金鑰",
             "get": "獲取 API Key",
+            "change": "變更金鑰",
             "invalid": "請輸入有效的 API Key",
             "expired": "API Key 無效或已過期，請重新輸入。",
             "notFound": "找不到 API Key 或無效。"
@@ -453,7 +455,7 @@
         }
     },
     "packager": {
-        "title": "打包器",
+        "title": "裁切與加工",
         "subtitle": "裁切去背",
         "reset": "重置",
         "home": "首頁",
@@ -621,6 +623,9 @@
             "centerH": "水平置中",
             "centerV": "垂直置中",
             "content": "文字內容",
+            "direction": "文字方向",
+            "horizontal": "橫向",
+            "vertical": "直向",
             "typography": "文字樣式",
             "size": "大小",
             "fillColor": "填充顏色",
@@ -651,6 +656,48 @@
             "deleteConfirm": "刪除此貼圖？",
             "selected": "已選擇",
             "downloadZip": "下載 ZIP"
+        }
+    },
+    "manual": {
+        "title": "使用說明書",
+        "subtitle": "完整的貼圖製作指南與工具介紹",
+        "generator": {
+            "desc": "輸入文字提示，讓 AI 自動為您生成獨特的貼圖。支援多種藝術風格與自動去背。",
+            "step1": "輸入想要生成的貼圖描述，或選擇預設台詞。",
+            "step2": "選擇喜歡的藝術風格 (如：賽璐璐、水彩、像素風)。",
+            "step3": "點擊生成，AI 將產生四張貼圖。",
+            "step4": "點擊喜歡的貼圖即可儲存至作品集。"
+        },
+        "packager": {
+            "desc": "批次處理您的貼圖，進行統一的裁切、去背與打包，符合 LINE/Telegram 規格。",
+            "step1": "上傳多張圖片或從作品集選取。",
+            "step2": "AI 自動偵測主體邊界並進行裁切。",
+            "step3": "調整白邊、陰影等統一風格並下載 ZIP。"
+        },
+        "smartEraser": {
+            "desc": "強大的背景移除工具，適合單張圖片精修。",
+            "step1": "上傳圖片，使用魔術棒或 AI 自動去背。",
+            "step2": "使用修復筆刷微調邊緣，匯出透明 PNG。"
+        },
+        "eraser": {
+            "desc": "傳統橡皮擦工具，可手動擦除不需要的區域，適合細部修整。"
+        },
+        "editor": {
+            "desc": "強大的圖層編輯器，可組合多張貼圖、加入文字與特效。",
+            "step1": "從作品集匯入貼圖或新增文字圖層。",
+            "step2": "調整圖層順序、套用濾鏡與陰影效果，完成獨一無二的貼圖。"
+        },
+        "animator": {
+            "desc": "將多張靜態貼圖組合成 APNG 動態貼圖。設定幀率與播放順序，讓貼圖動起來！"
+        },
+        "svgConverter": {
+            "desc": "將點陣圖 (JPG/PNG) 轉換為向量圖 (SVG)，無限放大不失真，適合印刷與設計使用。"
+        },
+        "printSheet": {
+            "desc": "將多張貼圖排版至 A4 畫布，方便直接列印成實體貼紙。"
+        },
+        "gallery": {
+            "desc": "統一管理您生成的所有貼圖作品。可在此預覽、刪除或批次下載。"
         }
     }
 }

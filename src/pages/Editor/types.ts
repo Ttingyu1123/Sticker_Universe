@@ -27,6 +27,8 @@ export interface TextProperties {
   shadowBlur: number;
   shadowOffsetX: number;
   shadowOffsetY: number;
+  // Vertical text support
+  direction?: 'horizontal' | 'vertical';
 }
 
 export interface Layer {

@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Undo, Redo, Image as ImageIcon, Type, Grid, Square, Sun, Download, Palette, Home, Key, Smartphone } from 'lucide-react';
+import { Undo, Redo, Image as ImageIcon, Type, Grid, Square, Sun, Download, Smartphone } from 'lucide-react';
 import { CanvasBackground } from '../types';
 
 
@@ -165,9 +165,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <span>{t('editor.toolbar.saveToGallery')}</span>
           </button>
 
-          <a href="https://tingyusdeco.com/" className="ml-2 text-bronze-light hover:text-primary transition-colors" title={t('editor.toolbar.backHome')}>
-            <Home size={18} />
-          </a>
+
         </div>
       </div>
     </header>

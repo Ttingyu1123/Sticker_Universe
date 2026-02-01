@@ -121,23 +121,51 @@ export const generateCanvasDataUrl = async (layers: Layer[], config: CanvasConfi
         bCtx.translate(bufferWidth / 2, bufferHeight / 2);
         bCtx.font = `bold ${fontSize}px "${fontFamily}"`;
         bCtx.textAlign = 'center';
+        // 'middle' in canvas is closest to 'central' in SVG for centering text
         bCtx.textBaseline = 'middle';
-        bCtx.lineJoin = 'round';
-        bCtx.lineCap = 'round';
 
-        // Draw normal text stack onto buffer (NO shadow yet)
-        if (doubleStroke) {
-          bCtx.strokeStyle = doubleStrokeColor;
-          bCtx.lineWidth = strokeWidth + doubleStrokeWidth;
-          bCtx.strokeText(content, 0, 0);
-        }
-        if (strokeWidth > 0) {
-          bCtx.strokeStyle = strokeColor;
-          bCtx.lineWidth = strokeWidth;
-          bCtx.strokeText(content, 0, 0);
-        }
-        bCtx.fillStyle = color;
-        bCtx.fillText(content, 0, 0);
+        // Handle letter spacing and direction
+        const isVertical = layer.textProps.direction === 'vertical';
+        const letterSpacing = isVertical ? fontSize * 0.1 : 0; // Match 0.1em from CSS
+
+        const drawText = (text: string, x: number, y: number) => {
+          if (doubleStroke) {
+            bCtx.strokeStyle = doubleStrokeColor;
+            bCtx.lineWidth = strokeWidth + doubleStrokeWidth;
+            bCtx.strokeText(text, x, y);
+          }
+          if (strokeWidth > 0) {
+            bCtx.strokeStyle = strokeColor;
+            bCtx.lineWidth = strokeWidth;
+            bCtx.strokeText(text, x, y);
+          }
+          bCtx.fillStyle = color;
+          bCtx.fillText(text, x, y);
+        };
+
+        const drawContent = () => {
+          if (isVertical) {
+            // Manual vertical stacking
+            const chars = Array.from(content); // Handle emojis correctly
+            const totalHeight = chars.length * fontSize + (chars.length - 1) * letterSpacing;
+            let startY = -totalHeight / 2 + fontSize / 2;
+
+            // Adjust baseline for mixed content if needed, but 'middle' is robust for basic stacking
+            chars.forEach((char, i) => {
+              const yPos = startY + i * (fontSize + letterSpacing);
+              drawText(char, 0, yPos);
+            });
+
+          } else {
+            // Normal horizontal text
+            // We can't easily implement letter-spacing in canvas API without manual drawing too,
+            // but usually horizontal spacing is 0 or minimal. CSS uses 0.
+            // If we wanted to support horizontal letter spacing we'd do similar loop.
+            drawText(content, 0, 0);
+          }
+        };
+
+        drawContent();
 
         // Now draw the buffer onto the main canvas WITH shadow
         if (shadow) {

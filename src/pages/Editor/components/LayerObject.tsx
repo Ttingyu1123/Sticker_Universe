@@ -1,9 +1,9 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layer } from '../types';
 
 interface LayerObjectProps {
   layer: Layer;
-  isSelected: boolean;
+  isSelected?: boolean; // Optional or keep if interface requires it, but removed usage
   onSelect: () => void;
   onUpdate: (updates: Partial<Layer>) => void;
   onCommit: (updates: Partial<Layer>) => void;
@@ -11,7 +11,6 @@ interface LayerObjectProps {
 
 export const LayerObject: React.FC<LayerObjectProps> = ({
   layer,
-  isSelected,
   onSelect,
   onUpdate,
   onCommit,
@@ -88,42 +87,60 @@ export const LayerObject: React.FC<LayerObjectProps> = ({
         viewBox={`0 0 ${totalWidth} ${totalHeight}`}
         style={{ overflow: 'visible' }}
       >
-        <g
-          style={{
-            fontFamily,
-            fontSize: `${fontSize}px`,
-            fontWeight: 'bold',
-            textAnchor: 'middle',
-            dominantBaseline: 'middle',
-            filter: shadow ? `drop-shadow(${shadowOffsetX}px ${shadowOffsetY}px ${shadowBlur}px ${shadowColor})` : 'none'
-          }}
-          transform={`translate(${totalWidth / 2}, ${totalHeight / 2})`}
-        >
-          {doubleStroke && (
+        <g>
+          <g
+            style={{
+              fontFamily,
+              fontSize: `${fontSize}px`,
+              fontWeight: 'bold',
+              filter: shadow ? `drop-shadow(${shadowOffsetX}px ${shadowOffsetY}px ${shadowBlur}px ${shadowColor})` : 'none',
+              writingMode: layer.textProps.direction === 'vertical' ? 'vertical-rl' : 'horizontal-tb',
+              textOrientation: 'upright',
+              letterSpacing: layer.textProps.direction === 'vertical' ? '0.1em' : '0'
+            }}
+            textAnchor="middle"
+            dominantBaseline="central"
+          >
+            {doubleStroke && (
+              <text
+                x="50%"
+                y="50%"
+                stroke={doubleStrokeColor}
+                strokeWidth={doubleStrokeWidth + strokeWidth}
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                fill="none"
+                textAnchor="middle"
+                dominantBaseline="central"
+              >
+                {layer.content}
+              </text>
+            )}
+
             <text
-              stroke={doubleStrokeColor}
-              strokeWidth={doubleStrokeWidth + strokeWidth}
+              x="50%"
+              y="50%"
+              stroke={strokeColor}
+              strokeWidth={strokeWidth}
               strokeLinejoin="round"
               strokeLinecap="round"
               fill="none"
+              textAnchor="middle"
+              dominantBaseline="central"
             >
               {layer.content}
             </text>
-          )}
 
-          <text
-            stroke={strokeColor}
-            strokeWidth={strokeWidth}
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            fill="none"
-          >
-            {layer.content}
-          </text>
-
-          <text fill={color}>
-            {layer.content}
-          </text>
+            <text
+              x="50%"
+              y="50%"
+              fill={color}
+              textAnchor="middle"
+              dominantBaseline="central"
+            >
+              {layer.content}
+            </text>
+          </g>
         </g>
       </svg>
     );

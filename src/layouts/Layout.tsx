@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Sparkles, Layers, Eraser, Palette, Home, Settings, FolderHeart, FileCode, Printer, Video, Wand2, ArrowLeft } from 'lucide-react';
+import { Sparkles, Layers, Eraser, Palette, Home, FolderHeart, FileCode, Printer, Video, Wand2, ArrowLeft, BookOpen } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
@@ -62,7 +62,6 @@ export const Layout = () => {
                             <h1 className="text-xl font-black tracking-tight text-bronze leading-none">
                                 {t('app.title')}<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary"></span>
                             </h1>
-                            <p className="text-[10px] font-bold text-bronze-light uppercase tracking-widest mt-1">{t('app.subtitle')}</p>
                         </div>
                     </div>
                 </div>
@@ -73,13 +72,13 @@ export const Layout = () => {
                         <p className="text-[10px] font-black text-bronze-light uppercase tracking-widest">{t('app.apps')}</p>
                     </div>
                     <NavItem to="/generator" icon={Sparkles} label={t('app.generator')} />
-                    <NavItem to="/editor" icon={Palette} label={t('app.editor')} />
                     <NavItem to="/packager" icon={Layers} label={t('app.packager')} />
-                    <NavItem to="/eraser" icon={Eraser} label={t('app.eraser')} />
                     <NavItem to="/layer-lab" icon={Wand2} label={t('app.smartEraser') || 'Smart Eraser'} />
+                    <NavItem to="/eraser" icon={Eraser} label={t('app.eraser')} />
+                    <NavItem to="/editor" icon={Palette} label={t('app.editor')} />
+                    <NavItem to="/animator" icon={Video} label={t('app.animator') || 'Animator'} />
                     <NavItem to="/svg-converter" icon={FileCode} label={t('app.svgConverter')} />
                     <NavItem to="/print-sheet" icon={Printer} label={t('app.printSheet')} />
-                    <NavItem to="/animator" icon={Video} label={t('app.animator') || 'Animator'} />
                     <NavItem to="/gallery" icon={FolderHeart} label={t('app.gallery')} />
                 </nav>
 
@@ -89,11 +88,18 @@ export const Layout = () => {
                         <p className="text-[10px] font-black text-bronze-light uppercase tracking-widest">{t('app.system')}</p>
                         <LanguageSwitcher />
                     </div>
-                    <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-bronze hover:bg-white hover:text-bronze-text hover:shadow-sm">
-                        <Settings size={20} />
-                        <span className="text-sm font-bold">{t('app.settings')}</span>
-                    </button>
-                    <a href="https://tingyusdeco.com/" target="_blank" rel="noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-bronze hover:bg-white hover:text-bronze-text hover:shadow-sm">
+                    <NavLink to="/manual" className={({ isActive }) =>
+                        clsx(
+                            "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all",
+                            isActive
+                                ? "bg-primary text-white shadow-md font-bold"
+                                : "text-bronze hover:bg-white hover:text-bronze-text hover:shadow-sm"
+                        )
+                    }>
+                        <BookOpen size={20} />
+                        <span className="text-sm font-bold">{t('app.manual')}</span>
+                    </NavLink>
+                    <a href="https://tingyusdeco.com/" target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-bronze hover:bg-white hover:text-bronze-text hover:shadow-sm">
                         <Home size={20} />
                         <span className="text-sm font-bold">{t('app.backHome')}</span>
                     </a>
@@ -108,21 +114,13 @@ export const Layout = () => {
 
             {/* Mobile Bottom Navigation - Hidden on LayerLab if desired, or kept for consistency */}
             {/* Keeping it consistent: It shows on LG-hidden, so mobile/tablet still sees bottom nav. */}
-            <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t border-slate-200/50 p-2 lg:hidden">
+            <div className="fixed bottom-0 left-0 right-0 z-50 bg-cream-light/90 backdrop-blur-xl border-t border-cream-dark/50 p-2 lg:hidden">
                 <nav className="flex items-center justify-around">
                     <NavLink to="/generator" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
                         {({ isActive }) => (
                             <>
                                 <Sparkles size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">{t('app.generate')}</span>
-                            </>
-                        )}
-                    </NavLink>
-                    <NavLink to="/editor" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
-                        {({ isActive }) => (
-                            <>
-                                <Palette size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">{t('app.editor')}</span>
+                                <span className="text-[10px] font-bold">{t('app.generator')}</span>
                             </>
                         )}
                     </NavLink>
@@ -134,6 +132,14 @@ export const Layout = () => {
                             </>
                         )}
                     </NavLink>
+                    <NavLink to="/layer-lab" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                        {({ isActive }) => (
+                            <>
+                                <Wand2 size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[10px] font-bold">{t('app.smartEraser') || 'Smart Eraser'}</span>
+                            </>
+                        )}
+                    </NavLink>
                     <NavLink to="/eraser" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
                         {({ isActive }) => (
                             <>
@@ -142,11 +148,19 @@ export const Layout = () => {
                             </>
                         )}
                     </NavLink>
-                    <NavLink to="/layer-lab" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                    <NavLink to="/editor" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
                         {({ isActive }) => (
                             <>
-                                <Wand2 size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">{t('app.smartEraser') || 'Smart Eraser'}</span>
+                                <Palette size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[10px] font-bold">{t('app.editor')}</span>
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink to="/animator" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                        {({ isActive }) => (
+                            <>
+                                <Video size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[10px] font-bold">{t('app.animator') || 'Animator'}</span>
                             </>
                         )}
                     </NavLink>
@@ -166,14 +180,6 @@ export const Layout = () => {
                             </>
                         )}
                     </NavLink>
-                    <NavLink to="/animator" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
-                        {({ isActive }) => (
-                            <>
-                                <Video size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">{t('app.animator') || 'Animator'}</span>
-                            </>
-                        )}
-                    </NavLink>
                     <NavLink to="/gallery" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
                         {({ isActive }) => (
                             <>
@@ -189,21 +195,26 @@ export const Layout = () => {
             <main className="flex-1 min-w-0 pb-20 lg:pb-0 lg:ml-64 transition-all duration-300">
                 {/* Unified Global Header - Visible on Mobile and Desktop */}
                 {location.pathname !== '/' && (
-                    <div className="flex items-center justify-between py-4 px-6 bg-white/50 backdrop-blur-sm border-b border-slate-100 sticky top-0 z-40">
-                        <div className="flex items-center gap-3">
-                            <NavLink to="/" className="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 transition-colors">
-                                <ArrowLeft size={18} strokeWidth={2.5} />
+                    <div className="flex items-center justify-between py-5 px-8 bg-cream-light/80 backdrop-blur-xl border-b border-cream-dark/50 sticky top-0 z-40 transition-all duration-300">
+                        <div className="flex items-center gap-4">
+                            <NavLink to="/" className="w-10 h-10 bg-white/50 hover:bg-white border border-cream-dark/50 rounded-full flex items-center justify-center text-bronze-light hover:text-primary transition-all shadow-sm hover:shadow-md hover:scale-105 active:scale-95 group">
+                                <ArrowLeft size={20} strokeWidth={2.5} className="group-hover:-translate-x-0.5 transition-transform" />
                             </NavLink>
-                            <h1 className="text-xl lg:text-2xl font-black tracking-tight text-slate-800 leading-none">
-                                {getPageTitle()}
-                            </h1>
+                            <div>
+                                <h1 className="text-2xl font-black tracking-tight text-bronze-text leading-none">
+                                    {getPageTitle()}
+                                </h1>
+                            </div>
                         </div>
-                        <div className="lg:hidden">
-                            <LanguageSwitcher />
-                        </div>
-                        {/* Desktop-only extra header items can go here if needed, or keeping it clean */}
-                        <div className="hidden lg:block">
-                            <LanguageSwitcher />
+                        <div className="flex items-center gap-2">
+                            {/* Mobile Language Switcher */}
+                            <div className="lg:hidden">
+                                <LanguageSwitcher />
+                            </div>
+                            {/* Desktop-only extra header items */}
+                            <div className="hidden lg:block">
+                                <LanguageSwitcher />
+                            </div>
                         </div>
                     </div>
                 )}

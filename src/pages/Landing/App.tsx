@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Palette, Layers, Eraser, ArrowRight, Zap, FileCode, Video } from 'lucide-react';
+import { Sparkles, Palette, Layers, Eraser, ArrowRight, Zap, FileCode, Video, Wand2, Printer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
 
@@ -87,6 +87,30 @@ const Landing = () => {
                         cta={t('landing.launchApp')}
                     />
                     <FeatureCard
+                        to="/packager"
+                        icon={Layers}
+                        title={t('landing.features.packagerTitle')}
+                        desc={t('landing.features.packagerDesc')}
+                        color="text-primary"
+                        cta={t('landing.launchApp')}
+                    />
+                    <FeatureCard
+                        to="/layer-lab"
+                        icon={Wand2}
+                        title={t('app.smartEraser') || 'Smart Eraser'}
+                        desc={t('eraser.subtitle')} // Using Eraser subtitle "Magic background removal tool" or similar
+                        color="text-secondary"
+                        cta={t('landing.launchApp')}
+                    />
+                    <FeatureCard
+                        to="/eraser"
+                        icon={Eraser}
+                        title={t('landing.features.eraserTitle')}
+                        desc={t('landing.features.eraserDesc')}
+                        color="text-bronze"
+                        cta={t('landing.launchApp')}
+                    />
+                    <FeatureCard
                         to="/editor"
                         icon={Palette}
                         title={t('landing.features.editorTitle')}
@@ -103,22 +127,6 @@ const Landing = () => {
                         cta={t('landing.launchApp')}
                     />
                     <FeatureCard
-                        to="/eraser"
-                        icon={Eraser}
-                        title={t('landing.features.eraserTitle')}
-                        desc={t('landing.features.eraserDesc')}
-                        color="text-bronze"
-                        cta={t('landing.launchApp')}
-                    />
-                    <FeatureCard
-                        to="/packager"
-                        icon={Layers}
-                        title={t('landing.features.packagerTitle')}
-                        desc={t('landing.features.packagerDesc')}
-                        color="text-primary"
-                        cta={t('landing.launchApp')}
-                    />
-                    <FeatureCard
                         to="/svg-converter"
                         icon={FileCode}
                         title={t('landing.features.svgTitle')}
@@ -127,11 +135,11 @@ const Landing = () => {
                         cta={t('landing.launchApp')}
                     />
                     <FeatureCard
-                        to="/layer-lab"
-                        icon={Layers}
-                        title="LayerLab"
-                        desc="Non-destructive mask editor (BETA)"
-                        color="text-secondary"
+                        to="/print-sheet"
+                        icon={Printer}
+                        title={t('app.printSheet')}
+                        desc={t('printSheet.description')}
+                        color="text-bronze"
                         cta={t('landing.launchApp')}
                     />
                 </div>

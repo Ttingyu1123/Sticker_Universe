@@ -94,6 +94,11 @@ const App: React.FC = () => {
     setShowKeyModal(true);
   };
 
+  const handleOpenKeyModal = () => {
+    setTempKey(apiKey);
+    setShowKeyModal(true);
+  };
+
 
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -465,7 +470,7 @@ const App: React.FC = () => {
               </div>
               <div className="text-left">
                 <h3 className={`text-sm font-black ${currentTheme.id === theme.id ? theme.colors.primary : 'text-bronze-light'}`}>{t(`generator.themes.${theme.id}.name`)}</h3>
-                <p className="text-[10px] font-bold text-bronze-light/70">{theme.styles.length} Styles • {theme.phrases.length} Phrases</p>
+                <p className="text-xs font-bold text-bronze-light/70">{theme.styles.length} Styles • {theme.phrases.length} Phrases</p>
               </div>
             </button>
           ))}
@@ -475,7 +480,7 @@ const App: React.FC = () => {
         <section className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><ImageIcon size={18} className="text-primary" /> {t('generator.phases.upload')}</h2>
-            {image && <button onClick={() => setImage(null)} className="text-[10px] font-bold text-secondary hover:text-secondary-hover flex items-center gap-1 bg-secondary/10 px-3 py-1.5 rounded-lg transition-colors"><Trash2 size={12} /> {t('generator.upload.remove')}</button>}
+            {image && <button onClick={() => setImage(null)} className="text-xs font-bold text-secondary hover:text-secondary-hover flex items-center gap-1 bg-secondary/10 px-3 py-1.5 rounded-lg transition-colors"><Trash2 size={12} /> {t('generator.upload.remove')}</button>}
           </div>
 
           {!image ? (
@@ -528,7 +533,7 @@ const App: React.FC = () => {
                 <button
                   key={phrase.text}
                   onClick={() => { setSelectedPhrase(phrase.text); setCustomPhrase(''); setBatchSize(1); }}
-                  className={`py-2 px-3 rounded-xl border text-[10px] font-bold transition-all ${selectedPhrase === phrase.text && batchSize === 1 ? `${currentTheme.id === 'taiwanese' ? 'bg-primary border-primary' : 'bg-orange-400 border-orange-400'} text-white shadow-md` : 'bg-white border-cream-dark text-bronze-text hover:text-primary'}`}
+                  className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${selectedPhrase === phrase.text && batchSize === 1 ? `${currentTheme.id === 'taiwanese' ? 'bg-primary border-primary' : 'bg-orange-400 border-orange-400'} text-white shadow-md` : 'bg-white border-cream-dark text-bronze-text hover:text-primary'}`}
                 >
                   {t(`generator.themes.${currentTheme.id}.phrases.${phrase.text}`)}
                 </button>
@@ -549,12 +554,12 @@ const App: React.FC = () => {
           {/* Settings and Generate Button */}
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Settings size={18} className="text-bronze-light" /> {t('generator.phases.settings')}</h2>
-            <span className="text-[9px] font-bold bg-cream-light px-3 py-1 rounded-full text-bronze-light border border-cream-dark">{batchSize} {t('generator.settings.batchSize')}</span>
+            <span className="text-[10px] font-bold bg-cream-light px-3 py-1 rounded-full text-bronze-light border border-cream-dark">{batchSize} {t('generator.settings.batchSize')}</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="space-y-3">
-              <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.batchSize')}</label>
+              <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.batchSize')}</label>
               <div className="flex flex-wrap gap-2">
                 {[1, 8, 16, 24, 40].map((num) => (
                   <button
@@ -569,15 +574,15 @@ const App: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.textOverlay')}</label>
+              <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.textOverlay')}</label>
               <div className="flex bg-cream-light p-1 rounded-xl border border-cream-dark w-fit">
-                <button onClick={() => setIncludeText(true)} className={`px-4 py-2 rounded-lg text-[10px] font-bold transition-all ${includeText ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}>{t('generator.settings.showText')}</button>
-                <button onClick={() => setIncludeText(false)} className={`px-4 py-2 rounded-lg text-[10px] font-bold transition-all ${!includeText ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}>{t('generator.settings.noText')}</button>
+                <button onClick={() => setIncludeText(true)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${includeText ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}>{t('generator.settings.showText')}</button>
+                <button onClick={() => setIncludeText(false)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${!includeText ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}>{t('generator.settings.noText')}</button>
               </div>
             </div>
 
             <div className="space-y-3">
-              <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.postProcessing')}</label>
+              <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.postProcessing')}</label>
               <div onClick={() => setAutoRemoveBg(!autoRemoveBg)} className={`flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition-all ${autoRemoveBg ? 'bg-white border-primary/30 shadow-sm ring-1 ring-primary/10' : 'bg-cream-light/50 border-cream-dark opacity-70'}`}>
                 <div className="flex items-center gap-3">
                   <Scissors size={16} className={autoRemoveBg ? 'text-primary' : 'text-bronze-light'} />
@@ -587,6 +592,20 @@ const App: React.FC = () => {
                   <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all shadow-sm ${autoRemoveBg ? 'right-1' : 'left-1'}`} />
                 </div>
               </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">API Key</label>
+              <button
+                onClick={handleOpenKeyModal}
+                className="w-full h-[52px] flex items-center justify-between p-3 rounded-2xl border bg-white border-cream-dark hover:border-primary/50 text-bronze-text transition-all shadow-sm group"
+              >
+                <div className="flex items-center gap-3">
+                  <Key size={16} className="text-primary group-hover:scale-110 transition-transform" />
+                  <span className="text-sm font-bold">{t('generator.apiKey.change')}</span>
+                </div>
+                <ChevronRight size={14} className="text-bronze-light" />
+              </button>
             </div>
           </div>
 

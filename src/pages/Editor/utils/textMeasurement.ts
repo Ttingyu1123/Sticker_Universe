@@ -12,29 +12,33 @@ export const measureText = (text: string, props: TextProperties) => {
 
   // Set font
   ctx.font = `bold ${props.fontSize}px "${props.fontFamily}"`;
-  
+
   const metrics = ctx.measureText(text);
   const textWidth = metrics.width;
   // Estimate height roughly as fontSize * 1.2 or actual bounding box if supported
   const textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent || props.fontSize * 1.2;
 
   // Add padding for strokes
-  const strokePadding = props.doubleStroke 
-    ? (props.strokeWidth + props.doubleStrokeWidth) 
+  const strokePadding = props.doubleStroke
+    ? (props.strokeWidth + props.doubleStrokeWidth)
     : props.strokeWidth;
-  
+
   // Add padding for Shadow
   let shadowPadding = 0;
   if (props.shadow) {
-      // Blur adds size in all directions, Offset shifts it
-      shadowPadding = props.shadowBlur + Math.max(Math.abs(props.shadowOffsetX), Math.abs(props.shadowOffsetY));
+    // Blur adds size in all directions, Offset shifts it
+    shadowPadding = props.shadowBlur + Math.max(Math.abs(props.shadowOffsetX), Math.abs(props.shadowOffsetY));
   }
-  
+
   // Extra padding for safety + shadow
   const padding = strokePadding + shadowPadding + 20;
 
-  return {
-    width: Math.ceil(textWidth + padding * 2),
-    height: Math.ceil(textHeight + padding * 2)
-  };
+  const width = Math.ceil(textWidth + padding * 2);
+  const height = Math.ceil(textHeight + padding * 2);
+
+  if (props.direction === 'vertical') {
+    return { width: height, height: width };
+  }
+
+  return { width, height };
 };
