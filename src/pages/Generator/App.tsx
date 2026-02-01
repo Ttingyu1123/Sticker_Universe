@@ -5,7 +5,7 @@ import {
   Upload, Wand2, Download, Share2, Sparkles, Type,
   Palette, Image as ImageIcon, Zap, Feather, Cloud,
   Disc, Tv, Heart, Key, ExternalLink, Home, FileArchive,
-  Scissors, AlertTriangle, ChevronRight, Check, Trash2, Settings, Star
+  Scissors, AlertTriangle, ChevronRight, Check, Trash2, Settings, Star, Eye, X
 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import JSZip from 'jszip';
@@ -14,6 +14,7 @@ import { Sticker, StickerTheme, THEMES } from './types';
 import { generateSticker, generateCaptions, listAvailableModels } from './services/geminiService';
 import { Button } from '../../components/ui/Button';
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
+import ImageGeneratorTab from './components/ImageGeneratorTab';
 
 
 
@@ -55,10 +56,12 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isZipping, setIsZipping] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // AI Caption State
   const [mode, setMode] = useState<'text' | 'image-caption'>('text');
+  const [activeTab, setActiveTab] = useState<'sticker' | 'image-gen'>('sticker');
 
   // Update selected style when theme changes
   useEffect(() => {
@@ -452,174 +455,225 @@ const App: React.FC = () => {
         </div>
       )}
 
-
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 bg-black/90 backdrop-blur-md z-[70] flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setPreviewImage(null)}
+        >
+          <button
+            onClick={() => setPreviewImage(null)}
+            className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors bg-white/10 p-2 rounded-full backdrop-blur-sm"
+          >
+            <X size={24} />
+          </button>
+          <img
+            src={previewImage}
+            alt="Preview"
+            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300 select-none"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
 
       <main className="pt-6 pb-12 px-6 max-w-5xl mx-auto space-y-8 relative z-0">
 
-
-        {/* Theme Selector */}
-        <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide snap-x">
-          {THEMES.map(theme => (
+        {/* Header: Tab Switcher & API Key */}
+        <div className="flex justify-center items-center gap-4 relative">
+          <div className="bg-white/40 border border-cream-dark p-1.5 rounded-2xl inline-flex relative shadow-inner">
             <button
-              key={theme.id}
-              onClick={() => setCurrentTheme(theme)}
-              className={`flex-shrink-0 snap-start flex items-center gap-4 p-4 pr-6 rounded-[2rem] border transition-all cursor-pointer ${currentTheme.id === theme.id ? `bg-white border-${theme.colors.primary.split('-')[1]}-500 shadow-lg` : 'bg-white/40 border-cream-dark hover:bg-white'}`}
+              onClick={() => setActiveTab('sticker')}
+              className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${activeTab === 'sticker' ? 'bg-primary text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
             >
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md ${theme.id === currentTheme.id ? `bg-gradient-to-br ${theme.colors.secondary} to-bronze-light` : 'bg-cream-dark'}`}>
-                {getThemeIcon(theme.icon)}
-              </div>
-              <div className="text-left">
-                <h3 className={`text-sm font-black ${currentTheme.id === theme.id ? theme.colors.primary : 'text-bronze-light'}`}>{t(`generator.themes.${theme.id}.name`)}</h3>
-                <p className="text-xs font-bold text-bronze-light/70">{theme.styles.length} Styles • {theme.phrases.length} Phrases</p>
-              </div>
+              <Type size={14} /> Text to Sticker
             </button>
-          ))}
-        </div>
-
-        {/* Upload Section */}
-        <section className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><ImageIcon size={18} className="text-primary" /> {t('generator.phases.upload')}</h2>
-            {image && <button onClick={() => setImage(null)} className="text-xs font-bold text-secondary hover:text-secondary-hover flex items-center gap-1 bg-secondary/10 px-3 py-1.5 rounded-lg transition-colors"><Trash2 size={12} /> {t('generator.upload.remove')}</button>}
-          </div>
-
-          {!image ? (
-            <div
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className={`group border-3 border-dashed rounded-[2rem] p-12 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 min-h-[300px] ${isDragging ? 'drag-active border-primary bg-primary/10' : 'border-cream-dark bg-cream-light/50 hover:border-primary/50 hover:bg-white/60'}`}
+            <button
+              onClick={() => setActiveTab('image-gen')}
+              className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${activeTab === 'image-gen' ? 'bg-secondary text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
             >
-              <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-              <div className="bg-white p-6 rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-primary/10 border border-cream-light text-primary mb-6">
-                <Upload size={32} />
-              </div>
-              <h3 className="text-lg font-black text-bronze tracking-tight">{t('generator.upload.dragDrop')}</h3>
-              <p className="mt-2 text-bronze-light font-bold text-xs tracking-wide uppercase">{t('generator.upload.support')}</p>
-            </div>
-          ) : (
-            <div className="relative rounded-[2rem] overflow-hidden border border-cream-dark bg-cream-light/50 shadow-inner max-h-[500px] flex items-center justify-center p-4">
-              <img src={image} alt="Preview" className="max-w-full max-h-full object-contain rounded-xl drop-shadow-xl" />
-            </div>
-          )}
-        </section>
+              <Sparkles size={14} /> AI Image Generator
+            </button>
+          </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Style Selection */}
-          <section id="style-section" className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 space-y-6">
-            <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Palette size={18} className={currentTheme.id === 'taiwanese' ? 'text-secondary' : 'text-primary'} /> {t('generator.phases.style')}</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {currentTheme.styles.map((style) => (
-                <button
-                  key={style.id}
-                  onClick={() => setSelectedStyleId(style.id)}
-                  className={`p-4 rounded-2xl border transition-all flex flex-col items-center gap-3 text-center group ${selectedStyleId === style.id ? `bg-white ${currentTheme.id === 'taiwanese' ? 'border-secondary' : 'border-primary'} shadow-inner` : 'bg-white/40 border-cream-dark hover:bg-white'}`}
-                >
-                  <div className={`p-2.5 rounded-full transition-colors ${selectedStyleId === style.id ? `${currentTheme.id === 'taiwanese' ? 'bg-secondary' : 'bg-primary'} text-white shadow-md` : 'bg-cream-dark text-bronze-light'}`}>
-                    <Palette size={16} />
-                  </div>
-                  <span className={`text-xs font-black ${selectedStyleId === style.id ? (currentTheme.id === 'taiwanese' ? 'text-secondary' : 'text-primary') : 'text-bronze-light'}`}>{t(`generator.themes.${currentTheme.id}.styles.${style.id}.name`)}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          {/* Phrase Selection */}
-          <section className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 space-y-6">
-            <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Type size={18} className={currentTheme.id === 'taiwanese' ? 'text-primary' : 'text-orange-500'} /> {t('generator.phases.phrase')}</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {currentTheme.phrases.map((phrase) => (
-                <button
-                  key={phrase.text}
-                  onClick={() => { setSelectedPhrase(phrase.text); setCustomPhrase(''); setBatchSize(1); }}
-                  className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${selectedPhrase === phrase.text && batchSize === 1 ? `${currentTheme.id === 'taiwanese' ? 'bg-primary border-primary' : 'bg-orange-400 border-orange-400'} text-white shadow-md` : 'bg-white border-cream-dark text-bronze-text hover:text-primary'}`}
-                >
-                  {t(`generator.themes.${currentTheme.id}.phrases.${phrase.text}`)}
-                </button>
-              ))}
-            </div>
-            <input
-              type="text"
-              placeholder={t('generator.phrase.customPlaceholder')}
-              value={customPhrase}
-              onChange={(e) => { setCustomPhrase(e.target.value); setSelectedPhrase(''); setBatchSize(1); }}
-              className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-2xl font-bold text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light"
-            />
-          </section>
+          {/* API Key Button (Absolute positioned or flex) */}
+          <button
+            onClick={handleOpenKeyModal}
+            className={`absolute right-0 top-1/2 -translate-y-1/2 p-2.5 rounded-xl border transition-all shadow-sm flex items-center gap-2 ${apiKey ? 'bg-white border-cream-dark text-bronze-text hover:border-primary/50' : 'bg-red-50 border-red-200 text-red-500 animate-pulse'}`}
+            title={t('generator.apiKey.change')}
+          >
+            <Key size={16} className={apiKey ? "text-primary" : "text-red-500"} />
+            <span className="hidden sm:inline text-xs font-bold">{apiKey ? 'API Key' : 'Set Key'}</span>
+          </button>
         </div>
 
-        {/* Generate Options & Results */}
-        <section className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 space-y-6">
-          {/* Settings and Generate Button */}
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Settings size={18} className="text-bronze-light" /> {t('generator.phases.settings')}</h2>
-            <span className="text-[10px] font-bold bg-cream-light px-3 py-1 rounded-full text-bronze-light border border-cream-dark">{batchSize} {t('generator.settings.batchSize')}</span>
-          </div>
+        {activeTab === 'sticker' ? (
+          <>
+            {/* Theme Selector */}
+            <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide snap-x">
+              {THEMES.map(theme => (
+                <button
+                  key={theme.id}
+                  onClick={() => setCurrentTheme(theme)}
+                  className={`flex-shrink-0 snap-start flex items-center gap-4 p-4 pr-6 rounded-[2rem] border transition-all cursor-pointer ${currentTheme.id === theme.id ? `bg-white border-${theme.colors.primary.split('-')[1]}-500 shadow-lg` : 'bg-white/40 border-cream-dark hover:bg-white'}`}
+                >
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md ${theme.id === currentTheme.id ? `bg-gradient-to-br ${theme.colors.secondary} to-bronze-light` : 'bg-cream-dark'}`}>
+                    {getThemeIcon(theme.icon)}
+                  </div>
+                  <div className="text-left">
+                    <h3 className={`text-sm font-black ${currentTheme.id === theme.id ? theme.colors.primary : 'text-bronze-light'}`}>{t(`generator.themes.${theme.id}.name`)}</h3>
+                    <p className="text-xs font-bold text-bronze-light/70">{theme.styles.length} Styles • {theme.phrases.length} Phrases</p>
+                  </div>
+                </button>
+              ))}
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.batchSize')}</label>
-              <div className="flex flex-wrap gap-2">
-                {[1, 8, 16, 24, 40].map((num) => (
-                  <button
-                    key={num}
-                    onClick={() => setBatchSize(num)}
-                    className={`w-10 h-10 rounded-xl font-black text-xs border transition-all flex items-center justify-center ${batchSize === num ? 'bg-bronze-text text-white border-bronze-text shadow-lg' : 'bg-white border-cream-dark text-bronze-light hover:border-bronze-text'}`}
-                  >
-                    {num}
-                  </button>
-                ))}
+            {/* Upload Section */}
+            <section className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><ImageIcon size={18} className="text-primary" /> {t('generator.phases.upload')}</h2>
+                {image && <button onClick={() => setImage(null)} className="text-xs font-bold text-secondary hover:text-secondary-hover flex items-center gap-1 bg-secondary/10 px-3 py-1.5 rounded-lg transition-colors"><Trash2 size={12} /> {t('generator.upload.remove')}</button>}
               </div>
+
+              {!image ? (
+                <div
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`group border-3 border-dashed rounded-[2rem] p-12 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 min-h-[300px] ${isDragging ? 'drag-active border-primary bg-primary/10' : 'border-cream-dark bg-cream-light/50 hover:border-primary/50 hover:bg-white/60'}`}
+                >
+                  <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                  <div className="bg-white p-6 rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-primary/10 border border-cream-light text-primary mb-6">
+                    <Upload size={32} />
+                  </div>
+                  <h3 className="text-lg font-black text-bronze tracking-tight">{t('generator.upload.dragDrop')}</h3>
+                  <p className="mt-2 text-bronze-light font-bold text-xs tracking-wide uppercase">{t('generator.upload.support')}</p>
+                </div>
+              ) : (
+                <div className="relative rounded-[2rem] overflow-hidden border border-cream-dark bg-cream-light/50 shadow-inner max-h-[500px] flex items-center justify-center p-4">
+                  <img src={image} alt="Preview" className="max-w-full max-h-full object-contain rounded-xl drop-shadow-xl" />
+                </div>
+              )}
+            </section>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Style Selection */}
+              <section id="style-section" className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 space-y-6">
+                <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Palette size={18} className={currentTheme.id === 'taiwanese' ? 'text-secondary' : 'text-primary'} /> {t('generator.phases.style')}</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {currentTheme.styles.map((style) => (
+                    <button
+                      key={style.id}
+                      onClick={() => setSelectedStyleId(style.id)}
+                      className={`p-4 rounded-2xl border transition-all flex flex-col items-center gap-3 text-center group ${selectedStyleId === style.id ? `bg-white ${currentTheme.id === 'taiwanese' ? 'border-secondary' : 'border-primary'} shadow-inner` : 'bg-white/40 border-cream-dark hover:bg-white'}`}
+                    >
+                      <div className={`p-2.5 rounded-full transition-colors ${selectedStyleId === style.id ? `${currentTheme.id === 'taiwanese' ? 'bg-secondary' : 'bg-primary'} text-white shadow-md` : 'bg-cream-dark text-bronze-light'}`}>
+                        <Palette size={16} />
+                      </div>
+                      <span className={`text-xs font-black ${selectedStyleId === style.id ? (currentTheme.id === 'taiwanese' ? 'text-secondary' : 'text-primary') : 'text-bronze-light'}`}>{t(`generator.themes.${currentTheme.id}.styles.${style.id}.name`)}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              {/* Phrase Selection */}
+              <section className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 space-y-6">
+                <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Type size={18} className={currentTheme.id === 'taiwanese' ? 'text-primary' : 'text-orange-500'} /> {t('generator.phases.phrase')}</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {currentTheme.phrases.map((phrase) => (
+                    <button
+                      key={phrase.text}
+                      onClick={() => { setSelectedPhrase(phrase.text); setCustomPhrase(''); setBatchSize(1); }}
+                      className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${selectedPhrase === phrase.text && batchSize === 1 ? `${currentTheme.id === 'taiwanese' ? 'bg-primary border-primary' : 'bg-orange-400 border-orange-400'} text-white shadow-md` : 'bg-white border-cream-dark text-bronze-text hover:text-primary'}`}
+                    >
+                      {t(`generator.themes.${currentTheme.id}.phrases.${phrase.text}`)}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  placeholder={t('generator.phrase.customPlaceholder')}
+                  value={customPhrase}
+                  onChange={(e) => { setCustomPhrase(e.target.value); setSelectedPhrase(''); setBatchSize(1); }}
+                  className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-2xl font-bold text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light"
+                />
+              </section>
             </div>
 
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.textOverlay')}</label>
-              <div className="flex bg-cream-light p-1 rounded-xl border border-cream-dark w-fit">
-                <button onClick={() => setIncludeText(true)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${includeText ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}>{t('generator.settings.showText')}</button>
-                <button onClick={() => setIncludeText(false)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${!includeText ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}>{t('generator.settings.noText')}</button>
+            {/* Generate Options & Results */}
+            <section className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 space-y-6">
+              {/* Settings and Generate Button */}
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Settings size={18} className="text-bronze-light" /> {t('generator.phases.settings')}</h2>
+                <span className="text-[10px] font-bold bg-cream-light px-3 py-1 rounded-full text-bronze-light border border-cream-dark">{batchSize} {t('generator.settings.batchSize')}</span>
               </div>
-            </div>
 
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.postProcessing')}</label>
-              <div onClick={() => setAutoRemoveBg(!autoRemoveBg)} className={`flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition-all ${autoRemoveBg ? 'bg-white border-primary/30 shadow-sm ring-1 ring-primary/10' : 'bg-cream-light/50 border-cream-dark opacity-70'}`}>
-                <div className="flex items-center gap-3">
-                  <Scissors size={16} className={autoRemoveBg ? 'text-primary' : 'text-bronze-light'} />
-                  <span className="text-xs font-bold text-bronze-text">{t('generator.settings.smartRemoveBg')}</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.batchSize')}</label>
+                  <div className="flex flex-wrap gap-2">
+                    {[1, 8, 16, 24, 40].map((num) => (
+                      <button
+                        key={num}
+                        onClick={() => setBatchSize(num)}
+                        className={`w-10 h-10 rounded-xl font-black text-xs border transition-all flex items-center justify-center ${batchSize === num ? 'bg-bronze-text text-white border-bronze-text shadow-lg' : 'bg-white border-cream-dark text-bronze-light hover:border-bronze-text'}`}
+                      >
+                        {num}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className={`w-8 h-5 rounded-full relative transition-colors ${autoRemoveBg ? 'bg-primary' : 'bg-cream-dark'}`}>
-                  <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all shadow-sm ${autoRemoveBg ? 'right-1' : 'left-1'}`} />
+
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.textOverlay')}</label>
+                  <div className="flex bg-cream-light p-1 rounded-xl border border-cream-dark w-fit">
+                    <button onClick={() => setIncludeText(true)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${includeText ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}>{t('generator.settings.showText')}</button>
+                    <button onClick={() => setIncludeText(false)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${!includeText ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}>{t('generator.settings.noText')}</button>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.postProcessing')}</label>
+                  <div onClick={() => setAutoRemoveBg(!autoRemoveBg)} className={`flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition-all ${autoRemoveBg ? 'bg-white border-primary/30 shadow-sm ring-1 ring-primary/10' : 'bg-cream-light/50 border-cream-dark opacity-70'}`}>
+                    <div className="flex items-center gap-3">
+                      <Scissors size={16} className={autoRemoveBg ? 'text-primary' : 'text-bronze-light'} />
+                      <span className="text-xs font-bold text-bronze-text">{t('generator.settings.smartRemoveBg')}</span>
+                    </div>
+                    <div className={`w-8 h-5 rounded-full relative transition-colors ${autoRemoveBg ? 'bg-primary' : 'bg-cream-dark'}`}>
+                      <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all shadow-sm ${autoRemoveBg ? 'right-1' : 'left-1'}`} />
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">API Key</label>
-              <button
-                onClick={handleOpenKeyModal}
-                className="w-full h-[52px] flex items-center justify-between p-3 rounded-2xl border bg-white border-cream-dark hover:border-primary/50 text-bronze-text transition-all shadow-sm group"
-              >
-                <div className="flex items-center gap-3">
-                  <Key size={16} className="text-primary group-hover:scale-110 transition-transform" />
-                  <span className="text-sm font-bold">{t('generator.apiKey.change')}</span>
+              {error && (
+                <div className="bg-secondary/10 text-secondary p-4 rounded-2xl border border-secondary/20 flex items-center justify-center gap-3 animate-in slide-in-from-top-2">
+                  <AlertTriangle size={18} />
+                  <span className="text-xs font-bold">{error}</span>
                 </div>
-                <ChevronRight size={14} className="text-bronze-light" />
-              </button>
-            </div>
-          </div>
+              )}
 
-          {error && (
-            <div className="bg-secondary/10 text-secondary p-4 rounded-2xl border border-secondary/20 flex items-center justify-center gap-3 animate-in slide-in-from-top-2">
-              <AlertTriangle size={18} />
-              <span className="text-xs font-bold">{error}</span>
-            </div>
-          )}
-
-          <Button onClick={handleGenerate} disabled={!image || (batchSize === 1 && !selectedPhrase && !customPhrase)} className="w-full text-lg h-16 shadow-xl shadow-primary/20 bg-primary hover:bg-primary-hover active:scale-[0.99] transition-all rounded-2xl border-none">
-            <Wand2 size={24} className="mr-2" /> {isGenerating ? t('generator.action.generating') : t('generator.action.generate')}
-          </Button>
-        </section>
+              <Button onClick={handleGenerate} disabled={!image || (batchSize === 1 && !selectedPhrase && !customPhrase)} className="w-full text-lg h-16 shadow-xl shadow-primary/20 bg-primary hover:bg-primary-hover active:scale-[0.99] transition-all rounded-2xl border-none">
+                <Wand2 size={24} className="mr-2" /> {isGenerating ? t('generator.action.generating') : t('generator.action.generate')}
+              </Button>
+            </section>
+          </>
+        ) : (
+          <ImageGeneratorTab
+            apiKey={apiKey}
+            onSuccess={(imageUrl, prompt) => {
+              const newSticker: Sticker = {
+                id: `${Date.now()}`,
+                imageUrl: imageUrl,
+                phrase: prompt,
+                timestamp: Date.now()
+              };
+              setStickers(prev => [newSticker, ...prev]);
+              saveStickerToDB(newSticker).catch(console.error);
+            }}
+            onError={(msg) => setError(msg)}
+          />
+        )}
 
         {/* Results Gallery */}
         {stickers.length > 0 && (
@@ -637,8 +691,9 @@ const App: React.FC = () => {
                   <div className="aspect-square rounded-2xl bg-cream-light/50 overflow-hidden relative border border-cream-dark/50" style={{ backgroundImage: 'radial-gradient(#d6d3d1 1px, transparent 1px)', backgroundSize: '8px 8px' }}>
                     <img src={sticker.imageUrl} alt={sticker.phrase} className="w-full h-full object-contain p-2" />
                     <div className="absolute inset-0 bg-bronze-text/10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 items-center justify-center backdrop-blur-[2px]">
-                      <button onClick={() => downloadImage(sticker.imageUrl, sticker.phrase)} className="bg-white p-2.5 rounded-full text-primary shadow-lg hover:scale-110 transition-transform"><Download size={18} /></button>
-                      <button onClick={() => handleIndividualBgRemoval(sticker.id)} className="bg-white p-2.5 rounded-full text-secondary shadow-lg hover:scale-110 transition-transform"><Scissors size={18} /></button>
+                      <button onClick={() => setPreviewImage(sticker.imageUrl)} className="bg-white p-2.5 rounded-full text-bronze-text shadow-lg hover:scale-110 transition-transform" title={t('generator.action.preview')}><Eye size={18} /></button>
+                      <button onClick={() => downloadImage(sticker.imageUrl, sticker.phrase)} className="bg-white p-2.5 rounded-full text-primary shadow-lg hover:scale-110 transition-transform" title={t('generator.action.download')}><Download size={18} /></button>
+                      <button onClick={() => handleIndividualBgRemoval(sticker.id)} className="bg-white p-2.5 rounded-full text-secondary shadow-lg hover:scale-110 transition-transform" title={t('generator.action.removeBg')}><Scissors size={18} /></button>
                     </div>
                   </div>
                   <div className="mt-3 text-center font-black text-bronze-text tracking-wider text-xs truncate opacity-80 px-2">{sticker.phrase}</div>

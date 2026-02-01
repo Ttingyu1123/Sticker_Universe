@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Trash2, Download, Image as ImageIcon, Search, FileArchive, Palette, Eraser, Layers, MoreHorizontal, CheckCircle2, Circle } from 'lucide-react';
-import { getAllStickersFromDB, deleteStickerFromDB, clearAllStickersFromDB } from '../../db';
+import { Trash2, Download, Image as ImageIcon, Search, FileArchive, Palette, Eraser, Layers, MoreHorizontal, CheckCircle2, Circle, Upload } from 'lucide-react';
+import { getAllStickersFromDB, deleteStickerFromDB, clearAllStickersFromDB, saveStickerToDB } from '../../db';
 import { Sticker } from '../Generator/types';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -127,6 +127,7 @@ const App = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isSelectionMode, setIsSelectionMode] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         loadStickers();
@@ -229,6 +230,47 @@ const App = () => {
 
 
 
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        setIsLoading(true);
+        try {
+            // const newStickers: Sticker[] = [];
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!file.type.startsWith('image/')) continue;
+
+                const base64 = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result as string);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+
+                const newSticker: Sticker = {
+                    id: typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36),
+                    imageUrl: base64,
+                    phrase: file.name.split('.')[0],
+                    timestamp: Date.now()
+                };
+
+                await saveStickerToDB(newSticker);
+            }
+
+            // Refresh list
+            await loadStickers();
+        } catch (error) {
+            console.error("Upload failed", error);
+            alert("Upload failed. Please try again.");
+        } finally {
+            setIsLoading(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    };
+
     return (
         <div className="min-h-screen px-6 md:px-12 bg-cream-light/30 pb-32">
             <div className="max-w-7xl mx-auto space-y-8">
@@ -254,6 +296,24 @@ const App = () => {
                                         className="pl-9 pr-4 py-2 bg-cream-light border border-cream-dark rounded-xl text-xs font-bold text-bronze-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-full md:w-48 placeholder-bronze-light/50"
                                     />
                                 </div>
+
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    className="hidden"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleFileUpload}
+                                />
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="p-2 bg-primary text-white border border-primary rounded-xl hover:bg-primary/90 transition-all shadow-sm flex items-center gap-2"
+                                    title={t('gallery.upload')}
+                                >
+                                    <Upload size={16} />
+                                    <span className="hidden md:inline text-xs font-bold">{t('gallery.upload')}</span>
+                                </button>
+
                                 {stickers.length > 0 && (
                                     <>
                                         <button

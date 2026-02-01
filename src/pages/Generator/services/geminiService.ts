@@ -129,6 +129,79 @@ export async function generateSticker(
   }
 }
 
+export async function generateImage(
+  apiKey: string,
+  prompt: string,
+  base64Image: string | null,
+  aspectRatio: string = "1:1",
+  model: string = "gemini-3-pro-image-preview"
+): Promise<string> {
+  const ai = new GoogleGenAI({ apiKey });
+
+  const config: any = {
+    imageConfig: {
+      aspectRatio: aspectRatio,
+      imageSize: "1K"
+    }
+  };
+
+  const contents: any = [
+    {
+      parts: [
+        { text: prompt }
+      ]
+    }
+  ];
+
+  if (base64Image) {
+    contents[0].parts.unshift({
+      inlineData: {
+        data: base64Image.split(',')[1] || base64Image,
+        mimeType: 'image/jpeg',
+      },
+    });
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: model,
+      contents: contents,
+      config: config
+    });
+
+    console.log("Gemini Image Gen Response:", JSON.stringify(response, null, 2));
+
+    const candidate = response.candidates?.[0];
+    if (!candidate) throw new Error("No candidates returned from model.");
+
+    const parts = candidate.content?.parts;
+    if (!parts || !Array.isArray(parts)) {
+      throw new Error("Invalid response structure: 'parts' is missing.");
+    }
+
+    let imageUrl = '';
+    for (const part of parts) {
+      if (part.inlineData) {
+        imageUrl = `data:image/png;base64,${part.inlineData.data}`;
+        break;
+      }
+    }
+
+    if (!imageUrl) {
+      throw new Error(`Model returned no image. Finish Reason: ${candidate.finishReason}`);
+    }
+
+    return imageUrl;
+
+  } catch (error: any) {
+    console.error("Error generating image:", error);
+    if (error.message?.includes("Requested entity was not found")) {
+      throw new Error("KEY_NOT_FOUND");
+    }
+    throw error;
+  }
+}
+
 export async function generateCaptions(
   apiKey: string,
   base64Image: string,
