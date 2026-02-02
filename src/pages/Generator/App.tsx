@@ -1,35 +1,17 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Upload, Wand2, Download, Share2, Sparkles, Type,
-  Palette, Image as ImageIcon, Zap, Feather, Cloud,
-  Disc, Tv, Heart, Key, ExternalLink, Home, FileArchive,
-  Scissors, AlertTriangle, ChevronRight, Check, Trash2, Settings, Star, Eye, X
+  Calendar, Sparkles, Key, FileArchive, Download, Eye, Scissors, Star
 } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
 import JSZip from 'jszip';
 import { saveStickerToDB } from '../../db';
-import { Sticker, StickerTheme, THEMES } from './types';
-import { generateSticker, generateCaptions, listAvailableModels } from './services/geminiService';
+import { Sticker } from './types';
 import { Button } from '../../components/ui/Button';
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
 import ImageGeneratorTab from './components/ImageGeneratorTab';
-
-
-
-
-const getThemeIcon = (iconName: string) => {
-  switch (iconName) {
-    case 'Zap': return <Zap size={20} />;
-    case 'Feather': return <Feather size={20} />;
-    case 'Cloud': return <Cloud size={20} />;
-    case 'Disc': return <Disc size={20} />;
-    case 'Tv': return <Tv size={20} />;
-    case 'Heart': return <Heart size={20} />;
-    default: return <Sparkles size={20} />;
-  }
-};
+import HolidayStickerTab from './components/HolidayStickerTab';
+import StyleStickerTab from './components/StyleStickerTab';
+import CinematicPosterTab from './components/CinematicPosterTab';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
@@ -37,39 +19,16 @@ const App: React.FC = () => {
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [tempKey, setTempKey] = useState('');
 
-  const [currentTheme, setCurrentTheme] = useState<StickerTheme>(THEMES[0]);
+  // Tab State
+  const [activeTab, setActiveTab] = useState<'sticker' | 'holiday' | 'image-gen' | 'cinematic'>('sticker');
 
-  const STICKER_MODEL = 'gemini-3-pro-image-preview';
-  const [image, setImage] = useState<string | null>(null);
-  const [selectedPhrase, setSelectedPhrase] = useState<string>('');
-  const [customPhrase, setCustomPhrase] = useState<string>('');
-  const [selectedStyleId, setSelectedStyleId] = useState<string>(THEMES[0].styles[0].id);
-  const [includeText, setIncludeText] = useState<boolean>(false);
-  const [autoRemoveBg, setAutoRemoveBg] = useState<boolean>(true);
-  const [batchSize, setBatchSize] = useState<number>(1);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isAnalyzingCaption, setIsAnalyzingCaption] = useState(false);
-  const [generatedCaptions, setGeneratedCaptions] = useState<string[]>([]);
-  const [captionImage, setCaptionImage] = useState<string | null>(null);
-  const [progress, setProgress] = useState({ current: 0, total: 0 });
+  // Shared/Legacy State (Used by Image Generator Results mainly)
   const [stickers, setStickers] = useState<Sticker[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isZipping, setIsZipping] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // AI Caption State
-  const [mode, setMode] = useState<'text' | 'image-caption'>('text');
-  const [activeTab, setActiveTab] = useState<'sticker' | 'image-gen'>('sticker');
-
-  // Update selected style when theme changes
-  useEffect(() => {
-    setSelectedStyleId(currentTheme.styles[0].id);
-    setSelectedPhrase('');
-    setCustomPhrase('');
-  }, [currentTheme]);
-
+  // Initialize API Key
   useEffect(() => {
     const storedKey = localStorage.getItem('gemini_api_key');
     if (storedKey) {
@@ -90,115 +49,14 @@ const App: React.FC = () => {
     setError(null);
   };
 
-  const handleClearKey = () => {
-    setApiKey('');
-    localStorage.removeItem('gemini_api_key');
-    setTempKey('');
-    setShowKeyModal(true);
-  };
-
   const handleOpenKeyModal = () => {
     setTempKey(apiKey);
     setShowKeyModal(true);
   };
 
-
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-        setError(null);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-        setError(null);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleCaptionImageSelect = async (file: File) => {
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const base64 = e.target?.result as string;
-      setCaptionImage(base64);
-      setGeneratedCaptions([]);
-
-      if (!apiKey) {
-        setShowKeyModal(true);
-        return;
-      }
-
-      setIsAnalyzingCaption(true);
-      try {
-        const captions = await generateCaptions(apiKey, base64);
-        setGeneratedCaptions(captions);
-      } catch (err: any) {
-        console.error(err);
-        let errorMsg = `Failed: ${err.message || 'Unknown error'}`;
-
-        // Try to list available models to help debug
-        if (err.message?.includes('404') || err.message?.includes('not found')) {
-          try {
-            const models = await listAvailableModels(apiKey);
-            const modelNames = models.map(m => m.split('/').pop()).join(', ');
-            errorMsg += ` | Available models: ${modelNames}`;
-          } catch (mdlErr) {
-            console.error("Could not list models", mdlErr);
-          }
-        }
-
-        if (err.message === "KEY_NOT_FOUND") {
-          setError(t('generator.apiKey.invalid'));
-          setShowKeyModal(true);
-        } else {
-          setError(errorMsg);
-          console.error("Full Error:", err);
-        }
-      } finally {
-        setIsAnalyzingCaption(false);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleCaptionSelect = (caption: string) => {
-    setSelectedPhrase(caption);
-    setCustomPhrase('');
-    setBatchSize(1);
-
-    // Use the caption image as the source image for generation
-    if (captionImage) {
-      setImage(captionImage);
-    }
-
-    // Automatically scroll to Style section
-    const styleSection = document.getElementById('style-section');
-    if (styleSection) {
-      styleSection.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 600, behavior: 'smooth' });
-    }
-  };
-
   /**
-   * SMART CHROMA KEY REMOVAL
-   * Optimized for #00FF00 background. 
-   * Uses Flood Fill to preserve white eyes and internal details.
-   */
+  * SMART CHROMA KEY REMOVAL
+  */
   const smartRemoveBackground = (base64: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image();
@@ -216,10 +74,7 @@ const App: React.FC = () => {
         const data = imageData.data;
         const isBg = new Uint8Array(width * height);
 
-        // 1. Detect if the background is actually green
         const corners = [[0, 0], [width - 1, 0], [0, height - 1], [width - 1, height - 1]];
-
-        // 2. Flood Fill starting from corners
         const queue: [number, number][] = [...corners as [number, number][]];
         const visited = new Uint8Array(width * height);
 
@@ -236,7 +91,6 @@ const App: React.FC = () => {
           const i = idx * 4;
           if (isGreen(data[i], data[i + 1], data[i + 2])) {
             isBg[idx] = 1;
-            // Scan neighbors
             if (x > 0) queue.push([x - 1, y]);
             if (x < width - 1) queue.push([x + 1, y]);
             if (y > 0) queue.push([x, y - 1]);
@@ -244,7 +98,6 @@ const App: React.FC = () => {
           }
         }
 
-        // 3. Dilation (Halo Cleanup)
         const expandedBg = new Uint8Array(isBg);
         for (let y = 1; y < height - 1; y++) {
           for (let x = 1; x < width - 1; x++) {
@@ -257,7 +110,6 @@ const App: React.FC = () => {
           }
         }
 
-        // 4. Final Alpha Application
         for (let i = 0; i < width * height; i++) {
           if (expandedBg[i]) {
             data[i * 4 + 3] = 0;
@@ -271,114 +123,31 @@ const App: React.FC = () => {
     });
   };
 
-  const handleGenerate = async () => {
-    if (!apiKey) {
-      setShowKeyModal(true);
-      return;
-    }
-    if (!image) {
-      setError("請先上傳照片！");
-      return;
-    }
-
-    const singlePhrase = customPhrase || selectedPhrase;
-    if (batchSize === 1 && !singlePhrase) {
-      setError("請選擇或輸入一個慣用語！");
-      return;
-    }
-
-    setIsGenerating(true);
-    setError(null);
-    setProgress({ current: 0, total: batchSize });
-
-    const style = currentTheme.styles.find(s => s.id === selectedStyleId) || currentTheme.styles[0];
-
-    try {
-      for (let i = 0; i < batchSize; i++) {
-        let phraseToUse = '';
-        if (batchSize === 1) {
-          phraseToUse = singlePhrase;
-        } else {
-          const phrases = currentTheme.phrases;
-          phraseToUse = i < phrases.length ? phrases[i].text : phrases[i % phrases.length].text;
-        }
-
-        let resultImageUrl = await generateSticker(
-          apiKey,
-          image,
-          phraseToUse,
-          STICKER_MODEL,
-          style.promptSnippet,
-          includeText
-        );
-
-        if (autoRemoveBg) {
-          resultImageUrl = await smartRemoveBackground(resultImageUrl);
-        }
-
-        const newSticker: Sticker = {
-          id: `${Date.now()}-${i}`,
-          imageUrl: resultImageUrl,
-          phrase: phraseToUse,
-          timestamp: Date.now()
-        };
-
-        setStickers(prev => [newSticker, ...prev]);
-        setProgress(prev => ({ ...prev, current: i + 1 }));
-
-        // Auto-save to gallery
-        saveStickerToDB(newSticker).catch(err => console.error("Failed to auto-save:", err));
-      }
-    } catch (err: any) {
-      console.error(err);
-      if (err.message === "KEY_NOT_FOUND" || err.message?.includes("403") || err.message?.includes("401")) {
-        setError("API Key 無效或過期，請重新輸入。");
-        setShowKeyModal(true);
-      } else {
-        setError(`生成失敗，錯誤訊息: ${err.message || '未知錯誤'}`);
-      }
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   const handleIndividualBgRemoval = async (stickerId: string) => {
     const stickerToProcess = stickers.find(s => s.id === stickerId);
     if (!stickerToProcess) return;
 
-    setIsGenerating(true); // Use isGenerating for individual removal feedback
-    setError(null);
-
     try {
       const processedImageUrl = await smartRemoveBackground(stickerToProcess.imageUrl);
-
       const updatedSticker = { ...stickerToProcess, imageUrl: processedImageUrl };
       setStickers(prev => prev.map(s => s.id === stickerId ? updatedSticker : s));
-
-      // Update in DB
-      saveStickerToDB(updatedSticker).catch(err => console.error("Failed to update sticker in DB:", err));
+      saveStickerToDB(updatedSticker).catch(console.error);
     } catch (err: any) {
       console.error("Failed to remove background:", err);
-      setError(`背景移除失敗: ${err.message || '未知錯誤'}`);
-    } finally {
-      setIsGenerating(false);
     }
   };
 
   const downloadImage = (imageUrl: string, filename: string) => {
     const link = document.createElement('a');
     link.href = imageUrl;
-    link.download = `${filename.replace(/\s/g, '_')}_sticker.png`;
+    link.download = `${filename.replace(/\\s/g, '_')}_sticker.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   const downloadAllAsZip = async () => {
-    if (stickers.length === 0) {
-      setError("沒有貼圖可以下載。");
-      return;
-    }
+    if (stickers.length === 0) return;
 
     setIsZipping(true);
     const zip = new JSZip();
@@ -388,7 +157,7 @@ const App: React.FC = () => {
       try {
         const response = await fetch(sticker.imageUrl);
         const blob = await response.blob();
-        folder?.file(`${sticker.phrase.replace(/\s/g, '_')}_${sticker.id}.png`, blob);
+        folder?.file(`${sticker.phrase.replace(/\\s/g, '_')}_${sticker.id}.png`, blob);
       } catch (error) {
         console.error(`Failed to add sticker ${sticker.id} to zip: `, error);
       }
@@ -412,6 +181,32 @@ const App: React.FC = () => {
       });
   };
 
+  // Used by ImageGeneratorTab
+  const handleImageGenSuccess = (imageUrl: string, prompt: string) => {
+    // Ensure unique ID even if called rapidly in batch
+    const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const newSticker: Sticker = {
+      id: uniqueId,
+      imageUrl: imageUrl,
+      phrase: prompt,
+      timestamp: Date.now()
+    };
+    setStickers(prev => [newSticker, ...prev]);
+    saveStickerToDB(newSticker).catch(console.error);
+
+    // Auto scroll to results?
+    // window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  };
+
+  const getActiveTabEmoji = () => {
+    switch (activeTab) {
+      case 'sticker': return '🎨';
+      case 'holiday': return '🎉';
+      case 'image-gen': return '✨';
+      case 'cinematic': return '🎬';
+    }
+  };
+
   return (
     <div className="min-h-screen pb-20 select-none font-sans text-bronze-text bg-background">
       {/* Key Modal */}
@@ -421,9 +216,7 @@ const App: React.FC = () => {
             <div className="text-center">
               <Key size={32} className="text-primary mx-auto mb-4" />
               <h3 className="text-xl font-black text-bronze mb-2">{t('generator.apiKey.title')}</h3>
-              <p className="text-sm text-bronze-light">
-                {t('generator.apiKey.desc')}
-              </p>
+              <p className="text-sm text-bronze-light">{t('generator.apiKey.desc')}</p>
             </div>
             <input
               type="password"
@@ -438,245 +231,110 @@ const App: React.FC = () => {
                 {t('generator.apiKey.save')}
               </Button>
               {apiKey && (
-                <Button onClick={handleClearKey} className="w-full bg-secondary hover:bg-secondary-hover text-white shadow-lg shadow-secondary/20">
-                  {t('generator.apiKey.clear')}
+                <Button onClick={() => setShowKeyModal(false)} className="bg-cream-light text-bronze-text hover:bg-cream-dark/20 border border-cream-dark">
+                  {t('generator.action.cancel')}
                 </Button>
               )}
             </div>
-            <a
-              href="https://ai.google.dev/gemini-api/docs/get-started/web"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-bold text-violet-500 hover:text-violet-600 flex items-center justify-center gap-1.5 transition-colors"
-            >
-              {t('generator.apiKey.get')} <ExternalLink size={12} />
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-cream-dark/50 shadow-sm h-16 transition-all duration-300">
+        <div className="container mx-auto px-4 h-full flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+              <span className="text-xl">{getActiveTabEmoji()}</span>
+            </div>
+            <h1 className="text-lg font-black text-bronze tracking-tight hidden sm:block">
+              {activeTab === 'sticker' ? t('generator.title') : activeTab === 'holiday' ? '節日貼圖生成器' : activeTab === 'cinematic' ? t('app.cinematic') : 'AI 創意圖片生成'}
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <a href="/" className="p-2 rounded-xl hover:bg-cream-light text-bronze-light hover:text-primary transition-colors">
+              <span className="sr-only">Home</span>
+              {/* Home Icon */}
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
             </a>
           </div>
         </div>
-      )}
+      </header>
 
-      {/* Image Preview Modal */}
-      {previewImage && (
-        <div
-          className="fixed inset-0 bg-black/90 backdrop-blur-md z-[70] flex items-center justify-center p-4 animate-in fade-in duration-200"
-          onClick={() => setPreviewImage(null)}
-        >
-          <button
-            onClick={() => setPreviewImage(null)}
-            className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors bg-white/10 p-2 rounded-full backdrop-blur-sm"
-          >
-            <X size={24} />
-          </button>
-          <img
-            src={previewImage}
-            alt="Preview"
-            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300 select-none"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-      )}
+      {/* Main Content */}
+      <main className="container mx-auto px-4 pt-24 max-w-5xl space-y-8">
 
-      <main className="pt-6 pb-12 px-6 max-w-5xl mx-auto space-y-8 relative z-0">
-
-        {/* Header: Tab Switcher & API Key */}
-        <div className="flex justify-center items-center gap-4 relative">
-          <div className="bg-white/40 border border-cream-dark p-1.5 rounded-2xl inline-flex relative shadow-inner">
+        {/* Tab Navigation */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/60 backdrop-blur rounded-[2rem] p-2 border border-cream-dark shadow-sm">
+          <div className="flex w-full sm:w-auto p-1 bg-cream-light/50 rounded-2xl">
             <button
               onClick={() => setActiveTab('sticker')}
-              className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${activeTab === 'sticker' ? 'bg-primary text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
+              className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${activeTab === 'sticker' ? 'bg-primary text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
             >
-              <Type size={14} /> Text to Sticker
+              <Sparkles size={14} /> 風格貼圖
+            </button>
+            <button
+              onClick={() => setActiveTab('holiday')}
+              className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${activeTab === 'holiday' ? 'bg-amber-600 text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
+            >
+              <Calendar size={14} /> 節日貼圖
+            </button>
+            <button
+              onClick={() => setActiveTab('cinematic')}
+              className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${activeTab === 'cinematic' ? 'bg-pink-500 text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
+            >
+              <Sparkles size={14} /> {t('app.cinematic')}
             </button>
             <button
               onClick={() => setActiveTab('image-gen')}
-              className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${activeTab === 'image-gen' ? 'bg-secondary text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
+              className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${activeTab === 'image-gen' ? 'bg-secondary text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
             >
-              <Sparkles size={14} /> AI Image Generator
+              <Sparkles size={14} /> AI圖片生成
             </button>
           </div>
 
-          {/* API Key Button (Absolute positioned or flex) */}
           <button
             onClick={handleOpenKeyModal}
-            className={`absolute right-0 top-1/2 -translate-y-1/2 p-2.5 rounded-xl border transition-all shadow-sm flex items-center gap-2 ${apiKey ? 'bg-white border-cream-dark text-bronze-text hover:border-primary/50' : 'bg-red-50 border-red-200 text-red-500 animate-pulse'}`}
+            className={`w-full sm:w-auto p-2.5 rounded-xl border transition-all shadow-sm flex items-center justify-center gap-2 ${apiKey ? 'bg-white border-cream-dark text-bronze-text hover:border-primary/50' : 'bg-red-50 border-red-200 text-red-500 animate-pulse'}`}
             title={t('generator.apiKey.change')}
           >
             <Key size={16} className={apiKey ? "text-primary" : "text-red-500"} />
-            <span className="hidden sm:inline text-xs font-bold">{apiKey ? 'API Key' : 'Set Key'}</span>
+            <span className="text-xs font-bold">{apiKey ? 'API Key' : 'Set API Key'}</span>
           </button>
         </div>
 
+        {/* Tab Content */}
         {activeTab === 'sticker' ? (
-          <>
-            {/* Theme Selector */}
-            <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide snap-x">
-              {THEMES.map(theme => (
-                <button
-                  key={theme.id}
-                  onClick={() => setCurrentTheme(theme)}
-                  className={`flex-shrink-0 snap-start flex items-center gap-4 p-4 pr-6 rounded-[2rem] border transition-all cursor-pointer ${currentTheme.id === theme.id ? `bg-white border-${theme.colors.primary.split('-')[1]}-500 shadow-lg` : 'bg-white/40 border-cream-dark hover:bg-white'}`}
-                >
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md ${theme.id === currentTheme.id ? `bg-gradient-to-br ${theme.colors.secondary} to-bronze-light` : 'bg-cream-dark'}`}>
-                    {getThemeIcon(theme.icon)}
-                  </div>
-                  <div className="text-left">
-                    <h3 className={`text-sm font-black ${currentTheme.id === theme.id ? theme.colors.primary : 'text-bronze-light'}`}>{t(`generator.themes.${theme.id}.name`)}</h3>
-                    <p className="text-xs font-bold text-bronze-light/70">{theme.styles.length} Styles • {theme.phrases.length} Phrases</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            {/* Upload Section */}
-            <section className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><ImageIcon size={18} className="text-primary" /> {t('generator.phases.upload')}</h2>
-                {image && <button onClick={() => setImage(null)} className="text-xs font-bold text-secondary hover:text-secondary-hover flex items-center gap-1 bg-secondary/10 px-3 py-1.5 rounded-lg transition-colors"><Trash2 size={12} /> {t('generator.upload.remove')}</button>}
-              </div>
-
-              {!image ? (
-                <div
-                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                  onDragLeave={() => setIsDragging(false)}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                  className={`group border-3 border-dashed rounded-[2rem] p-12 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 min-h-[300px] ${isDragging ? 'drag-active border-primary bg-primary/10' : 'border-cream-dark bg-cream-light/50 hover:border-primary/50 hover:bg-white/60'}`}
-                >
-                  <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                  <div className="bg-white p-6 rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-primary/10 border border-cream-light text-primary mb-6">
-                    <Upload size={32} />
-                  </div>
-                  <h3 className="text-lg font-black text-bronze tracking-tight">{t('generator.upload.dragDrop')}</h3>
-                  <p className="mt-2 text-bronze-light font-bold text-xs tracking-wide uppercase">{t('generator.upload.support')}</p>
-                </div>
-              ) : (
-                <div className="relative rounded-[2rem] overflow-hidden border border-cream-dark bg-cream-light/50 shadow-inner max-h-[500px] flex items-center justify-center p-4">
-                  <img src={image} alt="Preview" className="max-w-full max-h-full object-contain rounded-xl drop-shadow-xl" />
-                </div>
-              )}
-            </section>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Style Selection */}
-              <section id="style-section" className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 space-y-6">
-                <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Palette size={18} className={currentTheme.id === 'taiwanese' ? 'text-secondary' : 'text-primary'} /> {t('generator.phases.style')}</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {currentTheme.styles.map((style) => (
-                    <button
-                      key={style.id}
-                      onClick={() => setSelectedStyleId(style.id)}
-                      className={`p-4 rounded-2xl border transition-all flex flex-col items-center gap-3 text-center group ${selectedStyleId === style.id ? `bg-white ${currentTheme.id === 'taiwanese' ? 'border-secondary' : 'border-primary'} shadow-inner` : 'bg-white/40 border-cream-dark hover:bg-white'}`}
-                    >
-                      <div className={`p-2.5 rounded-full transition-colors ${selectedStyleId === style.id ? `${currentTheme.id === 'taiwanese' ? 'bg-secondary' : 'bg-primary'} text-white shadow-md` : 'bg-cream-dark text-bronze-light'}`}>
-                        <Palette size={16} />
-                      </div>
-                      <span className={`text-xs font-black ${selectedStyleId === style.id ? (currentTheme.id === 'taiwanese' ? 'text-secondary' : 'text-primary') : 'text-bronze-light'}`}>{t(`generator.themes.${currentTheme.id}.styles.${style.id}.name`)}</span>
-                    </button>
-                  ))}
-                </div>
-              </section>
-
-              {/* Phrase Selection */}
-              <section className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 space-y-6">
-                <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Type size={18} className={currentTheme.id === 'taiwanese' ? 'text-primary' : 'text-orange-500'} /> {t('generator.phases.phrase')}</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {currentTheme.phrases.map((phrase) => (
-                    <button
-                      key={phrase.text}
-                      onClick={() => { setSelectedPhrase(phrase.text); setCustomPhrase(''); setBatchSize(1); }}
-                      className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${selectedPhrase === phrase.text && batchSize === 1 ? `${currentTheme.id === 'taiwanese' ? 'bg-primary border-primary' : 'bg-orange-400 border-orange-400'} text-white shadow-md` : 'bg-white border-cream-dark text-bronze-text hover:text-primary'}`}
-                    >
-                      {t(`generator.themes.${currentTheme.id}.phrases.${phrase.text}`)}
-                    </button>
-                  ))}
-                </div>
-                <input
-                  type="text"
-                  placeholder={t('generator.phrase.customPlaceholder')}
-                  value={customPhrase}
-                  onChange={(e) => { setCustomPhrase(e.target.value); setSelectedPhrase(''); setBatchSize(1); }}
-                  className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-2xl font-bold text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light"
-                />
-              </section>
-            </div>
-
-            {/* Generate Options & Results */}
-            <section className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 space-y-6">
-              {/* Settings and Generate Button */}
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Settings size={18} className="text-bronze-light" /> {t('generator.phases.settings')}</h2>
-                <span className="text-[10px] font-bold bg-cream-light px-3 py-1 rounded-full text-bronze-light border border-cream-dark">{batchSize} {t('generator.settings.batchSize')}</span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="space-y-3">
-                  <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.batchSize')}</label>
-                  <div className="flex flex-wrap gap-2">
-                    {[1, 8, 16, 24, 40].map((num) => (
-                      <button
-                        key={num}
-                        onClick={() => setBatchSize(num)}
-                        className={`w-10 h-10 rounded-xl font-black text-xs border transition-all flex items-center justify-center ${batchSize === num ? 'bg-bronze-text text-white border-bronze-text shadow-lg' : 'bg-white border-cream-dark text-bronze-light hover:border-bronze-text'}`}
-                      >
-                        {num}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.textOverlay')}</label>
-                  <div className="flex bg-cream-light p-1 rounded-xl border border-cream-dark w-fit">
-                    <button onClick={() => setIncludeText(true)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${includeText ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}>{t('generator.settings.showText')}</button>
-                    <button onClick={() => setIncludeText(false)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${!includeText ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}>{t('generator.settings.noText')}</button>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.postProcessing')}</label>
-                  <div onClick={() => setAutoRemoveBg(!autoRemoveBg)} className={`flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition-all ${autoRemoveBg ? 'bg-white border-primary/30 shadow-sm ring-1 ring-primary/10' : 'bg-cream-light/50 border-cream-dark opacity-70'}`}>
-                    <div className="flex items-center gap-3">
-                      <Scissors size={16} className={autoRemoveBg ? 'text-primary' : 'text-bronze-light'} />
-                      <span className="text-xs font-bold text-bronze-text">{t('generator.settings.smartRemoveBg')}</span>
-                    </div>
-                    <div className={`w-8 h-5 rounded-full relative transition-colors ${autoRemoveBg ? 'bg-primary' : 'bg-cream-dark'}`}>
-                      <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all shadow-sm ${autoRemoveBg ? 'right-1' : 'left-1'}`} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {error && (
-                <div className="bg-secondary/10 text-secondary p-4 rounded-2xl border border-secondary/20 flex items-center justify-center gap-3 animate-in slide-in-from-top-2">
-                  <AlertTriangle size={18} />
-                  <span className="text-xs font-bold">{error}</span>
-                </div>
-              )}
-
-              <Button onClick={handleGenerate} disabled={!image || (batchSize === 1 && !selectedPhrase && !customPhrase)} className="w-full text-lg h-16 shadow-xl shadow-primary/20 bg-primary hover:bg-primary-hover active:scale-[0.99] transition-all rounded-2xl border-none">
-                <Wand2 size={24} className="mr-2" /> {isGenerating ? t('generator.action.generating') : t('generator.action.generate')}
-              </Button>
-            </section>
-          </>
+          <StyleStickerTab
+            apiKey={apiKey}
+            onError={(msg) => setError(msg)}
+            onNeedApiKey={() => setShowKeyModal(true)}
+          />
+        ) : activeTab === 'holiday' ? (
+          <HolidayStickerTab
+            apiKey={apiKey}
+            onError={(msg) => setError(msg)}
+            onSuccess={handleImageGenSuccess}
+          />
+        ) : activeTab === 'cinematic' ? (
+          <CinematicPosterTab
+            apiKey={apiKey}
+            onError={(msg) => setError(msg)}
+            onNeedApiKey={() => setShowKeyModal(true)}
+            onSuccess={handleImageGenSuccess}
+          />
         ) : (
           <ImageGeneratorTab
             apiKey={apiKey}
-            onSuccess={(imageUrl, prompt) => {
-              const newSticker: Sticker = {
-                id: `${Date.now()}`,
-                imageUrl: imageUrl,
-                phrase: prompt,
-                timestamp: Date.now()
-              };
-              setStickers(prev => [newSticker, ...prev]);
-              saveStickerToDB(newSticker).catch(console.error);
-            }}
+            onSuccess={handleImageGenSuccess}
             onError={(msg) => setError(msg)}
           />
         )}
 
-        {/* Results Gallery */}
-        {stickers.length > 0 && (
+        {/* Global Results Gallery (Only for ImageGen) */}
+        {activeTab === 'image-gen' && stickers.length > 0 && (
           <section className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Star size={18} className="text-yellow-400" /> {t('generator.action.results')} ({stickers.length})</h2>
@@ -702,32 +360,33 @@ const App: React.FC = () => {
             </div>
           </section>
         )}
+
       </main>
 
-      {/* Footer and Loading Overlay */}
-      {
-        isGenerating && (
-          <div className="fixed inset-0 bg-white/80 backdrop-blur-lg z-[60] flex flex-col items-center justify-center p-6 text-center animate-in fade-in">
-            <div className="relative w-24 h-24 mb-6">
-              <div className="absolute inset-0 border-4 border-cream-dark rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-primary rounded-full border-t-transparent animate-spin"></div>
-              <div className="absolute inset-0 flex items-center justify-center text-primary">
-                <Sparkles size={32} className="animate-pulse" />
-              </div>
-            </div>
-            <h3 className="text-xl font-black text-bronze mb-2">{batchSize > 1 ? `${t('generator.action.batchProcessing')} (${progress.current} /${batchSize})` : t('generator.action.generatingArt')}</h3 >
-            <p className="text-bronze-light font-bold text-xs tracking-wide uppercase">{t('generator.action.applyingMagic')}</p>
-            {
-              batchSize > 1 && (
-                <div className="w-64 bg-cream-dark h-1.5 rounded-full mt-6 overflow-hidden">
-                  <div className="bg-gradient-to-r from-primary to-secondary h-full transition-all duration-300" style={{ width: `${(progress.current / batchSize) * 100}%` }}></div>
-                </div>
-              )
-            }
-          </div >
-        )
-      }
-    </div >
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-[110] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div className="relative max-w-4xl w-full max-h-[90vh] flex items-center justify-center">
+            <img
+              src={previewImage}
+              alt="Preview"
+              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+              onClick={() => setPreviewImage(null)}
+            >
+              <span className="text-xl font-bold">✕ 關閉</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+    </div>
   );
 };
 

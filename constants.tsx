@@ -1063,32 +1063,96 @@ export const TWELVE_GRID_CATEGORIES = [
         "prompt": "以參考角色為主角，設計12張LINE貼紙，簡潔可愛商業貼圖風，角色線條乾淨，背景留白，台灣慣用語繁體中文，文字排版整齊但活潑，動作變化豐富"
       },
       {
-        "label": "Sanrio Kawaii Pop（Hello Kitty爆款可愛）",
+        "label": "Hello Kitty爆款可愛（Sanrio Kawaii Pop）",
         "prompt": "Turn the reference character into Sanrio-inspired kawaii style, pastel colors, soft outlines, 12 cute LINE stickers, sweet expressions, playful short English captions"
       },
       {
-        "label": "Ultra Soft Baby Picture Book（嬰兒繪本萌）",
+        "label": "嬰兒繪本萌（Ultra Soft Baby Picture Book）",
         "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，嬰兒繪本柔軟可愛風格，角色表情超純真，台灣慣用語繁體中文呈現，文字排版像睡前故事句子，治癒感極強"
       },
       {
-        "label": "Dreamy Cloud Stickercore（雲朵貼紙風）",
+        "label": "雲朵貼紙風（Dreamy Cloud Stickercore）",
         "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，雲朵Stickercore夢幻風格，角色像漂浮在柔軟雲裡，台灣慣用語繁體中文呈現，文字排版像天空小標籤，療癒感爆棚"
       },
       {
-        "label": "Japanese Soft Commercial Mascot（日本廣告吉祥物風）",
+        "label": "日本廣告吉祥物風（Japanese Soft Commercial Mascot）",
         "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，日本商業吉祥物風格，角色圓潤親切帶治癒感，台灣慣用語繁體中文呈現，文字排版像便利商店宣傳語，每張像溫馨動畫廣告分鏡"
       },
       {
-        "label": "Cute Blob Character Trend（果凍團子風）",
+        "label": "果凍團子風（Cute Blob Character Trend）",
         "prompt": "Turn the reference character into a cute blob mascot style, squishy proportions, funny bouncing poses, 12 stickers with simple viral captions, ultra trendy kawaii meme"
       },
       {
-        "label": "Cute Pet Adoption Poster（領養海報萌）",
+        "label": "領養海報萌（Cute Pet Adoption Poster）",
         "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，寵物領養海報風格，角色像動物之家宣傳主角，台灣慣用語繁體中文呈現，文字排版像可愛公告，療癒又吸粉"
       },
       {
-        "label": "ASMR Cozy Foodie Sticker（療癒食物系）",
+        "label": "療癒食物系（ASMR Cozy Foodie Sticker）",
         "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，ASMR療癒食物系風格，角色在吃喝或抱著食物，台灣慣用語繁體中文呈現，文字像甜點包裝小標籤，畫面溫暖可愛超流行"
+      },
+      {
+        "label": "治癒系日常小幸福（Cozy Slice-of-Life）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，吉卜力式治癒日常動畫風格，溫暖柔光與手繪筆觸，角色在生活小場景中微笑、發呆、抱著小物，台灣慣用語繁體中文呈現，文字排版像動畫字幕，每張如溫馨日常分鏡"
+      },
+      {
+        "label": "春日戀愛微光風（Romantic Blossom Anime）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，浪漫春日戀愛動畫風格，櫻花飄落與柔焦光暈，角色害羞告白、心動轉身，台灣慣用語繁體中文呈現，文字像少女漫畫旁白字幕，構圖夢幻吸睛，每張如戀愛動畫名場面"
+      },
+      {
+        "label": "森林精靈童話風（Whimsical Forest Spirit）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，吉卜力森林精靈童話風格，柔和水彩背景與小動物陪伴，角色像在森林裡冒險與祝福，台灣慣用語繁體中文呈現，文字排版像故事書字幕，每張如童話動畫片段"
+      },
+      {
+        "label": "夢境星空浪漫風（Dreamy Night Sky Romance）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，夢境星空浪漫動畫風格，夜晚柔藍光與星星閃爍，角色靜靜想念、溫柔擁抱，台灣慣用語繁體中文呈現，文字像詩意旁白，每張如劇場版溫柔鏡頭"
+      },
+      {
+        "label": "甜點系戀愛可愛風（Sweet Dessert Romance）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，甜點戀愛動畫風格，馬卡龍粉彩與糖霜光澤，角色抱著草莓蛋糕、撒嬌微笑，台灣慣用語繁體中文呈現，文字像甜甜的告白台詞，每張如可愛戀愛番外篇"
+      },
+      {
+        "label": "雨天溫柔陪伴風（Rainy Day Comfort）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，吉卜力雨天溫柔陪伴動畫風格，小雨傘與濕潤街道的柔光氛圍，角色安慰、守候、輕聲說話，台灣慣用語繁體中文呈現，文字排版像安靜字幕，每張如療癒電影片段"
+      },
+      {
+        "label": "小小告白劇情風（Soft Confession Moments）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，溫柔告白劇情動畫風格，角色露出害羞表情、遞出小花或信，台灣慣用語繁體中文呈現，文字像戀愛動畫台詞，構圖簡潔留白，每張如心動瞬間分鏡"
+      },
+      {
+        "label": "蜂蜜戀愛泡泡風（Honey Love Mood）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，蜂蜜般甜蜜戀愛動畫風格，柔金色光暈與愛心泡泡環繞，角色撒嬌、害羞、輕輕擁抱，台灣慣用語繁體中文呈現，文字排版像溫柔告白字幕，每張如戀愛動畫甜蜜名場面"
+      },
+      {
+        "label": "草莓牛奶初戀風（Strawberry First Love）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，草莓牛奶初戀動畫風格，粉白柔霧配色與春日甜香氛圍，角色臉紅、偷看、心動微笑，台灣慣用語繁體中文呈現，文字像少女漫畫旁白，每張如初戀心跳分鏡"
+      },
+      {
+        "label": "情侶日常小劇場風（Couple Cozy Moments）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，情侶日常甜蜜小劇場動畫風格，角色一起吃點心、牽手散步、互相鬧脾氣又和好，台灣慣用語繁體中文呈現，文字排版像動畫對話字幕，每張如戀愛番外篇"
+      },
+      {
+        "label": "心動告白信件風（Love Letter Scene）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，戀愛情書動畫風格，角色拿著信封、小花束、偷偷告白，柔焦光暈與紙張手繪質感，台灣慣用語繁體中文呈現，文字像情書句子，每張如告白劇情高潮"
+      },
+      {
+        "label": "甜點夢幻下午茶風（Tea Party Romance）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，夢幻下午茶戀愛動畫風格，馬卡龍、蛋糕與花朵背景，角色捧著甜點微笑撒嬌，台灣慣用語繁體中文呈現，文字排版像甜甜的邀約，每張如浪漫下午茶動畫場景"
+      },
+      {
+        "label": "小動物助攻戀愛風（Animals Blessing Love）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，吉卜力小動物助攻戀愛風格，角色被貓咪、兔子、小鳥圍繞，浪漫祝福氣氛濃厚，台灣慣用語繁體中文呈現，文字像幸福小旁白，每張如童話戀愛鏡頭"
+      },
+      {
+        "label": "星光擁抱甜蜜風（Starry Hug Scene）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，星光擁抱甜蜜動畫風格，夜晚柔藍星點與輕光包圍，角色輕輕抱抱、想念、說晚安，台灣慣用語繁體中文呈現，文字像詩意情話字幕，每張如劇場版溫柔高潮"
+      },
+      {
+        "label": "戀愛害羞小表情包（Blushing Cute Romance）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，戀愛害羞表情包動畫風格，角色臉紅捂臉、偷笑、心跳加速，背景充滿小愛心與粉色光點，台灣慣用語繁體中文呈現，文字短句可愛，每張如心動反應名場面"
+      },
+      {
+        "label": "幸福新婚童話風（Fairytale Wedding Sweetness）",
+        "prompt": "將參考圖片的角色變形並設計12種LINE貼紙，幸福童話新婚甜蜜動畫風格，角色穿著浪漫元素服飾與花環，氣氛像童話結局，台灣慣用語繁體中文呈現，文字排版像祝福台詞，每張如最甜結尾分鏡"
       }
     ]
   },

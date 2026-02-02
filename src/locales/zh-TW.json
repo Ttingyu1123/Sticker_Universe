@@ -9,6 +9,7 @@
         "manual": "使用說明書",
         "backHome": "返回首頁",
         "generator": "貼圖生成器",
+        "cinematic": "影劇海報大師",
         "editor": "編輯器",
         "packager": "裁切與加工",
         "eraser": "橡皮擦",
@@ -193,11 +194,13 @@
             "errorNoImage": "請先上傳照片！"
         },
         "phrase": {
+            "custom": "自訂台詞",
             "customPlaceholder": "或輸入自訂台詞...",
             "errorNoPhrase": "請選擇或輸入一個台詞！"
         },
         "settings": {
-            "batchSize": "批次數量",
+            "batchSize": "生成張數",
+            "includeText": "包含文字",
             "textOverlay": "文字疊加",
             "showText": "顯示文字",
             "noText": "不顯示",
