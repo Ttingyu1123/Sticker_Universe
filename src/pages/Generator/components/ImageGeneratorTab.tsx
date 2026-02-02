@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload, Camera, FileText, Wand2, Sparkles, ChevronDown, ChevronRight, X, Image as ImageIcon } from 'lucide-react';
 // @ts-ignore
-import { ART_STYLES_LIST, ASPECT_RATIOS, EDITING_EXAMPLES, EXAMPLE_PROMPTS, FUNCTION_BUTTONS, TWELVE_GRID_STYLES } from '../../../../constants';
+import { ART_STYLES_CATEGORIES, ASPECT_RATIOS, EDITING_EXAMPLES, EXAMPLE_PROMPTS, FUNCTION_BUTTONS, TWELVE_GRID_CATEGORIES } from '../../../../constants';
 import { generateImage } from '../services/geminiService';
 import { Button } from '../../../components/ui/Button';
 
@@ -120,21 +120,28 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                         onClick={() => setIsTwelveGridOpen(!isTwelveGridOpen)}
                         className="w-full flex items-center justify-between p-4 text-xs font-bold text-bronze-text hover:bg-white/60 transition-colors"
                     >
-                        <span>100種風格十二宮格貼圖 (12-Grid Styles)</span>
+                        <span>貼圖十二宮格：100+種爆款Prompt (12-Grid Styles)</span>
                         <ChevronDown size={16} className={`transition-transform ${isTwelveGridOpen ? 'rotate-180' : ''}`} />
                     </button>
 
                     {isTwelveGridOpen && (
-                        <div className="p-4 border-t border-cream-dark bg-white/60 grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-60 overflow-y-auto custom-scrollbar">
-                            {TWELVE_GRID_STYLES?.map((style: any, idx: number) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => { addPrompt(style.prompt); setIsTwelveGridOpen(false); }}
-                                    className="p-2 rounded-lg text-[10px] sm:text-xs text-left truncate transition-colors hover:bg-cream-dark text-bronze-light hover:text-bronze-text"
-                                    title={style.prompt}
-                                >
-                                    {style.label}
-                                </button>
+                        <div className="p-4 border-t border-cream-dark bg-white/60 max-h-80 overflow-y-auto custom-scrollbar space-y-6">
+                            {TWELVE_GRID_CATEGORIES?.map((category: any, idx: number) => (
+                                <div key={idx} className="space-y-2">
+                                    <h4 className="text-[10px] font-black text-bronze-light uppercase tracking-wider sticky top-0 bg-white/80 backdrop-blur-sm p-1 z-10">{category.categoryName}</h4>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                        {category.items.map((style: any, sIdx: number) => (
+                                            <button
+                                                key={sIdx}
+                                                onClick={() => { addPrompt(style.prompt); setIsTwelveGridOpen(false); }}
+                                                className="p-2 rounded-lg text-[10px] sm:text-xs text-left truncate transition-colors hover:bg-cream-dark text-bronze-light hover:text-bronze-text border border-transparent hover:border-cream-dark"
+                                                title={style.prompt}
+                                            >
+                                                {style.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     )}
@@ -151,16 +158,23 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                     </button>
 
                     {isStyleOpen && (
-                        <div className="p-4 border-t border-cream-dark bg-white/60 grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-60 overflow-y-auto custom-scrollbar">
-                            {ART_STYLES_LIST.map((style: any, idx: number) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => { addPrompt(`${style.en} style`); setIsStyleOpen(false); }}
-                                    className="p-2 rounded-lg text-[10px] sm:text-xs text-left truncate transition-colors hover:bg-cream-dark text-bronze-light hover:text-bronze-text"
-                                    title={style.zh}
-                                >
-                                    {style.zh} ({style.en})
-                                </button>
+                        <div className="p-4 border-t border-cream-dark bg-white/60 max-h-80 overflow-y-auto custom-scrollbar space-y-6">
+                            {ART_STYLES_CATEGORIES.map((category: any, idx: number) => (
+                                <div key={idx} className="space-y-2">
+                                    <h4 className="text-[10px] font-black text-bronze-light uppercase tracking-wider sticky top-0 bg-white/80 backdrop-blur-sm p-1 z-10">{category.name}</h4>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                        {category.styles.map((style: any, sIdx: number) => (
+                                            <button
+                                                key={sIdx}
+                                                onClick={() => { addPrompt(`${style.en} style`); setIsStyleOpen(false); }}
+                                                className="p-2 rounded-lg text-[10px] sm:text-xs text-left truncate transition-colors hover:bg-cream-dark text-bronze-light hover:text-bronze-text border border-transparent hover:border-cream-dark"
+                                                title={style.zh}
+                                            >
+                                                {style.zh} <span className="opacity-60 text-[9px]">({style.en})</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     )}
@@ -177,10 +191,10 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                     </button>
 
                     {isGuideOpen && (
-                        <div className="p-4 border-t border-cream-dark bg-white/60 space-y-4 max-h-60 overflow-y-auto custom-scrollbar">
+                        <div className="p-4 border-t border-cream-dark bg-white/60 space-y-4 max-h-80 overflow-y-auto custom-scrollbar">
                             {EDITING_EXAMPLES.map((category: any, idx: number) => (
                                 <div key={idx}>
-                                    <h4 className="text-[10px] font-black text-bronze-light uppercase tracking-wider mb-2">{category.category}</h4>
+                                    <h4 className="text-[10px] font-black text-bronze-light uppercase tracking-wider mb-2 sticky top-0 bg-white/80 backdrop-blur-sm p-1 z-10">{category.category}</h4>
                                     <div className="grid grid-cols-1 gap-2">
                                         {category.examples.map((ex: any, eIdx: number) => (
                                             <button
