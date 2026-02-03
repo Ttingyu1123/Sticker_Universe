@@ -34,16 +34,14 @@ export const Layout = () => {
     // Helper to get page title based on route
     const getPageTitle = () => {
         const path = location.pathname;
-        if (path === '/layer-lab') return t('app.smartEraser') || 'Smart Eraser';
-        if (path === '/eraser') return t('eraser.title') || 'Eraser';
+        if (path === '/print-sheet') return t('app.printSheet') || 'Print Studio';
         if (path === '/generator') return t('generator.title') || 'Generator';
         if (path === '/svg-converter') return t('app.svgConverter') || 'SVG Magic';
         if (path === '/print-sheet') return t('app.printSheet') || 'Print Studio';
         if (path === '/animator') return t('app.animator') || 'Animator';
         if (path === '/gallery') return t('app.gallery') || 'Gallery';
         // Added specifically for consistency
-        if (path === '/editor') return t('app.editor') || '編輯器';
-        if (path === '/packager') return t('app.packager') || '美工';
+        if (path === '/image-editor') return t('editor.title') || 'Image Editor';
         // For other pages or root, return app title
         return t('app.title');
     };
@@ -72,10 +70,7 @@ export const Layout = () => {
                         <p className="text-[10px] font-black text-bronze-light uppercase tracking-widest">{t('app.apps')}</p>
                     </div>
                     <NavItem to="/generator" icon={Sparkles} label={t('app.generator')} />
-                    <NavItem to="/packager" icon={Layers} label={t('app.packager')} />
-                    <NavItem to="/layer-lab" icon={Wand2} label={t('app.smartEraser') || 'Smart Eraser'} />
-                    <NavItem to="/eraser" icon={Eraser} label={t('app.eraser')} />
-                    <NavItem to="/editor" icon={Palette} label={t('app.editor')} />
+                    <NavItem to="/image-editor" icon={Palette} label={t('editor.title') || 'Image Editor'} />
                     <NavItem to="/animator" icon={Video} label={t('app.animator') || 'Animator'} />
                     <NavItem to="/svg-converter" icon={FileCode} label={t('app.svgConverter')} />
                     <NavItem to="/print-sheet" icon={Printer} label={t('app.printSheet')} />
@@ -124,35 +119,11 @@ export const Layout = () => {
                             </>
                         )}
                     </NavLink>
-                    <NavLink to="/packager" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
-                        {({ isActive }) => (
-                            <>
-                                <Layers size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">{t('app.packager')}</span>
-                            </>
-                        )}
-                    </NavLink>
-                    <NavLink to="/layer-lab" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
-                        {({ isActive }) => (
-                            <>
-                                <Wand2 size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">{t('app.smartEraser') || 'Smart Eraser'}</span>
-                            </>
-                        )}
-                    </NavLink>
-                    <NavLink to="/eraser" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
-                        {({ isActive }) => (
-                            <>
-                                <Eraser size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">{t('app.eraser')}</span>
-                            </>
-                        )}
-                    </NavLink>
-                    <NavLink to="/editor" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                    <NavLink to="/image-editor" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
                         {({ isActive }) => (
                             <>
                                 <Palette size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">{t('app.editor')}</span>
+                                <span className="text-[10px] font-bold">{t('editor.title') || 'Editor'}</span>
                             </>
                         )}
                     </NavLink>

@@ -182,14 +182,15 @@ const App: React.FC = () => {
   };
 
   // Used by ImageGeneratorTab
-  const handleImageGenSuccess = (imageUrl: string, prompt: string) => {
+  const handleImageGenSuccess = (imageUrl: string, prompt: string, description?: string) => {
     // Ensure unique ID even if called rapidly in batch
     const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const newSticker: Sticker = {
       id: uniqueId,
       imageUrl: imageUrl,
       phrase: prompt,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      description: description
     };
     setStickers(prev => [newSticker, ...prev]);
     saveStickerToDB(newSticker).catch(console.error);

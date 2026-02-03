@@ -47,7 +47,7 @@ const STYLES = [
 interface HolidayStickerTabProps {
     apiKey: string;
     onError: (error: string) => void;
-    onSuccess: (imageUrl: string, prompt: string) => void;
+    onSuccess: (imageUrl: string, prompt: string, description?: string) => void;
 }
 
 const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, onSuccess }) => {

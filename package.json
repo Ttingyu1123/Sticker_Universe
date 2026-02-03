@@ -29,9 +29,11 @@
         "jszip": "^3.10.1",
         "lucide-react": "^0.563.0",
         "react": "^19.2.3",
+        "react-aria-components": "^1.14.0",
         "react-dom": "^19.2.3",
         "react-draggable": "^4.5.0",
         "react-i18next": "^16.5.3",
+        "react-markdown": "^10.1.0",
         "react-router-dom": "^7.13.0",
         "tailwind-merge": "^3.4.0",
         "upng-js": "^2.1.0"

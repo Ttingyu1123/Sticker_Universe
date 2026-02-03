@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Trash2, Download, Image as ImageIcon, Search, FileArchive, Palette, Eraser, Layers, MoreHorizontal, CheckCircle2, Circle, Upload } from 'lucide-react';
+import { Trash2, Download, Image as ImageIcon, Search, FileArchive, Palette, Eraser, Layers, MoreHorizontal, CheckCircle2, Circle, Upload, FileText, X, Maximize2 } from 'lucide-react';
 import { getAllStickersFromDB, deleteStickerFromDB, clearAllStickersFromDB, saveStickerToDB } from '../../db';
 import { Sticker } from '../Generator/types';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import ReactMarkdown from 'react-markdown';
 
 interface StickerCardProps {
     sticker: Sticker;
@@ -14,9 +15,11 @@ interface StickerCardProps {
     isSelectionMode: boolean;
     isSelected: boolean;
     onToggleSelect: (id: string) => void;
+    onViewDetails: (sticker: Sticker) => void;
+    onPreview: (sticker: Sticker) => void;
 }
 
-const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload, isSelectionMode, isSelected, onToggleSelect }) => {
+const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload, isSelectionMode, isSelected, onToggleSelect, onViewDetails, onPreview }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [showOverlay, setShowOverlay] = useState(false);
@@ -104,17 +107,44 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
                             >
                                 <Trash2 size={14} />
                             </button>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onPreview(sticker); }}
+                                className="p-2 bg-white/10 hover:bg-white rounded-full text-white hover:text-primary transition-all border border-white/20"
+                                title="Zoom Preview"
+                            >
+                                <Maximize2 size={14} />
+                            </button>
+                            {sticker.description && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onViewDetails(sticker); }}
+                                    className="p-2 bg-white/10 hover:bg-white rounded-full text-white hover:text-primary transition-all border border-white/20"
+                                    title="View Details"
+                                >
+                                    <FileText size={14} />
+                                </button>
+                            )}
                         </div>
                     </div>
                 )}
             </div>
-            <div className="mt-3 px-2 pb-2">
-                <p className="font-bold text-xs text-bronze-text truncate" title={sticker.phrase}>
-                    {sticker.phrase}
-                </p>
-                <p className="text-[10px] text-bronze-light font-medium mt-0.5">
-                    {new Date(sticker.timestamp).toLocaleDateString()}
-                </p>
+            <div className="mt-3 px-2 pb-2 flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                    <p className="font-bold text-xs text-bronze-text truncate" title={sticker.phrase}>
+                        {sticker.phrase}
+                    </p>
+                    <p className="text-[10px] text-bronze-light font-medium mt-0.5">
+                        {new Date(sticker.timestamp).toLocaleDateString()}
+                    </p>
+                </div>
+                {sticker.description && (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onViewDetails(sticker); }}
+                        className="p-1.5 bg-cream-light hover:bg-white text-bronze-light hover:text-primary rounded-lg transition-colors shrink-0"
+                        title="View Details"
+                    >
+                        <FileText size={14} />
+                    </button>
+                )}
             </div>
         </div>
     );
@@ -127,6 +157,8 @@ const App = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isSelectionMode, setIsSelectionMode] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [viewingSticker, setViewingSticker] = useState<Sticker | null>(null);
+    const [previewSticker, setPreviewSticker] = useState<Sticker | null>(null);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -380,6 +412,8 @@ const App = () => {
                             isSelectionMode={isSelectionMode}
                             isSelected={selectedIds.has(sticker.id)}
                             onToggleSelect={toggleSelect}
+                            onViewDetails={setViewingSticker}
+                            onPreview={setPreviewSticker}
                         />
                     ))}
                 </div>
@@ -408,6 +442,78 @@ const App = () => {
                                 <Trash2 size={18} />
                                 {t('gallery.deleteSelected', { count: selectedIds.size })}
                             </button>
+                        </div>
+                    </div>
+                )
+            }
+            {/* Details Modal */}
+            {
+                viewingSticker && (
+                    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setViewingSticker(null)}>
+                        <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+
+                            {/* Image Side */}
+                            <div className="w-full md:w-1/2 bg-cream-light/30 relative flex items-center justify-center p-8 border-b md:border-b-0 md:border-r border-cream-dark/50" style={{ backgroundImage: 'radial-gradient(#d6ccc2 1px, transparent 1px)', backgroundSize: '16px 16px' }}>
+                                <img src={viewingSticker.imageUrl} alt={viewingSticker.phrase} className="max-w-full max-h-[50vh] md:max-h-full object-contain drop-shadow-xl cursor-zoom-in" onClick={() => { setViewingSticker(null); setPreviewSticker(viewingSticker); }} />
+                                <button className="absolute top-4 left-4 p-2 bg-white/80 rounded-full text-bronze-light hover:text-primary transition-colors md:hidden" onClick={() => setViewingSticker(null)}>
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            {/* Text Side */}
+                            <div className="w-full md:w-1/2 flex flex-col h-[50vh] md:h-auto">
+                                <div className="px-8 py-6 border-b border-cream-dark flex items-center justify-between bg-white shrink-0">
+                                    <div>
+                                        <h2 className="text-xl font-black text-bronze-text line-clamp-1">{viewingSticker.phrase}</h2>
+                                        <p className="text-xs text-bronze-light font-bold mt-1">{new Date(viewingSticker.timestamp).toLocaleString()}</p>
+                                    </div>
+                                    <button onClick={() => setViewingSticker(null)} className="p-2 hover:bg-cream-light rounded-full text-bronze-light transition-colors hidden md:block">
+                                        <X size={24} />
+                                    </button>
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto p-8 bg-cream-light/10">
+                                    {viewingSticker.description ? (
+                                        <div className="prose prose-sm prose-stone max-w-none text-bronze-text/90 font-medium leading-relaxed">
+                                            <ReactMarkdown>{viewingSticker.description}</ReactMarkdown>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center h-full text-bronze-light/50 italic">
+                                            <FileText size={48} className="mb-4 opacity-20" />
+                                            <p>No description available</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="p-6 border-t border-cream-dark bg-white shrink-0 flex justify-end gap-3">
+                                    <button
+                                        onClick={() => handleDownload(viewingSticker.imageUrl, viewingSticker.phrase)}
+                                        className="px-4 py-2 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all flex items-center gap-2"
+                                    >
+                                        <Download size={16} /> 下載圖片
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Lightbox Modal */}
+            {
+                previewSticker && (
+                    <div className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setPreviewSticker(null)}>
+                        <button className="absolute top-6 right-6 p-4 text-white/50 hover:text-white transition-colors">
+                            <X size={32} />
+                        </button>
+                        <img
+                            src={previewSticker.imageUrl}
+                            alt={previewSticker.phrase}
+                            className="max-w-full max-h-screen object-contain drop-shadow-2xl animate-in zoom-in-90 duration-300"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                        <div className="absolute bottom-8 text-white/80 font-bold text-lg pointer-events-none drop-shadow-md">
+                            {previewSticker.phrase}
                         </div>
                     </div>
                 )

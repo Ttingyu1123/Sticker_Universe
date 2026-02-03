@@ -126,7 +126,7 @@ interface CinematicPosterTabProps {
     apiKey: string;
     onError: (msg: string) => void;
     onNeedApiKey: () => void;
-    onSuccess: (imageUrl: string, prompt: string) => void;
+    onSuccess: (imageUrl: string, prompt: string, description?: string) => void;
 }
 
 const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({ apiKey, onError, onNeedApiKey, onSuccess }) => {
@@ -190,7 +190,10 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({ apiKey, onError
         const genre = selectedGenre !== "random" ? selectedGenre : "Any suitable genre";
 
         const prompt = `Generate a catchy title and a short plot summary for a new ${styleConfig.prompt} poster. 
-        Leads: ${userDisplayName} (${role}), ${partnerName}. 
+        Cast: 
+        - Main Actor: "${userDisplayName}" (playing the ${role === 'male' ? 'Male Lead' : 'Female Lead'}).
+        - Co-Star: "${partnerName}".
+        
         Target Language for Plot: Traditional Chinese (繁體中文).
         Specific Genre: ${genre}.
         Country of Origin: ${styleConfig.country}.
@@ -200,14 +203,14 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({ apiKey, onError
         2. Plot should be in Traditional Chinese and strictly follow the genre tropes of ${styleConfig.prompt}.
         3. "nativeTitle" should be in the native language of the drama style (e.g., Korean for K-Drama, Japanese for J-Drama, Chinese for C-Drama, English for US Series).
         4. Genre determines the mood, lighting, and costume design in the visual description.
-        5. Incorporate the lead name "${userDisplayName}" into the plot if it fits naturally.
+        5. In the plot, refer to the Main Actor's character by the name "${userDisplayName}". Do NOT output "(女主角 飾)" or "(Male Lead 飾)". Instead, use "( ${userDisplayName} 飾 )" if you need to mention the actor's name, or just use the name "${userDisplayName}" as the character name.
         
         Return pure JSON: { 
             "title": "Title in Traditional Chinese (Translated)", 
             "nativeTitle": "Original Title in ${styleConfig.titleLang}", 
             "genre": "Should match ${genre}", 
             "fontStyle": "elegant|heavy|cute|handwritten|modern|retro", 
-            "plot": "Summary in Traditional Chinese", 
+            "plot": "Summary in Traditional Chinese. Maximum 150 characters.", 
             "visualPrompt": "Detailed visual description in English for image generation, focusing on the mood of ${styleConfig.prompt} and genre ${genre}. Mention specific cultural clothing or setting styles if applicable (e.g. Hanbok for Historical K-Drama, Kimono/Office for J-Drama, Wuxia robes for C-Drama)." 
         }`;
 
@@ -284,6 +287,7 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({ apiKey, onError
             const actorList = role === 'male' ? ACTOR_DB[styleKey].women : ACTOR_DB[styleKey].men;
             const partner = actorList[Math.floor(Math.random() * actorList.length)];
             const displayUserName = userName || "The User";
+            const styleConfig = DRAMA_STYLES.find(s => s.id === dramaStyle) || DRAMA_STYLES[0];
 
             // 1. Generate Theme
             const theme = await generateTheme(displayUserName, partner);
@@ -302,7 +306,18 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({ apiKey, onError
 
             // Auto-save to Gallery
             const savePrompt = `[${theme.nativeTitle}] ${theme.title}: ${theme.plot.substring(0, 50)}...`;
-            onSuccess(imageUrl, savePrompt);
+            const fullDescription = `
+**Title:** ${theme.title} (${theme.nativeTitle})
+**Genre:** ${theme.genre} | **Style:** ${styleConfig.label}
+**Cast:** ${displayUserName} & ${partner}
+
+**Plot Summary:**
+${theme.plot}
+
+**Visual Concept:**
+${theme.visualPrompt}
+`.trim();
+            onSuccess(imageUrl, savePrompt, fullDescription);
 
         } catch (err: any) {
             console.error(err);
@@ -325,7 +340,16 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({ apiKey, onError
 
             // Auto-save regenerated image
             const savePrompt = `[${generatedResult.nativeTitle} - Regenerated] ${generatedResult.title}: ${generatedResult.plot.substring(0, 50)}...`;
-            onSuccess(imageUrl, savePrompt);
+            const fullDescription = `
+**Title:** ${generatedResult.title} (${generatedResult.nativeTitle})
+**Status:** Regenerated Version
+**Genre:** ${generatedResult.genre}
+**Cast:** ${generatedResult.userName} & ${generatedResult.partner}
+
+**Plot Summary:**
+${generatedResult.plot}
+`.trim();
+            onSuccess(imageUrl, savePrompt, fullDescription);
         } catch (err: any) {
             onError(err.message);
         } finally {

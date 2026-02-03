@@ -4,6 +4,7 @@ export interface Sticker {
   imageUrl: string;
   phrase: string;
   timestamp: number;
+  description?: string;
 }
 
 

@@ -139,8 +139,8 @@
         "features": {
             "generatorTitle": "貼圖生成器",
             "generatorDesc": "使用 Google Gemini AI 將文字提示轉化為精美的貼圖包。無需任何設計技能。",
-            "editorTitle": "編輯器",
-            "editorDesc": "強大的圖層編輯器。組合圖像、添加文字、調整版面並微調您的設計细节。",
+            "editorTitle": "圖片編輯器",
+            "editorDesc": "整合裁切、智慧去背與魔術橡皮擦的全能圖片編輯工具。",
             "eraserTitle": "魔術橡皮擦",
             "eraserDesc": "智慧去背工具。立即清理圖像背景並導出透明 PNG。",
             "packagerTitle": "裁切與加工",
@@ -559,8 +559,15 @@
         }
     },
     "editor": {
-        "title": "編輯器",
+        "title": "圖片編輯器",
         "subtitle": "設計工作室",
+        "tabs": {
+            "cropEdit": "圖層編輯",
+            "smartRemove": "智慧去背",
+            "eraser": "橡皮擦",
+            "packager": "批量裁切",
+            "animator": "動態貼圖"
+        },
         "layers": {
             "text": "文字圖層",
             "image": "圖片圖層",
@@ -581,13 +588,14 @@
             "black": "黑色背景",
             "green": "綠幕背景",
             "white": "白色背景",
-            "text": "文字",
-            "image": "圖片",
-            "gallery": "作品集",
+            "text": "新增文字",
+            "image": "上傳圖片",
+            "gallery": "從作品集選取",
             "linePreview": "LINE 預覽",
             "linePreviewTooltip": "LINE 預覽 (Analyze on LINE)",
             "export": "匯出",
             "saveToGallery": "儲存至作品集",
+            "save": "儲存",
             "backHome": "返回首頁"
         },
         "sidebar": {

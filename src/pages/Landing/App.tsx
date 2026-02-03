@@ -87,34 +87,10 @@ const Landing = () => {
                         cta={t('landing.launchApp')}
                     />
                     <FeatureCard
-                        to="/packager"
-                        icon={Layers}
-                        title={t('landing.features.packagerTitle')}
-                        desc={t('landing.features.packagerDesc')}
-                        color="text-primary"
-                        cta={t('landing.launchApp')}
-                    />
-                    <FeatureCard
-                        to="/layer-lab"
-                        icon={Wand2}
-                        title={t('app.smartEraser') || 'Smart Eraser'}
-                        desc={t('eraser.subtitle')} // Using Eraser subtitle "Magic background removal tool" or similar
-                        color="text-secondary"
-                        cta={t('landing.launchApp')}
-                    />
-                    <FeatureCard
-                        to="/eraser"
-                        icon={Eraser}
-                        title={t('landing.features.eraserTitle')}
-                        desc={t('landing.features.eraserDesc')}
-                        color="text-bronze"
-                        cta={t('landing.launchApp')}
-                    />
-                    <FeatureCard
-                        to="/editor"
+                        to="/image-editor"
                         icon={Palette}
-                        title={t('landing.features.editorTitle')}
-                        desc={t('landing.features.editorDesc')}
+                        title={t('editor.title') || 'Image Editor'}
+                        desc={t('landing.features.editorDesc') || 'Crop, resize, remove background, and erase objects in one place.'} // Consolidated description
                         color="text-secondary"
                         cta={t('landing.launchApp')}
                     />
