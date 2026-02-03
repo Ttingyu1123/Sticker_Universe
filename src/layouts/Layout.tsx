@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Sparkles, Layers, Eraser, Palette, Home, FolderHeart, FileCode, Printer, Video, Wand2, ArrowLeft, BookOpen } from 'lucide-react';
+import { Sparkles, Palette, Home, FolderHeart, FileCode, Printer, ArrowLeft, BookOpen, Grid } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
@@ -34,14 +34,15 @@ export const Layout = () => {
     // Helper to get page title based on route
     const getPageTitle = () => {
         const path = location.pathname;
-        if (path === '/print-sheet') return t('app.printSheet') || 'Print Studio';
-        if (path === '/generator') return t('generator.title') || 'Generator';
-        if (path === '/svg-converter') return t('app.svgConverter') || 'SVG Magic';
-        if (path === '/print-sheet') return t('app.printSheet') || 'Print Studio';
-        if (path === '/animator') return t('app.animator') || 'Animator';
-        if (path === '/gallery') return t('app.gallery') || 'Gallery';
+        if (path.startsWith('/print-sheet')) return t('app.printSheet') || 'Print Studio';
+        if (path.startsWith('/generator')) return t('generator.title') || 'Generator';
+        if (path.startsWith('/svg-converter')) return t('app.svgConverter') || 'SVG Magic';
+        if (path.startsWith('/animator')) return t('app.animator') || 'Animator';
+        if (path.startsWith('/gallery')) return t('app.gallery') || 'Gallery';
         // Added specifically for consistency
-        if (path === '/image-editor') return t('editor.title') || 'Image Editor';
+        if (path.startsWith('/image-editor')) return t('editor.title') || 'Image Editor';
+        if (path.startsWith('/photo-collage')) return t('collage.title') || 'Photo Collage';
+
         // For other pages or root, return app title
         return t('app.title');
     };
@@ -71,7 +72,7 @@ export const Layout = () => {
                     </div>
                     <NavItem to="/generator" icon={Sparkles} label={t('app.generator')} />
                     <NavItem to="/image-editor" icon={Palette} label={t('editor.title') || 'Image Editor'} />
-                    <NavItem to="/animator" icon={Video} label={t('app.animator') || 'Animator'} />
+                    <NavItem to="/photo-collage" icon={Grid} label={t('collage.title') || 'Photo Collage'} />
                     <NavItem to="/svg-converter" icon={FileCode} label={t('app.svgConverter')} />
                     <NavItem to="/print-sheet" icon={Printer} label={t('app.printSheet')} />
                     <NavItem to="/gallery" icon={FolderHeart} label={t('app.gallery')} />
@@ -127,14 +128,7 @@ export const Layout = () => {
                             </>
                         )}
                     </NavLink>
-                    <NavLink to="/animator" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
-                        {({ isActive }) => (
-                            <>
-                                <Video size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">{t('app.animator') || 'Animator'}</span>
-                            </>
-                        )}
-                    </NavLink>
+
                     <NavLink to="/svg-converter" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
                         {({ isActive }) => (
                             <>

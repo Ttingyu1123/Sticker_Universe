@@ -15,6 +15,8 @@ const AnimatorApp = React.lazy(() => import('./pages/Animator/App').then(module 
 const LayerLabApp = React.lazy(() => import('./pages/LayerLab/App').then(module => ({ default: module.LayerLabApp })).catch(err => { console.error("Failed to load LayerLab:", err); return { default: () => <div className="p-10 text-red-500">LayerLab Load Error: {err.message}</div> }; }));
 const ManualApp = React.lazy(() => import('./pages/Manual/App').catch(err => { console.error("Failed to load Manual:", err); return { default: () => <div className="p-10 text-red-500">Manual Load Error: {err.message}</div> }; }));
 const ImageEditorApp = React.lazy(() => import('./pages/ImageEditor/App').catch(err => { console.error("Failed to load ImageEditor:", err); return { default: () => <div className="p-10 text-red-500">ImageEditor Load Error: {err.message}</div> }; }));
+const PhotoCollageApp = React.lazy(() => import('./pages/PhotoCollage/App').catch(err => { console.error("Failed to load PhotoCollage:", err); return { default: () => <div className="p-10 text-red-500">PhotoCollage Load Error: {err.message}</div> }; }));
+
 
 const Loading = () => (
     <div className="flex items-center justify-center min-h-[50vh]">
@@ -48,10 +50,19 @@ function App() {
                     </Suspense>
                 } />
 
+
                 <Route path="/image-editor/*" element={
                     <Suspense fallback={<Loading />}>
                         <div className="p-6 max-w-[1920px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <ImageEditorApp />
+                        </div>
+                    </Suspense>
+                } />
+
+                <Route path="/photo-collage/*" element={
+                    <Suspense fallback={<Loading />}>
+                        <div className="p-6 max-w-[1920px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <PhotoCollageApp />
                         </div>
                     </Suspense>
                 } />

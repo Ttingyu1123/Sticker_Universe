@@ -679,5 +679,63 @@
         "gallery": {
             "desc": "Manage all your created stickers. Preview, delete, or batch download."
         }
+    },
+    "collage": {
+        "title": "Photo Collage",
+        "create": "Create Collage",
+        "dragDrop": "Drag & drop photos here, or click to upload.",
+        "upload": "Upload",
+        "gallery": "Collection",
+        "reset": "Reset",
+        "photos": "Photos",
+        "addFromGallery": "From Collection",
+        "addPhoto": "Add Photo",
+        "clearAll": "Clear All",
+        "editImage": "Edit Image",
+        "remove": "Remove",
+        "copyright": "AutoCollage AI © 2026",
+        "layout": {
+            "title": "Layout",
+            "grid": "Grid",
+            "cols": "Columns",
+            "rows": "Rows",
+            "focus": "Focus",
+            "masonry": "Masonry",
+            "center": "Center",
+            "scatter": "Scatter",
+            "shuffle": "Shuffle",
+            "randomize": "Randomize"
+        },
+        "frameStyle": {
+            "title": "Frame Style",
+            "normal": "Normal",
+            "film": "Film Strip",
+            "polaroid": "Polaroid"
+        },
+        "ratio": {
+            "title": "Aspect Ratio",
+            "custom": "Custom",
+            "width": "Width",
+            "height": "Height"
+        },
+        "style": {
+            "title": "Style",
+            "seamless": "Seamless",
+            "seamlessHint": "Remove all spacing and rounding",
+            "gap": "Gap",
+            "padding": "Padding",
+            "roundness": "Roundness",
+            "shadow": "Shadow"
+        },
+        "background": {
+            "title": "Background",
+            "transparent": "Transparent",
+            "smart": "Smart Background"
+        },
+        "image": {
+            "rotation": "Rotation",
+            "scale": "Scale",
+            "effect": "Effect Intensity"
+        }
     }
 }

@@ -20,7 +20,7 @@ const ImageEditorApp: React.FC = () => {
             {/* Header */}
 
 
-            <div className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-6">
+            <div className="flex-1 max-w-[1920px] mx-auto w-full p-4 md:p-6">
                 <Tabs className="flex flex-col h-full gap-6">
                     <TabList className="flex gap-1 p-1 bg-slate-100/50 backdrop-blur-md rounded-2xl w-fit mx-auto border border-slate-200/50 flex-wrap justify-center mb-2">
                         <Tab

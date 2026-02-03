@@ -241,31 +241,8 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-cream-dark/50 shadow-sm h-16 transition-all duration-300">
-        <div className="container mx-auto px-4 h-full flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-lg shadow-primary/20">
-              <span className="text-xl">{getActiveTabEmoji()}</span>
-            </div>
-            <h1 className="text-lg font-black text-bronze tracking-tight hidden sm:block">
-              {activeTab === 'sticker' ? t('generator.title') : activeTab === 'holiday' ? '節日貼圖生成器' : activeTab === 'cinematic' ? t('app.cinematic') : 'AI 創意圖片生成'}
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher />
-            <a href="/" className="p-2 rounded-xl hover:bg-cream-light text-bronze-light hover:text-primary transition-colors">
-              <span className="sr-only">Home</span>
-              {/* Home Icon */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
-            </a>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
-      <main className="container mx-auto px-4 pt-24 max-w-5xl space-y-8">
+      <main className="container mx-auto px-4 max-w-5xl space-y-8">
 
         {/* Tab Navigation */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/60 backdrop-blur rounded-[2rem] p-2 border border-cream-dark shadow-sm">
