@@ -83,9 +83,15 @@ export const calculateFrames = (
         }
 
         case LayoutType.GRID: {
-            // Calculate best fit grid cols/rows
-            const cols = Math.ceil(Math.sqrt(count));
-            const rows = Math.ceil(count / cols);
+            let cols = Math.ceil(Math.sqrt(count));
+            let rows = Math.ceil(count / cols);
+
+            // Special case for 2 items to ensure side-by-side if square-ish, or let logic decide.
+            // But usually Grid for 2 is side-by-side (2 cols, 1 row)
+            if (count === 2) {
+                cols = 2;
+                rows = 1;
+            }
 
             const itemW = (w - (cols - 1) * gap) / cols;
             const itemH = (h - (rows - 1) * gap) / rows;
@@ -105,11 +111,13 @@ export const calculateFrames = (
         }
 
         case LayoutType.FEATURED: {
-            if (count === 2) {
-                // Fallback to vertical split for 2
+            if (count <= 2) {
+                // Feature: Strict Vertical Stack for 2 items (1 Top, 1 Bottom)
                 const itemH = (h - gap) / 2;
-                frames.push({ x: startX, y: startY, width: w, height: itemH });
-                frames.push({ x: startX, y: startY + itemH + gap, width: w, height: itemH });
+                frames.push({ x: startX, y: startY, width: w, height: itemH }); // Top
+                if (count > 1) {
+                    frames.push({ x: startX, y: startY + itemH + gap, width: w, height: itemH }); // Bottom
+                }
             } else {
                 // First image is big (Left half), others grid on Right half
                 const leftW = (w - gap) * 0.6; // 60% width
@@ -120,7 +128,6 @@ export const calculateFrames = (
 
                 // Rest frames
                 const remaining = count - 1;
-                const rCols = 1;
                 const rRows = remaining;
                 const rItemH = (h - (rRows - 1) * gap) / rRows;
 
@@ -139,7 +146,7 @@ export const calculateFrames = (
         case LayoutType.MASONRY: {
             // Logic: Define row patterns [itemsInRow1, itemsInRow2, ...]
             let pattern: number[] = [];
-            if (count <= 2) pattern = [1, 1]; // Vertical stack
+            if (count <= 2) pattern = [1, 1]; // Vertical stack for 1 or 2
             else if (count === 3) pattern = [1, 2]; // 1 Top, 2 Bottom
             else if (count === 4) pattern = [1, 2, 1];
             else if (count === 5) pattern = [2, 3];
@@ -227,8 +234,9 @@ export const calculateFrames = (
 
             // Scale down images to 60-70% of what a normal grid cell would be to allow "scatter" space
             const cols = Math.ceil(Math.sqrt(count));
+            const rows = Math.ceil(count / cols);
             const gridW = w / cols;
-            const gridH = h / Math.ceil(count / cols);
+            const gridH = h / rows;
 
             const cardW = gridW * 0.85;
             const cardH = gridH * 0.85;
@@ -249,6 +257,190 @@ export const calculateFrames = (
                     height: cardH,
                     rotation: angle
                 });
+            }
+            break;
+        }
+
+        case LayoutType.DIAGONAL_SPLIT: {
+            // Diagonal split: 2 triangular photos separated by diagonal line
+            if (count < 2) {
+                // Fallback to grid for less than 2
+                return calculateFrames(count, LayoutType.GRID, containerWidth, containerHeight, gap, padding);
+            }
+
+            // Top-left triangle
+            frames.push({
+                x: startX,
+                y: startY,
+                width: w,
+                height: h,
+                clipPath: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }]
+            });
+
+            // Bottom-right triangle
+            frames.push({
+                x: startX,
+                y: startY,
+                width: w,
+                height: h,
+                clipPath: [{ x: 1, y: 1 }, { x: 0, y: 1 }, { x: 1, y: 0 }]
+            });
+            break;
+        }
+
+        case LayoutType.L_LEFT: {
+            // L-shape: Big photo on left (60%), stacked small photos on right
+            if (count < 2) {
+                return calculateFrames(count, LayoutType.GRID, containerWidth, containerHeight, gap, padding);
+            }
+
+            const leftW = (w - gap) * 0.6;
+            const rightW = w - leftW - gap;
+
+            // Left big photo
+            frames.push({ x: startX, y: startY, width: leftW, height: h });
+
+            // Right stacked photos
+            const remaining = count - 1;
+            const itemH = (h - (remaining - 1) * gap) / remaining;
+
+            for (let i = 0; i < remaining; i++) {
+                frames.push({
+                    x: startX + leftW + gap,
+                    y: startY + i * (itemH + gap),
+                    width: rightW,
+                    height: itemH
+                });
+            }
+            break;
+        }
+
+        case LayoutType.L_RIGHT: {
+            // L-shape: Big photo on right (60%), stacked small photos on left
+            if (count < 2) {
+                return calculateFrames(count, LayoutType.GRID, containerWidth, containerHeight, gap, padding);
+            }
+
+            const rightW = (w - gap) * 0.6;
+            const leftW = w - rightW - gap;
+
+            // Left stacked photos
+            const remaining = count - 1;
+            const itemH = (h - (remaining - 1) * gap) / remaining;
+
+            for (let i = 0; i < remaining; i++) {
+                frames.push({
+                    x: startX,
+                    y: startY + i * (itemH + gap),
+                    width: leftW,
+                    height: itemH
+                });
+            }
+
+            // Right big photo
+            frames.push({
+                x: startX + leftW + gap,
+                y: startY,
+                width: rightW,
+                height: h
+            });
+            break;
+        }
+
+        case LayoutType.T_SHAPE: {
+            // T-shape: Top horizontal bar + bottom grid
+            if (count < 2) {
+                return calculateFrames(count, LayoutType.GRID, containerWidth, containerHeight, gap, padding);
+            }
+
+            if (count === 2) {
+                // Simple vertical split for 2, same as Featured 2 -> Top/Bottom
+                const itemH = (h - gap) / 2;
+                frames.push({ x: startX, y: startY, width: w, height: itemH });
+                frames.push({ x: startX, y: startY + itemH + gap, width: w, height: itemH });
+            } else {
+                // Top bar takes 50% height, bottom grid takes 50%
+                const topH = (h - gap) * 0.5;
+                const bottomH = h - topH - gap;
+
+                // Top bar (first photo)
+                frames.push({ x: startX, y: startY, width: w, height: topH });
+
+                // Bottom grid (remaining photos)
+                const remaining = count - 1;
+                const cols = Math.ceil(Math.sqrt(remaining));
+                const rows = Math.ceil(remaining / cols);
+
+                const itemW = (w - (cols - 1) * gap) / cols;
+                const itemH = (bottomH - (rows - 1) * gap) / rows;
+
+                for (let i = 0; i < remaining; i++) {
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+
+                    frames.push({
+                        x: startX + col * (itemW + gap),
+                        y: startY + topH + gap + row * (itemH + gap),
+                        width: itemW,
+                        height: itemH
+                    });
+                }
+            }
+            break;
+        }
+
+        case LayoutType.CROSS_FOCUS: {
+            // Cross focus: Center big square + 4 corner photos
+            if (count < 5) {
+                // Need at least 5 photos for this layout
+                return calculateFrames(count, LayoutType.GRID, containerWidth, containerHeight, gap, padding);
+            }
+
+            // Center takes 50% width and 50% height
+            const centerSize = Math.min(w, h) * 0.5;
+            const centerX = startX + (w - centerSize) / 2;
+            const centerY = startY + (h - centerSize) / 2;
+
+            // Center photo (first one)
+            frames.push({
+                x: centerX,
+                y: centerY,
+                width: centerSize,
+                height: centerSize
+            });
+
+            // Calculate corner photo sizes
+            const cornerW = (w - centerSize - gap * 2) / 2;
+            const cornerH = (h - centerSize - gap * 2) / 2;
+
+            // Top-left corner
+            frames.push({ x: startX, y: startY, width: cornerW, height: cornerH });
+
+            // Top-right corner
+            frames.push({ x: startX + w - cornerW, y: startY, width: cornerW, height: cornerH });
+
+            // Bottom-left corner
+            frames.push({ x: startX, y: startY + h - cornerH, width: cornerW, height: cornerH });
+
+            // Bottom-right corner
+            frames.push({ x: startX + w - cornerW, y: startY + h - cornerH, width: cornerW, height: cornerH });
+
+            // If more than 5 photos, distribute extras in available spaces
+            if (count > 5) {
+                const extras = count - 5;
+                // Place extras in top and bottom bars (simply overlap or fallback logic for deeper nesting logic omitted for simplicity)
+                // For proper UI, we might limit this, but let's just place them small
+                const extraH = (h - centerSize - gap * 2) / 2;
+                const extraW = (centerSize - (extras - 1) * gap) / extras;
+
+                for (let i = 0; i < Math.min(extras, 2); i++) {
+                    frames.push({
+                        x: centerX + i * (extraW + gap),
+                        y: startY,
+                        width: extraW,
+                        height: extraH
+                    });
+                }
             }
             break;
         }

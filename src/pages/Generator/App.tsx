@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Calendar, Sparkles, Key, FileArchive, Download, Eye, Scissors, Star, User
+  Calendar, Sparkles, Key, FileArchive, Download, Eye, Scissors, Star, User, BookOpen
 } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveStickerToDB } from '../../db';
@@ -13,6 +13,7 @@ import HolidayStickerTab from './components/HolidayStickerTab';
 import StyleStickerTab from './components/StyleStickerTab';
 import CinematicPosterTab from './components/CinematicPosterTab';
 import HeadshotGeneratorTab from './components/HeadshotGeneratorTab';
+import MangaMasterTab from './components/MangaMasterTab'; // Import new tab
 
 const App: React.FC = () => {
   const { t } = useTranslation();
@@ -20,8 +21,8 @@ const App: React.FC = () => {
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [tempKey, setTempKey] = useState('');
 
-  // Tab State
-  const [activeTab, setActiveTab] = useState<'sticker' | 'holiday' | 'image-gen' | 'cinematic' | 'headshot'>('sticker');
+  // Tab State - Added 'manga'
+  const [activeTab, setActiveTab] = useState<'sticker' | 'holiday' | 'image-gen' | 'cinematic' | 'headshot' | 'manga'>('sticker');
 
   // Shared/Legacy State (Used by Image Generator Results mainly)
   const [stickers, setStickers] = useState<Sticker[]>([]);
@@ -241,7 +242,7 @@ const App: React.FC = () => {
         {/* Tab Navigation */}
         <div className="flex flex-col gap-3 bg-white/60 backdrop-blur rounded-[2rem] p-3 sm:p-4 border border-cream-dark shadow-sm">
           {/* Tabs - Grid Layout for Better Visibility */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
             <button
               onClick={() => setActiveTab('sticker')}
               className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'sticker' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
@@ -254,7 +255,15 @@ const App: React.FC = () => {
               className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'holiday' ? 'bg-amber-600 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
               <Calendar size={16} />
-              <span>節日貼圖</span>
+              <span>節慶貼圖</span>
+            </button>
+            {/* Manga Master Info */}
+            <button
+              onClick={() => setActiveTab('manga')}
+              className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'manga' ? 'bg-violet-600 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
+            >
+              <BookOpen size={16} />
+              <span>漫畫大師</span>
             </button>
             <button
               onClick={() => setActiveTab('cinematic')}
@@ -275,7 +284,7 @@ const App: React.FC = () => {
               className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 col-span-2 sm:col-span-1 ${activeTab === 'headshot' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
               <User size={16} />
-              <span className="text-center">{t('generator.tabs.headshot') || '形象照生成'}</span>
+              <span className="text-center">{t('generator.tabs.headshot') || '形象照大師'}</span>
             </button>
           </div>
 
@@ -301,6 +310,13 @@ const App: React.FC = () => {
           <HolidayStickerTab
             apiKey={apiKey}
             onError={(msg) => setError(msg)}
+            onSuccess={handleImageGenSuccess}
+          />
+        ) : activeTab === 'manga' ? (
+          <MangaMasterTab
+            apiKey={apiKey}
+            onError={(msg) => setError(msg)}
+            onNeedApiKey={() => setShowKeyModal(true)}
             onSuccess={handleImageGenSuccess}
           />
         ) : activeTab === 'cinematic' ? (
@@ -373,6 +389,27 @@ const App: React.FC = () => {
               onClick={() => setPreviewImage(null)}
             >
               <span className="text-xl font-bold">✕ 關閉</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Error Toast */}
+      {error && !showKeyModal && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className="bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 max-w-sm sm:max-w-md border border-white/20">
+            <div className="p-2 bg-white/20 rounded-full">
+              <span className="text-xl font-bold">!</span>
+            </div>
+            <div className="flex-1">
+              <h4 className="font-black text-sm uppercase tracking-wider opacity-80 mb-0.5">Error</h4>
+              <p className="font-bold text-sm leading-tight">{error}</p>
+            </div>
+            <button
+              onClick={() => setError(null)}
+              className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+            >
+              ✕
             </button>
           </div>
         </div>

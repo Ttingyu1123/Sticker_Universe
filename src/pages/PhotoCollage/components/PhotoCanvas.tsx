@@ -217,7 +217,15 @@ const renderCollageToContext = (
         // Create Clip
         ctx.beginPath();
         // Ensure clip is rounded if style warrants, or just rect
-        if (settings.frameStyle === 'polaroid' || settings.frameStyle === 'film') {
+        if (frame.clipPath) {
+            frame.clipPath.forEach((p, i) => {
+                const px = clipX + p.x * clipW;
+                const py = clipY + p.y * clipH;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            });
+            ctx.closePath();
+        } else if (settings.frameStyle === 'polaroid' || settings.frameStyle === 'film') {
             ctx.rect(clipX, clipY, clipW, clipH);
         } else {
             if (radius > 0) {

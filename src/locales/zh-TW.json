@@ -201,6 +201,40 @@
             "animatorTitle": "動態貼圖",
             "animatorDesc": "製作多圖層動態貼圖，支援 APNG 與 GIF 格式匯出。"
         },
+        "featureDetails": {
+            "generator": {
+                "title": "AI 貼圖工作室",
+                "desc": "輸入文字即可生成高品質貼圖。支援多種藝術風格（賽璐璐、水彩、像素風等），並具備自動去背功能。"
+            },
+            "editor": {
+                "title": "全能圖片編輯器",
+                "desc": "支援圖層管理的專業編輯器。可自由組合照片、文字、貼圖，並提供豐富的濾鏡與特效。"
+            },
+            "eraser": {
+                "title": "魔術橡皮擦",
+                "desc": "強大的背景移除工具。支援 AI 自動偵測與手動細部修補，輕鬆製作透明背景素材。"
+            },
+            "packager": {
+                "title": "貼圖裁切與打包",
+                "desc": "專為 LINE 與 Telegram 設計的批次處理工具。自動統一尺寸、添加白邊，並一鍵導出符合規範的格式。"
+            },
+            "collage": {
+                "title": "創意拼圖",
+                "desc": "提供網格、瀑布流、幾何圖形等多種版型。智慧排版讓多張照片完美呈現。"
+            },
+            "animator": {
+                "title": "動態貼圖製作",
+                "desc": "將靜態圖片轉化為生動的 APNG/GIF 動畫。支援關鍵影格設置與即時預覽。"
+            },
+            "svg": {
+                "title": "點陣轉向量",
+                "desc": "將 JPG/PNG 圖片轉換為無限縮放的 SVG 向量圖，適合印刷與大尺寸輸出。"
+            },
+            "printSheet": {
+                "title": "排版與列印",
+                "desc": "支援證件照與 A4 貼紙排版。自訂列印尺寸與邊距，在家也能印出專業成品。"
+            }
+        },
         "footer": "由 Google Gemini Pro 驅動 • 需在瀏覽器中直接使用 API Key"
     },
     "generator": {
@@ -265,10 +299,18 @@
             "results": "生成結果",
             "batchProcessing": "批次處理中",
             "generatingArt": "正在生成 AI 藝術...",
-            "applyingMagic": "正在進行綠幕去背..."
+            "applyingMagic": "正在進行綠幕去背...",
+            "manga": {
+                "title": "漫畫大師",
+                "story": "故事劇本",
+                "style": "繪畫風格",
+                "layout": "分鏡佈局",
+                "characters": "角色設定"
+            }
         },
         "tabs": {
-            "headshot": "形象照生成"
+            "headshot": "形象照生成",
+            "manga": "漫畫大師"
         },
         "errors": {
             "general": "生成失敗：",
@@ -791,7 +833,12 @@
             "center": "置中",
             "scatter": "散落",
             "shuffle": "隨機",
-            "randomize": "隨機排列"
+            "randomize": "隨機排列",
+            "lLeft": "L型(左)",
+            "lRight": "L型(右)",
+            "tShape": "T型",
+            "crossFocus": "十字聚焦",
+            "ySplit": "Y型"
         },
         "frameStyle": {
             "title": "邊框風格",

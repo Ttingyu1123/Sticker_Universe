@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Palette, Layers, Eraser, ArrowRight, Zap, Video, Wand2, Printer } from 'lucide-react';
+import { Sparkles, Palette, Layers, Eraser, ArrowRight, Zap, Video, Wand2, Printer, LayoutGrid } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
 
@@ -113,8 +113,60 @@ const Landing = () => {
                     />
                 </div>
 
+                {/* Detailed Features Section */}
+                <div className="mt-40 space-y-20">
+                    <div className="text-center mb-20">
+                        <h2 className="text-4xl font-black text-bronze mb-4">{t('landing.exploreTools')}</h2>
+                        <div className="w-20 h-1.5 bg-primary/20 mx-auto rounded-full"></div>
+                    </div>
+
+                    {[
+                        { id: 'generator', icon: Sparkles, color: 'text-primary', link: '/generator' },
+                        { id: 'editor', icon: Palette, color: 'text-secondary', link: '/image-editor' },
+                        { id: 'eraser', icon: Eraser, color: 'text-rose-500', link: '/eraser' },
+                        { id: 'packager', icon: Layers, color: 'text-blue-500', link: '/packager' },
+                        { id: 'collage', icon: LayoutGrid, color: 'text-purple-500', link: '/photo-collage' },
+                        { id: 'animator', icon: Video, color: 'text-orange-500', link: '/animator' },
+                        { id: 'svg', icon: Wand2, color: 'text-emerald-500', link: '/svg-converter' },
+                        { id: 'printSheet', icon: Printer, color: 'text-bronze', link: '/print-sheet' }
+                    ].map((feature, index) => (
+                        <div key={feature.id} className={`flex flex-col md:flex-row items-center gap-12 lg:gap-24 group ${index % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}>
+                            {/* Visual Side */}
+                            <div className="flex-1 w-full aspect-video rounded-[3rem] bg-cream-medium/40 border border-cream-dark flex items-center justify-center relative overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-bronze/5">
+                                <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-700 bg-current ${feature.color}`} />
+                                <div className={`w-32 h-32 md:w-40 md:h-40 rounded-[2rem] ${feature.color.replace('text-', 'bg-')}/10 flex items-center justify-center shadow-lg shadow-current/5 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                                    <feature.icon size={64} className={feature.color} strokeWidth={1.5} />
+                                </div>
+                                {/* Decorative elements */}
+                                <div className={`absolute -bottom-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-20 ${feature.color.replace('text-', 'bg-')}`}></div>
+                            </div>
+
+                            {/* Text Side */}
+                            <div className="flex-1 text-center md:text-left space-y-6">
+                                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl ${feature.color.replace('text-', 'bg-')}/10 ${feature.color} mb-2 shadow-sm`}>
+                                    <feature.icon size={28} strokeWidth={2.5} />
+                                </div>
+                                <h2 className="text-3xl md:text-4xl font-black text-bronze tracking-tight">
+                                    {t(`landing.featureDetails.${feature.id}.title`)}
+                                </h2>
+                                <p className="text-lg md:text-xl text-bronze-text/80 font-medium leading-relaxed max-w-lg mx-auto md:mx-0">
+                                    {t(`landing.featureDetails.${feature.id}.desc`)}
+                                </p>
+                                <div className="pt-2">
+                                    <Link
+                                        to={feature.link}
+                                        className="inline-flex items-center gap-2 font-bold text-bronze text-lg border-b-2 border-primary/20 hover:border-primary pb-1 transition-all hover:gap-3"
+                                    >
+                                        {t('landing.launchApp')} <ArrowRight size={20} />
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
                 {/* Info Section */}
-                <div className="mt-24 text-center">
+                <div className="mt-40 text-center border-t border-cream-dark/50 pt-20">
                     <p className="text-bronze-light text-sm font-medium">
                         {t('landing.footer')}
                     </p>

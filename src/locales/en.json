@@ -194,6 +194,40 @@
             "animatorTitle": "Animator",
             "animatorDesc": "Create dynamic stickers with multi-layer animations and export as APNG or GIF."
         },
+        "featureDetails": {
+            "generator": {
+                "title": "AI Sticker Studio",
+                "desc": "Generate high-quality stickers from text prompts. Supports various art styles (Anime, Watercolor, Pixel, etc.) with auto-transparency."
+            },
+            "editor": {
+                "title": "All-in-One Image Editor",
+                "desc": "Professional layer-based editor. Combine photos, text, and stickers with rich filters and effects."
+            },
+            "eraser": {
+                "title": "Magic Eraser",
+                "desc": "Powerful background removal tool. Supports AI auto-detection and manual refinement for perfect transparent assets."
+            },
+            "packager": {
+                "title": "Sticker Packager",
+                "desc": "Batch processing tool designed for LINE & Telegram. Auto-resize, add borders, and export strictly compliant formats."
+            },
+            "collage": {
+                "title": "Creative Collage",
+                "desc": "Offers various layouts including Grid, Masonry, and geometric shapes. Smart layout for perfect photo presentation."
+            },
+            "animator": {
+                "title": "Animator",
+                "desc": "Transform static images into lively APNG/GIF animations. Supports keyframe settings and real-time preview."
+            },
+            "svg": {
+                "title": "Raster to Vector",
+                "desc": "Convert JPG/PNG images into infinitely scalable SVG vectors, perfect for printing and large-scale output."
+            },
+            "printSheet": {
+                "title": "Layout & Print",
+                "desc": "Supports ID photos and A4 sticker layout. key Customize print sizes and margins to print professional results at home."
+            }
+        },
         "footer": "Powered by Google Gemini Pro • Requires API Key used directly in browser"
     },
     "generator": {
@@ -763,7 +797,13 @@
             "center": "Center",
             "scatter": "Scatter",
             "shuffle": "Shuffle",
-            "randomize": "Randomize"
+            "randomize": "Randomize",
+            "diagonal": "Diagonal",
+            "lLeft": "L-Left",
+            "lRight": "L-Right",
+            "tShape": "T-Shape",
+            "crossFocus": "Cross Focus",
+            "ySplit": "Y-Split"
         },
         "frameStyle": {
             "title": "Frame Style",

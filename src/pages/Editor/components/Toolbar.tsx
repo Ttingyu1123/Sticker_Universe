@@ -82,8 +82,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   );
 
   return (
-    <div className="hidden md:block px-6 py-3 bg-slate-50/50 backdrop-blur-xl border-b border-indigo-50/50 sticky top-0 z-30">
-      <div className="flex items-center justify-between gap-4 max-w-[1920px] mx-auto">
+    <div className="block px-4 md:px-6 py-3 bg-slate-50/50 backdrop-blur-xl border-b border-indigo-50/50 sticky top-0 z-30 transition-all duration-300">
+      <div className="flex flex-wrap md:flex-nowrap items-center justify-center md:justify-between gap-3 md:gap-4 max-w-[1920px] mx-auto">
 
         {/* Left: Canvas Controls */}
         <div className="flex items-center gap-3">

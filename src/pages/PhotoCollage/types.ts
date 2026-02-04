@@ -6,6 +6,13 @@ export enum LayoutType {
     MASONRY = 'MASONRY',   // Alternating row counts
     CENTER = 'CENTER',     // Hero in middle, cols on sides
     SCATTER = 'SCATTER',   // Random/Scattered polaroids
+
+    // Phase 1: New creative layouts
+    DIAGONAL_SPLIT = 'DIAGONAL_SPLIT',  // Diagonal line split (2 photos)
+    L_LEFT = 'L_LEFT',                   // L-shape: big left, stack right
+    L_RIGHT = 'L_RIGHT',                 // L-shape: big right, stack left
+    T_SHAPE = 'T_SHAPE',                 // T-shape: top bar + bottom grid
+    CROSS_FOCUS = 'CROSS_FOCUS',         // Cross: center big + 4 corners
 }
 
 export enum AspectRatio {
@@ -53,4 +60,5 @@ export interface ImageFrame {
     width: number;
     height: number;
     rotation?: number; // Base rotation from layout
+    clipPath?: { x: number; y: number }[]; // Normalized 0-1 coordinates for custom clipping
 }

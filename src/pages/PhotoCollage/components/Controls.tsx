@@ -23,7 +23,12 @@ import {
     Film,
     StickyNote,
     RefreshCcw,
-    Palette
+    Palette,
+    Slash,
+    SquareSplitVertical,
+    SquareSplitHorizontal,
+    ALargeSmall,
+    Plus
 } from 'lucide-react';
 import { BACKGROUND_PRESETS } from '../utils/backgroundPresets';
 
@@ -71,25 +76,42 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                 <Label>{t('collage.layout.title')}</Label>
                 <div className="grid grid-cols-3 gap-2">
                     {[
+                        // Basic Layouts
                         { id: LayoutType.GRID, label: t('collage.layout.grid'), icon: Grid2X2 },
                         { id: LayoutType.HORIZONTAL, label: t('collage.layout.cols'), icon: Columns },
                         { id: LayoutType.VERTICAL, label: t('collage.layout.rows'), icon: Rows },
-                        { id: LayoutType.FEATURED, label: t('collage.layout.focus'), icon: LayoutTemplate },
+                        // Feature removed as it duplicates L-Left
                         { id: LayoutType.MASONRY, label: t('collage.layout.masonry'), icon: BrickWall },
                         { id: LayoutType.CENTER, label: t('collage.layout.center'), icon: PanelLeft },
                         { id: LayoutType.SCATTER, label: t('collage.layout.scatter'), icon: Shuffle },
+
+                        // Creative Layouts (Phase 1)
+                        // Diagonal removed
+                        { id: LayoutType.L_LEFT, label: t('collage.layout.lLeft'), icon: SquareSplitVertical, minCount: 2 },
+                        { id: LayoutType.L_RIGHT, label: t('collage.layout.lRight'), icon: SquareSplitHorizontal, minCount: 2 },
+                        { id: LayoutType.T_SHAPE, label: t('collage.layout.tShape'), icon: ALargeSmall, minCount: 2 },
+                        { id: LayoutType.CROSS_FOCUS, label: t('collage.layout.crossFocus'), icon: Plus, minCount: 5 },
                     ].map(type => (
                         <button
                             key={type.id}
                             onClick={() => handleChange('layout', type.id)}
                             disabled={
-                                (type.id === LayoutType.FEATURED && imageCount < 2) ||
-                                (type.id === LayoutType.CENTER && imageCount < 3)
+                                (type.id === LayoutType.CENTER && imageCount < 3) ||
+                                (type.id === LayoutType.L_LEFT && imageCount < 2) ||
+                                (type.id === LayoutType.L_RIGHT && imageCount < 2) ||
+                                (type.id === LayoutType.T_SHAPE && imageCount < 2) ||
+                                (type.id === LayoutType.CROSS_FOCUS && imageCount < 5)
                             }
                             className={`flex flex-col items-center justify-center p-2 rounded-xl border text-[10px] font-bold transition-all h-16 ${settings.layout === type.id
                                 ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
                                 : 'bg-white border-cream-dark text-bronze-light hover:bg-cream-light hover:text-primary hover:border-primary/30'
-                                } ${((type.id === LayoutType.FEATURED && imageCount < 2) || (type.id === LayoutType.CENTER && imageCount < 3)) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                } ${((type.id === LayoutType.CENTER && imageCount < 3) ||
+                                    (type.id === LayoutType.L_LEFT && imageCount < 2) ||
+                                    (type.id === LayoutType.L_RIGHT && imageCount < 2) ||
+                                    (type.id === LayoutType.T_SHAPE && imageCount < 2) ||
+                                    (type.id === LayoutType.CROSS_FOCUS && imageCount < 5))
+                                    ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
                         >
                             <type.icon size={20} />
                             <span className="mt-1">{type.label}</span>
