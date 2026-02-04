@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Calendar, Sparkles, Key, FileArchive, Download, Eye, Scissors, Star
+  Calendar, Sparkles, Key, FileArchive, Download, Eye, Scissors, Star, User
 } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveStickerToDB } from '../../db';
 import { Sticker } from './types';
 import { Button } from '../../components/ui/Button';
-import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
+
 import ImageGeneratorTab from './components/ImageGeneratorTab';
 import HolidayStickerTab from './components/HolidayStickerTab';
 import StyleStickerTab from './components/StyleStickerTab';
 import CinematicPosterTab from './components/CinematicPosterTab';
+import HeadshotGeneratorTab from './components/HeadshotGeneratorTab';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
@@ -20,7 +21,7 @@ const App: React.FC = () => {
   const [tempKey, setTempKey] = useState('');
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'sticker' | 'holiday' | 'image-gen' | 'cinematic'>('sticker');
+  const [activeTab, setActiveTab] = useState<'sticker' | 'holiday' | 'image-gen' | 'cinematic' | 'headshot'>('sticker');
 
   // Shared/Legacy State (Used by Image Generator Results mainly)
   const [stickers, setStickers] = useState<Sticker[]>([]);
@@ -199,14 +200,7 @@ const App: React.FC = () => {
     // window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   };
 
-  const getActiveTabEmoji = () => {
-    switch (activeTab) {
-      case 'sticker': return '🎨';
-      case 'holiday': return '🎉';
-      case 'image-gen': return '✨';
-      case 'cinematic': return '🎬';
-    }
-  };
+
 
   return (
     <div className="min-h-screen pb-20 select-none font-sans text-bronze-text bg-background">
@@ -271,6 +265,12 @@ const App: React.FC = () => {
             >
               <Sparkles size={14} /> AI圖片生成
             </button>
+            <button
+              onClick={() => setActiveTab('headshot')}
+              className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${activeTab === 'headshot' ? 'bg-indigo-600 text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
+            >
+              <User size={14} /> {t('generator.tabs.headshot') || '形象照生成'}
+            </button>
           </div>
 
           <button
@@ -298,6 +298,13 @@ const App: React.FC = () => {
           />
         ) : activeTab === 'cinematic' ? (
           <CinematicPosterTab
+            apiKey={apiKey}
+            onError={(msg) => setError(msg)}
+            onNeedApiKey={() => setShowKeyModal(true)}
+            onSuccess={handleImageGenSuccess}
+          />
+        ) : activeTab === 'headshot' ? (
+          <HeadshotGeneratorTab
             apiKey={apiKey}
             onError={(msg) => setError(msg)}
             onNeedApiKey={() => setShowKeyModal(true)}

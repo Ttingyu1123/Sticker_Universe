@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Sparkles, Palette, Home, FolderHeart, FileCode, Printer, ArrowLeft, BookOpen, Grid } from 'lucide-react';
+import { Sparkles, Palette, Home, FolderHeart, Printer, ArrowLeft, BookOpen, Grid } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
@@ -73,7 +73,7 @@ export const Layout = () => {
                     <NavItem to="/generator" icon={Sparkles} label={t('app.generator')} />
                     <NavItem to="/image-editor" icon={Palette} label={t('editor.title') || 'Image Editor'} />
                     <NavItem to="/photo-collage" icon={Grid} label={t('collage.title') || 'Photo Collage'} />
-                    <NavItem to="/svg-converter" icon={FileCode} label={t('app.svgConverter')} />
+
                     <NavItem to="/print-sheet" icon={Printer} label={t('app.printSheet')} />
                     <NavItem to="/gallery" icon={FolderHeart} label={t('app.gallery')} />
                 </nav>
@@ -129,14 +129,7 @@ export const Layout = () => {
                         )}
                     </NavLink>
 
-                    <NavLink to="/svg-converter" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
-                        {({ isActive }) => (
-                            <>
-                                <FileCode size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                <span className="text-[10px] font-bold">{t('app.svgConverter')}</span>
-                            </>
-                        )}
-                    </NavLink>
+
                     <NavLink to="/print-sheet" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
                         {({ isActive }) => (
                             <>

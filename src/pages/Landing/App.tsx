@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Palette, Layers, Eraser, ArrowRight, Zap, FileCode, Video, Wand2, Printer } from 'lucide-react';
+import { Sparkles, Palette, Layers, Eraser, ArrowRight, Zap, Video, Wand2, Printer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
 
@@ -102,14 +102,7 @@ const Landing = () => {
                         color="text-accent"
                         cta={t('landing.launchApp')}
                     />
-                    <FeatureCard
-                        to="/svg-converter"
-                        icon={FileCode}
-                        title={t('landing.features.svgTitle')}
-                        desc={t('landing.features.svgDesc')}
-                        color="text-accent"
-                        cta={t('landing.launchApp')}
-                    />
+
                     <FeatureCard
                         to="/print-sheet"
                         icon={Printer}

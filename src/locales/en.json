@@ -517,6 +517,14 @@
             "repair": "Repair Edge",
             "gallery": "Select from Gallery"
         },
+        "tabs": {
+            "cropEdit": "Crop & Edit",
+            "smartRemove": "AI Remove BG",
+            "eraser": "Magic Eraser",
+            "packager": "Batch Tools",
+            "animator": "Animator",
+            "svg": "SVG Magic"
+        },
         "toolbar": {
             "tools": "Tools",
             "eraser": "Eraser",
@@ -736,6 +744,171 @@
             "rotation": "Rotation",
             "scale": "Scale",
             "effect": "Effect Intensity"
+        }
+    },
+    "headshot": {
+        "step1_upload": "Step 1: Upload Photo",
+        "step2_settings": "Step 2: Settings",
+        "upload_hint": "Click or Drag photo here (High Resolution recommended)",
+        "results": "Generated Headshots",
+        "empty_state": "Upload a photo and click Generate to see magic!",
+        "cropping": {
+            "title": "Crop your photo",
+            "confirm": "Confirm Crop"
+        },
+        "settings": {
+            "preset": "Document Type / Ratio",
+            "strict": "Strict ID Compliance (No teeth, plain bg)",
+            "style": "Style",
+            "outfit": "Outfit",
+            "pose": "Pose/Composition",
+            "expression": "Facial Expression",
+            "variations": "Variations",
+            "quality": "Output Quality",
+            "effect": "Camera Effect"
+        },
+        "outfit": {
+            "default": "Default / Keep Original",
+            "custom": "Custom (Describe it)",
+            "placeholder": "e.g., Red evening gown, Space suit..."
+        },
+        "poses": {
+            "front_upper": "Front View (Upper Body)",
+            "three_quarter": "3/4 View",
+            "full_body": "Full Body",
+            "half_body": "Half Body"
+        },
+        "qualities": {
+            "standard": "Standard (1K) - Fast",
+            "high": "High Quality (2K)",
+            "ultra": "Ultra HD (4K) - Slow"
+        },
+        "effects": {
+            "none": "None (Keep Natural)",
+            "soft_focus": "Soft Focus / Beauty",
+            "professional": "Professional Photo",
+            "custom": "Custom Effect..."
+        },
+        "variations_hint": "Generate {{count}} variation(s)",
+        "action": {
+            "generate": "Generate Headshot"
+        },
+        "errors": {
+            "noImage": "Please upload and crop an image first.",
+            "noResult": "No images generated. Please try again.",
+            "general": "Generation failed. Please check your API key."
+        },
+        "presets": {
+            "1inch": "1-Inch ID (28x35mm)",
+            "passport": "Passport / 2-Inch ID (35x45mm)",
+            "taiwanId": "Taiwan ID / Health Card",
+            "usVisa": "US Visa / USCIS",
+            "resume": "Business Resume (4:5)",
+            "avatar": "Social Avatar (1:1)",
+            "cover": "Cover Photo (16:9)",
+            "details": {
+                "1inch": {
+                    "mm": "28 × 35",
+                    "inch": "1.1 × 1.38",
+                    "px": "331 × 413 (300dpi)",
+                    "note": "For driver's license, teacher ID, health check"
+                },
+                "passport": {
+                    "mm": "35 × 45",
+                    "inch": "1.38 × 1.77",
+                    "px": "413 × 531 (300dpi)",
+                    "note": "International passport standard"
+                },
+                "taiwanId": {
+                    "mm": "33 × 48",
+                    "inch": "1.30 × 1.89",
+                    "px": "390 × 567 (300dpi)",
+                    "note": "Taiwan official ID"
+                },
+                "usVisa": {
+                    "mm": "51 × 51",
+                    "inch": "2 × 2",
+                    "px": "600 × 600 (300dpi)",
+                    "note": "US visa square format"
+                },
+                "resume": {
+                    "ratio": "4:5",
+                    "px": "1200 × 1500",
+                    "note": "LinkedIn optimal ratio"
+                },
+                "avatar": {
+                    "ratio": "1:1",
+                    "px": "1024 × 1024",
+                    "note": "Universal for social platforms"
+                },
+                "cover": {
+                    "ratio": "16:9",
+                    "px": "1920 × 1080",
+                    "note": "Horizontal cover photo"
+                }
+            }
+        },
+        "expressions": {
+            "natural": "Natural / Keep Original",
+            "smile_soft": "Soft Smile (No teeth, warm & friendly)",
+            "smile_bright": "Bright Smile (Showing teeth, lively)",
+            "confident": "Confident (Focused eyes, subtle lips)",
+            "relaxed": "Relaxed (Lifted cheeks, approachable)",
+            "laugh": "Laughing (Infectious, casual)"
+        },
+        "styles": {
+            "white_id": "White ID (Standard White, Official)",
+            "business_gray": "Business Gray (Neutral, Pro Lighting)",
+            "tech_blue_gradient": "Tech Blue Gradient (Deep→Light, Tech Vibe)",
+            "brand_color": "Brand Color (Solid Backdrop, Identity)",
+            "street_style": "Street Style (Urban Blur, Fashion)",
+            "warm_cafe": "Warm Cafe (Indoor Soft Light, Cozy)",
+            "natural_outdoor": "Natural Outdoor (Green/Sunlight, Approachable)",
+            "vibrant_contrast": "Vibrant Contrast (Bold BG, Social)",
+            "minimal_studio": "Minimal Studio (Dual Tone, Magazine)"
+        },
+        "style_groups": {
+            "formal": "Formal/Business",
+            "casual": "Casual/Creative"
+        },
+        "outfits": {
+            "keep_original": "Keep Original Outfit",
+            "dark_suit_white": "Dark Suit + White Shirt (Formal)",
+            "light_suit_blue": "Light Suit + Blue Shirt (Business Casual)",
+            "white_shirt": "White Shirt (Professional/Service)",
+            "blue_shirt": "Light Blue Shirt (Fresh Professional)",
+            "smart_casual": "Smart Casual (Blazer + T-shirt, Sharp)",
+            "black_turtleneck": "Black Turtleneck (Trendy/Designer)",
+            "denim_jacket": "Denim Jacket (Classic Casual, Personality)",
+            "leather_jacket": "Leather Jacket (Edgy, Strong Style)",
+            "bright_knit": "Bright Knit Sweater (Warm, Colorful)",
+            "hoodie": "Solid Hoodie (Young, Street)",
+            "custom": "✨ Custom Outfit..."
+        },
+        "outfit_groups": {
+            "formal": "Formal/Business",
+            "casual": "Fashion/Casual"
+        },
+        "effects_extended": {
+            "none": "None (Natural Standard)",
+            "high_contrast": "High Contrast Pop",
+            "cinematic_film": "Cinematic Film Look",
+            "soft_airy": "Soft Airy (Japanese Style)",
+            "vintage_warm": "Vintage Warm Tone",
+            "bw_fashion": "B&W Fashion",
+            "custom": "✨ Custom Effect..."
+        },
+        "effect_groups": {
+            "filters": "Style Filters"
+        },
+        "poses_extended": {
+            "front_upper": "Front View (Upper Body)",
+            "left_45": "Left 45° Half Profile",
+            "right_45": "Right 45° Half Profile",
+            "side_90": "Side View (90°)",
+            "high_angle": "High Angle (Upper Body)",
+            "sitting_side": "Sitting Side (Chair)",
+            "lying_side": "Lying Side (Half Body)"
         }
     }
 }

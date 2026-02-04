@@ -216,6 +216,9 @@
             "generatingArt": "正在生成 AI 藝術...",
             "applyingMagic": "正在進行綠幕去背..."
         },
+        "tabs": {
+            "headshot": "形象照生成"
+        },
         "errors": {
             "general": "生成失敗：",
             "bgRemoval": "背景移除失敗：",
@@ -566,7 +569,8 @@
             "smartRemove": "智慧去背",
             "eraser": "橡皮擦",
             "packager": "批量裁切",
-            "animator": "動態貼圖"
+            "animator": "動態貼圖",
+            "svg": "SVG 魔法"
         },
         "layers": {
             "text": "文字圖層",
@@ -768,6 +772,171 @@
             "rotation": "旋轉",
             "scale": "縮放",
             "effect": "特效強度"
+        }
+    },
+    "headshot": {
+        "step1_upload": "第一步：上傳照片",
+        "step2_settings": "第二步：設定參數",
+        "upload_hint": "點擊或拖曳上傳照片",
+        "results": "生成結果",
+        "empty_state": "上傳照片開始製作",
+        "cropping": {
+            "title": "裁切調整",
+            "confirm": "確認裁切"
+        },
+        "settings": {
+            "preset": "預設規格",
+            "strict": "證件照嚴格模式",
+            "style": "背景風格",
+            "outfit": "服裝設定",
+            "pose": "角度/構圖",
+            "expression": "面部表情",
+            "variations": "變化張數",
+            "quality": "輸出畫質",
+            "effect": "鏡頭效果"
+        },
+        "outfit": {
+            "default": "保留原始服裝",
+            "custom": "自訂服裝",
+            "placeholder": "描述您想要的服裝..."
+        },
+        "poses": {
+            "front_upper": "正面視角（胸上半身）",
+            "three_quarter": "3/4 側面",
+            "full_body": "全身照",
+            "half_body": "半身照"
+        },
+        "qualities": {
+            "standard": "標準（1K）- 快速",
+            "high": "高畫質（2K）",
+            "ultra": "超高畫質（4K）- 慢"
+        },
+        "effects": {
+            "none": "無效果（保留自然）",
+            "soft_focus": "柔焦/美肌",
+            "professional": "專業攝影",
+            "custom": "自訂效果..."
+        },
+        "variations_hint": "生成 {{count}} 個變化版本",
+        "action": {
+            "generate": "生成專業形象照"
+        },
+        "errors": {
+            "noImage": "請先上傳照片",
+            "noResult": "未生成結果",
+            "general": "生成失敗"
+        },
+        "presets": {
+            "1inch": "1吋證件照 (28x35mm)",
+            "passport": "護照 / 2吋證件照 (35x45mm)",
+            "taiwanId": "台灣身分證 / 健保卡",
+            "usVisa": "美國簽證 / USCIS",
+            "resume": "商務履歷照 (4:5)",
+            "avatar": "社群頭像 (1:1)",
+            "cover": "封面照 (16:9)",
+            "details": {
+                "1inch": {
+                    "mm": "28 × 35",
+                    "inch": "1.1 × 1.38",
+                    "px": "331 × 413 (300dpi)",
+                    "note": "駕照、教師、體檢表專用"
+                },
+                "passport": {
+                    "mm": "35 × 45",
+                    "inch": "1.38 × 1.77",
+                    "px": "413 × 531 (300dpi)",
+                    "note": "國際標準護照尺寸"
+                },
+                "taiwanId": {
+                    "mm": "33 × 48",
+                    "inch": "1.30 × 1.89",
+                    "px": "390 × 567 (300dpi)",
+                    "note": "台灣官方證件"
+                },
+                "usVisa": {
+                    "mm": "51 × 51",
+                    "inch": "2 × 2",
+                    "px": "600 × 600 (300dpi)",
+                    "note": "美國簽證正方形規格"
+                },
+                "resume": {
+                    "ratio": "4:5",
+                    "px": "1200 × 1500",
+                    "note": "LinkedIn 最佳比例"
+                },
+                "avatar": {
+                    "ratio": "1:1",
+                    "px": "1024 × 1024",
+                    "note": "社群平台通用"
+                },
+                "cover": {
+                    "ratio": "16:9",
+                    "px": "1920 × 1080",
+                    "note": "橫向封面照"
+                }
+            }
+        },
+        "expressions": {
+            "natural": "自然 / 保留原圖",
+            "smile_soft": "微笑（不露齒，溫和親切）",
+            "smile_bright": "露齒燦爛微笑（熱情活潑）",
+            "confident": "自信堅定（眼神專注，微縮嘴）",
+            "relaxed": "放鬆柔和（陽角微提，無攻擊性）",
+            "laugh": "開懷大笑（極具感染力，休閒感）"
+        },
+        "styles": {
+            "white_id": "白底證件（標準純白，適合正式用途）",
+            "business_gray": "商務灰（淺灰中性，柔光專業）",
+            "tech_blue_gradient": "科技藍漸層（深→淺藍，科技光暈）",
+            "brand_color": "品牌色（單色蒙淨襯，強調識別）",
+            "street_style": "街頭風格（城市背景襯化，時尚自然）",
+            "warm_cafe": "暖色咖啡廳（室內柔光，輕鬆愜意）",
+            "natural_outdoor": "自然戶外（綠意/陽光，親和力強）",
+            "vibrant_contrast": "高飽和撞色（鮮豔背景，社群吸睛）",
+            "minimal_studio": "極簡攝影棚（雙調純色系，雜誌質感）"
+        },
+        "style_groups": {
+            "formal": "正式/商務",
+            "casual": "休閒/創意"
+        },
+        "outfits": {
+            "keep_original": "保留原圖服裝",
+            "dark_suit_white": "深色西裝外套+白襯衫（正式）",
+            "light_suit_blue": "淺色西裝外套+淺藍襯衫（商務休閒）",
+            "white_shirt": "白襯衫（專業/服務業）",
+            "blue_shirt": "淺藍襯衫（清爽專業）",
+            "smart_casual": "Smart Casual（西裝外套+T恤，俐落時尚）",
+            "black_turtleneck": "黑色高領毛衣（質感新意/設計感）",
+            "denim_jacket": "丹寧牛仔外套（經典休閒，有個性）",
+            "leather_jacket": "黑色皮衣外套（帥氣，強烈風格）",
+            "bright_knit": "亮色針織衫（溫暖，色彩活潑）",
+            "hoodie": "素色連帽上衣（年輕，街頭潮流）",
+            "custom": "✨ 自訂服裝..."
+        },
+        "outfit_groups": {
+            "formal": "正式/商務",
+            "casual": "時尚/休閒"
+        },
+        "effects_extended": {
+            "none": "無效果（標準自然）",
+            "high_contrast": "高對比鮮豔（High Contrast/Pop）",
+            "cinematic_film": "電影膠片感（Cinematic Film）",
+            "soft_airy": "日系空氣感（Soft/Airy）",
+            "vintage_warm": "復古暖色（Vintage Warm）",
+            "bw_fashion": "黑白時尚（B&W Fashion）",
+            "custom": "✨ 自訂效果..."
+        },
+        "effect_groups": {
+            "filters": "風格濾鏡"
+        },
+        "poses_extended": {
+            "front_upper": "正面視角（胸上半身）",
+            "left_45": "左側 45° 半側臉",
+            "right_45": "右側 45° 半側臉",
+            "side_90": "側面（90°）",
+            "high_angle": "高角度俯拍（胸上半身）",
+            "sitting_side": "坐姿側拍（椅子）",
+            "lying_side": "躺姿側拍半身"
         }
     }
 }
