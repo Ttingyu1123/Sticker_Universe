@@ -1,127 +1,82 @@
-import React, { useState, useRef } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Upload, FolderHeart, Info } from 'lucide-react';
-import { Canvas } from './components/Canvas';
-import { GalleryPicker } from '../../components/GalleryPicker';
+import { useSearchParams } from 'react-router-dom';
+import { Printer, IdCard } from 'lucide-react';
+import PrintSheetTab from './components/PrintSheetTab';
+import IDPrintStudioTab from './components/IDPrintStudioTab';
 
-interface StickerImage {
-    id: string;
-    src: string;
-    width: number;
-    height: number;
-}
+import { Tabs, TabList, Tab, TabPanel } from 'react-aria-components';
 
-const PrintSheet = () => {
+const PrintSheetApp: React.FC = () => {
     const { t } = useTranslation();
-    const [images, setImages] = useState<StickerImage[]>([]);
-    const [showGallery, setShowGallery] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [searchParams] = useSearchParams();
+    const [selectedTab, setSelectedTab] = useState<string>('print-studio');
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (files) {
-            Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const src = e.target?.result as string;
-                    addImageToCanvas(src);
-                };
-                reader.readAsDataURL(file);
-            });
+    // 根據 URL 參數自動切換 tab
+    useEffect(() => {
+        const tabParam = searchParams.get('tab');
+        if (tabParam === 'id-print') {
+            setSelectedTab('id-print');
         }
-    };
-
-    const handleGallerySelect = async (blobs: Blob[]) => {
-        blobs.forEach(blob => {
-            const src = URL.createObjectURL(blob);
-            addImageToCanvas(src);
-        });
-        setShowGallery(false);
-    };
-
-    const addImageToCanvas = (src: string) => {
-        const img = new Image();
-        img.onload = () => {
-            // Default size: maintain aspect ratio, max width 150px
-            const maxSize = 150;
-            let width = img.width;
-            let height = img.height;
-
-            if (width > height) {
-                if (width > maxSize) {
-                    height *= maxSize / width;
-                    width = maxSize;
-                }
-            } else {
-                if (height > maxSize) {
-                    width *= maxSize / height;
-                    height = maxSize;
-                }
-            }
-
-            setImages(prev => [
-                ...prev,
-                {
-                    id: crypto.randomUUID(),
-                    src,
-                    width,
-                    height
-                }
-            ]);
-        };
-        img.src = src;
-    };
+    }, [searchParams]);
 
     return (
-        <div className="w-full max-w-7xl mx-auto p-6 space-y-8 animate-in fade-in duration-500">
-            {showGallery && <GalleryPicker onSelect={handleGallerySelect} onClose={() => setShowGallery(false)} />}
-
-
-
-            <div className="flex flex-col lg:flex-row gap-8 items-start">
-
-                {/* Tools Panel */}
-                <aside className="w-full lg:w-64 flex flex-col gap-4">
-                    <div className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-6 space-y-4">
-                        <h2 className="text-xs font-black text-bronze-light uppercase tracking-widest">{t('printSheet.addStickers') || 'Add Stickers'}</h2>
-
-                        <button
-                            onClick={() => fileInputRef.current?.click()}
-                            className="w-full h-14 bg-white border-2 border-dashed border-cream-dark hover:border-primary/50 hover:bg-cream-light text-bronze-light hover:text-primary rounded-xl flex items-center justify-center gap-2 font-bold transition-all"
+        <div className="min-h-screen bg-background text-foreground flex flex-col">
+            <div className="flex-1 max-w-[1920px] mx-auto w-full p-4 md:p-6">
+                <Tabs className="flex flex-col h-full gap-6" selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as string)}>
+                    <TabList className="flex gap-1 p-1 bg-slate-100/50 backdrop-blur-md rounded-2xl w-fit mx-auto border border-slate-200/50 flex-wrap justify-center mb-2">
+                        <Tab
+                            id="print-studio"
+                            className={({ isSelected }) => `
+                        px-5 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer outline-none flex items-center gap-2.5 select-none
+                        ${isSelected
+                                    ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5 scale-[1.02]'
+                                    : 'text-slate-500 hover:text-indigo-600 hover:bg-white/60'
+                                }
+                    `}
                         >
-                            <input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handleFileUpload} />
-                            <Upload size={20} />
-                            {t('printSheet.upload') || 'Upload Images'}
-                        </button>
-
-                        <button
-                            onClick={() => setShowGallery(true)}
-                            className="w-full h-14 bg-primary text-white shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-[1.02] rounded-xl flex items-center justify-center gap-2 font-bold transition-all"
+                            {({ isSelected }) => (
+                                <>
+                                    <Printer size={18} className={isSelected ? 'fill-indigo-100/50' : ''} />
+                                    {t('printSheet.tabs.printStudio') || '貼紙列印室'}
+                                </>
+                            )}
+                        </Tab>
+                        <Tab
+                            id="id-print"
+                            className={({ isSelected }) => `
+                        px-5 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer outline-none flex items-center gap-2.5 select-none
+                        ${isSelected
+                                    ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5 scale-[1.02]'
+                                    : 'text-slate-500 hover:text-indigo-600 hover:bg-white/60'
+                                }
+                    `}
                         >
-                            <FolderHeart size={20} />
-                            {t('printSheet.fromGallery') || 'From Gallery'}
-                        </button>
+                            {({ isSelected }) => (
+                                <>
+                                    <IdCard size={18} className={isSelected ? 'fill-indigo-100/50' : ''} />
+                                    {t('printSheet.tabs.idPrint') || '證件照列印'}
+                                </>
+                            )}
+                        </Tab>
+                    </TabList>
 
-                        <div className="pt-4 border-t border-cream-dark/50">
-                            <h3 className="text-xs font-black text-bronze-light uppercase tracking-widest mb-2 flex items-center gap-1">
-                                <Info size={12} /> {t('printSheet.tips') || 'Tips'}
-                            </h3>
-                            <ul className="text-xs text-bronze-text space-y-2 font-medium">
-                                <li>• {t('printSheet.tipDrag') || 'Drag to move stickers'}</li>
-                                <li>• {t('printSheet.tipWheel') || 'Scroll wheel to resize'}</li>
-                                <li>• {t('printSheet.tipDelete') || 'Click X to remove'}</li>
-                            </ul>
-                        </div>
+                    <div className="flex-1 bg-white rounded-3xl shadow-xl shadow-indigo-100/50 border border-white overflow-hidden min-h-[600px] relative">
+                        <TabPanel id="print-studio" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
+                            <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
+                                <PrintSheetTab />
+                            </Suspense>
+                        </TabPanel>
+                        <TabPanel id="id-print" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
+                            <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
+                                <IDPrintStudioTab />
+                            </Suspense>
+                        </TabPanel>
                     </div>
-                </aside>
-
-                {/* Main Canvas Area */}
-                <main className="flex-1 w-full">
-                    <Canvas images={images} setImages={setImages} />
-                </main>
+                </Tabs>
             </div>
         </div>
     );
 };
 
-export default PrintSheet;
+export default PrintSheetApp;

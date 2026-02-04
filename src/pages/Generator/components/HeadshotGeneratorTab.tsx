@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { GoogleGenAI, Modality } from "@google/genai";
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
-import { Upload, Camera, Download, Loader2, Sparkles, Scissors, Trash2, Image as ImageIcon, Briefcase, User } from 'lucide-react';
+import { Upload, Camera, Download, Loader2, Sparkles, Scissors, Trash2, Image as ImageIcon, Briefcase, User, FolderHeart, Printer } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
+import { GalleryPicker } from '../../../components/GalleryPicker';
 
 // Types
 interface Preset {
@@ -103,6 +105,7 @@ interface HeadshotGeneratorTabProps {
 
 const HeadshotGeneratorTab: React.FC<HeadshotGeneratorTabProps> = ({ apiKey, onSuccess, onError, onNeedApiKey }) => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
 
     // State
     const [image, setImage] = useState<string | null>(null);
@@ -125,6 +128,7 @@ const HeadshotGeneratorTab: React.FC<HeadshotGeneratorTabProps> = ({ apiKey, onS
 
     const [effectType, setEffectType] = useState('none');
     const [customEffect, setCustomEffect] = useState('');
+    const [showGallery, setShowGallery] = useState(false);
 
     // Refs
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -151,6 +155,21 @@ const HeadshotGeneratorTab: React.FC<HeadshotGeneratorTabProps> = ({ apiKey, onS
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    const handleGallerySelect = async (blobs: Blob[]) => {
+        if (blobs.length > 0) {
+            const blob = blobs[0];
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                if (evt.target?.result) {
+                    setImage(evt.target.result as string);
+                    setIsCropping(true);
+                }
+            };
+            reader.readAsDataURL(blob);
+        }
+        setShowGallery(false);
     };
 
     // Initialize Cropper when image loads and isCropping is true
@@ -360,6 +379,13 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    };
+
+    const handleSendToPrint = (imageSrc: string) => {
+        // 將圖片存入 localStorage
+        localStorage.setItem('headshot_to_print', imageSrc);
+        // 導航到證件照列印頁面，帶上參數
+        navigate('/print-sheet?tab=id-print&autoLoad=true');
     };
 
     return (
@@ -636,8 +662,16 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                                                     <button
                                                         onClick={() => downloadImage(img.src, `headshot-${Date.now()}.png`)}
                                                         className="p-2 bg-white text-primary rounded-full shadow-lg hover:scale-110 transition-transform"
+                                                        title={t('common.download')}
                                                     >
                                                         <Download size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleSendToPrint(img.src)}
+                                                        className="p-2 bg-white text-secondary rounded-full shadow-lg hover:scale-110 transition-transform"
+                                                        title="傳送至列印室"
+                                                    >
+                                                        <Printer size={18} />
                                                     </button>
                                                 </div>
                                             </div>
@@ -688,6 +722,14 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Gallery Picker Modal */}
+            {showGallery && (
+                <GalleryPicker
+                    onSelect={handleGallerySelect}
+                    onClose={() => setShowGallery(false)}
+                />
             )}
         </div>
     );

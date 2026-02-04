@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     Settings, Upload, RefreshCw,
-    Download, Sparkles, Film
+    Download, Sparkles, Film, FolderHeart
 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
+import { GalleryPicker } from '../../../components/GalleryPicker';
 
 // --- Constants & DB ---
 const DRAMA_STYLES = [
@@ -145,6 +146,7 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({ apiKey, onError
     const [isRegenerating, setIsRegenerating] = useState(false);
     const [generatedResult, setGeneratedResult] = useState<any>(null);
     const [localError, setLocalError] = useState<string | null>(null);
+    const [showGallery, setShowGallery] = useState(false);
 
     // Initial Genre effect
     useEffect(() => {
@@ -174,6 +176,16 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({ apiKey, onError
             reader.onloadend = () => setUserImage(reader.result as string);
             reader.readAsDataURL(file);
         }
+    };
+
+    const handleGallerySelect = async (blobs: Blob[]) => {
+        if (blobs.length > 0) {
+            const blob = blobs[0];
+            const reader = new FileReader();
+            reader.onloadend = () => setUserImage(reader.result as string);
+            reader.readAsDataURL(blob);
+        }
+        setShowGallery(false);
     };
 
     // API: Generate Theme (Text) using Gemini 3 Pro Image Preview
@@ -406,6 +418,13 @@ ${generatedResult.plot}
                             )}
                             <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
                         </div>
+                        <button
+                            onClick={() => setShowGallery(true)}
+                            className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-secondary rounded-xl text-sm font-bold transition-colors"
+                        >
+                            <FolderHeart size={16} />
+                            從作品集選取
+                        </button>
                     </div>
 
                     {/* Settings Section */}
@@ -530,6 +549,14 @@ ${generatedResult.plot}
                     )}
                 </div>
             </div>
+
+            {/* Gallery Picker Modal */}
+            {showGallery && (
+                <GalleryPicker
+                    onSelect={handleGallerySelect}
+                    onClose={() => setShowGallery(false)}
+                />
+            )}
         </div>
     );
 };

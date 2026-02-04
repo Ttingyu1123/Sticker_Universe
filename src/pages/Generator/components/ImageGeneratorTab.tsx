@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Upload, Camera, FileText, Wand2, Sparkles, ChevronDown, ChevronRight, X, Image as ImageIcon } from 'lucide-react';
+import { Upload, Camera, FileText, Wand2, Sparkles, ChevronDown, ChevronRight, X, Image as ImageIcon, FolderHeart } from 'lucide-react';
 // @ts-ignore
 import { ART_STYLES_CATEGORIES, ASPECT_RATIOS, EDITING_EXAMPLES, EXAMPLE_PROMPTS, FUNCTION_BUTTONS, TWELVE_GRID_CATEGORIES } from '../../../../constants';
 import { generateImage } from '../services/geminiService';
 import { Button } from '../../../components/ui/Button';
+import { GalleryPicker } from '../../../components/GalleryPicker';
 
 interface ImageGeneratorTabProps {
     apiKey: string;
@@ -25,6 +26,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
     const [customWidth, setCustomWidth] = useState('1280');
     const [customHeight, setCustomHeight] = useState('720');
     const [isCustomRatio, setIsCustomRatio] = useState(false);
+    const [showGallery, setShowGallery] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,6 +56,18 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
             console.error('Failed to paste image:', err);
             onError('無法從剪貼簿讀取圖片');
         }
+    };
+
+    const handleGallerySelect = async (blobs: Blob[]) => {
+        if (blobs.length > 0) {
+            const blob = blobs[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setReferenceImage(reader.result as string);
+            };
+            reader.readAsDataURL(blob);
+        }
+        setShowGallery(false);
     };
 
     const handleGenerate = async () => {
@@ -300,6 +314,13 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                                     <FileText size={20} />
                                     <span className="text-xs font-bold">貼上圖片</span>
                                 </button>
+                                <button
+                                    onClick={() => setShowGallery(true)}
+                                    className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-cream-dark rounded-2xl hover:border-primary/50 hover:bg-white/60 transition-all text-bronze-light hover:text-primary gap-2 bg-cream-light/30"
+                                >
+                                    <FolderHeart size={20} />
+                                    <span className="text-xs font-bold">從作品集</span>
+                                </button>
                                 <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
                             </div>
                         ) : (
@@ -426,6 +447,14 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                     </div>
                 )
             }
+
+            {/* Gallery Picker Modal */}
+            {showGallery && (
+                <GalleryPicker
+                    onSelect={handleGallerySelect}
+                    onClose={() => setShowGallery(false)}
+                />
+            )}
         </div >
     );
 };

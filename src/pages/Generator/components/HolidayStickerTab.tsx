@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Download, Loader2, Sparkles, AlertCircle, X } from 'lucide-react';
+import { Upload, Download, Loader2, Sparkles, AlertCircle, X, FolderHeart } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import { Button } from '../../../components/ui/Button';
+import { GalleryPicker } from '../../../components/GalleryPicker';
 
 // Configuration Data
 const HOLIDAYS = [
@@ -60,6 +61,7 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
     const [generationErrors, setGenerationErrors] = useState<boolean[]>(Array(3).fill(false));
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [batchSize, setBatchSize] = useState(3);
+    const [showGallery, setShowGallery] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,6 +85,18 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    const handleGallerySelect = async (blobs: Blob[]) => {
+        if (blobs.length > 0) {
+            const blob = blobs[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setUploadedImage(reader.result as string);
+            };
+            reader.readAsDataURL(blob);
+        }
+        setShowGallery(false);
     };
 
     const callGeminiAPI = async (prompt: string, index: number, imageBase64: string) => {
@@ -260,6 +274,13 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
                                 </div>
                             )}
                         </div>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setShowGallery(true); }}
+                            className="mt-3 flex items-center gap-2 px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-secondary rounded-xl text-sm font-bold transition-colors mx-auto"
+                        >
+                            <FolderHeart size={16} />
+                            從作品集選取
+                        </button>
                         <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
                     </div>
 
@@ -421,6 +442,14 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
                     )}
                 </div>
             </div>
+
+            {/* Gallery Picker Modal */}
+            {showGallery && (
+                <GalleryPicker
+                    onSelect={handleGallerySelect}
+                    onClose={() => setShowGallery(false)}
+                />
+            )}
         </div>
     );
 };

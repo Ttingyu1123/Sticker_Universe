@@ -8,7 +8,7 @@
         "settings": "設定",
         "manual": "使用說明書",
         "backHome": "返回首頁",
-        "generator": "貼圖生成器",
+        "generator": "AI貼圖工作室",
         "cinematic": "影劇海報大師",
         "editor": "編輯器",
         "packager": "裁切與加工",
@@ -16,7 +16,7 @@
         "gallery": "作品集",
         "generate": "生成",
         "svgConverter": "SVG 魔法",
-        "printSheet": "貼紙列印室",
+        "printSheet": "排版與列印",
         "captioning": "AI 智慧配文",
         "animator": "動態貼圖",
         "smartEraser": "智慧去背"
@@ -70,7 +70,58 @@
         "linePreview": "LINE 預覽 (APNG)"
     },
     "printSheet": {
-        "title": "貼紙列印室",
+        "title": "排版與列印",
+        "tabs": {
+            "printStudio": "貼紙列印室",
+            "idPrint": "證件照列印"
+        },
+        "idPrint": {
+            "workspace": {
+                "cropTitle": "裁切照片",
+                "cropSubtitle": "目標",
+                "previewTitle": "列印預覽",
+                "emptyTitle": "開始使用",
+                "emptyDescription": "拖放或點擊上傳照片",
+                "dropHere": "放開以上傳照片"
+            },
+            "sidebar": {
+                "title": "證件照列印工作室",
+                "subtitle": "Multi-Photo Layout Tool",
+                "photosSection": "照片",
+                "addPhoto": "新增",
+                "fromGallery": "從作品集選取",
+                "emptyPhotos": "點擊或拖放照片",
+                "fillPage": "填滿頁面",
+                "settingsSection": "版面設定"
+            },
+            "photoCard": {
+                "recrop": "重新裁切",
+                "duplicate": "複製",
+                "delete": "刪除"
+            },
+            "settings": {
+                "photoSize": "照片尺寸",
+                "paperSize": "紙張尺寸",
+                "margin": "邊距 (mm)",
+                "gap": "間距 (mm)",
+                "showCutLines": "裁切線",
+                "enableMirror": "鏡像"
+            },
+            "cropper": {
+                "cancel": "取消",
+                "done": "完成",
+                "processing": "處理中...",
+                "dragHint": "拖曳角落調整大小"
+            },
+            "preview": {
+                "updating": "更新版面中...",
+                "noFit": "照片無法放入！",
+                "noFitHint": "試試減少邊距/間距或\n選擇更大的紙張尺寸。",
+                "totalPhotos": "照片總數",
+                "format": "格式",
+                "download": "下載列印檔"
+            }
+        },
         "description": "將您的貼紙排列在 A4 畫布上並列印成 PDF。",
         "addStickers": "添加貼紙",
         "upload": "上傳圖片",
@@ -137,7 +188,7 @@
         "exploreTools": "探索工具",
         "launchApp": "啟動程式",
         "features": {
-            "generatorTitle": "貼圖生成器",
+            "generatorTitle": "AI貼圖工作室",
             "generatorDesc": "使用 Google Gemini AI 將文字提示轉化為精美的貼圖包。無需任何設計技能。",
             "editorTitle": "圖片編輯器",
             "editorDesc": "整合裁切、智慧去背與魔術橡皮擦的全能圖片編輯工具。",
@@ -153,7 +204,7 @@
         "footer": "由 Google Gemini Pro 驅動 • 需在瀏覽器中直接使用 API Key"
     },
     "generator": {
-        "title": "貼圖生成器",
+        "title": "AI貼圖工作室",
         "subtitle": "AI 貼圖創作",
         "apiKey": {
             "title": "輸入您的 Gemini API Key",
@@ -937,6 +988,74 @@
             "high_angle": "高角度俯拍（胸上半身）",
             "sitting_side": "坐姿側拍（椅子）",
             "lying_side": "躺姿側拍半身"
+        }
+    },
+    "printSheet": {
+        "tabs": {
+            "printStudio": "貼紙列印",
+            "idPrint": "證件照列印"
+        },
+        "addStickers": "添加貼紙",
+        "upload": "上傳圖片",
+        "fromGallery": "從作品集選取",
+        "tips": "提示",
+        "tipDrag": "拖曳移動貼紙",
+        "tipWheel": "滾輪調整大小",
+        "tipDelete": "點擊 X 刪除",
+        "grid": "顯示網格",
+        "background": "背景色彩",
+        "idPrint": {
+            "sidebar": {
+                "title": "證件照排版",
+                "subtitle": "上傳照片並裁切為證件照尺寸",
+                "photosSection": "照片",
+                "addPhoto": "新增",
+                "fromGallery": "從作品集選取",
+                "emptyPhotos": "點擊上傳照片",
+                "fillPage": "填滿頁面",
+                "settingsSection": "版面設定"
+            },
+            "photoCard": {
+                "recrop": "重新裁切",
+                "duplicate": "複製",
+                "delete": "刪除"
+            },
+            "settings": {
+                "photoSize": "照片尺寸",
+                "paperSize": "紙張尺寸",
+                "paperOrientation": "紙張方向",
+                "portrait": "直式",
+                "landscape": "橫式",
+                "margin": "邊界 (mm)",
+                "gap": "間距 (mm)",
+                "showCutLines": "裁切線",
+                "enableMirror": "鏡像",
+                "outputFormat": "輸出格式"
+            },
+            "workspace": {
+                "dropHere": "釋放以上傳照片",
+                "cropTitle": "裁切照片",
+                "cropSubtitle": "調整裁切區域",
+                "emptyTitle": "開始上傳照片",
+                "emptyDescription": "點擊上方按鈕上傳照片，或直接拖曳到這裡",
+                "previewTitle": "列印預覽"
+            },
+            "cropper": {
+                "cancel": "取消",
+                "dragHint": "拖曳調整裁切區域",
+                "processing": "處理中...",
+                "done": "完成"
+            },
+            "preview": {
+                "updating": "更新中...",
+                "noFit": "無法配置照片",
+                "noFitHint": "請調整紙張大小或減少照片數量",
+                "totalPhotos": "總照片數",
+                "format": "格式",
+                "download": "下載",
+                "saveToGallery": "儲存至作品集",
+                "zoom": "縮放"
+            }
         }
     }
 }

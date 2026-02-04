@@ -8,7 +8,7 @@
         "settings": "Settings",
         "manual": "User Manual",
         "backHome": "Back Home",
-        "generator": "Generator",
+        "generator": "AI Sticker Studio",
         "editor": "Editor",
         "packager": "Refiner",
         "eraser": "Eraser",
@@ -16,7 +16,7 @@
         "generate": "Generate",
         "smartEraser": "Remove BG",
         "svgConverter": "SVG Magic",
-        "printSheet": "Print Studio",
+        "printSheet": "Layout & Print",
         "captioning": "AI Captioning",
         "animator": "Animator"
     },
@@ -64,7 +64,58 @@
         "linePreview": "LINE Preview (APNG)"
     },
     "printSheet": {
-        "title": "Print Studio",
+        "title": "Layout & Print",
+        "tabs": {
+            "printStudio": "Print Studio",
+            "idPrint": "ID Photo Print"
+        },
+        "idPrint": {
+            "workspace": {
+                "cropTitle": "Crop Photo",
+                "cropSubtitle": "Target",
+                "previewTitle": "Print Preview",
+                "emptyTitle": "Get Started",
+                "emptyDescription": "Drag & drop or click to upload photo",
+                "dropHere": "Drop photo here"
+            },
+            "sidebar": {
+                "title": "ID Photo Print Studio",
+                "subtitle": "Multi-Photo Layout Tool",
+                "photosSection": "Photos",
+                "addPhoto": "Add",
+                "fromGallery": "From Gallery",
+                "emptyPhotos": "Click or drag photos",
+                "fillPage": "Fill Page",
+                "settingsSection": "Layout Settings"
+            },
+            "photoCard": {
+                "recrop": "Re-crop",
+                "duplicate": "Duplicate",
+                "delete": "Delete"
+            },
+            "settings": {
+                "photoSize": "Photo Size",
+                "paperSize": "Paper Size",
+                "margin": "Margin (mm)",
+                "gap": "Gap (mm)",
+                "showCutLines": "Cut Lines",
+                "enableMirror": "Mirror"
+            },
+            "cropper": {
+                "cancel": "Cancel",
+                "done": "Done",
+                "processing": "Processing...",
+                "dragHint": "Drag corners to resize"
+            },
+            "preview": {
+                "updating": "Updating Layout...",
+                "noFit": "Photos won't fit!",
+                "noFitHint": "Try reducing margins/gaps or\nchoosing a larger paper size.",
+                "totalPhotos": "Total Photos",
+                "format": "Format",
+                "download": "Download Sheet"
+            }
+        },
         "description": "Arrange your stickers on an A4 canvas and export as PDF.",
         "addStickers": "Add Stickers",
         "upload": "Upload Images",
@@ -130,7 +181,7 @@
         "exploreTools": "Explore Tools",
         "launchApp": "Launch App",
         "features": {
-            "generatorTitle": "Generator",
+            "generatorTitle": "AI Sticker Studio",
             "generatorDesc": "Turn text prompts into stunning sticker packs using Google's Gemini AI. No design skills needed.",
             "editorTitle": "Editor",
             "editorDesc": "Powerful layer-based editor. Compose images, add text, adjust layouts, and fine-tune your designs.",
@@ -146,7 +197,7 @@
         "footer": "Powered by Google Gemini Pro • Requires API Key used directly in browser"
     },
     "generator": {
-        "title": "Generator",
+        "title": "AI Sticker Studio",
         "subtitle": "AI Sticker Creation",
         "apiKey": {
             "title": "Enter Your Gemini API Key",
@@ -909,6 +960,74 @@
             "high_angle": "High Angle (Upper Body)",
             "sitting_side": "Sitting Side (Chair)",
             "lying_side": "Lying Side (Half Body)"
+        }
+    },
+    "printSheet": {
+        "tabs": {
+            "printStudio": "Sticker Print Studio",
+            "idPrint": "ID Photo Print Studio"
+        },
+        "addStickers": "Add Stickers",
+        "upload": "Upload Images",
+        "fromGallery": "From Gallery",
+        "tips": "Tips",
+        "tipDrag": "Drag to move stickers",
+        "tipWheel": "Scroll wheel to resize",
+        "tipDelete": "Click X to remove",
+        "grid": "Show Grid",
+        "background": "Background Color",
+        "idPrint": {
+            "sidebar": {
+                "title": "ID Photo Layout",
+                "subtitle": "Upload and crop photos to ID photo size",
+                "photosSection": "Photos",
+                "addPhoto": "Add",
+                "fromGallery": "From Gallery",
+                "emptyPhotos": "Click to upload photos",
+                "fillPage": "Fill Page",
+                "settingsSection": "Page Settings"
+            },
+            "photoCard": {
+                "recrop": "Re-crop",
+                "duplicate": "Duplicate",
+                "delete": "Delete"
+            },
+            "settings": {
+                "photoSize": "Photo Size",
+                "paperSize": "Paper Size",
+                "paperOrientation": "Paper Orientation",
+                "portrait": "Portrait",
+                "landscape": "Landscape",
+                "margin": "Margin (mm)",
+                "gap": "Gap (mm)",
+                "showCutLines": "Cut Lines",
+                "enableMirror": "Mirror",
+                "outputFormat": "Output Format"
+            },
+            "workspace": {
+                "dropHere": "Drop to upload photos",
+                "cropTitle": "Crop Photo",
+                "cropSubtitle": "Adjust crop area",
+                "emptyTitle": "Start Uploading Photos",
+                "emptyDescription": "Click the button above to upload photos, or drag them here",
+                "previewTitle": "Print Preview"
+            },
+            "cropper": {
+                "cancel": "Cancel",
+                "dragHint": "Drag to adjust crop area",
+                "processing": "Processing...",
+                "done": "Done"
+            },
+            "preview": {
+                "updating": "Updating...",
+                "noFit": "Cannot fit photos",
+                "noFitHint": "Please adjust paper size or reduce photo count",
+                "totalPhotos": "Total Photos",
+                "format": "Format",
+                "download": "Download",
+                "saveToGallery": "Save to Gallery",
+                "zoom": "Zoom"
+            }
         }
     }
 }

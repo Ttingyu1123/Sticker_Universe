@@ -3,13 +3,14 @@ import { useTranslation } from 'react-i18next';
 import {
     Upload, Wand2, Download, Sparkles, Type, Palette,
     Image as ImageIcon, Zap, Feather, Cloud, Disc, Tv, Heart,
-    Scissors, AlertTriangle, Check, Trash2, Settings, Star, Eye, FileArchive
+    Scissors, AlertTriangle, Check, Trash2, Settings, Star, Eye, FileArchive, FolderHeart
 } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveStickerToDB } from '../../../db';
 import { Sticker, StickerTheme, THEMES } from '../types';
 import { generateSticker } from '../services/geminiService';
 import { Button } from '../../../components/ui/Button';
+import { GalleryPicker } from '../../../components/GalleryPicker';
 
 // Helper for Theme Icons
 const getThemeIcon = (iconName: string) => {
@@ -47,6 +48,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
     const [isZipping, setIsZipping] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [showGallery, setShowGallery] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const STICKER_MODEL = 'gemini-3-pro-image-preview';
@@ -82,6 +84,19 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    const handleGallerySelect = async (blobs: Blob[]) => {
+        if (blobs.length > 0) {
+            const blob = blobs[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImage(reader.result as string);
+                setErrorMessage(null);
+            };
+            reader.readAsDataURL(blob);
+        }
+        setShowGallery(false);
     };
 
     // SMART REMOVE BACKGROUND LOGIC (Copied from App.tsx)
@@ -337,6 +352,13 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                         <Upload size={24} />
                                     </div>
                                     <h3 className="text-sm font-black text-bronze tracking-tight">{t('generator.upload.dragDrop')}</h3>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setShowGallery(true); }}
+                                        className="mt-3 flex items-center gap-2 px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-secondary rounded-xl text-sm font-bold transition-colors"
+                                    >
+                                        <FolderHeart size={16} />
+                                        {t('printSheet.fromGallery')}
+                                    </button>
                                 </div>
                             ) : (
                                 <div className="relative rounded-[2rem] overflow-hidden border border-cream-dark bg-cream-light/50 shadow-inner max-h-[300px] flex items-center justify-center p-4">
@@ -540,6 +562,14 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                         </button>
                     </div>
                 </div>
+            )}
+
+            {/* Gallery Picker Modal */}
+            {showGallery && (
+                <GalleryPicker
+                    onSelect={handleGallerySelect}
+                    onClose={() => setShowGallery(false)}
+                />
             )}
         </div>
     );

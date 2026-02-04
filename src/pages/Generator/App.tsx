@@ -239,43 +239,50 @@ const App: React.FC = () => {
       <main className="container mx-auto px-4 max-w-5xl space-y-8">
 
         {/* Tab Navigation */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/60 backdrop-blur rounded-[2rem] p-2 border border-cream-dark shadow-sm">
-          <div className="flex w-full sm:w-auto p-1 bg-cream-light/50 rounded-2xl">
+        <div className="flex flex-col gap-3 bg-white/60 backdrop-blur rounded-[2rem] p-3 sm:p-4 border border-cream-dark shadow-sm">
+          {/* Tabs - Grid Layout for Better Visibility */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
             <button
               onClick={() => setActiveTab('sticker')}
-              className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${activeTab === 'sticker' ? 'bg-primary text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
+              className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'sticker' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
-              <Sparkles size={14} /> 風格貼圖
+              <Sparkles size={16} />
+              <span>風格貼圖</span>
             </button>
             <button
               onClick={() => setActiveTab('holiday')}
-              className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${activeTab === 'holiday' ? 'bg-amber-600 text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
+              className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'holiday' ? 'bg-amber-600 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
-              <Calendar size={14} /> 節日貼圖
+              <Calendar size={16} />
+              <span>節日貼圖</span>
             </button>
             <button
               onClick={() => setActiveTab('cinematic')}
-              className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${activeTab === 'cinematic' ? 'bg-pink-500 text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
+              className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'cinematic' ? 'bg-pink-500 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
-              <Sparkles size={14} /> {t('app.cinematic')}
+              <Sparkles size={16} />
+              <span>{t('app.cinematic')}</span>
             </button>
             <button
               onClick={() => setActiveTab('image-gen')}
-              className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${activeTab === 'image-gen' ? 'bg-secondary text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
+              className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'image-gen' ? 'bg-secondary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
-              <Sparkles size={14} /> AI圖片生成
+              <Sparkles size={16} />
+              <span className="text-center">AI圖片<br className="sm:hidden" />生成</span>
             </button>
             <button
               onClick={() => setActiveTab('headshot')}
-              className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${activeTab === 'headshot' ? 'bg-indigo-600 text-white shadow-md' : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}`}
+              className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 col-span-2 sm:col-span-1 ${activeTab === 'headshot' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
-              <User size={14} /> {t('generator.tabs.headshot') || '形象照生成'}
+              <User size={16} />
+              <span className="text-center">{t('generator.tabs.headshot') || '形象照生成'}</span>
             </button>
           </div>
 
+          {/* API Key Button */}
           <button
             onClick={handleOpenKeyModal}
-            className={`w-full sm:w-auto p-2.5 rounded-xl border transition-all shadow-sm flex items-center justify-center gap-2 ${apiKey ? 'bg-white border-cream-dark text-bronze-text hover:border-primary/50' : 'bg-red-50 border-red-200 text-red-500 animate-pulse'}`}
+            className={`w-full p-3 rounded-xl border transition-all shadow-sm flex items-center justify-center gap-2 ${apiKey ? 'bg-white border-cream-dark text-bronze-text hover:border-primary/50' : 'bg-red-50 border-red-200 text-red-500 animate-pulse'}`}
             title={t('generator.apiKey.change')}
           >
             <Key size={16} className={apiKey ? "text-primary" : "text-red-500"} />
