@@ -86,9 +86,71 @@ All user-facing text **MUST** be internationalized.
 * **Borders**: `border-cream-dark`
 * **Icons**: Use `lucide-react` icons. Standard size is often `size={18}` or `size={20}`.
 
+## 5. Mobile-Friendly Image Sharing (Web Share API)
+
+All features that generate or export images **MUST** implement mobile-friendly sharing using the standardized approach.
+
+### Required Implementation
+
+1. **Use the Shared Hook**: Import and use `useImageShare` from `src/hooks/useImageShare.ts`
+
+   ```typescript
+   import { useImageShare } from '../../../hooks/useImageShare';
+   const { shareImage, isSharing } = useImageShare();
+   ```
+
+2. **Call with Metadata**: Always provide descriptive metadata for intelligent filename generation
+
+   ```typescript
+   await shareImage(imageSrc, {
+       filename: 'base-name',
+       metadata: {
+           type: 'sticker' | 'headshot' | 'poster' | 'image',
+           style: styleValue,
+           size: sizeValue,
+           phrase: userPhrase
+       },
+       title: '分享標題',
+       text: '分享描述'
+   });
+   ```
+
+### Filename Standards
+
+Generated filenames follow: `[type]_[metadata]_[date]_[time].png`
+
+**Examples**:
+* `sticker_cute_哈囉_2026-02-04_18-30-15.png`
+* `headshot_photo_1inch_28x35mm_Professional_2026-02-04_18-30-35.png`
+
+### UI/UX Standards
+
+1. **Button Design**:
+   * Icon: `<Download size={18} strokeWidth={2.5} />`
+   * Styling: `p-2.5 bg-primary/20 rounded-full hover:bg-primary/30 active:scale-95`
+
+2. **Button Placement**:
+   * Always visible (not in hover-only overlays)
+   * Place below images or in persistent action bars
+
+3. **Loading State**: Use `isSharing` to show loading and disable button
+
+### Browser Behavior
+
+The hook automatically detects capabilities:
+* **iOS/Android**: Native share panel (save to Files/Drive or share to apps)
+* **Desktop/Old Browsers**: Falls back to traditional download
+* **Error Handling**: Silently handles user cancellation
+
+### Reference
+
+See `src/pages/Generator/components/HeadshotGeneratorTab.tsx` for complete implementation.
+
 ---
 **Checklist for New Features:**
+
 * [ ] Is it registered in `Layout.tsx` (Title & Sidebar)?
 * [ ] Does it use `zh-TW.json` and `en.json`?
 * [ ] Does it use standard container classes?
 * [ ] Are local headers removed?
+* [ ] Does image download/share use `useImageShare` hook?

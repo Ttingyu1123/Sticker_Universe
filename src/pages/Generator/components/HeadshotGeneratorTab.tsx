@@ -372,13 +372,53 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
         }
     };
 
-    const downloadImage = (src: string, filename: string) => {
-        const link = document.createElement('a');
-        link.href = src;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const downloadImage = async (src: string, imageData: GeneratedImage) => {
+        try {
+            // 生成詳細的檔名
+            const preset = SIZE_PRESETS.find(p => p.id === imageData.preset);
+            const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            const time = new Date().toLocaleTimeString('zh-TW', { hour12: false }).replace(/:/g, '-');
+
+            // 檔名格式: headshot_[規格]_[樣式]_[尺寸]_[日期]_[時間].png
+            let filename = 'headshot';
+            if (preset) {
+                filename += `_${preset.id}`;
+                if (preset.size_mm) {
+                    filename += `_${preset.size_mm.width}x${preset.size_mm.height}mm`;
+                }
+            }
+            filename += `_${imageData.style.replace(/\s+/g, '_')}`;
+            filename += `_${date}_${time}.png`;
+
+            // 將 base64 轉為 Blob
+            const response = await fetch(src);
+            const blob = await response.blob();
+
+            // 檢查是否支援 Web Share API（且可分享檔案）
+            const canShare = navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], filename, { type: blob.type })] });
+
+            if (canShare) {
+                // 使用 Web Share API
+                const file = new File([blob], filename, { type: blob.type });
+                await navigator.share({
+                    files: [file],
+                    title: '形象照',
+                    text: `${imageData.style} - ${preset?.nameKey ? t(preset.nameKey) : ''}`,
+                });
+            } else {
+                // Fallback: 傳統下載
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            }
+        } catch (error) {
+            console.error('分享/下載失敗:', error);
+            // 如果分享被取消或失敗，靜默處理（不顯示錯誤）
+        }
     };
 
     const handleSendToPrint = (imageSrc: string) => {
@@ -401,16 +441,25 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                         </h3>
 
                         {!croppedImage ? (
-                            <div
-                                onClick={() => fileInputRef.current?.click()}
-                                className="border-3 border-dashed border-cream-dark/50 hover:border-primary bg-cream-light/50 hover:bg-white rounded-3xl p-8 flex flex-col items-center justify-center cursor-pointer transition-all min-h-[200px] group"
-                            >
-                                <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/10 mb-4 group-hover:scale-110 transition-transform">
-                                    <Upload size={24} className="text-primary" />
+                            <>
+                                <div
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="border-3 border-dashed border-cream-dark/50 hover:border-primary bg-cream-light/50 hover:bg-white rounded-3xl p-8 flex flex-col items-center justify-center cursor-pointer transition-all min-h-[200px] group"
+                                >
+                                    <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/10 mb-4 group-hover:scale-110 transition-transform">
+                                        <Upload size={24} className="text-primary" />
+                                    </div>
+                                    <p className="font-bold text-bronze-text text-sm">{t('headshot.upload_hint')}</p>
                                 </div>
-                                <p className="font-bold text-bronze-text text-sm">{t('headshot.upload_hint')}</p>
-                            </div>
+                                <button
+                                    onClick={() => setShowGallery(true)}
+                                    className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-secondary/10 hover:bg-secondary/20 text-secondary rounded-xl text-sm font-bold transition-colors"
+                                >
+                                    <FolderHeart size={18} />
+                                    從作品集選取
+                                </button>
+                            </>
                         ) : (
                             <div className="relative group">
                                 <div className="rounded-3xl overflow-hidden border border-cream-dark/50 shadow-md">
@@ -447,7 +496,26 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                                 ))}
                             </select>
                             <p className="text-[10px] text-bronze-light mt-1.5 px-1">
-                                {t(SIZE_PRESETS.find(p => p.id === selectedPresetId)?.noteKey || '')}
+                                {(() => {
+                                    const preset = SIZE_PRESETS.find(p => p.id === selectedPresetId);
+                                    if (!preset) return '';
+
+                                    const dimensions = [];
+                                    if (preset.size_mm) {
+                                        dimensions.push(`${preset.size_mm.width}x${preset.size_mm.height}mm`);
+                                    }
+                                    if (preset.size_inch) {
+                                        dimensions.push(`${preset.size_inch.width}x${preset.size_inch.height}inch`);
+                                    }
+                                    if (preset.size_px) {
+                                        dimensions.push(`${preset.size_px.width}x${preset.size_px.height}px`);
+                                    }
+
+                                    const sizeText = dimensions.join(' / ');
+                                    const noteText = preset.noteKey ? t(preset.noteKey) : '';
+
+                                    return sizeText + (noteText && noteText !== preset.noteKey ? ` • ${noteText}` : '');
+                                })()}
                             </p>
                         </div>
 
@@ -658,29 +726,33 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                                         <div key={img.id} className="bg-white p-3 rounded-2xl shadow-sm border border-cream-dark group hover:-translate-y-1 transition-transform duration-300">
                                             <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-3 bg-cream-light">
                                                 <img src={img.src} alt="Result" className="w-full h-full object-cover" />
-                                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[1px]">
-                                                    <button
-                                                        onClick={() => downloadImage(img.src, `headshot-${Date.now()}.png`)}
-                                                        className="p-2 bg-white text-primary rounded-full shadow-lg hover:scale-110 transition-transform"
-                                                        title={t('common.download')}
-                                                    >
-                                                        <Download size={18} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleSendToPrint(img.src)}
-                                                        className="p-2 bg-white text-secondary rounded-full shadow-lg hover:scale-110 transition-transform"
-                                                        title="傳送至列印室"
-                                                    >
-                                                        <Printer size={18} />
-                                                    </button>
-                                                </div>
                                             </div>
                                             <div className="px-1">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <span className="text-xs font-black text-bronze-text">{t(`headshot.styles.${img.style.replace(/\s+/g, '_').toLowerCase()}`) || img.style}</span>
-                                                    <span className="text-[10px] font-bold bg-cream-dark/20 text-bronze-light px-2 py-0.5 rounded-full uppercase">
-                                                        {presetInfo?.apiAspectRatio}
-                                                    </span>
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <span className="text-xs font-black text-bronze-text">{t(`headshot.styles.${img.style.replace(/\s+/g, '_').toLowerCase()}`) || img.style}</span>
+                                                            <span className="text-[10px] font-bold bg-cream-dark/20 text-bronze-light px-2 py-0.5 rounded-full uppercase">
+                                                                {presetInfo?.apiAspectRatio}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            onClick={() => downloadImage(img.src, img)}
+                                                            className="p-2.5 bg-primary/20 text-primary rounded-full hover:bg-primary/30 transition-colors active:scale-95"
+                                                            title={t('common.download')}
+                                                        >
+                                                            <Download size={18} strokeWidth={2.5} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleSendToPrint(img.src)}
+                                                            className="p-2.5 bg-secondary/20 text-secondary rounded-full hover:bg-secondary/30 transition-colors active:scale-95"
+                                                            title="傳送至列印室"
+                                                        >
+                                                            <Printer size={18} strokeWidth={2.5} />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -693,45 +765,49 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
             </div>
 
             {/* Cropping Modal */}
-            {isCropping && image && (
-                <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-                    <div className="bg-white rounded-3xl p-6 w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                        <div className="flex justify-between items-center mb-4 px-2">
-                            <h3 className="text-lg font-black text-bronze-text flex items-center gap-2">
-                                <Scissors size={20} className="text-primary" /> {t('headshot.cropping.title')}
-                            </h3>
-                            <button onClick={cancelCrop} className="text-bronze-light hover:text-bronze-text font-bold">✕</button>
-                        </div>
+            {
+                isCropping && image && (
+                    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+                        <div className="bg-white rounded-3xl p-6 w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+                            <div className="flex justify-between items-center mb-4 px-2">
+                                <h3 className="text-lg font-black text-bronze-text flex items-center gap-2">
+                                    <Scissors size={20} className="text-primary" /> {t('headshot.cropping.title')}
+                                </h3>
+                                <button onClick={cancelCrop} className="text-bronze-light hover:text-bronze-text font-bold">✕</button>
+                            </div>
 
-                        <div className="flex-1 bg-neutral-100 rounded-2xl overflow-hidden relative min-h-[400px]">
-                            <img
-                                ref={imageElementRef}
-                                src={image}
-                                alt="Crop target"
-                                className="max-w-full max-h-[60vh] object-contain mx-auto"
-                            />
-                        </div>
+                            <div className="flex-1 bg-neutral-100 rounded-2xl overflow-hidden relative min-h-[400px]">
+                                <img
+                                    ref={imageElementRef}
+                                    src={image}
+                                    alt="Crop target"
+                                    className="max-w-full max-h-[60vh] object-contain mx-auto"
+                                />
+                            </div>
 
-                        <div className="flex justify-end gap-4 mt-6">
-                            <Button variant="secondary" onClick={cancelCrop} className="bg-neutral-100 hover:bg-neutral-200 text-neutral-600 border-none">
-                                {t('common.cancel')}
-                            </Button>
-                            <Button onClick={confirmCrop} className="bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/20">
-                                {t('headshot.cropping.confirm')}
-                            </Button>
+                            <div className="flex justify-end gap-4 mt-6">
+                                <Button variant="secondary" onClick={cancelCrop} className="bg-neutral-100 hover:bg-neutral-200 text-neutral-600 border-none">
+                                    {t('common.cancel')}
+                                </Button>
+                                <Button onClick={confirmCrop} className="bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/20">
+                                    {t('headshot.cropping.confirm')}
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Gallery Picker Modal */}
-            {showGallery && (
-                <GalleryPicker
-                    onSelect={handleGallerySelect}
-                    onClose={() => setShowGallery(false)}
-                />
-            )}
-        </div>
+            {
+                showGallery && (
+                    <GalleryPicker
+                        onSelect={handleGallerySelect}
+                        onClose={() => setShowGallery(false)}
+                    />
+                )
+            }
+        </div >
     );
 };
 

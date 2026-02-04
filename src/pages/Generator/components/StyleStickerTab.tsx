@@ -11,6 +11,7 @@ import { Sticker, StickerTheme, THEMES } from '../types';
 import { generateSticker } from '../services/geminiService';
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
+import { useImageShare } from '../../../hooks/useImageShare';
 
 // Helper for Theme Icons
 const getThemeIcon = (iconName: string) => {
@@ -261,13 +262,17 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
         }
     };
 
-    const downloadImage = (imageUrl: string, filename: string) => {
-        const link = document.createElement('a');
-        link.href = imageUrl;
-        link.download = `${filename.replace(/\\s/g, '_')}_sticker.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const handleDownloadImage = async (imageUrl: string, phrase: string, style: string) => {
+        await shareImage(imageUrl, {
+            filename: 'sticker',
+            metadata: {
+                type: 'sticker',
+                style: style,
+                phrase: phrase
+            },
+            title: '風格貼圖',
+            text: `${style} - ${phrase}`
+        });
     };
 
     const downloadAllAsZip = async () => {
@@ -489,7 +494,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                     <img src={sticker.imageUrl} alt={sticker.phrase} className="w-full h-full object-contain p-2" />
                                     <div className="absolute inset-0 bg-bronze-text/10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 items-center justify-center backdrop-blur-[2px]">
                                         <button onClick={() => setPreviewImage(sticker.imageUrl)} className="bg-white p-2.5 rounded-full text-bronze-text shadow-lg hover:scale-110 transition-transform" title={t('generator.action.preview')}><Eye size={18} /></button>
-                                        <button onClick={() => downloadImage(sticker.imageUrl, sticker.phrase)} className="bg-white p-2.5 rounded-full text-primary shadow-lg hover:scale-110 transition-transform" title={t('generator.action.download')}><Download size={18} /></button>
+                                        <button onClick={() => handleDownloadImage(sticker.imageUrl, sticker.phrase, sticker.theme)} className="bg-white p-2.5 rounded-full text-primary shadow-lg hover:scale-110 transition-transform active:scale-95" title={t('generator.action.download')}><Download size={18} strokeWidth={2.5} /></button>
                                         <button onClick={() => handleIndividualBgRemoval(sticker.id)} className="bg-white p-2.5 rounded-full text-secondary shadow-lg hover:scale-110 transition-transform" title={t('generator.action.removeBg')}><Scissors size={18} /></button>
                                     </div>
                                 </div>
