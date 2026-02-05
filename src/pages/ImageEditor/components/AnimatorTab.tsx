@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, Image as ImageIcon, Video, Upload, Type, Layers, ChevronUp, ChevronDown, Settings, ZoomIn, ZoomOut, Smartphone, Loader2 } from 'lucide-react';
+import { Download, Image as ImageIcon, Video, Upload, Type, Layers, ChevronUp, ChevronDown, Settings, ZoomIn, ZoomOut, Smartphone, Loader2, MessageCircle } from 'lucide-react';
 import '../../Animator/animations.css';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { LinePreviewModal } from '../../../components/LinePreviewModal';
+import { BubblePicker } from '../../Editor/components/BubblePicker';
 // @ts-ignore
 import UPNG from 'upng-js';
 import GIF from 'gif.js';
@@ -19,6 +20,7 @@ const AnimatorTab = () => {
     const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
     const [isExporting, setIsExporting] = useState(false);
     const [showGallery, setShowGallery] = useState(false);
+    const [showBubblePicker, setShowBubblePicker] = useState(false);
 
     // LINE Preview State
     const [showLinePreview, setShowLinePreview] = useState(false);
@@ -46,11 +48,13 @@ const AnimatorTab = () => {
             name: `Image ${layers.length + i + 1}`,
             type: 'image' as const,
             content: URL.createObjectURL(blob),
-            x: 0,
-            y: 0,
+            x: canvasSize.width / 2,
+            y: canvasSize.height / 2,
             scale: 1,
             rotation: 0,
-            animation: 'none' as AnimationType
+            animation: 'none' as AnimationType,
+            width: 200, // Default width for imported images
+            height: 200 // Default height
         }));
 
         setLayers(prev => [...prev, ...newLayers]);
@@ -66,11 +70,13 @@ const AnimatorTab = () => {
                 name: file.name.split('.')[0] || 'Image',
                 type: 'image',
                 content: URL.createObjectURL(file),
-                x: 0,
-                y: 0,
+                x: canvasSize.width / 2,
+                y: canvasSize.height / 2,
                 scale: 1,
                 rotation: 0,
-                animation: 'none'
+                animation: 'none',
+                width: 200,
+                height: 200
             };
             setLayers(prev => [...prev, newLayer]);
             setSelectedLayerId(newLayer.id);
@@ -85,17 +91,42 @@ const AnimatorTab = () => {
             name: 'Text',
             type: 'text',
             content: 'Text',
-            x: 0,
-            y: 0,
+            x: canvasSize.width / 2,
+            y: canvasSize.height / 2,
             scale: 1,
             rotation: 0,
             animation: 'none',
             fontSize: 24,
             color: '#000000',
-            fontFamily: 'sans-serif'
+            fontFamily: 'sans-serif',
+            width: 100, // Default width
+            height: 40 // Default height
         };
         setLayers(prev => [...prev, newLayer]);
         setSelectedLayerId(newLayer.id);
+    };
+
+    const handleAddBubble = (svgContent: string) => {
+        // Use Base64 encoding for robust SVG handling
+        const encoded = btoa(unescape(encodeURIComponent(svgContent)));
+        const dataUrl = `data:image/svg+xml;base64,${encoded}`;
+
+        const newLayer: Layer = {
+            id: generateId(),
+            name: t('editor.toolbar.bubble') || 'Speech Bubble',
+            type: 'image',
+            content: dataUrl,
+            x: canvasSize.width / 2,
+            y: canvasSize.height / 2,
+            scale: 0.5,
+            rotation: 0,
+            animation: 'none',
+            width: 200, // Reduced from 400 * 0.5 effectively
+            height: 150 // Reduced from 300 * 0.5
+        };
+        setLayers(prev => [...prev, newLayer]);
+        setSelectedLayerId(newLayer.id);
+        setShowBubblePicker(false);
     };
 
     const handleUpdateLayer = (id: string, updates: Partial<Layer>) => {
@@ -267,7 +298,17 @@ const AnimatorTab = () => {
                     <button onClick={handleAddText} className="px-3 py-1.5 bg-white text-slate-600 rounded-lg hover:bg-slate-50 hover:text-indigo-600 font-bold flex items-center gap-2 border border-slate-200 text-sm shadow-sm transition-colors">
                         <Type size={16} /> {t('animator.text')}
                     </button>
+                    <button onClick={() => setShowBubblePicker(true)} className="px-3 py-1.5 bg-white text-slate-600 rounded-lg hover:bg-slate-50 hover:text-indigo-600 font-bold flex items-center gap-2 border border-slate-200 text-sm shadow-sm transition-colors">
+                        <MessageCircle size={16} /> {t('animator.bubble')}
+                    </button>
                 </div>
+
+                {showBubblePicker && (
+                    <BubblePicker
+                        onSelect={handleAddBubble}
+                        onClose={() => setShowBubblePicker(false)}
+                    />
+                )}
             </div>
 
             <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -299,7 +340,7 @@ const AnimatorTab = () => {
                     </div>
 
                     <div className="bg-slate-100/50 p-8 rounded-3xl shadow-inner mb-4 flex items-center justify-center min-h-[400px] w-full overflow-hidden border border-slate-200/50">
-                        <div style={{ transform: `scale(${zoom})`, transition: 'transform 0.2s ease-out' }}>
+                        <div>
                             <LayerCanvas
                                 layers={layers}
                                 selectedLayerId={selectedLayerId}

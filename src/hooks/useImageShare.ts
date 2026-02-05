@@ -8,6 +8,8 @@ export interface ShareImageOptions {
         size?: string;
         phrase?: string;
         prompt?: string;
+        direction?: string; // e.g. Horizontal, Vertical, Square
+        count?: string | number; // e.g. 1, 4, 8
     };
     title?: string;
     text?: string;
@@ -17,32 +19,41 @@ export const useImageShare = () => {
     const [isSharing, setIsSharing] = useState(false);
 
     const generateFilename = (options: ShareImageOptions): string => {
-        const date = new Date().toISOString().split('T')[0];
-        const time = new Date().toLocaleTimeString('zh-TW', { hour12: false }).replace(/:/g, '-');
+        const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
+        // const time = new Date().toLocaleTimeString('zh-TW', { hour12: false }).replace(/:/g, ''); // Removed time to keep it cleaner as per "Date" request usually implies YYYYMMDD
 
-        let filename = options.metadata?.type || 'image';
+        // Base: Size_Count_Direction_Date
+        let parts: string[] = [];
 
-        // 添加元資料
-        if (options.metadata?.style) {
-            filename += `_${options.metadata.style.replace(/\s+/g, '_')}`;
-        }
+        // 1. Size (Dimensions/Resolution)
         if (options.metadata?.size) {
-            filename += `_${options.metadata.size.replace(/\s+/g, '_')}`;
-        }
-        if (options.metadata?.phrase) {
-            // 限制短語長度，避免檔名過長
-            const phrase = options.metadata.phrase.substring(0, 20).replace(/\s+/g, '_');
-            filename += `_${phrase}`;
-        }
-        if (options.metadata?.prompt) {
-            // 限制提示詞長度
-            const prompt = options.metadata.prompt.substring(0, 30).replace(/\s+/g, '_');
-            filename += `_${prompt}`;
+            parts.push(options.metadata.size.replace(/[:\s]/g, '-'));
         }
 
-        filename += `_${date}_${time}.png`;
+        // 2. Count (張數/格數)
+        if (options.metadata?.count) {
+            parts.push(`${options.metadata.count}p`);
+        }
 
-        return filename;
+        // 3. Direction (方向)
+        if (options.metadata?.direction) {
+            parts.push(options.metadata.direction);
+        }
+
+        // 4. Date
+        parts.push(date);
+
+        // Add Style/Type if needed for uniqueness, or stick to user request. 
+        // User asked for: "下載檔名包含尺寸、張數、方向、日期"
+        // But let's keep 'manga' or type prefix if provided in filename arg?
+        // The function receives `filename` in options.filename which is usually used as prefix.
+
+        let finalName = options.filename || 'image';
+        if (parts.length > 0) {
+            finalName += '_' + parts.join('_');
+        }
+
+        return finalName + '.png';
     };
 
     const shareImage = async (imageSrc: string, options: ShareImageOptions): Promise<boolean> => {

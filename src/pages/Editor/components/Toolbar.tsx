@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Undo, Redo, Image as ImageIcon, Type, Grid, Square, Sun, Download, Smartphone, Layout, Save } from 'lucide-react';
+import { Undo, Redo, Image as ImageIcon, Type, Grid, Square, Sun, Download, Smartphone, Layout, Save, MessageCircle } from 'lucide-react';
 import { CanvasBackground } from '../types';
 
 
@@ -14,6 +14,7 @@ interface ToolbarProps {
   onAddImage: (file: File) => void;
   onAddFromGallery: () => void;
   onAddText: () => void;
+  onAddBubble: () => void;
   onDownload: () => void;
   onSaveToGallery: () => void;
   onLinePreview: () => void;
@@ -29,10 +30,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onAddImage,
   onAddFromGallery,
   onAddText,
+  onAddBubble,
   onDownload,
   onSaveToGallery,
   onLinePreview,
 }) => {
+  console.log('Toolbar Rendered. onAddBubble present?', !!onAddBubble);
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -45,7 +48,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
   const ActionButton = ({ onClick, icon: Icon, label, primary = false, active = false }: { onClick: () => void, icon: any, label?: string, primary?: boolean, active?: boolean }) => (
     <button
-      onClick={onClick}
+      onClick={() => {
+        console.log(`Clicked ActionButton: ${label}`);
+        if (!onClick) console.error('onClick is undefined for', label);
+        onClick();
+      }}
       className={`
         flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all border
         ${primary
@@ -128,6 +135,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         {/* Center: Add Content */}
         <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl shadow-sm border border-indigo-50">
           <ActionButton onClick={onAddText} icon={Type} label={t('editor.toolbar.text') || 'Text'} />
+
+          {/* Debug wrapper for Bubble button */}
+          <ActionButton onClick={onAddBubble} icon={MessageCircle} label={t('editor.toolbar.bubble') || 'Bubble'} />
+
           <div className="w-px h-4 bg-slate-100" />
           <ActionButton onClick={() => fileInputRef.current?.click()} icon={ImageIcon} label={t('editor.toolbar.image') || 'Image'} />
           <div className="w-px h-4 bg-slate-100" />

@@ -6,7 +6,8 @@ export enum ComicLayout {
     FourVertical = '4 Panels Vertical Stack',
     FourGrid = '4 Panels Grid (2x2)',
     FiveMix = '5 Panels Dynamic Layout',
-    SixGrid = '6 Panels Grid (2 columns x 3 rows)'
+    SixGrid = '6 Panels Grid (2 columns x 3 rows)',
+    EightGrid = '8 Panels Grid (2 columns x 4 rows)'
 }
 
 export enum ComicStyle {
@@ -30,6 +31,12 @@ export enum ColorMode {
     Bit8 = '8-Bit Pixel Art Color Palette, Retro Game Style'
 }
 
+export enum Resolution {
+    R1K = 'Standard Detail (1K)',
+    R2K = 'High Resolution (2K) with detailed textures',
+    R4K = 'Ultra High Resolution (4K), incredibly detailed, sharp focus'
+}
+
 export interface Character {
     id: string;
     name: string;
@@ -46,6 +53,7 @@ export interface ComicConfig {
     theme: string;
     withText: boolean;
     textLanguage: string;
+    resolution: Resolution;
     negativePrompt: string;
     characters: Character[];
 }

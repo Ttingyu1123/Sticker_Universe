@@ -1,4 +1,4 @@
-import { ComicLayout, ComicStyle, ColorMode } from './types';
+import { ComicLayout, ComicStyle, ColorMode, Resolution } from './types';
 
 export const LAYOUT_OPTIONS = [
     { id: ComicLayout.Single, label: '1格:滿版' },
@@ -9,6 +9,7 @@ export const LAYOUT_OPTIONS = [
     { id: ComicLayout.FourGrid, label: '4格:田字' },
     { id: ComicLayout.FiveMix, label: '5格:任意' },
     { id: ComicLayout.SixGrid, label: '6格:三排' },
+    { id: ComicLayout.EightGrid, label: '8格:四排' },
 ];
 
 export const STYLE_OPTIONS = [
@@ -47,4 +48,10 @@ export const TEXT_LANGUAGES = [
     { id: 'en', label: 'English' },
     { id: 'ja', label: '日本語' },
     { id: 'ko', label: '한국어' },
+];
+
+export const RESOLUTION_OPTIONS = [
+    { id: Resolution.R1K, label: '1K 標準畫質' },
+    { id: Resolution.R2K, label: '2K 高畫質' },
+    { id: Resolution.R4K, label: '4K 超高清' },
 ];

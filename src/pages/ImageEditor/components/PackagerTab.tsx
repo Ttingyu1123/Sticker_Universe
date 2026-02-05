@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { Upload, X, Check, Image as ImageIcon, Settings2, Download, RefreshCw, Layers, Zap, Maximize2, Move, Type, ShieldCheck, ChevronRight, Wand2, Palette, Sun, Sparkles, FileArchive, CheckCircle2, AlertCircle, Plus, Minus, ZoomIn, ZoomOut, RotateCcw, Undo2, Redo2, Star, Grip, Trash2, Ruler } from 'lucide-react';
+import { AlertCircle, Check, CheckCircle2, ChevronRight, Coins, Crop, Download, Eraser, FileArchive, FileDown, Grip, Image as ImageIcon, Layers, LayoutGrid, Maximize, Maximize2, Minus, Move, Palette, Plus, RefreshCcw, RefreshCw, RotateCcw, Ruler, Save, Settings, Settings2, Share2, ShieldCheck, Sparkles, Star, Sun, Trash2, Type, Undo2, Upload, Redo2, Wand2, X, Zap, ZoomIn, ZoomOut } from 'lucide-react';
 import { processImage } from '../../Packager/services/ai/backgroundRemoval';
 import { loadImage } from '../../Packager/utils/helpers';
 import JSZip from 'jszip';
@@ -78,6 +78,30 @@ const Stepper = ({ label, value, min, max, onChange }: { label: string, value: n
     </div>
 );
 
+const normalizeImage = async (file: File): Promise<Blob> => {
+    try {
+        // Use createImageBitmap to handle EXIF rotation automatically
+        // Explicitly request 'from-image' to respect EXIF orientation
+        const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+        const canvas = document.createElement('canvas');
+        canvas.width = bitmap.width;
+        canvas.height = bitmap.height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(bitmap, 0, 0);
+        return new Promise((resolve, reject) => {
+            // Force PNG to ensure compatibility and avoid blank previews for weird types
+            canvas.toBlob(blob => {
+                if (blob) resolve(blob);
+                else reject(new Error('Canvas normalization failed'));
+            }, 'image/png');
+        });
+    } catch (e) {
+        console.error('Image Normalization failed (EXIF rotation might be lost):', e);
+        // Fallback: This might result in crop mismatch if EXIF was present
+        return file;
+    }
+};
+
 const PackagerTab: React.FC = () => {
     const { t } = useTranslation();
     const [fileQueue, setFileQueue] = useState<FileItem[]>([]);
@@ -129,15 +153,19 @@ const PackagerTab: React.FC = () => {
         rowLines: [0, 0.5, 1],
         colLines: [0, 0.5, 1],
         scaleFactor: 1,
+        filenamePrefix: 'sticker',
         preset: 'none',
         margin: 0.05,
         outputFormat: 'png',
-        filenamePrefix: 'sticker',
         useStroke: false,
         strokeThickness: 5,
         strokeColor: '#ffffff',
         useShadow: false,
-        useFeathering: false
+        useFeathering: false,
+        useDoubleStroke: false,
+        secondStrokeThickness: 5,
+        secondStrokeColor: '#000000',
+        allowOuterCrop: false
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -210,6 +238,15 @@ const PackagerTab: React.FC = () => {
         }
     };
 
+    const resetGrid = (e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        const r = config.rows;
+        const c = config.cols;
+        const newRows = Array.from({ length: r + 1 }, (_, i) => i / r);
+        const newCols = Array.from({ length: c + 1 }, (_, i) => i / c);
+        setConfig(prev => ({ ...prev, rowLines: newRows, colLines: newCols, manualMode: false }));
+    };
+
     const startPan = (e: React.MouseEvent) => {
         if (e.button === 1 || (e.button === 0 && e.altKey)) {
             setIsPanning(true);
@@ -227,7 +264,10 @@ const PackagerTab: React.FC = () => {
     };
 
     const handleLineDrag = (type: 'row' | 'col', index: number, e: React.MouseEvent | React.TouchEvent) => {
-        if (!config.manualMode || !actualImageContainerRef.current) return;
+        if (!actualImageContainerRef.current) return;
+        // Auto-enable manual mode if not checking for it specifically
+        // But we need to ensure config updates reflect manualMode: true
+
         e.stopPropagation();
         let currentRows = [...config.rowLines];
         let currentColS = [...config.colLines];
@@ -236,11 +276,48 @@ const PackagerTab: React.FC = () => {
             const clientX = 'touches' in moveEvent ? moveEvent.touches[0].clientX : (moveEvent as MouseEvent).clientX;
             const clientY = 'touches' in moveEvent ? moveEvent.touches[0].clientY : (moveEvent as MouseEvent).clientY;
             if (type === 'row') {
-                currentRows[index] = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-                currentRows.sort((a, b) => a - b);
+                const isOuter = index === 0 || index === config.rowLines.length - 1;
+                // If it's an outer line, update it based on allowOuterCrop constraint
+                // Actually constraint logic is handled by the UI interactions preventing drag of disabled lines
+                // Here we just ensure values are valid (0-1) and correctly ordered relative to neighbors
+
+                let val = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+
+                // Add constraints: line N cannot cross line N-1 or N+1
+                // For index 0: val < currentRows[1]
+                // For index N: val > currentRows[N-1]
+                // For internal: currentRows[i-1] < val < currentRows[i+1]
+
+                const prevLine = index > 0 ? currentRows[index - 1] : -1;
+                const nextLine = index < currentRows.length - 1 ? currentRows[index + 1] : 2;
+
+                // Gap constraint (minimum space between lines)
+                const GAP = 0.01;
+                if (val <= prevLine + GAP) val = prevLine + GAP;
+                if (val >= nextLine - GAP) val = nextLine - GAP;
+
+                // Final clamp
+                val = Math.max(0, Math.min(1, val));
+                currentRows[index] = val;
+
+                // Don't sort if we are strictly managing indices, sorting might swap lines which is confusing
+                // But original code sorted, let's keep it if not outer? 
+                // Actually sorting breaks the "outer is outer" concept if dragged past inner.
+                // So we rely on the clamp above to prevent crossing.
+                // currentRows.sort((a, b) => a - b); 
+
             } else {
-                currentColS[index] = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-                currentColS.sort((a, b) => a - b);
+                let val = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                const prevLine = index > 0 ? currentColS[index - 1] : -1;
+                const nextLine = index < currentColS.length - 1 ? currentColS[index + 1] : 2;
+
+                const GAP = 0.01;
+                if (val <= prevLine + GAP) val = prevLine + GAP;
+                if (val >= nextLine - GAP) val = nextLine - GAP;
+
+                val = Math.max(0, Math.min(1, val));
+                currentColS[index] = val;
+                // currentColS.sort((a, b) => a - b);
             }
             setConfig(prev => ({ ...prev, rowLines: [...currentRows], colLines: [...currentColS] }));
         };
@@ -253,18 +330,28 @@ const PackagerTab: React.FC = () => {
         window.addEventListener('touchmove', handleMove); window.addEventListener('touchend', handleUp);
     };
 
-    const handleFiles = async (files: FileList) => {
-        const newItems: FileItem[] = [];
+
+
+    const handleFiles = async (files: FileList | null) => {
+        if (!files) return;
+        const newFiles: FileItem[] = [];
         for (let i = 0; i < files.length; i++) {
-            const f = files[i];
-            if (!f.type.startsWith('image/')) continue;
-            const id = Math.random().toString(36).substr(2, 9);
-            const preview = URL.createObjectURL(f);
-            const img = await loadImage(preview);
-            newItems.push({ id, file: f, preview, stats: { width: img.width, height: img.height, aspectRatio: img.width / img.height, label: `${img.width}x${img.height} ` } });
+            const rawFile = files[i];
+            const normalizedBlob = await normalizeImage(rawFile);
+            // Create a new File object if possible to keep metadata, but Blob is fine for internal use
+            const file = new File([normalizedBlob], rawFile.name, { type: rawFile.type, lastModified: rawFile.lastModified });
+
+            newFiles.push({
+                id: crypto.randomUUID(),
+                file: file,
+                preview: URL.createObjectURL(file), // Now Preview is EXIF-baked
+                isProcessed: false
+            });
         }
-        setFileQueue(prev => [...prev, ...newItems]);
-        if (!activeFileId && newItems.length > 0) setActiveFileId(newItems[0].id);
+        setFileQueue(prev => [...prev, ...newFiles]);
+        if (!activeFileId && newFiles.length > 0) {
+            setActiveFileId(newFiles[0].id);
+        }
     };
 
     const removeFile = (id: string) => {
@@ -355,16 +442,48 @@ const PackagerTab: React.FC = () => {
                 if (typeof activeBlob !== 'string') URL.revokeObjectURL(imgUrl);
                 setProgress(Math.round(((fIdx + 1) / newQueue.length) * 100));
             }
-            setFileQueue(newQueue); setStatus('success');
+            setFileQueue(newQueue);
+
+            // Generate simple results without beautification
+            const newProcessedTiles: TileInfo[] = [];
+            const zip = new JSZip();
+
+            for (let fIdx = 0; fIdx < newQueue.length; fIdx++) {
+                const item = newQueue[fIdx];
+                if (!item.baseTiles) continue;
+
+                const folder = newQueue.length > 1 ? `${item.file.name.split('.')[0]}/` : '';
+
+                for (let i = 0; i < item.baseTiles.length; i++) {
+                    const tile = item.baseTiles[i];
+                    const blob = await fetch(tile.url).then(r => r.blob());
+                    const name = `${config.filenamePrefix}_${Math.floor(i / (config.colLines.length - 1)) + 1}_${(i % (config.colLines.length - 1)) + 1}.png`;
+
+                    zip.file(`${folder}${name}`, blob);
+
+                    if (item.id === activeFileId) {
+                        newProcessedTiles.push(tile);
+                    }
+                }
+            }
+
+            setZipBlob(await zip.generateAsync({ type: 'blob' }));
+            setProcessedTiles(newProcessedTiles);
+
+            setStatus('success');
             setElapsedTime(((Date.now() - startTime) / 1000).toFixed(1));
             setStatusMsg(t('packager.status.coreComplete'));
-            applyBeautification();
+            setViewMode('result');
+
         } catch (e: any) { setStatus('error'); setStatusMsg(`${t('packager.status.processingFail')}${e.message} `); }
     };
 
-    const applyBeautification = async () => {
-        if (!isCoreProcessed) return;
-        setStatus('splitting'); setStatusMsg(t('packager.status.applying'));
+    const applyBeautification = async (silent = false) => {
+        if (!isCoreProcessed || fileQueue.length === 0) return;
+        if (!silent) {
+            setStatus('formatting');
+            setStatusMsg(t('packager.status.applying') || 'Applying effects...');
+        }
         const startTime = Date.now();
         const zip = new JSZip();
         const mimeType = config.outputFormat === 'webp' ? 'image/webp' : 'image/png';
@@ -372,67 +491,150 @@ const PackagerTab: React.FC = () => {
         const newProcessedTiles: TileInfo[] = [];
 
         try {
+            const presetSize = { none: null, line: { w: 370, h: 320 }, telegram: { w: 512, h: 512 } }[config.preset];
+
             for (let fIdx = 0; fIdx < fileQueue.length; fIdx++) {
                 const item = fileQueue[fIdx];
-                const tiles = item.baseTiles!;
-                const presetSize = { none: null, line: { w: 370, h: 320 }, telegram: { w: 512, h: 512 } }[config.preset];
+                if (!item.baseTiles) continue;
 
-                for (let i = 0; i < tiles.length; i++) {
-                    const base = tiles[i];
-                    const finalW = presetSize ? presetSize.w : base.width;
-                    const finalH = presetSize ? presetSize.h : base.height;
+                const folder = fileQueue.length > 1 ? `${item.file.name.split('.')[0]}/` : '';
+
+                for (let i = 0; i < item.baseTiles.length; i++) {
+                    const tile = item.baseTiles[i];
+                    const img = await loadImage(tile.url);
+
+                    const finalW = presetSize ? presetSize.w : img.width;
+                    const finalH = presetSize ? presetSize.h : img.height;
+
                     const canvas = document.createElement('canvas');
-                    canvas.width = finalW; canvas.height = finalH;
+                    canvas.width = finalW;
+                    canvas.height = finalH;
                     const ctx = canvas.getContext('2d')!;
 
-                    const safeW = finalW * (1 - config.margin * 2), safeH = finalH * (1 - config.margin * 2);
-                    const scale = Math.min(safeW / base.width, safeH / base.height, 100);
-                    const dw = base.width * scale, dh = base.height * scale;
-                    const dx = (finalW - dw) / 2, dy = (finalH - dh) / 2;
+                    const safeW = finalW * (1 - config.margin * 2);
+                    const safeH = finalH * (1 - config.margin * 2);
+                    const scale = Math.min(safeW / img.width, safeH / img.height, 100);
+                    const dw = img.width * scale;
+                    const dh = img.height * scale;
+                    const dx = (finalW - dw) / 2;
+                    const dy = (finalH - dh) / 2;
 
                     if (config.useFeathering) ctx.filter = 'blur(1px)';
+
                     if (config.useShadow) {
-                        ctx.shadowColor = 'rgba(0,0,0,0.25)'; ctx.shadowBlur = 12 * scale;
-                        ctx.shadowOffsetX = 3 * scale; ctx.shadowOffsetY = 3 * scale;
+                        ctx.shadowColor = 'rgba(0,0,0,0.25)';
+                        ctx.shadowBlur = 12 * scale;
+                        ctx.shadowOffsetX = 3 * scale;
+                        ctx.shadowOffsetY = 3 * scale;
                     }
+
                     if (config.useStroke) {
-                        const sCanvas = document.createElement('canvas'); sCanvas.width = finalW; sCanvas.height = finalH;
+                        const sCanvas = document.createElement('canvas');
+                        sCanvas.width = finalW;
+                        sCanvas.height = finalH;
                         const sCtx = sCanvas.getContext('2d')!;
-                        const st = config.strokeThickness * scale;
-                        for (let a = 0; a < 360; a += 30) {
-                            const rad = a * Math.PI / 180;
-                            sCtx.drawImage(base.image!, dx + Math.cos(rad) * st, dy + Math.sin(rad) * st, dw, dh);
+
+                        // Pass 1: Outer Stroke (Double Stroke) - drawn first (behind)
+                        if (config.useDoubleStroke) {
+                            const outerThickness = (config.strokeThickness + config.secondStrokeThickness) * scale;
+                            for (let a = 0; a < 360; a += 15) { // Increased density for smoother corners
+                                const rad = a * Math.PI / 180;
+                                sCtx.drawImage(img, dx + Math.cos(rad) * outerThickness, dy + Math.sin(rad) * outerThickness, dw, dh);
+                            }
+                            sCtx.globalCompositeOperation = 'source-in';
+                            sCtx.fillStyle = config.secondStrokeColor;
+                            sCtx.fillRect(0, 0, finalW, finalH);
+
+                            // Reset for inner stroke
+                            sCtx.globalCompositeOperation = 'source-over';
                         }
-                        sCtx.globalCompositeOperation = 'source-in'; sCtx.fillStyle = config.strokeColor;
-                        sCtx.fillRect(0, 0, finalW, finalH);
+
+                        // Pass 2: Inner Stroke - drawn on top of outer stroke (or empty canvas)
+                        const innerCanvas = document.createElement('canvas');
+                        innerCanvas.width = finalW;
+                        innerCanvas.height = finalH;
+                        const innerCtx = innerCanvas.getContext('2d')!;
+
+                        const innerThickness = config.strokeThickness * scale;
+                        for (let a = 0; a < 360; a += 15) {
+                            const rad = a * Math.PI / 180;
+                            innerCtx.drawImage(img, dx + Math.cos(rad) * innerThickness, dy + Math.sin(rad) * innerThickness, dw, dh);
+                        }
+                        innerCtx.globalCompositeOperation = 'source-in';
+                        innerCtx.fillStyle = config.strokeColor;
+                        innerCtx.fillRect(0, 0, finalW, finalH);
+
+                        // Combine strokes: Draw inner stroke onto outer stroke (sCtx)
+                        sCtx.drawImage(innerCanvas, 0, 0);
+
+                        // Draw combined strokes onto main canvas
                         ctx.drawImage(sCanvas, 0, 0);
                     }
-                    ctx.drawImage(base.image!, dx, dy, dw, dh);
+
+                    ctx.drawImage(img, dx, dy, dw, dh);
 
                     const finalBlob = await new Promise<Blob | null>(r => canvas.toBlob(r, mimeType, 0.92));
                     if (finalBlob) {
-                        const folder = fileQueue.length > 1 ? `${item.file.name.split('.')[0]}/` : '';
                         const name = `${config.filenamePrefix}_${Math.floor(i / (config.colLines.length - 1)) + 1}_${(i % (config.colLines.length - 1)) + 1}.${extension}`;
                         zip.file(`${folder}${name}`, finalBlob);
-                        if (item.id === activeFileId) newProcessedTiles.push({ url: URL.createObjectURL(finalBlob), width: finalW, height: finalH });
+                        const newUrl = URL.createObjectURL(finalBlob);
+
+                        if (item.id === activeFileId) {
+                            newProcessedTiles.push({ ...tile, url: newUrl, width: finalW, height: finalH });
+                        }
                     }
                 }
             }
-            setZipBlob(await zip.generateAsync({ type: 'blob' })); setProcessedTiles(newProcessedTiles);
-            setZipBlob(await zip.generateAsync({ type: 'blob' })); setProcessedTiles(newProcessedTiles);
-            setStatus('success'); setElapsedTime(((Date.now() - startTime) / 1000).toFixed(1));
-            setStatusMsg(`${t('packager.status.complete')}`); setViewMode('result');
-        } catch (e: any) { setStatus('error'); setStatusMsg(`${t('packager.status.failed')}${e.message}`); }
+
+            setZipBlob(await zip.generateAsync({ type: 'blob' }));
+            if (newProcessedTiles.length > 0) setProcessedTiles(newProcessedTiles);
+
+            setStatus('success');
+            setElapsedTime(((Date.now() - startTime) / 1000).toFixed(1));
+            if (!silent) setStatusMsg(t('packager.status.complete') || 'Done!');
+            setViewMode('result');
+
+        } catch (e: any) {
+            if (!silent) {
+                setStatus('error');
+                setStatusMsg(`${t('packager.status.failed') || 'Failed:'} ${e.message}`);
+            }
+            console.error(e);
+        }
     };
+
+    // Auto-update preview when beautify settings change
+    useEffect(() => {
+        if (!isCoreProcessed || fileQueue.length === 0) return;
+
+        const timer = setTimeout(() => {
+            applyBeautification(true);
+        }, 600);
+
+        return () => clearTimeout(timer);
+    }, [
+        config.preset,
+        config.margin,
+        config.outputFormat,
+        config.useStroke,
+        config.strokeThickness,
+        config.strokeColor,
+        config.useShadow,
+        config.useFeathering,
+        config.filenamePrefix,
+        config.useDoubleStroke,
+        config.secondStrokeThickness,
+        config.secondStrokeColor
+    ]);
+
+
 
     const reset = () => { fileQueue.forEach(revokeItemResources); setFileQueue([]); setActiveFileId(null); setZipBlob(null); setProcessedTiles([]); setStatus('idle'); setElapsedTime(null); };
 
     const estimatedSize = useMemo(() => {
         if (!activeFile?.stats) return null;
-        if (config.preset === 'line') return { w: 370, h: 320, label: t('packager.phase2.line') };
-        if (config.preset === 'telegram') return { w: 512, h: 512, label: t('packager.phase2.telegram') };
         return { w: Math.round((config.colLines[1] - config.colLines[0]) * activeFile.stats.width * config.scaleFactor), h: Math.round((config.rowLines[1] - config.rowLines[0]) * activeFile.stats.height * config.scaleFactor), label: t('packager.phase1.outputSize') };
-    }, [activeFile, config.colLines, config.rowLines, config.scaleFactor, config.preset]);
+    }, [activeFile, config.colLines, config.rowLines, config.scaleFactor]);
 
     return (
         <div className="h-full select-none font-sans text-slate-700 bg-transparent">
@@ -514,39 +716,89 @@ const PackagerTab: React.FC = () => {
                                     )}
                                 </div>
 
+                                {/* Mobile Toolbar (Horizontal, above canvas) */}
+                                <div className="md:hidden flex items-center justify-between mb-3 gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                                    <div className="flex bg-white/50 p-1 rounded-xl shadow-sm border border-cream-dark gap-1 shrink-0">
+                                        <button onClick={() => setZoom(prev => Math.min(5, prev + 0.25))} className="p-2 hover:bg-white rounded-lg text-primary transition-colors" title={t('common.zoomIn')}><ZoomIn size={18} /></button>
+                                        <button onClick={() => setZoom(prev => Math.max(0.5, prev - 0.25))} className="p-2 hover:bg-white rounded-lg text-primary transition-colors" title={t('common.zoomOut')}><ZoomOut size={18} /></button>
+                                        <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="p-2 hover:bg-white rounded-lg text-primary transition-colors" title={t('common.resetZoom')}><Maximize size={18} /></button>
+                                    </div>
+
+                                    <div className="flex bg-white/50 p-1 rounded-xl shadow-sm border border-cream-dark gap-1 shrink-0">
+                                        <button onClick={undo} disabled={historyIdx <= 0} className={`p-2 rounded-lg transition-colors ${historyIdx > 0 ? 'text-primary hover:bg-white' : 'text-gray-400 cursor-not-allowed'}`} title={t('common.undo')}><Undo2 size={18} /></button>
+                                        <button onClick={redo} disabled={historyIdx >= history.length - 1} className={`p-2 rounded-lg transition-colors ${historyIdx < history.length - 1 ? 'text-primary hover:bg-white' : 'text-gray-400 cursor-not-allowed'}`} title={t('common.redo')}><Redo2 size={18} /></button>
+                                        <button onClick={resetGrid} className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" title={t('packager.actions.restore')}><RefreshCcw size={18} /></button>
+                                    </div>
+
+                                    {viewMode === 'original' && activeFile && (
+                                        <button onClick={autoDetectGrid} className="bg-primary text-white p-2.5 rounded-xl shadow-sm hover:bg-primary-hover transition-all flex items-center gap-1.5 shrink-0">
+                                            <Sparkles size={16} />
+                                            <span className="text-xs font-bold">{t('packager.preview.aiDetect')}</span>
+                                        </button>
+                                    )}
+                                </div>
+
                                 <div className="relative rounded-2xl border border-cream-dark min-h-[500px] bg-cream-medium/20 overflow-hidden flex items-center justify-center cursor-grab active:cursor-grabbing shadow-inner" onWheel={handleWheel} onMouseDown={startPan} onMouseMove={onPan} onMouseUp={() => setIsPanning(false)}>
-                                    <div className="absolute top-4 left-4 z-40 flex flex-col gap-2">
+                                    <div className="hidden md:flex absolute top-4 left-4 z-40 flex-col gap-2">
                                         <div className="bg-white/90 backdrop-blur-md p-1 rounded-xl shadow-lg border border-white flex flex-col gap-1">
-                                            <button onClick={() => setZoom(prev => Math.min(5, prev + 0.25))} className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-colors"><ZoomIn size={16} /></button>
-                                            <button onClick={() => setZoom(prev => Math.max(0.5, prev - 0.25))} className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-colors"><ZoomOut size={16} /></button>
-                                            <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-colors"><RotateCcw size={16} /></button>
+                                            <button onClick={() => setZoom(prev => Math.min(5, prev + 0.25))} className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-colors" title={t('common.zoomIn')}><ZoomIn size={16} /></button>
+                                            <button onClick={() => setZoom(prev => Math.max(0.5, prev - 0.25))} className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-colors" title={t('common.zoomOut')}><ZoomOut size={16} /></button>
+                                            <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-colors" title={t('common.resetZoom')}><Maximize size={16} /></button>
                                         </div>
+
+                                        <div className="bg-white/90 backdrop-blur-md p-1 rounded-xl shadow-lg border border-white flex flex-col gap-1">
+                                            <button onClick={undo} disabled={historyIdx <= 0} className={`p-2 rounded-lg transition-colors ${historyIdx > 0 ? 'text-primary hover:bg-primary/10' : 'text-gray-300 cursor-not-allowed'}`} title={t('common.undo')}><Undo2 size={16} /></button>
+                                            <button onClick={redo} disabled={historyIdx >= history.length - 1} className={`p-2 rounded-lg transition-colors ${historyIdx < history.length - 1 ? 'text-primary hover:bg-primary/10' : 'text-gray-300 cursor-not-allowed'}`} title={t('common.redo')}><Redo2 size={16} /></button>
+                                            <button onClick={resetGrid} className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" title={t('packager.actions.restore')}><RefreshCcw size={16} /></button>
+                                        </div>
+
                                         {viewMode === 'original' && activeFile && (
-                                            <button onClick={autoDetectGrid} className="bg-primary text-white p-2.5 rounded-xl shadow-lg hover:bg-primary-hover transition-all flex items-center gap-2 group overflow-hidden max-w-[42px] hover:max-w-[150px]">
-                                                <Sparkles size={18} className="shrink-0" /><span className="text-[10px] font-bold whitespace-nowrap opacity-0 group-hover:opacity-100">{t('packager.preview.aiDetect')}</span>
-                                            </button>
+                                            <>
+                                                <button onClick={autoDetectGrid} className="bg-primary text-white p-2.5 rounded-xl shadow-lg hover:bg-primary-hover transition-all flex items-center gap-2 group overflow-hidden max-w-[42px] hover:max-w-[150px]">
+                                                    <Sparkles size={18} className="shrink-0" /><span className="text-[10px] font-bold whitespace-nowrap opacity-0 group-hover:opacity-100">{t('packager.preview.aiDetect')}</span>
+                                                </button>
+                                            </>
                                         )}
                                     </div>
 
                                     {viewMode === 'original' ? (
-                                        <div ref={actualImageContainerRef} className="relative origin-center shadow-2xl transition-transform duration-75" style={{ aspectRatio: activeFile?.stats ? `${activeFile.stats.width} / ${activeFile.stats.height}` : 'auto', transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, maxHeight: '600px', maxWidth: '100%' }}>
-                                            {activeFile && <img src={activeFile.preview} alt="Preview" className="w-full h-full block select-none pointer-events-none" />}
-                                            {config.rowLines.map((line, idx) => idx !== 0 && idx !== config.rowLines.length - 1 && (
-                                                <div key={idx} className={`absolute w-full h-1 left-0 z-20 group ${config.manualMode ? 'cursor-row-resize' : 'pointer-events-none'}`} style={{ top: `${line * 100}%` }} onMouseDown={(e) => handleLineDrag('row', idx, e)} onTouchStart={(e) => handleLineDrag('row', idx, e)}>
-                                                    <div className={`w-full h-full border-t-2 border-dashed ${config.manualMode ? 'border-amber-500 shadow-sm' : 'border-white/60'}`} />
-                                                </div>
-                                            ))}
-                                            {config.colLines.map((line, idx) => idx !== 0 && idx !== config.colLines.length - 1 && (
-                                                <div key={idx} className={`absolute h-full w-1 top-0 z-20 group ${config.manualMode ? 'cursor-col-resize' : 'pointer-events-none'}`} style={{ left: `${line * 100}%` }} onMouseDown={(e) => handleLineDrag('col', idx, e)} onTouchStart={(e) => handleLineDrag('col', idx, e)}>
-                                                    <div className={`h-full w-full border-l-2 border-dashed ${config.manualMode ? 'border-amber-500 shadow-sm' : 'border-white/60'}`} />
-                                                </div>
-                                            ))}
-                                            {Array.from({ length: (config.rowLines.length - 1) * (config.colLines.length - 1) }).map((_, i) => {
-                                                const r = Math.floor(i / (config.colLines.length - 1)), c = i % (config.colLines.length - 1);
-                                                return <div key={i} className="absolute border border-white/20 bg-primary/10 pointer-events-none flex items-center justify-center overflow-hidden" style={{ top: `${config.rowLines[r] * 100}%`, left: `${config.colLines[c] * 100}%`, width: `${(config.colLines[c + 1] - config.colLines[c]) * 100}%`, height: `${(config.rowLines[r + 1] - config.rowLines[r]) * 100}%` }}>
-                                                    <span className="text-[10px] font-black text-white bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm">#{r + 1}-{c + 1}</span>
-                                                </div>
-                                            })}
+                                        <div className="flex flex-col items-center">
+                                            <div ref={actualImageContainerRef} className="relative origin-center shadow-2xl transition-transform duration-75 inline-block w-fit h-fit leading-none" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}>
+                                                {activeFile && <img src={activeFile.preview} alt="Preview" className="block max-w-[calc(100vw-120px)] lg:max-w-[800px] max-h-[calc(100vh-200px)] lg:max-h-[600px] w-auto h-auto select-none pointer-events-none align-top" onError={(e) => (e.currentTarget.style.display = 'none', e.currentTarget.parentElement?.classList.add('bg-red-500'))} />}
+                                                {config.rowLines.map((line, idx) => {
+                                                    const isOuter = idx === 0 || idx === config.rowLines.length - 1;
+                                                    if (isOuter && !config.allowOuterCrop) return null;
+                                                    return (
+                                                        <div key={idx} className={`absolute w-full h-4 left-0 z-20 group flex items-center justify-center touch-none cursor-row-resize -mt-2`} style={{ top: `${line * 100}%` }} onMouseDown={(e) => handleLineDrag('row', idx, e)} onTouchStart={(e) => handleLineDrag('row', idx, e)}>
+                                                            <div className={`w-full h-0 border-t-2 border-dashed transition-colors ${config.manualMode ? (isOuter ? 'border-red-500 shadow-md' : 'border-amber-500 shadow-sm') : 'border-white/60 group-hover:border-amber-500/80'}`} />
+                                                            {isOuter && <div className="absolute right-0 top-[-10px] bg-red-500 text-white text-[9px] px-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Drag to Crop</div>}
+                                                        </div>
+                                                    );
+                                                })}
+                                                {config.colLines.map((line, idx) => {
+                                                    const isOuter = idx === 0 || idx === config.colLines.length - 1;
+                                                    if (isOuter && !config.allowOuterCrop) return null;
+                                                    return (
+                                                        <div key={idx} className={`absolute h-full w-4 top-0 z-20 group flex justify-center touch-none cursor-col-resize -ml-2`} style={{ left: `${line * 100}%` }} onMouseDown={(e) => handleLineDrag('col', idx, e)} onTouchStart={(e) => handleLineDrag('col', idx, e)}>
+                                                            <div className={`h-full w-0 border-l-2 border-dashed transition-colors ${config.manualMode ? (isOuter ? 'border-red-500 shadow-md' : 'border-amber-500 shadow-sm') : 'border-white/60 group-hover:border-amber-500/80'}`} />
+                                                        </div>
+                                                    );
+                                                })}
+                                                {Array.from({ length: (config.rowLines.length - 1) * (config.colLines.length - 1) }).map((_, i) => {
+                                                    const r = Math.floor(i / (config.colLines.length - 1)), c = i % (config.colLines.length - 1);
+                                                    return <div key={i} className="absolute border border-white/20 bg-primary/10 pointer-events-none flex items-center justify-center overflow-hidden" style={{ top: `${config.rowLines[r] * 100}%`, left: `${config.colLines[c] * 100}%`, width: `${(config.colLines[c + 1] - config.colLines[c]) * 100}%`, height: `${(config.rowLines[r + 1] - config.rowLines[r]) * 100}%` }}>
+                                                        <span className="text-[10px] font-black text-white bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm">#{r + 1}-{c + 1}</span>
+                                                    </div>
+                                                })}
+                                            </div>
+                                            {/* Debug Info Overlay */}
+                                            <div className="mt-2 text-[10px] text-gray-400 font-mono bg-black/80 p-2 rounded max-w-lg">
+                                                DEBUG:
+                                                Wrap: {actualImageContainerRef.current?.offsetWidth}x{actualImageContainerRef.current?.offsetHeight} |
+                                                Img: {activeFile?.stats?.width}x{activeFile?.stats?.height} (Nat) |
+                                                Ratio: {activeFile?.stats?.aspectRatio.toFixed(2)} |
+                                                Zoom: {zoom.toFixed(2)}
+                                            </div>
                                         </div>
                                     ) : (
                                         <div className={`w-full h-full flex flex-col items-center justify-center relative ${getHelperBgClass()}`} style={{ transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`, ...(helperBg === 'checkerboard' ? { backgroundImage: 'conic-gradient(#eee 90deg,#fff 90deg 180deg,#eee 180deg 270deg,#fff 270deg)', backgroundSize: '16px 16px' } : {}) }}>
@@ -597,6 +849,18 @@ const PackagerTab: React.FC = () => {
                             <Stepper label={t('packager.phase1.rows')} value={config.rows} min={1} max={12} onChange={(val) => setConfig(prev => ({ ...prev, rows: val, manualMode: false }))} />
                             <Stepper label={t('packager.phase1.cols')} value={config.cols} min={1} max={12} onChange={(val) => setConfig(prev => ({ ...prev, cols: val, manualMode: false }))} />
                         </div>
+                        <div onClick={() => setConfig(prev => ({ ...prev, allowOuterCrop: !prev.allowOuterCrop, manualMode: true }))} className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${config.allowOuterCrop ? 'bg-cream-light border-secondary shadow-sm' : 'bg-white border-cream-dark'}`}>
+                            <div className="flex items-center gap-3">
+                                <Crop size={18} className={config.allowOuterCrop ? 'text-secondary' : 'text-cream-dark'} />
+                                <span className="text-xs font-bold text-bronze-text">{t('packager.phase1.editFrame') || 'Edit Frame'}</span>
+                            </div>
+                            <div className={`w-10 h-6 rounded-full relative transition-colors ${config.allowOuterCrop ? 'bg-secondary' : 'bg-cream-dark/30'}`}>
+                                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${config.allowOuterCrop ? 'right-1' : 'left-1'}`} />
+                            </div>
+                        </div>
+                        <div className="flex justify-end px-1">
+                            <button onClick={resetGrid} className="text-[10px] font-bold text-bronze-light hover:text-primary flex items-center gap-1.5 bg-cream-medium/30 px-3 py-1.5 rounded-lg border border-cream-dark hover:bg-white hover:shadow-sm transition-all"><RotateCcw size={12} /> {t('packager.phase1.resetGrid') || 'Reset Grid'}</button>
+                        </div>
                         <div className="space-y-2 pt-1">
                             <div className="flex justify-between items-center"><label className="text-[10px] font-bold text-bronze-light uppercase flex items-center gap-1"><Maximize2 size={10} /> {t('packager.phase1.scale')}</label><span className="text-[10px] font-black text-primary bg-cream-medium/50 px-2.5 py-0.5 rounded-full">{config.scaleFactor}x</span></div>
                             <input type="range" min="1" max="4" step="0.5" value={config.scaleFactor} onChange={(e) => setConfig(prev => ({ ...prev, scaleFactor: parseFloat(e.target.value) }))} className="w-full h-2 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-secondary" />
@@ -613,29 +877,100 @@ const PackagerTab: React.FC = () => {
                         <button onClick={performCoreProcess} disabled={fileQueue.length === 0 || status === 'splitting' || status === 'removing_bg'} className="w-full bg-primary hover:bg-primary-hover disabled:bg-cream-medium disabled:text-bronze-light text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-primary/20 transition-all active:scale-95"><Wand2 size={22} /> {t('packager.phase1.runCore')} ({fileQueue.length})</button>
                     </section>
 
-                    <section className={`bg-cream-light/30 border border-cream-dark backdrop-blur-xl rounded-[2rem] p-8 space-y-5 transition-all ${!isCoreProcessed ? 'opacity-50 pointer-events-none grayscale' : 'opacity-100'}`}>
-                        <h2 className="text-sm font-black flex items-center gap-2 text-bronze-text uppercase tracking-wider"><Star size={16} className="text-secondary" /> {t('packager.phase2.title')}</h2>
-                        <div className="space-y-2"><label className="text-[10px] font-bold text-bronze-light uppercase">{t('packager.phase2.presets')}</label><div className="grid grid-cols-3 gap-2"><button onClick={() => setConfig(prev => ({ ...prev, preset: 'none' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'none' ? 'bg-primary text-white border-secondary shadow-md' : 'bg-white text-bronze-light hover:border-secondary/30'}`}>{t('packager.phase2.custom')}</button><button onClick={() => setConfig(prev => ({ ...prev, preset: 'line' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'line' ? 'bg-accent text-white border-accent shadow-md' : 'bg-white text-bronze-light hover:border-accent/30'}`}>{t('packager.phase2.line')}</button><button onClick={() => setConfig(prev => ({ ...prev, preset: 'telegram' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'telegram' ? 'bg-primary/80 text-white border-primary/80 shadow-md' : 'bg-white text-bronze-light hover:border-primary/30'}`}>{t('packager.phase2.telegram')}</button></div></div>
-                        <div className="space-y-2 pt-1"><div className="flex justify-between items-center"><label className="text-[10px] font-bold text-bronze-light uppercase">{t('packager.phase2.margin')} {Math.round(config.margin * 100)}%</label></div><input type="range" min="0" max="0.3" step="0.01" value={config.margin} onChange={(e) => setConfig(prev => ({ ...prev, margin: parseFloat(e.target.value) }))} className="w-full h-1.5 bg-cream-dark/50 rounded-lg accent-secondary" /></div>
 
-                        <div className="flex items-center justify-between pt-2 border-t border-cream-medium"><div className="flex items-center gap-3"><Palette size={18} className={config.useStroke ? 'text-secondary' : 'text-bronze-light'} /><span className="text-xs font-bold text-bronze-text">{t('packager.phase2.stroke')}</span></div><div onClick={() => setConfig(prev => ({ ...prev, useStroke: !prev.useStroke }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useStroke ? 'bg-secondary' : 'bg-cream-dark/30'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useStroke ? 'right-1' : 'left-1'}`} /></div></div>
-                        {config.useStroke && <div className="pl-9 space-y-4 animate-in slide-in-from-left-4"><div className="space-y-2"><div className="flex justify-between items-center"><label className="text-[9px] font-bold text-bronze-light uppercase">{t('packager.phase2.strokeSize')}</label><span className="text-[9px] font-black text-secondary">{config.strokeThickness}px</span></div><input type="range" min="1" max="25" value={config.strokeThickness} onChange={(e) => setConfig(prev => ({ ...prev, strokeThickness: parseInt(e.target.value) }))} className="w-full h-1 bg-secondary/10 rounded-lg accent-secondary" /></div><div className="flex items-center gap-3"><label className="text-[9px] font-bold text-bronze-light uppercase">{t('packager.phase2.strokeColor')}</label><div className="flex gap-2">{(['#ffffff', '#000000', '#facc15', '#f87171', '#818cf8']).map(c => (<button key={c} onClick={() => setConfig(prev => ({ ...prev, strokeColor: c }))} className={`w-5 h-5 rounded-full border border-cream-dark shadow-sm transition-transform ${config.strokeColor === c ? 'scale-125 ring-2 ring-secondary/20' : ''}`} style={{ backgroundColor: c }} />))}<input type="color" value={config.strokeColor} onChange={(e) => setConfig(prev => ({ ...prev, strokeColor: e.target.value }))} className="w-5 h-5 p-0 border-0 bg-transparent cursor-pointer" /></div></div></div>}
+                    <section className={`bg-cream-light/30 border border-cream-dark backdrop-blur-xl rounded-[2rem] p-6 space-y-5 transition-all ${!isCoreProcessed ? 'opacity-50 pointer-events-none grayscale' : 'opacity-100'}`}>
+                        <h2 className="text-sm font-black flex items-center gap-2 text-bronze-text uppercase tracking-wider"><Sparkles size={16} className="text-secondary" /> {t('packager.phase2.title') || 'Beautify & Export'}</h2>
 
-                        <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Sun size={18} className={config.useShadow ? 'text-primary' : 'text-bronze-light'} /><span className="text-xs font-bold text-bronze-text">{t('packager.phase2.shadow')}</span></div><div onClick={() => setConfig(prev => ({ ...prev, useShadow: !prev.useShadow }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useShadow ? 'bg-primary' : 'bg-cream-dark/30'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useShadow ? 'right-1' : 'left-1'}`} /></div></div>
-                        <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Sparkles size={18} className={config.useFeathering ? 'text-accent' : 'text-bronze-light'} /><span className="text-xs font-bold text-bronze-text">{t('packager.phase2.feather')}</span></div><div onClick={() => setConfig(prev => ({ ...prev, useFeathering: !prev.useFeathering }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useFeathering ? 'bg-accent' : 'bg-cream-dark/30'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useFeathering ? 'right-1' : 'left-1'}`} /></div></div>
-
-                        <div className="grid grid-cols-2 gap-3 pt-2">
-                            <div className="space-y-1"><label className="text-[10px] font-bold text-bronze-light uppercase">{t('packager.phase2.format')}</label><select value={config.outputFormat} onChange={(e) => setConfig(prev => ({ ...prev, outputFormat: e.target.value as any }))} className="w-full px-3 py-2 bg-cream-medium/50 border border-cream-dark rounded-xl font-bold text-[10px] text-bronze-text outline-none shadow-inner"><option value="png">PNG</option><option value="webp">WebP</option></select></div>
-                            <div className="space-y-1"><label className="text-[10px] font-bold text-bronze-light uppercase">{t('packager.phase2.prefix')}</label><input type="text" value={config.filenamePrefix} onChange={(e) => setConfig(prev => ({ ...prev, filenamePrefix: e.target.value }))} className="w-full px-3 py-2 bg-cream-medium/50 border border-cream-dark rounded-xl font-bold text-[10px] text-bronze-text outline-none shadow-inner" /></div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-bronze-light uppercase">{t('packager.phase2.presets') || 'Presets'}</label>
+                            <div className="grid grid-cols-3 gap-2">
+                                <button onClick={() => setConfig(prev => ({ ...prev, preset: 'none' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'none' ? 'bg-primary text-white border-secondary shadow-md' : 'bg-white text-bronze-light hover:border-secondary/30'}`}>{t('packager.phase2.custom') || 'Custom'}</button>
+                                <button onClick={() => setConfig(prev => ({ ...prev, preset: 'line' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'line' ? 'bg-accent text-white border-accent shadow-md' : 'bg-white text-bronze-light hover:border-accent/30'}`}>{t('packager.phase2.line') || 'Line'}</button>
+                                <button onClick={() => setConfig(prev => ({ ...prev, preset: 'telegram' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'telegram' ? 'bg-primary/80 text-white border-primary/80 shadow-md' : 'bg-white text-bronze-light hover:border-primary/30'}`}>{t('packager.phase2.telegram') || 'TG'}</button>
+                            </div>
                         </div>
 
-                        <div className="flex flex-col gap-3 pt-4">
-                            <button onClick={applyBeautification} className="w-full bg-bronze-medium hover:bg-bronze-dark text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-bronze-medium/20 transition-all active:scale-95">
-                                <Sparkles size={22} /> {t('packager.phase2.apply')}
-                            </button>
+                        <div className="space-y-2 pt-1">
+                            <div className="flex justify-between items-center"><label className="text-[10px] font-bold text-bronze-light uppercase">{t('packager.phase2.margin') || 'Margin'} {Math.round(config.margin * 100)}%</label></div>
+                            <input type="range" min="0" max="0.3" step="0.01" value={config.margin} onChange={(e) => setConfig(prev => ({ ...prev, margin: parseFloat(e.target.value) }))} className="w-full h-1.5 bg-cream-dark/50 rounded-lg accent-secondary" />
+                        </div>
+
+                        <div className="flex items-center justify-between pt-2 border-t border-cream-medium">
+                            <div className="flex items-center gap-3"><Palette size={18} className={config.useStroke ? 'text-secondary' : 'text-bronze-light'} /><span className="text-xs font-bold text-bronze-text">{t('packager.phase2.stroke') || 'Stroke'}</span></div>
+                            <div onClick={() => setConfig(prev => ({ ...prev, useStroke: !prev.useStroke }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useStroke ? 'bg-secondary' : 'bg-cream-dark/30'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useStroke ? 'right-1' : 'left-1'}`} /></div>
+                        </div>
+
+                        {config.useStroke && (
+                            <div className="pl-9 space-y-4 animate-in slide-in-from-left-4">
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center"><label className="text-[9px] font-bold text-bronze-light uppercase">{t('packager.phase2.strokeSize') || 'Size'}</label><span className="text-[9px] font-black text-secondary">{config.strokeThickness}px</span></div>
+                                    <input type="range" min="1" max="25" value={config.strokeThickness} onChange={(e) => setConfig(prev => ({ ...prev, strokeThickness: parseInt(e.target.value) }))} className="w-full h-1 bg-secondary/10 rounded-lg accent-secondary" />
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <label className="text-[9px] font-bold text-bronze-light uppercase">{t('packager.phase2.strokeColor') || 'Color'}</label>
+                                    <div className="flex gap-2">
+                                        {(['#ffffff', '#000000', '#facc15', '#f87171', '#818cf8']).map(c => (
+                                            <button key={c} onClick={() => setConfig(prev => ({ ...prev, strokeColor: c }))} className={`w-5 h-5 rounded-full border border-cream-dark shadow-sm transition-transform ${config.strokeColor === c ? 'scale-125 ring-2 ring-secondary/20' : ''}`} style={{ backgroundColor: c }} />
+                                        ))}
+                                        <input type="color" value={config.strokeColor} onChange={(e) => setConfig(prev => ({ ...prev, strokeColor: e.target.value }))} className="w-5 h-5 p-0 border-0 bg-transparent cursor-pointer" />
+                                    </div>
+                                </div>
+
+                                {/* Double Stroke Controls */}
+                                <div className="pt-2 border-t border-cream-dark/30">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className="text-[10px] font-bold text-bronze-light uppercase flex items-center gap-2">
+                                            <div className={`w-2 h-2 rounded-full ${config.useDoubleStroke ? 'bg-secondary' : 'bg-cream-dark'}`} />
+                                            {t('packager.phase2.doubleStroke') || 'Double Outline'}
+                                        </label>
+                                        <div onClick={() => setConfig(prev => ({ ...prev, useDoubleStroke: !prev.useDoubleStroke }))} className={`w-7 h-4 rounded-full relative cursor-pointer transition-colors ${config.useDoubleStroke ? 'bg-secondary' : 'bg-cream-dark/30'}`}><div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${config.useDoubleStroke ? 'right-0.5' : 'left-0.5'}`} /></div>
+                                    </div>
+
+                                    {config.useDoubleStroke && (
+                                        <div className="space-y-3 pl-2 animate-in slide-in-from-top-2">
+                                            <div className="space-y-1">
+                                                <div className="flex justify-between items-center"><label className="text-[9px] font-bold text-bronze-light uppercase">{t('packager.phase2.secondStrokeSize') || '2nd Size'}</label><span className="text-[9px] font-black text-secondary">+{config.secondStrokeThickness}px</span></div>
+                                                <input type="range" min="1" max="20" value={config.secondStrokeThickness} onChange={(e) => setConfig(prev => ({ ...prev, secondStrokeThickness: parseInt(e.target.value) }))} className="w-full h-1 bg-secondary/10 rounded-lg accent-secondary" />
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <label className="text-[9px] font-bold text-bronze-light uppercase">{t('packager.phase2.secondStrokeColor') || '2nd Color'}</label>
+                                                <div className="flex gap-2">
+                                                    {(['#000000', '#ffffff', '#ef4444', '#3b82f6', '#10b981']).map(c => (
+                                                        <button key={c} onClick={() => setConfig(prev => ({ ...prev, secondStrokeColor: c }))} className={`w-4 h-4 rounded-full border border-cream-dark shadow-sm transition-transform ${config.secondStrokeColor === c ? 'scale-125 ring-2 ring-secondary/20' : ''}`} style={{ backgroundColor: c }} />
+                                                    ))}
+                                                    <input type="color" value={config.secondStrokeColor} onChange={(e) => setConfig(prev => ({ ...prev, secondStrokeColor: e.target.value }))} className="w-4 h-4 p-0 border-0 bg-transparent cursor-pointer" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3"><Sun size={18} className={config.useShadow ? 'text-primary' : 'text-bronze-light'} /><span className="text-xs font-bold text-bronze-text">{t('packager.phase2.shadow') || 'Shadow'}</span></div>
+                            <div onClick={() => setConfig(prev => ({ ...prev, useShadow: !prev.useShadow }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useShadow ? 'bg-primary' : 'bg-cream-dark/30'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useShadow ? 'right-1' : 'left-1'}`} /></div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3"><Sparkles size={18} className={config.useFeathering ? 'text-accent' : 'text-bronze-light'} /><span className="text-xs font-bold text-bronze-text">{t('packager.phase2.feather') || 'Feather'}</span></div>
+                            <div onClick={() => setConfig(prev => ({ ...prev, useFeathering: !prev.useFeathering }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useFeathering ? 'bg-accent' : 'bg-cream-dark/30'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useFeathering ? 'right-1' : 'left-1'}`} /></div>
+                        </div>
+
+                        <div className="pt-2">
+                            <div className="space-y-1"><label className="text-[10px] font-bold text-bronze-light uppercase">{t('packager.phase2.format') || 'Format'}</label><select value={config.outputFormat} onChange={(e) => setConfig(prev => ({ ...prev, outputFormat: e.target.value as any }))} className="w-full px-3 py-2 bg-cream-medium/50 border border-cream-dark rounded-xl font-bold text-[10px] text-bronze-text outline-none shadow-inner"><option value="png">PNG</option><option value="webp">WebP</option></select></div>
+                        </div>
+
+                        <button onClick={() => applyBeautification(false)} className="w-full bg-bronze-medium hover:bg-bronze-dark text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-bronze-medium/20 transition-all active:scale-95">
+                            <Sparkles size={22} /> {t('packager.phase2.apply') || 'Process Tiles'}
+                        </button>
+
+                        <div className="pt-6 border-t border-cream-dark/50 space-y-4">
+                            <h3 className="text-xs font-black text-bronze-text uppercase tracking-wider flex items-center gap-2"><Download size={14} /> {t('packager.phase2.export') || 'Export'}</h3>
+                            <div className="space-y-1"><label className="text-[10px] font-bold text-bronze-light uppercase">{t('packager.phase2.prefix')}</label><input type="text" value={config.filenamePrefix} onChange={(e) => setConfig(prev => ({ ...prev, filenamePrefix: e.target.value }))} className="w-full px-3 py-2 bg-cream-medium/50 border border-cream-dark rounded-xl font-bold text-[10px] text-bronze-text outline-none shadow-inner" /></div>
 
                             {processedTiles.length > 0 && (
-                                <div className="grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-bottom-4">
+                                <div className="grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-bottom-2">
                                     <button
                                         onClick={async () => {
                                             if (processedTiles.length === 0) return;
@@ -676,9 +1011,8 @@ const PackagerTab: React.FC = () => {
                         </div>
                     </section>
                 </div>
-            </main>
-
-        </div>
+            </main >
+        </div >
     );
 };
 

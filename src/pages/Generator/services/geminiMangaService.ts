@@ -106,6 +106,7 @@ export const generateComicImage = async (apiKey: string, config: ComicConfig): P
   - Strictly adhere to the requested "${config.layout}" layout.
   - Draw panel borders clearly.
   - Maintain high fidelity to the art style: ${config.style}.
+  - Target Quality: ${config.resolution}
   - Color Mode: ${config.colorMode} (Ensure strict adherence to this color scheme).
   - ${textInstruction}
   

@@ -205,7 +205,16 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
             const variation = promptVariations[index % promptVariations.length];
 
             let basePrompt = `Create a festive sticker of a person who strongly resembles the person in the provided image. 
-            The sticker should be in ${style.prompt} style, specifically for ${holiday.prompt}. ${variation}`;
+            The sticker should be in ${style.prompt} style, specifically for ${holiday.prompt}. ${variation}
+
+            BACKGROUND (CRITICAL CHROMA KEY):
+            - The background MUST be a 100% SOLID, FLAT, PURE NEON GREEN (#00FF00). 
+            - No gradients, no textures, no shadows, no background objects.
+            - Think of this as a character sprite for a game engine.
+            
+            BORDER & EDGES:
+            - STRICT FORBIDDEN: DO NOT add any white border, offset, outline, or glow. The character's outermost lines must be the black ink lines or the character colors themselves, touching the green background directly.
+            - For anime/cartoon styles, ensure the edges are sharp and clean against the green.`;
 
             if (customName && /^[a-zA-Z\s]+$/.test(customName)) {
                 basePrompt += ` Include the text "${customName}" artistically in the sticker.`;

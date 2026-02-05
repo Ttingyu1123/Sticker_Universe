@@ -245,46 +245,46 @@ const App: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
             <button
               onClick={() => setActiveTab('sticker')}
-              className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'sticker' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
+              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'sticker' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
-              <Sparkles size={16} />
+              <Sparkles size={18} className="sm:w-4 sm:h-4" />
               <span>風格貼圖</span>
             </button>
             <button
               onClick={() => setActiveTab('holiday')}
-              className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'holiday' ? 'bg-amber-600 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
+              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'holiday' ? 'bg-amber-600 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
-              <Calendar size={16} />
+              <Calendar size={18} className="sm:w-4 sm:h-4" />
               <span>節慶貼圖</span>
             </button>
             {/* Manga Master Info */}
             <button
               onClick={() => setActiveTab('manga')}
-              className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'manga' ? 'bg-violet-600 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
+              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'manga' ? 'bg-violet-600 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
-              <BookOpen size={16} />
+              <BookOpen size={18} className="sm:w-4 sm:h-4" />
               <span>漫畫大師</span>
             </button>
             <button
               onClick={() => setActiveTab('cinematic')}
-              className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'cinematic' ? 'bg-pink-500 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
+              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'cinematic' ? 'bg-pink-500 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
-              <Sparkles size={16} />
+              <Sparkles size={18} className="sm:w-4 sm:h-4" />
               <span>{t('app.cinematic')}</span>
             </button>
             <button
               onClick={() => setActiveTab('image-gen')}
-              className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'image-gen' ? 'bg-secondary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
+              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'image-gen' ? 'bg-secondary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
-              <Sparkles size={16} />
-              <span className="text-center">AI圖片<br className="sm:hidden" />生成</span>
+              <Sparkles size={18} className="sm:w-4 sm:h-4" />
+              <span className="text-center leading-tight">AI圖片<br className="sm:hidden" />生成</span>
             </button>
             <button
               onClick={() => setActiveTab('headshot')}
-              className={`px-3 py-3 rounded-xl text-xs font-black transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 col-span-2 sm:col-span-1 ${activeTab === 'headshot' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
+              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'headshot' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
-              <User size={16} />
-              <span className="text-center">{t('generator.tabs.headshot') || '形象照大師'}</span>
+              <User size={18} className="sm:w-4 sm:h-4" />
+              <span className="text-center leading-tight">{t('generator.tabs.headshot') || '形象照大師'}</span>
             </button>
           </div>
 

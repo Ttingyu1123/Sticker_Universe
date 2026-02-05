@@ -17,8 +17,8 @@ export interface Layer {
 
     // Style
     animation: AnimationType;
-    width?: number; // for Image
-    height?: number; // for Image
+    width: number;
+    height: number;
 
     // Text specific
     fontSize?: number;

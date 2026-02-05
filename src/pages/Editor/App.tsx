@@ -15,6 +15,7 @@ import { useLocation } from 'react-router-dom';
 import { saveStickerToDB } from '../../db';
 
 import { LinePreviewModal } from '../../components/LinePreviewModal';
+import { BubblePicker } from './components/BubblePicker';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
@@ -25,6 +26,9 @@ const App: React.FC = () => {
   // Line Preview State
   const [showLinePreview, setShowLinePreview] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  // Bubble Picker State
+  const [showBubblePicker, setShowBubblePicker] = useState(false);
 
   // Unified Canvas State
   const [canvasConfig, setCanvasConfig] = useState<CanvasConfig>({
@@ -264,6 +268,44 @@ const App: React.FC = () => {
     }
   };
 
+  const handleAddBubble = (customSvg?: string) => {
+    // 1. Create Data URI from SVG
+    const defaultSvg = `<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M360 40H40C23.4315 40 10 53.4315 10 70V200C10 216.569 23.4315 230 40 230H80V280L160 230H360C376.569 230 390 216.569 390 200V70C390 53.4315 376.569 40 360 40Z" fill="white" stroke="black" stroke-width="8" stroke-linejoin="round"/>
+</svg>`;
+
+    const svgString = typeof customSvg === 'string' ? customSvg : defaultSvg;
+
+    // Use Base64 encoding which is more robust
+    const encoded = btoa(unescape(encodeURIComponent(svgString)));
+    const dataUrl = `data:image/svg+xml;base64,${encoded}`;
+
+    // 2. Add Layer Manually
+    const centerX = canvasConfig.width / 2;
+    const centerY = canvasConfig.height / 2;
+
+    const newLayer: Layer = {
+      id: generateId(),
+      type: 'image',
+      name: t('editor.toolbar.bubble') || 'Speech Bubble',
+      x: centerX,
+      y: centerY,
+      rotation: 0,
+      scale: 1,
+      content: dataUrl,
+      width: 400,
+      height: 300,
+    };
+
+    const updatedLayers = [...layers, newLayer];
+    setLayers(updatedLayers);
+    commitHistory(updatedLayers);
+    setSelectedLayerId(newLayer.id);
+
+    // Close picker if open
+    setShowBubblePicker(false);
+  };
+
   // Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -413,10 +455,19 @@ const App: React.FC = () => {
         onAddImage={(file) => handleAddLayer('image', file)}
         onAddFromGallery={() => setShowGallery(true)}
         onAddText={() => handleAddLayer('text')}
+        onAddBubble={() => setShowBubblePicker(true)}
         onDownload={handleDownload}
         onSaveToGallery={handleSaveToGallery}
         onLinePreview={handleLinePreview}
       />
+
+      {/* Bubble Picker Modal */}
+      {showBubblePicker && (
+        <BubblePicker
+          onSelect={handleAddBubble}
+          onClose={() => setShowBubblePicker(false)}
+        />
+      )}
 
       <div className={`flex flex-1 overflow-hidden transition-opacity duration-700 ${isReady ? 'opacity-100' : 'opacity-0'}`}>
         {/* Canvas Area */}
@@ -484,6 +535,7 @@ const App: React.FC = () => {
           onAddImage={(file) => handleAddLayer('image', file)}
           onAddFromGallery={() => setShowGallery(true)}
           onAddText={() => handleAddLayer('text')}
+          onAddBubble={() => setShowBubblePicker(true)}
         />
 
         {/* Mobile Sidebar Toggle */}

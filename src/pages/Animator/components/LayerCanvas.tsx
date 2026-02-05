@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Layer } from '../types';
+import { SelectionOverlay } from '../../Editor/components/SelectionOverlay';
 
 interface LayerCanvasProps {
     layers: Layer[];
@@ -28,6 +29,7 @@ const TextLayerRenderer: React.FC<{ layer: Layer }> = ({ layer }) => {
     }
     const textMetrics = ctx ? ctx.measureText(layer.content) : { width: layer.content.length * (layer.fontSize || 24) * 0.6 };
 
+    // We override these locally for rendering the SVG, but the layer.width/height is used for the selection box
     const textWidth = textMetrics.width;
     const textHeight = (layer.fontSize || 24) * 1.2; // Approximation
 
@@ -100,95 +102,111 @@ export const LayerCanvas: React.FC<LayerCanvasProps> = ({
     width = 320,
     height = 270
 }) => {
-    // Basic Drag Logic
-    const [isDragging, setIsDragging] = useState(false);
-    const dragStartPos = useRef({ x: 0, y: 0 });
-    const layerStartPos = useRef({ x: 0, y: 0 });
-
-    const handlePointerDown = (e: React.PointerEvent, layer: Layer) => {
-        e.stopPropagation();
-        onSelectLayer(layer.id);
-        setIsDragging(true);
-        dragStartPos.current = { x: e.clientX, y: e.clientY };
-        layerStartPos.current = { x: layer.x, y: layer.y };
-
-        // Capture pointer so we don't lose drag if moving fast
-        (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    // When clicking the background (not a layer), deselect.
+    const handleBackgroundClick = (e: React.MouseEvent) => {
+        onSelectLayer(null);
     };
 
-    const handlePointerMove = (e: React.PointerEvent) => {
-        if (!isDragging || !selectedLayerId) return;
+    const selectedLayer = layers.find(l => l.id === selectedLayerId);
 
-        const dx = (e.clientX - dragStartPos.current.x) / zoom;
-        const dy = (e.clientY - dragStartPos.current.y) / zoom;
-
-        onUpdateLayer(selectedLayerId, {
-            x: layerStartPos.current.x + dx,
-            y: layerStartPos.current.y + dy
-        });
-    };
-
-    const handlePointerUp = (e: React.PointerEvent) => {
-        setIsDragging(false);
-        (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-    };
+    // Update text layer width/height roughly if it's way off (optional refinement)
+    // For now, we rely on the initial width/height or manual updates. 
+    // A robust system would update layer.width/height whenever content/font changes via useEffect in the parent or here.
 
     return (
         <div
-            className="border border-slate-200 relative overflow-hidden select-none bg-white shadow-lg mx-auto"
-            style={{
-                width: width,
-                height: height,
-                backgroundImage: `
-                    linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
-                    linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
-                    linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
-                    linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)
-                `,
-                backgroundSize: '20px 20px',
-                backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
-            }}
-            onClick={() => onSelectLayer(null)} // Click background to deselect
+            className="w-full h-full overflow-auto flex items-center justify-center bg-gray-100/50 p-8 cursor-default select-none relative"
+            onClick={handleBackgroundClick}
         >
-            {/* Export Container - Fully Transparent */}
+            {/* 
+              Wrapper to handle Zoom and isolating the overflow:hidden content 
+              from the overflow:visible controls 
+            */}
             <div
-                ref={canvasRef}
-                className="w-full h-full relative"
+                className="relative transition-all duration-200 ease-out flex-shrink-0 shadow-xl"
+                style={{
+                    width: width,
+                    height: height,
+                    transform: `scale(${zoom})`,
+                    transformOrigin: 'center center',
+                    backgroundImage: `
+                        linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+                        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+                        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)
+                    `,
+                    backgroundSize: '20px 20px',
+                    backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
+                    backgroundColor: 'white'
+                }}
             >
-                {layers.map(layer => (
-                    <div
-                        key={layer.id}
-                        className={`absolute cursor-move group select-none ${selectedLayerId === layer.id ? 'z-10 ring-2 ring-violet-500' : 'z-0'}`}
-                        style={{
-                            transform: `translate(${layer.x}px, ${layer.y}px) scale(${layer.scale}) rotate(${layer.rotation}deg)`,
-                            transformOrigin: 'center',
-                        }}
-                        onPointerDown={(e) => handlePointerDown(e, layer)}
-                        onPointerMove={handlePointerMove}
-                        onPointerUp={handlePointerUp}
-                    >
-                        {/* Render Content */}
-                        <div id={`layer-${layer.id}`} className="relative">
-                            {/* We add id here for the exporter to find it */}
-                            {layer.type === 'image' ? (
-                                <img
-                                    src={layer.content}
-                                    alt="layer"
-                                    className={`w-32 h-32 object-contain filter drop-shadow-lg animate-${layer.animation}`}
-                                    draggable={false}
-                                />
-                            ) : <TextLayerRenderer layer={layer} />
-                            }
+                {/* 
+                   Content Area - Clipped
+                   This is what gets exported (ref=canvasRef)
+                */}
+                <div
+                    ref={canvasRef}
+                    className="absolute inset-0 overflow-hidden"
+                >
+                    {layers.map(layer => (
+                        <div
+                            key={layer.id}
+                            className={`absolute select-none cursor-pointer ${selectedLayerId === layer.id ? 'z-10' : 'z-0'}`}
+                            style={{
+                                left: layer.x,
+                                top: layer.y,
+                                width: layer.width,
+                                height: layer.height,
+                                transform: `translate(-50%, -50%) scale(${layer.scale}) rotate(${layer.rotation}deg)`,
+                                transformOrigin: 'center center',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectLayer(layer.id);
+                            }}
+                        >
+                            {/* Inner content wrapper */}
+                            <div className="relative w-full h-full flex items-center justify-center">
+                                {layer.type === 'image' ? (
+                                    <img
+                                        src={layer.content}
+                                        alt="layer"
+                                        className={`filter drop-shadow-lg animate-${layer.animation}`}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'contain'
+                                        }}
+                                        draggable={false}
+                                    />
+                                ) : (
+                                    <TextLayerRenderer layer={layer} />
+                                )}
+                            </div>
                         </div>
+                    ))}
 
-                        {/* Selection Indicator (optional, ring handles it above) */}
-                    </div>
-                ))}
+                    {layers.length === 0 && (
+                        <div className="absolute inset-0 flex items-center justify-center text-slate-300 pointer-events-none">
+                            Empty Canvas
+                        </div>
+                    )}
+                </div>
 
-                {layers.length === 0 && (
-                    <div className="absolute inset-0 flex items-center justify-center text-slate-300 pointer-events-none">
-                        Empty Canvas
-                    </div>
+                {/* 
+                   Selection Overlay - Visible (Not Clipped)
+                   Placed on top of the clipped content but within the scaled wrapper
+                */}
+                {selectedLayer && (
+                    <SelectionOverlay
+                        // @ts-ignore - Types might mismatch slightly but we aligned width/height requirements
+                        layer={selectedLayer}
+                        onUpdate={(updates) => onUpdateLayer(selectedLayer.id, updates)}
+                        onCommit={(updates) => onUpdateLayer(selectedLayer.id, updates)}
+                    />
                 )}
             </div>
         </div>

@@ -81,6 +81,19 @@ export const LayoutSelector: React.FC<Props> = ({ selected, onSelect }) => {
                         <rect x="13" y="16" width="9" height="6" rx="1" />
                     </svg>
                 );
+            case ComicLayout.EightGrid:
+                return (
+                    <svg viewBox="0 0 24 24" className={className}>
+                        <rect x="2" y="2" width="9" height="4.5" rx="0.5" />
+                        <rect x="13" y="2" width="9" height="4.5" rx="0.5" />
+                        <rect x="2" y="7.5" width="9" height="4.5" rx="0.5" />
+                        <rect x="13" y="7.5" width="9" height="4.5" rx="0.5" />
+                        <rect x="2" y="13" width="9" height="4.5" rx="0.5" />
+                        <rect x="13" y="13" width="9" height="4.5" rx="0.5" />
+                        <rect x="2" y="18.5" width="9" height="4.5" rx="0.5" />
+                        <rect x="13" y="18.5" width="9" height="4.5" rx="0.5" />
+                    </svg>
+                );
             default:
                 return null;
         }

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload, Eraser, Brush, Download, Image as ImageIcon, Loader2, Undo, Redo, Save, Palette, Sun, Sparkles, Trash2, Settings } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { MaskCanvas } from '../../LayerLab/components/MaskCanvas';
 import { generateMaskFromAI, processMask, AISettings } from '../../LayerLab/utils/maskUtils';
 import { GalleryPicker } from '../../../components/GalleryPicker';
@@ -8,9 +9,26 @@ import { saveStickerToDB } from '../../../db';
 
 const SmartRemoveTab = () => {
     const { t } = useTranslation();
+    const location = useLocation();
     const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
     const [maskCanvas, setMaskCanvas] = useState<HTMLCanvasElement | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+
+    useEffect(() => {
+        const state = location.state as { image?: string };
+        if (state?.image) {
+            const img = new Image();
+            img.onload = () => {
+                setOriginalImage(img);
+                setMaskCanvas(null);
+                setHistory([]);
+                setHistoryIndex(-1);
+            };
+            img.src = state.image;
+            // Clear state to avoid reloading on refresh if desired, but harmless here
+            window.history.replaceState({}, document.title);
+        }
+    }, []);
 
     // AI Settings
     const [aiSettings, setAiSettings] = useState<AISettings>({

@@ -37,7 +37,6 @@ export const Layout = () => {
         if (path.startsWith('/print-sheet')) return t('app.printSheet') || 'Print Studio';
         if (path.startsWith('/generator')) return t('generator.title') || 'Generator';
         if (path.startsWith('/svg-converter')) return t('app.svgConverter') || 'SVG Magic';
-        if (path.startsWith('/animator')) return t('app.animator') || 'Animator';
         if (path.startsWith('/gallery')) return t('app.gallery') || 'Gallery';
         // Added specifically for consistency
         if (path.startsWith('/image-editor')) return t('editor.title') || 'Image Editor';

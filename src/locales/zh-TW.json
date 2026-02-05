@@ -11,7 +11,9 @@
         "generator": "AI貼圖工作室",
         "cinematic": "影劇海報大師",
         "editor": "編輯器",
-        "packager": "裁切與加工",
+        "editor": "編輯器",
+        "packager": "裁切工具",
+        "beautify": "美化加工",
         "eraser": "橡皮擦",
         "gallery": "作品集",
         "generate": "生成",
@@ -42,6 +44,7 @@
         "sticker": "從作品集選擇",
         "image": "上傳圖片",
         "text": "新增文字",
+        "bubble": "對話氣泡",
         "layers": "圖層",
         "export": "匯出",
         "dragHint": "拖曳可移動圖層 • 點擊選取",
@@ -581,7 +584,7 @@
             "failed": "處理失敗："
         },
         "phase1": {
-            "title": "階段一：裁切與去背",
+            "title": "裁切與去背",
             "queue": "{{count}} 張隊列中",
             "rows": "橫列 Rows",
             "cols": "直欄 Cols",
@@ -593,10 +596,12 @@
             "tolerance": "邊緣容差",
             "protectClosed": "保護封閉區",
             "enhanceText": "增強文字",
-            "runCore": "執行核心處理"
+            "runCore": "執行核心處理",
+            "editFrame": "編輯裁切外框",
+            "resetGrid": "重置網格"
         },
         "phase2": {
-            "title": "階段二：美化加工與輸出",
+            "title": "美化加工與輸出",
             "presets": "常用規格",
             "custom": "自訂比例",
             "line": "Line (320px)",
@@ -605,13 +610,17 @@
             "stroke": "物件描邊",
             "strokeSize": "描邊粗細",
             "strokeColor": "描邊顏色",
+            "doubleStroke": "雙重描邊",
+            "secondStrokeSize": "外層粗細",
+            "secondStrokeColor": "外層顏色",
             "shadow": "物件陰影",
             "feather": "邊緣羽化",
             "format": "輸出格式",
             "prefix": "檔名前綴",
             "apply": "套用並預覽",
             "saveToGallery": "儲存至作品集",
-            "downloadZip": "下載全部成果 ZIP"
+            "downloadZip": "下載全部成果 ZIP",
+            "export": "匯出設定"
         }
     },
     "eraser": {
@@ -662,8 +671,16 @@
             "smartRemove": "智慧去背",
             "eraser": "橡皮擦",
             "packager": "批量裁切",
+            "beautify": "美化加工",
             "animator": "動態貼圖",
             "svg": "SVG 魔法"
+        },
+        "bubblePicker": {
+            "chooseStyle": "選擇氣泡樣式",
+            "standard": "標準",
+            "thought": "思考",
+            "shout": "大喊",
+            "oval": "圓形"
         },
         "layers": {
             "text": "文字圖層",
@@ -686,6 +703,7 @@
             "green": "綠幕背景",
             "white": "白色背景",
             "text": "新增文字",
+            "bubble": "對話氣泡",
             "image": "上傳圖片",
             "gallery": "從作品集選取",
             "linePreview": "LINE 預覽",

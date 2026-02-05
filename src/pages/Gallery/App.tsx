@@ -69,24 +69,24 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
                     <div className={`absolute inset-0 bg-bronze-text/80 backdrop-blur-[2px] transition-all duration-300 flex flex-col items-center justify-center gap-3 p-4 z-10 ${showOverlay ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto'}`}>
                         <div className="flex items-center gap-2">
                             <button
-                                onClick={(e) => { e.stopPropagation(); navigate('/editor', { state: { image: sticker.imageUrl } }); }}
+                                onClick={(e) => { e.stopPropagation(); navigate('/image-editor', { state: { image: sticker.imageUrl, tab: 'smart-remove' } }); }}
                                 className="px-3 py-1.5 bg-white/10 hover:bg-white text-white hover:text-bronze-text rounded-lg text-[10px] font-bold backdrop-blur-md transition-all border border-white/20 flex items-center gap-1.5 w-full justify-center"
                             >
-                                <Palette size={12} /> {t('app.editor')}
+                                <Palette size={12} /> {t('editor.tabs.smartRemove') || '智慧去背'}
                             </button>
                         </div>
                         <div className="flex items-center gap-2">
                             <button
-                                onClick={(e) => { e.stopPropagation(); navigate('/eraser', { state: { image: sticker.imageUrl } }); }}
+                                onClick={(e) => { e.stopPropagation(); navigate('/image-editor', { state: { image: sticker.imageUrl, tab: 'eraser' } }); }}
                                 className="px-3 py-1.5 bg-white/10 hover:bg-white text-white hover:text-bronze-text rounded-lg text-[10px] font-bold backdrop-blur-md transition-all border border-white/20 flex items-center gap-1.5"
                             >
-                                <Eraser size={12} /> {t('app.eraser')}
+                                <Eraser size={12} /> {t('editor.tabs.eraser') || '橡皮擦'}
                             </button>
                             <button
-                                onClick={(e) => { e.stopPropagation(); navigate('/packager', { state: { image: sticker.imageUrl } }); }}
+                                onClick={(e) => { e.stopPropagation(); navigate('/image-editor', { state: { image: sticker.imageUrl, tab: 'packager' } }); }}
                                 className="px-3 py-1.5 bg-white/10 hover:bg-white text-white hover:text-bronze-text rounded-lg text-[10px] font-bold backdrop-blur-md transition-all border border-white/20 flex items-center gap-1.5"
                             >
-                                <Layers size={12} /> {t('app.packager')}
+                                <Layers size={12} /> {t('editor.tabs.packager') || '批量裁切'}
                             </button>
                         </div>
 

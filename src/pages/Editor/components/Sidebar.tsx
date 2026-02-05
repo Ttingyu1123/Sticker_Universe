@@ -7,7 +7,7 @@ import {
   AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter,
   ArrowDown, ArrowUp, Trash2, Upload, Copy,
   Layers, Settings, Type, Image as ImageIcon, ChevronUp, ChevronDown,
-  FlipHorizontal, X, ArrowRight
+  FlipHorizontal, X, ArrowRight, MessageCircle
 } from 'lucide-react';
 import { ColorPickerInput } from './ColorPickerInput';
 
@@ -28,6 +28,7 @@ interface SidebarProps {
   onAddImage: (file: File) => void;
   onAddFromGallery: () => void;
   onAddText: () => void;
+  onAddBubble: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -46,7 +47,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setConfig,
   onAddImage,
   onAddFromGallery,
-  onAddText
+  onAddText,
+  onAddBubble
 }) => {
   const fontInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -583,6 +585,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           >
             <Type size={16} />
             <span>{t('editor.sidebar.addText')}</span>
+          </button>
+          <button
+            onClick={onAddBubble}
+            className="flex items-center justify-center gap-2 py-3 bg-white border border-cream-dark hover:bg-cream-light hover:border-primary/50 hover:text-primary rounded-xl transition-all font-bold text-sm text-bronze-text shadow-sm"
+          >
+            <MessageCircle size={16} />
+            <span>{t('editor.toolbar.bubble') || 'Bubble'}</span>
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}

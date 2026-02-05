@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Wand2, RefreshCw, Sparkles, Image as ImageIcon, Download, Settings2, MessageSquare, MessageSquareOff, Palette } from 'lucide-react';
 import { LayoutSelector } from './Manga/LayoutSelector';
 import { CharacterCreator } from './Manga/CharacterCreator';
-import { ComicConfig, ComicLayout, ComicStyle, ColorMode } from './Manga/types';
-import { STYLE_OPTIONS, ASPECT_RATIOS, COLOR_OPTIONS, TEXT_LANGUAGES } from './Manga/constants';
+import { ComicConfig, ComicLayout, ComicStyle, ColorMode, Resolution } from './Manga/types';
+import { STYLE_OPTIONS, ASPECT_RATIOS, COLOR_OPTIONS, TEXT_LANGUAGES, RESOLUTION_OPTIONS } from './Manga/constants';
 import { generateComicImage, optimizeStory } from '../services/geminiMangaService';
 import { useImageShare } from '../../../hooks/useImageShare';
 
@@ -30,6 +30,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
         theme: '',
         withText: true,
         textLanguage: 'zh-TW',
+        resolution: Resolution.R1K,
         negativePrompt: '',
         characters: []
     });
@@ -79,13 +80,31 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
 
     const handleDownload = async () => {
         if (!generatedImage) return;
+
+        // Determine Direction
+        let direction = 'Square';
+        const [w, h] = config.aspectRatio.split(':').map(Number);
+        if (w > h) direction = 'Horizontal';
+        if (h > w) direction = 'Vertical';
+
+        // Determine Count (Panels)
+        let count = 1;
+        if (config.layout.includes('Two')) count = 2;
+        if (config.layout.includes('Three')) count = 3;
+        if (config.layout.includes('Four')) count = 4;
+        if (config.layout.includes('Five')) count = 5;
+        if (config.layout.includes('Six')) count = 6;
+        if (config.layout.includes('Eight')) count = 8;
+
         await shareImage(generatedImage, {
-            filename: 'manga',
+            filename: 'MangaMaster',
             metadata: {
-                type: 'image',
+                type: 'manga',
                 style: config.style,
-                size: config.aspectRatio,
-                phrase: config.theme.substring(0, 20)
+                size: `${config.resolution}_${config.aspectRatio}`,
+                direction: direction,
+                count: count,
+                phrase: config.theme.substring(0, 15)
             }
         });
     };
@@ -122,11 +141,12 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                                 key={option.id}
                                 onClick={() => setConfig({ ...config, colorMode: option.id })}
                                 className={`
-                  flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5
-                  ${config.colorMode === option.id
+                                    flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5
+                                    ${config.colorMode === option.id
                                         ? 'bg-white text-primary shadow-sm ring-1 ring-black/5'
-                                        : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}
-                `}
+                                        : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'
+                                    }
+                                `}
                             >
                                 {option.id === ColorMode.Color && <Palette className="w-3 h-3" />}
                                 {option.label}
@@ -140,11 +160,12 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                                 key={option.id}
                                 onClick={() => setConfig({ ...config, style: option.id })}
                                 className={`
-                  px-3 py-2.5 rounded-xl border text-sm text-left transition-all truncate font-bold
-                  ${config.style === option.id
+                                    px-3 py-2.5 rounded-xl border text-sm text-left transition-all truncate font-bold
+                                    ${config.style === option.id
                                         ? 'border-primary bg-primary/5 text-primary shadow-sm'
-                                        : 'border-cream-dark bg-white text-bronze-light hover:bg-cream-light hover:text-bronze-text'}
-                `}
+                                        : 'border-cream-dark bg-white text-bronze-light hover:bg-cream-light hover:text-bronze-text'
+                                    }
+                                `}
                                 title={option.label}
                             >
                                 {option.label}
@@ -168,11 +189,12 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                                     key={ratio.id}
                                     onClick={() => setConfig({ ...config, aspectRatio: ratio.id })}
                                     className={`
-                    px-2 py-1 text-[10px] rounded font-bold transition-all
-                    ${config.aspectRatio === ratio.id
+                                        px-2 py-1 text-[10px] rounded font-bold transition-all
+                                        ${config.aspectRatio === ratio.id
                                             ? 'bg-white text-primary shadow-sm'
-                                            : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'}
-                  `}
+                                            : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'
+                                        }
+                                    `}
                                     title={ratio.label}
                                 >
                                     {ratio.id}
@@ -249,10 +271,32 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                                     )}
                                     <button
                                         onClick={() => setConfig({ ...config, withText: !config.withText })}
-                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${config.withText ? 'bg-primary' : 'bg-cream-dark'}`}
+                                        className={`relative inline - flex h - 6 w - 11 items - center rounded - full transition - colors ${config.withText ? 'bg-primary' : 'bg-cream-dark'} `}
                                     >
-                                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${config.withText ? 'translate-x-6' : 'translate-x-1'}`} />
+                                        <span className={`inline - block h - 4 w - 4 transform rounded - full bg - white transition - transform ${config.withText ? 'translate-x-6' : 'translate-x-1'} `} />
                                     </button>
+                                </div>
+                            </div>
+
+                            {/* Resolution Selector */}
+                            <div className="space-y-1">
+                                <label className="text-xs text-bronze-light font-bold ml-1">輸出畫質</label>
+                                <div className="flex bg-cream-light p-1 rounded-lg border border-cream-dark">
+                                    {RESOLUTION_OPTIONS.map((opt) => (
+                                        <button
+                                            key={opt.id}
+                                            onClick={() => setConfig({ ...config, resolution: opt.id })}
+                                            className={`
+                                            flex - 1 py - 1.5 text - xs font - bold rounded - md transition - all
+                                            ${config.resolution === opt.id
+                                                    ? 'bg-white text-primary shadow-sm ring-1 ring-black/5'
+                                                    : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'
+                                                }
+                            `}
+                                        >
+                                            {opt.label}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
 
@@ -290,7 +334,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
             {/* RIGHT COLUMN: Preview & Results */}
             <div id="result-section" className="lg:col-span-7 lg:sticky lg:top-24 min-h-[500px] flex flex-col">
                 <div className={`
-          relative flex-1 bg-white border border-cream-dark rounded-[3rem] overflow-hidden shadow-xl transition-all duration-500 min-h-[600px]
+          relative flex - 1 bg - white border border - cream - dark rounded - [3rem] overflow - hidden shadow - xl transition - all duration - 500 min - h - [600px]
           ${!generatedImage && !isLoading ? 'border-dashed border-cream-dark bg-cream-light/30' : 'border-primary/30'}
         `}>
 
@@ -352,7 +396,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

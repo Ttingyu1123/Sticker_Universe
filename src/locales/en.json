@@ -36,6 +36,7 @@
         "sticker": "From Gallery",
         "image": "Upload Image",
         "text": "Add Text",
+        "bubble": "Bubble",
         "layers": "Layers",
         "export": "Export",
         "dragHint": "Drag to move layers • Click to select",
@@ -568,7 +569,8 @@
             "tolerance": "Tolerance",
             "protectClosed": "Protect Closed Areas",
             "enhanceText": "Enhance Text",
-            "runCore": "Run Core Process"
+            "runCore": "Run Core Process",
+            "resetGrid": "Reset Grid"
         },
         "phase2": {
             "title": "Phase 2: Beautify & Export",
@@ -636,6 +638,21 @@
             "defaultText": "Text",
             "copy": "(Copy)"
         },
+        "tabs": {
+            "cropEdit": "Layer Edit",
+            "smartRemove": "Smart Remove",
+            "eraser": "Eraser",
+            "packager": "Batch Crop",
+            "animator": "Animator",
+            "svg": "SVG Magic"
+        },
+        "bubblePicker": {
+            "chooseStyle": "Select Bubble Style",
+            "standard": "Standard",
+            "thought": "Thought",
+            "shout": "Shout",
+            "oval": "Oval"
+        },
         "controls": {
             "zoomIn": "Zoom In",
             "zoomOut": "Zoom Out",
@@ -651,12 +668,14 @@
             "green": "Green Screen",
             "white": "White Background",
             "text": "Text",
+            "bubble": "Bubble",
             "image": "Image",
             "gallery": "Gallery",
             "linePreview": "LINE Preview",
             "linePreviewTooltip": "Analyze on LINE",
             "export": "Export",
             "saveToGallery": "Save to Gallery",
+            "save": "Save",
             "backHome": "Back Home"
         },
         "sidebar": {
