@@ -555,6 +555,30 @@
             "reset": "重置",
             "cancel": "取消",
             "confirm": "確認"
+        },
+        "greeting": {
+            "title": "賀卡大師",
+            "settings": {
+                "title": "賀卡設定",
+                "festival": "節日主題",
+                "style": "繪圖風格",
+                "name": "你的名字/暱稱",
+                "namePlaceholder": "例如：小明、Alice...",
+                "message": "想要說的祝福語 (AI 會幫你潤飾)",
+                "messagePlaceholder": "例如：祝你生日快樂，天天開心！"
+            },
+            "action": {
+                "generate": "生成專屬賀卡",
+                "regenerate": "重新繪製中...",
+                "download": "下載賀卡",
+                "upload": "點擊上傳照片 (主角)",
+                "uploadHint": "(建議清晰的人像照)",
+                "gallery": "從作品集選取"
+            },
+            "result": {
+                "to": "To: You | From:",
+                "defaultTitle": "你的專屬賀卡將會出現在這裡"
+            }
         }
     },
     "packager": {

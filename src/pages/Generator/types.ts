@@ -426,3 +426,45 @@ export const THEMES: StickerTheme[] = [
 export const COMMON_PHRASES = THEMES[0].phrases;
 export const STICKER_STYLES = THEMES[0].styles;
 
+
+// --- Greeting Card Generator Types ---
+
+export type CardLayoutId = 'classic' | 'magazine' | 'minimalist';
+
+export interface CardLayout {
+  id: CardLayoutId;
+  label: string;
+  description: string;
+}
+
+export interface CardSticker {
+  id: string;
+  src: string; // URL or Emoji char
+  x: number; // Percentage 0-100 relative to card width
+  y: number; // Percentage 0-100 relative to card height
+  scale: number;
+  rotation: number;
+  isEmoji?: boolean;
+}
+
+export const CARD_LAYOUTS: CardLayout[] = [
+  { id: 'classic', label: '經典拍立得', description: '溫馨拍立得風格 (預設)' },
+  { id: 'magazine', label: '時尚雜誌', description: '滿版圖片，文字疊加' },
+  { id: 'minimalist', label: '極簡留白', description: '大面積留白，雅緻佈局' },
+];
+
+export const STICKER_ASSETS = [
+  { id: 'heart', src: '❤️', isEmoji: true },
+  { id: 'sparkles', src: '✨', isEmoji: true },
+  { id: 'star', src: '⭐', isEmoji: true },
+  { id: 'flower', src: '🌸', isEmoji: true },
+  { id: 'party', src: '🎉', isEmoji: true },
+  { id: 'cake', src: '🎂', isEmoji: true },
+  { id: 'gift', src: '🎁', isEmoji: true },
+  { id: 'ribbon', src: '🎀', isEmoji: true },
+  { id: 'fire', src: '🔥', isEmoji: true },
+  { id: 'cool', src: '😎', isEmoji: true },
+  { id: 'love', src: '🥰', isEmoji: true },
+  { id: 'crown', src: '👑', isEmoji: true },
+];
+

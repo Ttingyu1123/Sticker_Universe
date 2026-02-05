@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Calendar, Sparkles, Key, FileArchive, Download, Eye, Scissors, Star, User, BookOpen
+  Calendar, Sparkles, Key, FileArchive, Download, Eye, Scissors, Star, User, BookOpen, Heart
 } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveStickerToDB } from '../../db';
@@ -13,18 +13,15 @@ import HolidayStickerTab from './components/HolidayStickerTab';
 import StyleStickerTab from './components/StyleStickerTab';
 import CinematicPosterTab from './components/CinematicPosterTab';
 import HeadshotGeneratorTab from './components/HeadshotGeneratorTab';
-import MangaMasterTab from './components/MangaMasterTab'; // Import new tab
+import GreetingCardTab from './components/GreetingCardTab';
+import MangaMasterTab from './components/MangaMasterTab';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
-  const [apiKey, setApiKey] = useState<string>('');
-  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'sticker' | 'holiday' | 'greeting' | 'image-gen' | 'cinematic' | 'headshot' | 'manga'>('sticker');
+  const [apiKey, setApiKey] = useState('');
   const [tempKey, setTempKey] = useState('');
-
-  // Tab State - Added 'manga'
-  const [activeTab, setActiveTab] = useState<'sticker' | 'holiday' | 'image-gen' | 'cinematic' | 'headshot' | 'manga'>('sticker');
-
-  // Shared/Legacy State (Used by Image Generator Results mainly)
+  const [showKeyModal, setShowKeyModal] = useState(false);
   const [stickers, setStickers] = useState<Sticker[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isZipping, setIsZipping] = useState(false);
@@ -257,6 +254,13 @@ const App: React.FC = () => {
               <Calendar size={18} className="sm:w-4 sm:h-4" />
               <span>節慶貼圖</span>
             </button>
+            <button
+              onClick={() => setActiveTab('greeting')}
+              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'greeting' ? 'bg-rose-500 text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
+            >
+              <Heart size={18} className="sm:w-4 sm:h-4" />
+              <span>賀卡大師</span>
+            </button>
             {/* Manga Master Info */}
             <button
               onClick={() => setActiveTab('manga')}
@@ -310,6 +314,13 @@ const App: React.FC = () => {
           <HolidayStickerTab
             apiKey={apiKey}
             onError={(msg) => setError(msg)}
+            onSuccess={handleImageGenSuccess}
+          />
+        ) : activeTab === 'greeting' ? (
+          <GreetingCardTab
+            apiKey={apiKey}
+            onError={(msg) => setError(msg)}
+            onNeedApiKey={() => setShowKeyModal(true)}
             onSuccess={handleImageGenSuccess}
           />
         ) : activeTab === 'manga' ? (

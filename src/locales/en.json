@@ -528,6 +528,30 @@
                     "唯美日常": "Beautiful Life"
                 }
             }
+        },
+        "greeting": {
+            "title": "Greeting Card Master",
+            "settings": {
+                "title": "Card Settings",
+                "festival": "Festival Theme",
+                "style": "Art Style",
+                "name": "Your Name/Nickname",
+                "namePlaceholder": "e.g., Alice, Bob...",
+                "message": "Your Message (AI will refine it)",
+                "messagePlaceholder": "e.g., Happy Birthday! Have a great day!"
+            },
+            "action": {
+                "generate": "Generate Card",
+                "regenerate": "Regenerating...",
+                "download": "Download Card",
+                "upload": "Click to Upload Photo (Main Subject)",
+                "uploadHint": "(Clear portrait recommended)",
+                "gallery": "Select from Gallery"
+            },
+            "result": {
+                "to": "To: You | From:",
+                "defaultTitle": "Your masterpiece will appear here"
+            }
         }
     },
     "packager": {
