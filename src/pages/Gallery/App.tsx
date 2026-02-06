@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Trash2, Download, Image as ImageIcon, Search, FileArchive, Palette, Eraser, Layers, MoreHorizontal, CheckCircle2, Circle, Upload, FileText, X, Maximize2 } from 'lucide-react';
+import { Trash2, Download, Image as ImageIcon, Search, FileArchive, Palette, Eraser, Layers, MoreHorizontal, CheckCircle2, Circle, Upload, FileText, X, Maximize2, Share2, Copy } from 'lucide-react';
 import { getAllStickersFromDB, deleteStickerFromDB, clearAllStickersFromDB, saveStickerToDB } from '../../db';
 import { Sticker } from '../Generator/types';
 import JSZip from 'jszip';
@@ -17,9 +17,10 @@ interface StickerCardProps {
     onToggleSelect: (id: string) => void;
     onViewDetails: (sticker: Sticker) => void;
     onPreview: (sticker: Sticker) => void;
+    onShare: (sticker: Sticker) => void;
 }
 
-const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload, isSelectionMode, isSelected, onToggleSelect, onViewDetails, onPreview }) => {
+const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload, isSelectionMode, isSelected, onToggleSelect, onViewDetails, onPreview, onShare }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [showOverlay, setShowOverlay] = useState(false);
@@ -93,6 +94,13 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
                         <div className="w-full h-px bg-white/20 my-1"></div>
 
                         <div className="flex items-center gap-2">
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onShare(sticker); }}
+                                className="p-2 bg-white/10 hover:bg-white rounded-full text-white hover:text-pink-500 transition-all border border-white/20"
+                                title={t('gallery.share') || "Share"}
+                            >
+                                <Share2 size={14} />
+                            </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); onDownload(sticker.imageUrl, sticker.phrase); }}
                                 className="p-2 bg-white/10 hover:bg-white rounded-full text-white hover:text-secondary transition-all border border-white/20"
@@ -196,6 +204,54 @@ const App = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    };
+
+    const handleShare = async (sticker: Sticker) => {
+        try {
+            const response = await fetch(sticker.imageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], `${sticker.phrase}.png`, { type: 'image/png' });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: sticker.phrase,
+                    text: sticker.description || `Check out this sticker: ${sticker.phrase}`,
+                    files: [file]
+                });
+            } else {
+                // Fallback to clipboard
+                const clipboardItem = new ClipboardItem({ [file.type]: file });
+                await navigator.clipboard.write([clipboardItem]);
+                alert("Copied to clipboard! (Your device doesn't support native file sharing)");
+            }
+        } catch (error) {
+            console.error("Share failed:", error);
+            // It might fail if user cancels, just ignore
+        }
+    };
+
+    const handleCopyText = async (sticker: Sticker) => {
+        const textToCopy = `${sticker.phrase}\n\n${sticker.description || ''}`;
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            alert("文字已複製到剪貼簿！");
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+            alert("複製失敗");
+        }
+    };
+
+    const handleDownloadText = (sticker: Sticker) => {
+        const textContent = `${sticker.phrase}\n\n${sticker.description || ''}`;
+        const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${sticker.phrase || 'sticker_text'}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleDownloadZip = async (subset: Sticker[] = filteredStickers) => {
@@ -414,6 +470,7 @@ const App = () => {
                             onToggleSelect={toggleSelect}
                             onViewDetails={setViewingSticker}
                             onPreview={setPreviewSticker}
+                            onShare={handleShare}
                         />
                     ))}
                 </div>
@@ -450,7 +507,7 @@ const App = () => {
             {
                 viewingSticker && (
                     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setViewingSticker(null)}>
-                        <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+                        <div className="bg-white rounded-3xl max-w-4xl w-full h-[90vh] md:h-auto md:max-h-[90vh] overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
 
                             {/* Image Side */}
                             <div className="w-full md:w-1/2 bg-cream-light/30 relative flex items-center justify-center p-8 border-b md:border-b-0 md:border-r border-cream-dark/50" style={{ backgroundImage: 'radial-gradient(#d6ccc2 1px, transparent 1px)', backgroundSize: '16px 16px' }}>
@@ -461,7 +518,7 @@ const App = () => {
                             </div>
 
                             {/* Text Side */}
-                            <div className="w-full md:w-1/2 flex flex-col h-[50vh] md:h-auto">
+                            <div className="w-full md:w-1/2 flex flex-col flex-1 min-h-0 bg-white">
                                 <div className="px-8 py-6 border-b border-cream-dark flex items-center justify-between bg-white shrink-0">
                                     <div>
                                         <h2 className="text-xl font-black text-bronze-text line-clamp-1">{viewingSticker.phrase}</h2>
@@ -485,7 +542,28 @@ const App = () => {
                                     )}
                                 </div>
 
-                                <div className="p-6 border-t border-cream-dark bg-white shrink-0 flex justify-end gap-3">
+                                <div className="p-6 border-t border-cream-dark bg-white shrink-0 flex flex-wrap justify-end gap-3">
+                                    <button
+                                        onClick={() => handleCopyText(viewingSticker)}
+                                        className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition-all flex items-center gap-2"
+                                        title="複製文字"
+                                    >
+                                        <Copy size={16} /> <span className="hidden sm:inline">複製文字</span>
+                                    </button>
+                                    <button
+                                        onClick={() => handleDownloadText(viewingSticker)}
+                                        className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition-all flex items-center gap-2"
+                                        title="下載文字檔"
+                                    >
+                                        <FileText size={16} /> <span className="hidden sm:inline">下載文字</span>
+                                    </button>
+                                    <div className="w-px h-8 bg-gray-300 mx-1 hidden sm:block"></div>
+                                    <button
+                                        onClick={() => handleShare(viewingSticker)}
+                                        className="px-4 py-2 bg-pink-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-pink-500/20 hover:bg-pink-600 transition-all flex items-center gap-2"
+                                    >
+                                        <Share2 size={16} /> 分享
+                                    </button>
                                     <button
                                         onClick={() => handleDownload(viewingSticker.imageUrl, viewingSticker.phrase)}
                                         className="px-4 py-2 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all flex items-center gap-2"
@@ -512,9 +590,7 @@ const App = () => {
                             className="max-w-full max-h-screen object-contain drop-shadow-2xl animate-in zoom-in-90 duration-300"
                             onClick={(e) => e.stopPropagation()}
                         />
-                        <div className="absolute bottom-8 text-white/80 font-bold text-lg pointer-events-none drop-shadow-md">
-                            {previewSticker.phrase}
-                        </div>
+
                     </div>
                 )
             }

@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload, Camera, FileText, Wand2, Sparkles, ChevronDown, ChevronRight, X, Image as ImageIcon, FolderHeart } from 'lucide-react';
 // @ts-ignore
-import { ART_STYLES_CATEGORIES, ASPECT_RATIOS, EDITING_EXAMPLES, EXAMPLE_PROMPTS, FUNCTION_BUTTONS, TWELVE_GRID_CATEGORIES } from '../../../../constants';
+import { ART_STYLES_CATEGORIES, ASPECT_RATIOS, EDITING_EXAMPLES, EXAMPLE_PROMPTS, FUNCTION_BUTTONS, TWELVE_GRID_CATEGORIES, TOP_100_STYLES, TOP_100_STYLES_CATEGORIZED } from '../../../../constants';
 import { generateImage } from '../services/geminiService';
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
@@ -19,6 +19,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
     const [aspectRatio, setAspectRatio] = useState<string>('1:1');
     const [isStyleOpen, setIsStyleOpen] = useState(false);
     const [isTwelveGridOpen, setIsTwelveGridOpen] = useState(false);
+    const [isTop100Open, setIsTop100Open] = useState(false);
     const [isGuideOpen, setIsGuideOpen] = useState(false);
     const [referenceImage, setReferenceImage] = useState<string | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -176,6 +177,40 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                                                         title={style.prompt}
                                                     >
                                                         {style.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Top 100 Styles */}
+                        <div className="border border-cream-dark rounded-2xl bg-white/60 overflow-hidden">
+                            <button
+                                onClick={() => setIsTop100Open(!isTop100Open)}
+                                className="w-full flex items-center justify-between p-4 text-xs font-bold text-bronze-text hover:bg-white/80 transition-colors"
+                            >
+                                <span>TOP 100 風格重繪 (Top 100 Styles)</span>
+                                <ChevronDown size={16} className={`transition-transform ${isTop100Open ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {isTop100Open && (
+                                <div className="p-4 border-t border-cream-dark bg-white/40 max-h-80 overflow-y-auto custom-scrollbar space-y-6">
+                                    {TOP_100_STYLES_CATEGORIZED?.map((category: any, cIdx: number) => (
+                                        <div key={cIdx} className="space-y-2">
+                                            <h4 className="text-[10px] font-black text-bronze-light uppercase tracking-wider sticky top-0 bg-white/90 backdrop-blur-sm p-1 z-10 rounded-md">{category.categoryName}</h4>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                {category.items.map((style: any, idx: number) => (
+                                                    <button
+                                                        key={`${cIdx}-${idx}`}
+                                                        onClick={() => { addPrompt(style.prompt); setIsTop100Open(false); }}
+                                                        className="p-2 rounded-lg text-[10px] sm:text-xs text-left truncate transition-colors hover:bg-primary/10 text-bronze-light hover:text-primary border border-transparent hover:border-primary/20"
+                                                        title={style.prompt}
+                                                    >
+                                                        <div className="font-bold truncate">{style.label}</div>
+                                                        {style.negativePrompt && <div className="text-[9px] opacity-60 truncate">Neg: {style.negativePrompt}</div>}
                                                     </button>
                                                 ))}
                                             </div>

@@ -78,6 +78,16 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
         }
     };
 
+    // Scroll to result on success
+    React.useEffect(() => {
+        if (generatedImage) {
+            const resultSection = document.getElementById('result-section');
+            if (resultSection) {
+                resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    }, [generatedImage]);
+
     const handleDownload = async () => {
         if (!generatedImage) return;
 

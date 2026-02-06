@@ -1,7 +1,9 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import {
     Settings, Upload, RefreshCw,
-    Download, Sparkles, Image as ImageIcon, FolderHeart, Heart, Clock, History, Share2
+    Scissors, AlertTriangle, Check, Trash2, Star, Eye, FileArchive, FolderHeart, Heart, Clock, History, Share2,
+    Sparkles, Download, Image as ImageIcon
 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import { GalleryPicker } from '../../../components/GalleryPicker';
@@ -9,6 +11,7 @@ import {
     CARD_LAYOUTS,
     CardLayoutId
 } from '../types';
+import { processImage } from '../../Packager/services/ai/backgroundRemoval';
 
 // --- Constants & DB ---
 const FESTIVALS = [
@@ -134,9 +137,11 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({ apiKey, onError, onNe
     const [faceSwapMode, setFaceSwapMode] = useState(false); // 換臉模式：保持臉部，更換服裝
     const [showTextOnCard, setShowTextOnCard] = useState(true); // 賀卡上是否顯示祝福語
     const [selectedFont, setSelectedFont] = useState('serif'); // 字體
+    const [customFonts, setCustomFonts] = useState<{ id: string, label: string, family: string, className: string }[]>([]); // 自定義字型
     const [textColor, setTextColor] = useState('#333333'); // 文字顏色
     const [isGenerating, setIsGenerating] = useState(false);
     const [isRegenerating, setIsRegenerating] = useState(false);
+    const [isRemovingBg, setIsRemovingBg] = useState(false); // 去背狀態
     const [isOptimizingPrompt, setIsOptimizingPrompt] = useState(false); // AI 優化提示詞中
     const [generatedResult, setGeneratedResult] = useState<any>(null);
     const [localError, setLocalError] = useState<string | null>(null);
@@ -150,6 +155,10 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({ apiKey, onError, onNe
     const [styleIntensity, setStyleIntensity] = useState(80); // 0-100
     const [autoExpandBackground, setAutoExpandBackground] = useState(true);
     const [negativePrompt, setNegativePrompt] = useState("");
+
+    // Auto Remove Background State
+    const [autoRemoveBg, setAutoRemoveBg] = useState(false);
+    const [isProcessingUploadBg, setIsProcessingUploadBg] = useState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -192,9 +201,47 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({ apiKey, onError, onNe
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            if (autoRemoveBg) {
+                processUploadedImageBg(file);
+            } else {
+                const reader = new FileReader();
+                reader.onloadend = () => setUserImage(reader.result as string);
+                reader.readAsDataURL(file);
+            }
+        }
+    };
+
+    const processUploadedImageBg = async (file: File | Blob) => {
+        setIsProcessingUploadBg(true);
+        try {
+            const blob = await processImage(file);
             const reader = new FileReader();
             reader.onloadend = () => setUserImage(reader.result as string);
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(blob);
+        } catch (err) {
+            console.error("BG Removal failed", err);
+            onError("去背失敗，已顯示原始圖片");
+            // Fallback to original if file is available
+            if (file instanceof File || file instanceof Blob) {
+                const reader = new FileReader();
+                reader.onloadend = () => setUserImage(reader.result as string);
+                reader.readAsDataURL(file);
+            }
+        } finally {
+            setIsProcessingUploadBg(false);
+        }
+    };
+
+    // Manual Trigger for Uploaded Image
+    const handleManualUploadBgRemoval = async () => {
+        if (!userImage) return;
+        // Convert base64 to Blob
+        try {
+            const res = await fetch(userImage);
+            const blob = await res.blob();
+            await processUploadedImageBg(blob);
+        } catch (e) {
+            onError("圖片處理失敗");
         }
     };
 
@@ -202,10 +249,133 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({ apiKey, onError, onNe
         if (blobs.length > 0) {
             const blob = blobs[0];
             const reader = new FileReader();
-            reader.onloadend = () => setUserImage(reader.result as string);
+            reader.onloadend = () => {
+                const result = reader.result as string;
+                if (autoRemoveBg) {
+                    // Convert back to blob for consistency or just call process immediately
+                    // Since we have blob, just use it
+                    processUploadedImageBg(blob);
+                } else {
+                    setUserImage(result);
+                }
+            };
             reader.readAsDataURL(blob);
         }
         setShowGallery(false);
+    };
+
+    // Helper: Font Upload
+    const handleFontUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const fontName = `CustomFont_${Date.now()} `;
+        const fontUrl = URL.createObjectURL(file);
+        const fontFace = new FontFace(fontName, `url(${fontUrl})`);
+
+        try {
+            await fontFace.load();
+            document.fonts.add(fontFace);
+
+            const newFont = {
+                id: fontName,
+                label: file.name.substring(0, 10) + (file.name.length > 10 ? '...' : ''),
+                family: fontName,
+                className: ''
+            };
+
+            setCustomFonts(prev => [...prev, newFont]);
+            setSelectedFont(fontName);
+        } catch (err) {
+            console.error('Font loading failed:', err);
+            onError('字型載入失敗，請確認檔案格式正確');
+        }
+    };
+
+    // SMART REMOVE BACKGROUND LOGIC (Copied from StyleStickerTab)
+    const smartRemoveBackground = (base64: string): Promise<string> => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+                const width = img.width;
+                const height = img.height;
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+                ctx.drawImage(img, 0, 0);
+
+                const imageData = ctx.getImageData(0, 0, width, height);
+                const data = imageData.data;
+                const isBg = new Uint8Array(width * height);
+
+                // 1. Detect if the background is actually green
+                const corners = [[0, 0], [width - 1, 0], [0, height - 1], [width - 1, height - 1]];
+
+                // 2. Flood Fill starting from corners
+                const queue: [number, number][] = [...corners as [number, number][]];
+                const visited = new Uint8Array(width * height);
+
+                const isGreen = (r: number, g: number, b: number) => {
+                    return g > 80 && g > r * 1.15 && g > b * 1.15;
+                };
+
+                while (queue.length > 0) {
+                    const [x, y] = queue.shift()!;
+                    const idx = y * width + x;
+                    if (visited[idx]) continue;
+                    visited[idx] = 1;
+
+                    const i = idx * 4;
+                    if (isGreen(data[i], data[i + 1], data[i + 2])) {
+                        isBg[idx] = 1;
+                        if (x > 0) queue.push([x - 1, y]);
+                        if (x < width - 1) queue.push([x + 1, y]);
+                        if (y > 0) queue.push([x, y - 1]);
+                        if (y < height - 1) queue.push([x, y + 1]);
+                    }
+                }
+
+                // 3. Dilation (Halo Cleanup)
+                const expandedBg = new Uint8Array(isBg);
+                for (let y = 1; y < height - 1; y++) {
+                    for (let x = 1; x < width - 1; x++) {
+                        const idx = y * width + x;
+                        if (isBg[idx] === 0) {
+                            if (isBg[idx - 1] || isBg[idx + 1] || isBg[idx - width] || isBg[idx + width]) {
+                                expandedBg[idx] = 1;
+                            }
+                        }
+                    }
+                }
+
+                // 4. Final Alpha Application
+                for (let i = 0; i < width * height; i++) {
+                    if (expandedBg[i]) {
+                        data[i * 4 + 3] = 0;
+                    }
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+                resolve(canvas.toDataURL('image/png'));
+            };
+            img.src = base64;
+        });
+    };
+
+    const handleBgRemoval = async () => {
+        if (!generatedResult) return;
+        setIsRemovingBg(true);
+        try {
+            const processedUrl = await smartRemoveBackground(generatedResult.imageUrl);
+            setGeneratedResult(prev => prev ? { ...prev, imageUrl: processedUrl } : null);
+        } catch (error) {
+            console.error("BG Removal failed", error);
+            onError("去背失敗");
+        } finally {
+            setIsRemovingBg(false);
+        }
     };
 
     // API: Optimize Custom Prompt
@@ -524,175 +694,179 @@ Negative Prompt: ${negativePrompt || 'None'}
         return currentY + lineHeight;
     };
 
-    const handleDownload = async () => {
-        if (!generatedResult?.imageUrl) return;
-        try {
-            const mainImg = await loadImage(generatedResult.imageUrl);
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            if (!ctx) return;
+    const createCardCanvas = async (): Promise<HTMLCanvasElement | null> => {
+        if (!generatedResult?.imageUrl) return null;
+        const mainImg = await loadImage(generatedResult.imageUrl);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return null;
 
-            const imgWidth = mainImg.width;
-            const imgHeight = mainImg.height;
+        const imgWidth = mainImg.width;
+        const imgHeight = mainImg.height;
 
-            // --- Layout Rendering Engine ---
+        // --- Layout Rendering Engine ---
 
-            // 1. Classic Layout (Polaroid-like)
-            if (cardLayout === 'classic') {
-                const padding = 60;
-                const textSectionHeight = showTextOnCard && generatedResult.message ? 260 : 0;
+        // 1. Classic Layout (Polaroid-like)
+        if (cardLayout === 'classic') {
+            const padding = 60;
+            const textSectionHeight = showTextOnCard && generatedResult.message ? 260 : 0;
 
-                canvas.width = imgWidth + (padding * 2);
-                canvas.height = imgHeight + textSectionHeight + padding + (showTextOnCard ? 0 : padding);
+            canvas.width = imgWidth + (padding * 2);
+            canvas.height = imgHeight + textSectionHeight + padding + (showTextOnCard ? 0 : padding);
 
-                // Background
-                ctx.fillStyle = cardBgColor;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Background
+            ctx.fillStyle = cardBgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // Image Frame
-                const imageX = padding;
-                const imageY = padding;
+            // Image Frame
+            const imageX = padding;
+            const imageY = padding;
 
-                // Shadow
-                ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
-                ctx.shadowBlur = 20;
-                ctx.shadowOffsetY = 10;
+            // Shadow
+            ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetY = 10;
 
-                // White Border
-                ctx.fillStyle = "#FFFFFF";
-                ctx.fillRect(imageX - 10, imageY - 10, imgWidth + 20, imgHeight + 20);
+            // White Border
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(imageX - 10, imageY - 10, imgWidth + 20, imgHeight + 20);
 
-                // Image
-                ctx.shadowColor = "transparent";
-                ctx.drawImage(mainImg, imageX, imageY);
+            // Image
+            ctx.shadowColor = "transparent";
+            ctx.drawImage(mainImg, imageX, imageY);
 
-                // Text
-                if (showTextOnCard && generatedResult.message) {
-                    const textStartX = canvas.width / 2;
-                    let textCursorY = imageY + imgHeight + 70;
+            // Text
+            if (showTextOnCard && generatedResult.message) {
+                const textStartX = canvas.width / 2;
+                let textCursorY = imageY + imgHeight + 70;
 
-                    // Title
-                    ctx.font = 'bold 48px serif';
-                    ctx.fillStyle = '#5D5540';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(generatedResult.title || "Holiday Greeting", textStartX, textCursorY);
+                // Title
+                ctx.font = 'bold 48px serif';
+                ctx.fillStyle = '#5D5540';
+                ctx.textAlign = 'center';
+                ctx.fillText(generatedResult.title || "Holiday Greeting", textStartX, textCursorY);
 
-                    textCursorY += 50;
-                    ctx.font = 'bold 24px sans-serif';
-                    ctx.fillStyle = '#A3997A';
-                    ctx.fillText(`To: ${recipientName || "You"} | From: ${userName || "Me"}`, textStartX, textCursorY);
+                textCursorY += 50;
+                ctx.font = 'bold 24px sans-serif';
+                ctx.fillStyle = '#A3997A';
+                ctx.fillText(`To: ${recipientName || "You"} | From: ${userName || "Me"}`, textStartX, textCursorY);
 
-                    textCursorY += 40;
-                    ctx.beginPath();
-                    ctx.moveTo(textStartX - 100, textCursorY - 15);
-                    ctx.lineTo(textStartX + 100, textCursorY - 15);
-                    ctx.strokeStyle = '#DDD0B0';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
+                textCursorY += 40;
+                ctx.beginPath();
+                ctx.moveTo(textStartX - 100, textCursorY - 15);
+                ctx.lineTo(textStartX + 100, textCursorY - 15);
+                ctx.strokeStyle = '#DDD0B0';
+                ctx.lineWidth = 2;
+                ctx.stroke();
 
-                    textCursorY += 30;
-                    const selectedFontFamily = FONTS.find(f => f.id === selectedFont)?.family || 'serif';
-                    ctx.font = `32px ${selectedFontFamily}`;
-                    ctx.fillStyle = textColor;
-                    const maxWidth = canvas.width - (padding * 4);
-                    wrapText(ctx, generatedResult.message, textStartX, textCursorY, maxWidth, 48);
-                }
+                textCursorY += 30;
+                const selectedFontData = [...FONTS, ...customFonts].find(f => f.id === selectedFont);
+                const selectedFontFamily = selectedFontData?.family || 'serif';
+                ctx.font = `32px ${selectedFontFamily}`;
+                ctx.fillStyle = textColor;
+                const maxWidth = canvas.width - (padding * 4);
+                wrapText(ctx, generatedResult.message, textStartX, textCursorY, maxWidth, 48);
             }
-            // 2. Magazine Layout (Full Bleed)
-            else if (cardLayout === 'magazine') {
-                canvas.width = imgWidth;
-                canvas.height = imgHeight;
+        }
+        // 2. Magazine Layout (Full Bleed)
+        else if (cardLayout === 'magazine') {
+            canvas.width = imgWidth;
+            canvas.height = imgHeight;
 
-                // Draw Image Full Bleed
-                ctx.drawImage(mainImg, 0, 0);
+            // Draw Image Full Bleed
+            ctx.drawImage(mainImg, 0, 0);
 
-                // Dark Gradient Overlay at Bottom for Text Visibility
-                if (showTextOnCard) {
-                    const gradientHeight = imgHeight * 0.4;
-                    const gradient = ctx.createLinearGradient(0, imgHeight - gradientHeight, 0, imgHeight);
-                    gradient.addColorStop(0, "rgba(0,0,0,0)");
-                    gradient.addColorStop(0.7, "rgba(0,0,0,0.7)");
-                    gradient.addColorStop(1, "rgba(0,0,0,0.9)");
+            // Dark Gradient Overlay at Bottom for Text Visibility
+            if (showTextOnCard) {
+                const gradientHeight = imgHeight * 0.4;
+                const gradient = ctx.createLinearGradient(0, imgHeight - gradientHeight, 0, imgHeight);
+                gradient.addColorStop(0, "rgba(0,0,0,0)");
+                gradient.addColorStop(0.7, "rgba(0,0,0,0.7)");
+                gradient.addColorStop(1, "rgba(0,0,0,0.9)");
 
-                    ctx.fillStyle = gradient;
-                    ctx.fillRect(0, imgHeight - gradientHeight, imgWidth, gradientHeight);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, imgHeight - gradientHeight, imgWidth, gradientHeight);
 
-                    // Text (White/Light)
-                    const textStartX = 60;
-                    let textCursorY = imgHeight - 180;
+                // Text (White/Light)
+                const textStartX = 60;
+                let textCursorY = imgHeight - 180;
 
-                    ctx.font = '900 80px sans-serif'; // Big Bold Title
+                ctx.font = '900 80px sans-serif'; // Big Bold Title
+                ctx.fillStyle = '#FFFFFF';
+                ctx.textAlign = 'left';
+                ctx.shadowColor = "rgba(0,0,0,0.5)";
+                ctx.shadowBlur = 10;
+                ctx.fillText((generatedResult.title || "GREETING").toUpperCase(), textStartX, textCursorY);
+
+                textCursorY += 50;
+                ctx.font = 'bold 24px monospace';
+                ctx.fillStyle = '#E5E5E5';
+                ctx.fillText(`TO ${recipientName || "YOU"} • FROM ${userName || "ME"}`, textStartX, textCursorY);
+
+                if (generatedResult.message) {
+                    textCursorY += 60;
+                    const mainFont = [...FONTS, ...customFonts].find(f => f.id === selectedFont)?.family || 'sans-serif';
+                    ctx.font = `36px ${mainFont}`;
                     ctx.fillStyle = '#FFFFFF';
-                    ctx.textAlign = 'left';
-                    ctx.shadowColor = "rgba(0,0,0,0.5)";
-                    ctx.shadowBlur = 10;
-                    ctx.fillText((generatedResult.title || "GREETING").toUpperCase(), textStartX, textCursorY);
-
-                    textCursorY += 50;
-                    ctx.font = 'bold 24px monospace';
-                    ctx.fillStyle = '#E5E5E5';
-                    ctx.fillText(`TO ${recipientName || "YOU"} • FROM ${userName || "ME"}`, textStartX, textCursorY);
-
-                    if (generatedResult.message) {
-                        textCursorY += 60;
-                        const mainFont = FONTS.find(f => f.id === selectedFont)?.family || 'sans-serif';
-                        ctx.font = `36px ${mainFont}`;
-                        ctx.fillStyle = '#FFFFFF';
-                        wrapText(ctx, generatedResult.message, textStartX, textCursorY, imgWidth - 120, 50);
-                    }
+                    wrapText(ctx, generatedResult.message, textStartX, textCursorY, imgWidth - 120, 50);
                 }
             }
-            // 3. Minimalist Layout (Large White Space)
-            else if (cardLayout === 'minimalist') {
-                const margin = 120; // Big margin
-                canvas.width = imgWidth + margin * 2;
-                canvas.height = imgHeight + margin * 2 + 200; // Extra functionality space
+        }
+        // 3. Minimalist Layout (Large White Space)
+        else if (cardLayout === 'minimalist') {
+            const margin = 120; // Big margin
+            canvas.width = imgWidth + margin * 2;
+            canvas.height = imgHeight + margin * 2 + 200; // Extra functionality space
 
-                // Soft Background
-                ctx.fillStyle = cardBgColor === '#FDFCF8' ? '#FFFFFF' : cardBgColor; // Clean white/color
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Soft Background
+            ctx.fillStyle = cardBgColor === '#FDFCF8' ? '#FFFFFF' : cardBgColor; // Clean white/color
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // Subtle Border for Image
-                ctx.strokeStyle = "#E5E5E5";
-                ctx.lineWidth = 1;
-                ctx.strokeRect(margin - 1, margin - 1, imgWidth + 2, imgHeight + 2);
+            // Subtle Border for Image
+            ctx.strokeStyle = "#E5E5E5";
+            ctx.lineWidth = 1;
+            ctx.strokeRect(margin - 1, margin - 1, imgWidth + 2, imgHeight + 2);
 
-                // Image
-                ctx.drawImage(mainImg, margin, margin);
+            // Image
+            ctx.drawImage(mainImg, margin, margin);
 
-                // Minimal Text
-                if (showTextOnCard) {
-                    const textCenterX = canvas.width / 2;
-                    let textY = margin + imgHeight + 80;
+            // Minimal Text
+            if (showTextOnCard) {
+                const textCenterX = canvas.width / 2;
+                let textY = margin + imgHeight + 80;
 
-                    ctx.font = 'italic 32px serif';
-                    ctx.fillStyle = '#666';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(`${recipientName || "Dear"} / ${userName || "Me"}`, textCenterX, textY);
+                ctx.font = 'italic 32px serif';
+                ctx.fillStyle = '#666';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${recipientName || "Dear"} / ${userName || "Me"}`, textCenterX, textY);
 
-                    textY += 60;
-                    const mainFont = FONTS.find(f => f.id === selectedFont)?.family || 'serif';
-                    ctx.font = `bold 40px ${mainFont}`;
-                    ctx.fillStyle = textColor;
-                    wrapText(ctx, generatedResult.message || "", textCenterX, textY, imgWidth, 52);
-                }
+                textY += 60;
+                const mainFont = [...FONTS, ...customFonts].find(f => f.id === selectedFont)?.family || 'serif';
+                ctx.font = `bold 40px ${mainFont}`;
+                ctx.fillStyle = textColor;
+                wrapText(ctx, generatedResult.message || "", textCenterX, textY, imgWidth, 52);
             }
+        }
+        return canvas;
+    };
 
-
+    const handleDownload = async () => {
+        try {
+            const canvas = await createCardCanvas();
+            if (!canvas) return;
 
             const filename = `GreetingCard_${cardLayout}_${Date.now()}.jpg`;
             const dataUrl = canvas.toDataURL('image/jpeg', 0.90);
 
             // Auto-save Composed Card to Gallery
-            // We use a slightly modified title/description to distinguish from the raw image
-            const cardTitle = `[賀卡] ${generatedResult.title || 'Greeting Card'}`;
+            const cardTitle = `[賀卡] ${generatedResult?.title || 'Greeting Card'}`;
             const cardDesc = `
 **[Composed Card]**
-**Title:** ${generatedResult.title}
-**Festival:** ${generatedResult.festival} | **Style:** ${generatedResult.style}
+**Title:** ${generatedResult?.title}
+**Festival:** ${generatedResult?.festival} | **Style:** ${generatedResult?.style}
 **Layout:** ${CARD_LAYOUTS.find(l => l.id === cardLayout)?.label}
-**Message:** ${generatedResult.message}
-**Font:** ${FONTS.find(f => f.id === selectedFont)?.label || selectedFont} | **Color:** ${TEXT_COLORS.find(c => c.value === textColor)?.label || textColor}
+**Message:** ${generatedResult?.message}
+**Font:** ${[...FONTS, ...customFonts].find(f => f.id === selectedFont)?.label || selectedFont} | **Color:** ${TEXT_COLORS.find(c => c.value === textColor)?.label || textColor}
 `.trim();
             onSuccess(dataUrl, cardTitle, cardDesc);
 
@@ -734,29 +908,51 @@ Negative Prompt: ${negativePrompt || 'None'}
         }
     };
 
+    const [canShare, setCanShare] = useState(false);
+    useEffect(() => {
+        if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare) {
+            setCanShare(true);
+        }
+    }, []);
+
     const handleShare = async () => {
         if (!generatedResult?.imageUrl) return;
         try {
-            // Convert Base64 to Blob/File
-            const fetchRes = await fetch(generatedResult.imageUrl);
-            const blob = await fetchRes.blob();
-            const file = new File([blob], `GreetingCard_${Date.now()}.png`, { type: 'image/png' });
+            const canvas = await createCardCanvas();
+            if (!canvas) return;
 
-            if (navigator.share) {
-                await navigator.share({
-                    title: generatedResult.title,
-                    text: generatedResult.message || "Sending you a greeting card!",
-                    files: [file]
-                });
-            } else {
-                // Fallback: Copy to clipboard or alert
-                const clipboardItem = new ClipboardItem({ [file.type]: file });
-                await navigator.clipboard.write([clipboardItem]);
-                alert("已複製圖片到剪貼簿！");
-            }
+            canvas.toBlob(async (blob) => {
+                if (!blob) {
+                    alert("圖片產生失敗");
+                    return;
+                }
+                const file = new File([blob], `GreetingCard_${Date.now()}.png`, { type: 'image/png' });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            title: generatedResult.title || 'Greeting Card',
+                            text: generatedResult.message || "Sending you a greeting card!",
+                            files: [file]
+                        });
+                    } catch (err) {
+                        console.error("Share failed", err);
+                        // User might have cancelled share
+                    }
+                } else {
+                    // Fallback: Copy to clipboard
+                    try {
+                        const clipboardItem = new ClipboardItem({ [file.type]: file });
+                        await navigator.clipboard.write([clipboardItem]);
+                        alert("已複製圖片到剪貼簿！(您的裝置不支援直接分享檔案)");
+                    } catch (clipErr) {
+                        alert("您的瀏覽器不支援分享，請使用下載功能。");
+                    }
+                }
+            }, 'image/png');
+
         } catch (err) {
             console.error(err);
-            // Ignore abort errors or share failures
         }
     };
 
@@ -781,6 +977,25 @@ Negative Prompt: ${negativePrompt || 'None'}
                                 </div>
                             )}
                             <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
+
+                            {/* Processing Overlay */}
+                            {isProcessingUploadBg && (
+                                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 text-primary animate-in fade-in">
+                                    <Scissors className="animate-bounce mb-2" size={32} />
+                                    <span className="font-bold animate-pulse">正在移除背景...</span>
+                                </div>
+                            )}
+
+                            {/* Manual Remove Button (Overlay on image) */}
+                            {userImage && !isProcessingUploadBg && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handleManualUploadBgRemoval(); }}
+                                    className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur rounded-full text-secondary shadow-sm hover:scale-110 transition-transform z-20"
+                                    title="移除背景 (人像去背)"
+                                >
+                                    <Scissors size={16} />
+                                </button>
+                            )}
                         </div>
                         <button
                             onClick={() => setShowGallery(true)}
@@ -789,6 +1004,18 @@ Negative Prompt: ${negativePrompt || 'None'}
                             <FolderHeart size={16} />
                             從作品集選取
                         </button>
+
+
+                        {/* Auto Remove Background Toggle */}
+                        <div
+                            onClick={() => setAutoRemoveBg(!autoRemoveBg)}
+                            className={`mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer border ${autoRemoveBg ? 'bg-primary/10 border-primary text-primary' : 'bg-transparent border-transparent text-bronze-light hover:bg-black/5'}`}
+                        >
+                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${autoRemoveBg ? 'bg-primary border-primary' : 'border-bronze-light'}`}>
+                                {autoRemoveBg && <Check size={12} className="text-white" />}
+                            </div>
+                            <span>上傳後自動去背</span>
+                        </div>
                     </div>
 
                     {/* Settings Section */}
@@ -907,6 +1134,8 @@ Negative Prompt: ${negativePrompt || 'None'}
                                 </div>
                             </label>
 
+
+
                             {/* Auto Expand Background (Outpainting) */}
                             <label className={`flex items-center gap-3 group ${!userImage ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
                                 <input
@@ -980,23 +1209,27 @@ Negative Prompt: ${negativePrompt || 'None'}
                                 <h3 className="text-xs font-black text-bronze uppercase tracking-wider">文字樣式</h3>
 
                                 {/* Font Selection */}
-                                <div>
-                                    <label className="text-xs font-bold text-bronze-light mb-1 block">字體風格</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {FONTS.map(f => (
-                                            <button
-                                                key={f.id}
-                                                onClick={() => setSelectedFont(f.id)}
-                                                className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all ${selectedFont === f.id
-                                                    ? 'bg-white border-primary text-primary shadow-sm'
-                                                    : 'bg-transparent border-cream-dark/50 text-bronze-light hover:bg-white/50'
-                                                    } ${f.className}`}
-                                                style={{ fontFamily: f.family }} // Inline style to force font preview
-                                            >
-                                                {f.label} (Aa)
-                                            </button>
-                                        ))}
-                                    </div>
+                                <label className="text-xs font-bold text-bronze-light mb-1 flex justify-between items-center">
+                                    <span>字體風格</span>
+                                    <label className="text-primary text-[10px] cursor-pointer hover:underline flex items-center gap-1">
+                                        <Upload size={10} /> 上傳字型
+                                        <input type="file" onChange={handleFontUpload} accept=".ttf,.otf,.woff,.woff2" className="hidden" />
+                                    </label>
+                                </label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {[...FONTS, ...customFonts].map(f => (
+                                        <button
+                                            key={f.id}
+                                            onClick={() => setSelectedFont(f.id)}
+                                            className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all truncate ${selectedFont === f.id
+                                                ? 'bg-white border-primary text-primary shadow-sm'
+                                                : 'bg-transparent border-cream-dark/50 text-bronze-light hover:bg-white/50'
+                                                } ${f.className}`}
+                                            style={{ fontFamily: f.family }}
+                                        >
+                                            {f.label} (Aa)
+                                        </button>
+                                    ))}
                                 </div>
 
                                 {/* Color Selection */}
@@ -1156,7 +1389,7 @@ Negative Prompt: ${negativePrompt || 'None'}
                                             </div>
                                             {showTextOnCard && generatedResult.message && (
                                                 <div className="relative p-4 bg-white/80 backdrop-blur-sm shadow-sm border border-cream-dark rounded-xl transform rotate-1 mt-2">
-                                                    <p className={`text-sm leading-relaxed ${FONTS.find(f => f.id === selectedFont)?.className}`} style={{ color: textColor }}>
+                                                    <p className={`text-sm leading-relaxed ${[...FONTS, ...customFonts].find(f => f.id === selectedFont)?.className || ''}`} style={{ color: textColor, fontFamily: [...FONTS, ...customFonts].find(f => f.id === selectedFont)?.family }}>
                                                         {generatedResult.message}
                                                     </p>
                                                 </div>
@@ -1177,7 +1410,7 @@ Negative Prompt: ${negativePrompt || 'None'}
                                                 TO {recipientName?.toUpperCase() || "YOU"} • FROM {userName?.toUpperCase() || "ME"}
                                             </div>
                                             {showTextOnCard && generatedResult.message && (
-                                                <p className={`text-lg text-white/90 max-w-lg drop-shadow-md ${FONTS.find(f => f.id === selectedFont)?.className}`}>
+                                                <p className={`text-lg text-white/90 max-w-lg drop-shadow-md ${[...FONTS, ...customFonts].find(f => f.id === selectedFont)?.className || ''}`} style={{ fontFamily: [...FONTS, ...customFonts].find(f => f.id === selectedFont)?.family }}>
                                                     {generatedResult.message}
                                                 </p>
                                             )}
@@ -1196,7 +1429,7 @@ Negative Prompt: ${negativePrompt || 'None'}
                                                 {recipientName || "Dear"} / {userName || "Me"}
                                             </div>
                                             {showTextOnCard && generatedResult.message && (
-                                                <p className={`text-xl leading-relaxed py-4 border-t border-b border-gray-100 ${FONTS.find(f => f.id === selectedFont)?.className}`} style={{ color: textColor }}>
+                                                <p className={`text-xl leading-relaxed py-4 border-t border-b border-gray-100 ${[...FONTS, ...customFonts].find(f => f.id === selectedFont)?.className || ''}`} style={{ color: textColor, fontFamily: [...FONTS, ...customFonts].find(f => f.id === selectedFont)?.family }}>
                                                     {generatedResult.message}
                                                 </p>
                                             )}
@@ -1207,20 +1440,23 @@ Negative Prompt: ${negativePrompt || 'None'}
 
 
                                 {/* Hover Actions (Top-Right) */}
-                                {!isRegenerating && (
+                                {!isRegenerating && !isRemovingBg && (
                                     <div className="absolute top-4 right-4 flex flex-col gap-2 z-[60]">
                                         <button onClick={handleRegenerateImage} className="bg-white/90 backdrop-blur p-3 rounded-full text-blue-500 shadow-lg hover:scale-110 transition-transform" title="重新生成">
                                             <RefreshCw size={20} />
                                         </button>
-                                        <button onClick={handleShare} className="bg-white/90 backdrop-blur p-3 rounded-full text-pink-500 shadow-lg hover:scale-110 transition-transform" title="分享">
+                                        <button onClick={handleShare} className="bg-white/90 backdrop-blur p-3 rounded-full text-pink-500 shadow-lg hover:scale-110 transition-transform" title={canShare ? "分享 / 存到..." : "複製到剪貼簿"}>
                                             <Share2 size={20} />
+                                        </button>
+                                        <button onClick={handleBgRemoval} className="bg-white/90 backdrop-blur p-3 rounded-full text-amber-500 shadow-lg hover:scale-110 transition-transform" title="智慧去背 (移除綠幕)">
+                                            <Scissors size={20} />
                                         </button>
                                         <div className="flex flex-col gap-2 group/menu">
                                             <button onClick={handleDownload} className="bg-white/90 backdrop-blur p-3 rounded-full text-green-600 shadow-lg hover:scale-110 transition-transform flex items-center justify-center gap-1 group/btn" title="下載完整賀卡">
                                                 <Download size={20} />
                                             </button>
-                                            {/* Sub-menu for raw image (simplified for mobile better UX) */}
-                                            <button onClick={handleDownloadRawImage} className="hidden group-hover/menu:flex bg-white/90 backdrop-blur p-3 rounded-full text-teal-500 shadow-lg hover:scale-110 transition-transform items-center justify-center gap-1" title="下載純圖片">
+                                            {/* Sub-menu for raw image */}
+                                            <button onClick={handleDownloadRawImage} className="flex bg-white/90 backdrop-blur p-3 rounded-full text-teal-500 shadow-lg hover:scale-110 transition-transform items-center justify-center gap-1" title="下載純圖片">
                                                 <ImageIcon size={20} />
                                             </button>
                                         </div>
@@ -1228,11 +1464,11 @@ Negative Prompt: ${negativePrompt || 'None'}
                                 )}
 
                                 {/* Regenerating Overlay */}
-                                {isRegenerating && (
+                                {(isRegenerating || isRemovingBg) && (
                                     <div className="absolute inset-0 z-[70] bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-[2rem]">
                                         <div className="bg-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
-                                            <RefreshCw className="animate-spin text-primary" size={16} />
-                                            <span className="text-xs font-bold text-bronze">重新繪製中...</span>
+                                            {isRemovingBg ? <Scissors className="animate-bounce text-amber-500" size={16} /> : <RefreshCw className="animate-spin text-primary" size={16} />}
+                                            <span className="text-xs font-bold text-bronze">{isRemovingBg ? "智慧去背中..." : "重新繪製中..."}</span>
                                         </div>
                                     </div>
                                 )}

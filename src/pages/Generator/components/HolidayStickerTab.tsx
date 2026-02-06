@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Download, Loader2, Sparkles, AlertCircle, X, FolderHeart } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Upload, Download, Loader2, Sparkles, AlertCircle, X, FolderHeart, Check } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
@@ -62,6 +62,10 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [batchSize, setBatchSize] = useState(3);
     const [showGallery, setShowGallery] = useState(false);
+
+    // Auto Remove Background State (For Results)
+    const [autoRemoveBg, setAutoRemoveBg] = useState(true);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,6 +77,85 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    /**
+     * SMART CHROMA KEY REMOVAL (Green Screen)
+     */
+    const smartRemoveBackground = (base64: string): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+                try {
+                    const width = img.width;
+                    const height = img.height;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                    if (!ctx) {
+                        reject(new Error("Failed to get canvas context"));
+                        return;
+                    }
+                    ctx.drawImage(img, 0, 0);
+
+                    const imageData = ctx.getImageData(0, 0, width, height);
+                    const data = imageData.data;
+                    const isBg = new Uint8Array(width * height);
+
+                    const corners = [[0, 0], [width - 1, 0], [0, height - 1], [width - 1, height - 1]];
+                    const queue: [number, number][] = [...corners as [number, number][]];
+                    const visited = new Uint8Array(width * height);
+
+                    const isGreen = (r: number, g: number, b: number) => {
+                        return g > 80 && g > r * 1.15 && g > b * 1.15;
+                    };
+
+                    while (queue.length > 0) {
+                        const [x, y] = queue.shift()!;
+                        const idx = y * width + x;
+                        if (visited[idx]) continue;
+                        visited[idx] = 1;
+
+                        const i = idx * 4;
+                        if (isGreen(data[i], data[i + 1], data[i + 2])) {
+                            isBg[idx] = 1;
+                            if (x > 0) queue.push([x - 1, y]);
+                            if (x < width - 1) queue.push([x + 1, y]);
+                            if (y > 0) queue.push([x, y - 1]);
+                            if (y < height - 1) queue.push([x, y + 1]);
+                        }
+                    }
+
+                    // Expansion / Despeckle simple pass
+                    const expandedBg = new Uint8Array(isBg);
+                    for (let y = 1; y < height - 1; y++) {
+                        for (let x = 1; x < width - 1; x++) {
+                            const idx = y * width + x;
+                            if (isBg[idx] === 0) {
+                                if (isBg[idx - 1] || isBg[idx + 1] || isBg[idx - width] || isBg[idx + width]) {
+                                    expandedBg[idx] = 1;
+                                }
+                            }
+                        }
+                    }
+
+                    for (let i = 0; i < width * height; i++) {
+                        if (expandedBg[i]) {
+                            data[i * 4 + 3] = 0;
+                        }
+                    }
+
+                    ctx.putImageData(imageData, 0, 0);
+                    resolve(canvas.toDataURL('image/png'));
+                } catch (e) {
+                    reject(e);
+                }
+            };
+            img.onerror = (e) => reject(e);
+            img.src = base64;
+        });
     };
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -138,7 +221,17 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
             const imagePart = candidate?.content?.parts?.find((p: any) => p.inlineData);
 
             if (imagePart && imagePart.inlineData?.data) {
-                const imgUrl = `data:image/png;base64,${imagePart.inlineData.data}`;
+                let imgUrl = `data:image/png;base64,${imagePart.inlineData.data}`;
+
+                // Auto Remove Background if Enabled
+                if (autoRemoveBg) {
+                    try {
+                        imgUrl = await smartRemoveBackground(imgUrl);
+                    } catch (e) {
+                        console.warn("Auto background removal failed", e);
+                    }
+                }
+
                 setResults(prev => {
                     const newResults = [...prev];
                     newResults[index] = imgUrl;
@@ -278,10 +371,10 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
                                     <div className="bg-white p-4 rounded-full inline-block mb-3 shadow-md shadow-primary/10 group-hover:scale-110 transition-transform text-primary">
                                         <Upload size={24} />
                                     </div>
-                                    <span className="block text-sm font-bold">點擊或拖曳照片</span>
                                     <span className="text-[10px] opacity-70 mt-1 block">建議使用大頭照</span>
                                 </div>
                             )}
+
                         </div>
                         <button
                             onClick={(e) => { e.stopPropagation(); setShowGallery(true); }}
@@ -290,6 +383,7 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
                             <FolderHeart size={16} />
                             從作品集選取
                         </button>
+
                         <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
                     </div>
 
@@ -360,6 +454,23 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
                                     {num}
                                 </button>
                             ))}
+                        </div>
+                    </div>
+
+
+                    {/* Auto Remove Background Toggle */}
+                    <div
+                        onClick={() => setAutoRemoveBg(!autoRemoveBg)}
+                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-all cursor-pointer mb-4 ${autoRemoveBg ? 'bg-primary/5 border-primary shadow-sm' : 'bg-transparent border-transparent hover:bg-black/5'}`}
+                    >
+                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${autoRemoveBg ? 'bg-primary border-primary' : 'border-bronze-light/50'}`}>
+                            {autoRemoveBg && <Check size={14} className="text-white" />}
+                        </div>
+                        <div className="flex-1">
+                            <div className={`text-sm font-bold ${autoRemoveBg ? 'text-primary' : 'text-bronze-text'}`}>
+                                ✨ 自動去背 (Auto Remove Background)
+                            </div>
+                            <div className="text-[10px] text-bronze-light">生成後自動移除綠幕背景</div>
                         </div>
                     </div>
 
@@ -453,13 +564,15 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
             </div>
 
             {/* Gallery Picker Modal */}
-            {showGallery && (
-                <GalleryPicker
-                    onSelect={handleGallerySelect}
-                    onClose={() => setShowGallery(false)}
-                />
-            )}
-        </div>
+            {
+                showGallery && (
+                    <GalleryPicker
+                        onSelect={handleGallerySelect}
+                        onClose={() => setShowGallery(false)}
+                    />
+                )
+            }
+        </div >
     );
 };
 

@@ -1489,3 +1489,8 @@ export const TWELVE_GRID_CATEGORIES = [
 // Combine all styles into a flat list for backward compatibility if needed.
 export const TWELVE_GRID_STYLES = TWELVE_GRID_CATEGORIES.flatMap(cat => cat.items);
 
+import { TOP_100_STYLES_CATEGORIZED } from './src/constants/top100Styles';
+export { TOP_100_STYLES_CATEGORIZED };
+export const TOP_100_STYLES = TOP_100_STYLES_CATEGORIZED.flatMap((cat: any) => cat.items);
+
+
