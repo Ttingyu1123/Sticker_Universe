@@ -214,8 +214,22 @@ const App = () => {
     };
 
     const handleDownload = (imageUrl: string, filename: string) => {
-        // Use FileSaver.js for better cross-browser compatibility, especially mobile
-        saveAs(imageUrl, `${filename.replace(/\s/g, '_')}_sticker.png`);
+        // Safe filename: truncate to 50 chars, remove special chars
+        const safeFilename = filename.slice(0, 50).replace(/[^\w\s\u4e00-\u9fa5]/gi, '_');
+
+        if (imageUrl.startsWith('data:')) {
+            try {
+                const blob = base64ToBlob(imageUrl);
+                saveAs(blob, `${safeFilename}_sticker.png`);
+            } catch (e) {
+                console.error("Failed to convert data URL to Blob:", e);
+                // Fallback to direct save
+                saveAs(imageUrl, `${safeFilename}_sticker.png`);
+            }
+        } else {
+            // Use FileSaver.js for better cross-browser compatibility
+            saveAs(imageUrl, `${safeFilename}_sticker.png`);
+        }
     };
 
     // Helper to convert Base64 Data URL to Blob for reliable sharing
@@ -232,16 +246,18 @@ const App = () => {
     const handleShare = async (sticker: Sticker) => {
         try {
             let file: File;
+            // Safe filename: truncate to 50 chars, remove special chars
+            const safePhrase = sticker.phrase.slice(0, 50).replace(/[^\w\s\u4e00-\u9fa5]/gi, '_');
 
             if (sticker.imageUrl.startsWith('data:')) {
                 // Handle Base64 Data URL (Generated Images)
                 const blob = base64ToBlob(sticker.imageUrl);
-                file = new File([blob], `${sticker.phrase}.png`, { type: 'image/png' });
+                file = new File([blob], `${safePhrase}.png`, { type: 'image/png' });
             } else {
                 // Handle Remote URL (Uploaded/Stored Images)
                 const response = await fetch(sticker.imageUrl);
                 const blob = await response.blob();
-                file = new File([blob], `${sticker.phrase}.png`, { type: 'image/png' });
+                file = new File([blob], `${safePhrase}.png`, { type: 'image/png' });
             }
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {

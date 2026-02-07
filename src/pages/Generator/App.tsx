@@ -22,6 +22,7 @@ const App: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [tempKey, setTempKey] = useState('');
   const [showKeyModal, setShowKeyModal] = useState(false);
+  const [rememberKey, setRememberKey] = useState(false); // Default to false for security (SessionStorage)
   const [stickers, setStickers] = useState<Sticker[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isZipping, setIsZipping] = useState(false);
@@ -29,9 +30,17 @@ const App: React.FC = () => {
 
   // Initialize API Key
   useEffect(() => {
-    const storedKey = localStorage.getItem('gemini_api_key');
-    if (storedKey) {
-      setApiKey(storedKey);
+    // Check LocalStorage (Persistent)
+    const localKey = localStorage.getItem('gemini_api_key');
+    // Check SessionStorage (Temp)
+    const sessionKey = sessionStorage.getItem('gemini_api_key');
+
+    if (localKey) {
+      setApiKey(localKey);
+      setRememberKey(true);
+    } else if (sessionKey) {
+      setApiKey(sessionKey);
+      setRememberKey(false);
     } else {
       setShowKeyModal(true);
     }
@@ -66,10 +75,31 @@ const App: React.FC = () => {
       setError("請輸入有效的 API Key");
       return;
     }
-    setApiKey(tempKey.trim());
-    localStorage.setItem('gemini_api_key', tempKey.trim());
+    const key = tempKey.trim();
+    setApiKey(key);
+
+    if (rememberKey) {
+      // User opted for persistent storage
+      localStorage.setItem('gemini_api_key', key);
+      sessionStorage.removeItem('gemini_api_key'); // Clean up session
+    } else {
+      // User opted for session-only storage
+      sessionStorage.setItem('gemini_api_key', key);
+      localStorage.removeItem('gemini_api_key'); // Clean up local
+    }
+
     setShowKeyModal(false);
     setError(null);
+  };
+
+  const handleClearKey = () => {
+    if (confirm(t('generator.apiKey.clearConfirm') || "Are you sure you want to remove your API Key?")) {
+      setApiKey('');
+      setTempKey('');
+      localStorage.removeItem('gemini_api_key');
+      sessionStorage.removeItem('gemini_api_key');
+      setShowKeyModal(true);
+    }
   };
 
   const handleOpenKeyModal = () => {
@@ -264,6 +294,14 @@ const App: React.FC = () => {
               <Key size={32} className="text-primary mx-auto mb-4" />
               <h3 className="text-xl font-black text-bronze mb-2">{t('generator.apiKey.title')}</h3>
               <p className="text-sm text-bronze-light">{t('generator.apiKey.desc')}</p>
+              <a
+                href="https://aistudio.google.com/app/apikey"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-2 text-xs font-bold text-primary hover:text-primary-hover hover:underline transition-colors border-b border-primary/20 hover:border-primary pb-0.5"
+              >
+                {t('generator.apiKey.get') || "獲取 API Key"} ↗
+              </a>
             </div>
             <input
               type="password"
@@ -272,15 +310,76 @@ const App: React.FC = () => {
               placeholder={t('generator.apiKey.placeholder')}
               className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light/50"
             />
+
+            {/* Storage Option Checkbox */}
+            <div className="flex items-start gap-2 px-1">
+              <input
+                type="checkbox"
+                id="rememberKey"
+                checked={rememberKey}
+                onChange={(e) => setRememberKey(e.target.checked)}
+                className="mt-1 rounded border-cream-dark text-primary focus:ring-primary/20"
+              />
+              <label htmlFor="rememberKey" className="text-xs text-bronze-light leading-relaxed cursor-pointer">
+                <span className="font-bold text-bronze-text block">記住金鑰 (Remember Key)</span>
+                勾選後將儲存在 LocalStorage，下次開啟瀏覽器時會自動載入。<br />
+                <span className="text-secondary/80">若使用公用電腦，請勿勾選 (僅存於 SessionStorage)。</span>
+              </label>
+            </div>
+
+            <div className="bg-primary/5 p-4 rounded-xl border border-primary/10 text-[10px] text-bronze-light space-y-3 max-h-60 overflow-y-auto custom-scrollbar">
+              <p className="font-bold text-primary flex items-center gap-1 text-xs sticky top-0 bg-primary/5 backdrop-blur-sm -mx-1 px-1 py-1">
+                🛡️ 安全聲明 (Security Notice)
+              </p>
+
+              <div className="space-y-1">
+                <p className="font-bold text-bronze-text opacity-90">1. 金鑰儲存在哪裡？</p>
+                <ul className="list-disc pl-3 space-y-0.5 opacity-80 leading-relaxed">
+                  <li><span className="font-bold">瀏覽器本地：</span>您的金鑰直接儲存在 LocalStorage/SessionStorage 中。</li>
+                  <li><span className="font-bold">非伺服器存儲：</span>我們絕對不會將金鑰上傳至我們的伺服器或任何第三方。</li>
+                  <li><span className="font-bold">物理隔離：</span>金鑰僅存在於此設備，更換設備需重新輸入。</li>
+                </ul>
+              </div>
+
+              <div className="space-y-1">
+                <p className="font-bold text-bronze-text opacity-90">2. 資料傳輸安全</p>
+                <ul className="list-disc pl-3 space-y-0.5 opacity-80 leading-relaxed">
+                  <li><span className="font-bold">端到端傳輸：</span>金鑰由您的瀏覽器直接發送至官方 API (如 Google)。</li>
+                  <li><span className="font-bold">全程加密：</span>所有通訊經由 HTTPS 加密，防止中間人攔截。</li>
+                </ul>
+              </div>
+
+              <div className="space-y-1">
+                <p className="font-bold text-bronze-text opacity-90">3. 如何確保金鑰沒有被偷偷上傳？</p>
+                <ul className="list-disc pl-3 space-y-0.5 opacity-80 leading-relaxed">
+                  <li><span className="font-bold">開發者工具檢查：</span>您可以按 F12 打開 Network 分頁，確認請求僅發送至官方網域。</li>
+                  <li><span className="font-bold">開源透明：</span>本專案原始碼已公開，可隨時審閱金鑰處理邏輯。</li>
+                </ul>
+              </div>
+
+              <div className="space-y-1">
+                <p className="font-bold text-bronze-text opacity-90">4. 最佳安全實踐建議</p>
+                <ul className="list-disc pl-3 space-y-0.5 opacity-80 leading-relaxed">
+                  <li><span className="font-bold">設定限額：</span>請在 API 後台設定使用的 Monthly Usage Limit。</li>
+                  <li><span className="font-bold">定期更換：</span>養成定期更新 API 金鑰的習慣。</li>
+                  <li><span className="font-bold">使用後清除：</span>公用電腦使用後，請務必點擊「清除金鑰」按鈕。</li>
+                </ul>
+              </div>
+            </div>
             {error && <p className="text-secondary text-xs font-bold text-center">{error}</p>}
             <div className="flex gap-3">
               <Button onClick={handleSaveKey} className="w-full bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/20">
                 {t('generator.apiKey.save')}
               </Button>
               {apiKey && (
-                <Button onClick={() => setShowKeyModal(false)} className="bg-cream-light text-bronze-text hover:bg-cream-dark/20 border border-cream-dark">
-                  {t('generator.action.cancel')}
-                </Button>
+                <>
+                  <Button onClick={() => setShowKeyModal(false)} className="bg-cream-light text-bronze-text hover:bg-cream-dark/20 border border-cream-dark">
+                    {t('generator.action.cancel')}
+                  </Button>
+                  <Button onClick={handleClearKey} className="bg-red-50 text-red-500 hover:bg-red-100 border border-red-200" title="Remove Key">
+                    清除
+                  </Button>
+                </>
               )}
             </div>
           </div>
