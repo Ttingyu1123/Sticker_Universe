@@ -51,7 +51,13 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (stickers.length > 0) {
-      localStorage.setItem('image_gen_history', JSON.stringify(stickers.slice(0, 10)));
+      try {
+        localStorage.setItem('image_gen_history', JSON.stringify(stickers.slice(0, 5)));
+      } catch (e) {
+        console.warn("LocalStorage Quota Exceeded. Failed to save history cache:", e);
+        // We can safely ignore this error; history is also saved to IndexedDB (saveStickerToDB)
+        // This just means the "Recent History" might reset on refresh for some users.
+      }
     }
   }, [stickers]);
 
@@ -228,8 +234,11 @@ const App: React.FC = () => {
     setStickers(prev => [newSticker, ...prev]);
     saveStickerToDB(newSticker).catch(console.error);
 
-    // Auto scroll to results?
-    // window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    // FIX: Only auto-show preview if we are on the Image Generator tab
+    // Other tabs (like Greeting Card) handle their own preview/results logic
+    if (activeTab === 'image-gen') {
+      setPreviewImage(imageUrl);
+    }
   };
 
 

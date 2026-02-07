@@ -14,15 +14,29 @@ const SmartRemoveTab = () => {
     const [maskCanvas, setMaskCanvas] = useState<HTMLCanvasElement | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
+    const initializeMask = (img: HTMLImageElement) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            setMaskCanvas(canvas);
+
+            // Initialize history
+            const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            setHistory([data]);
+            setHistoryIndex(0);
+        }
+    };
+
     useEffect(() => {
         const state = location.state as { image?: string };
         if (state?.image) {
             const img = new Image();
             img.onload = () => {
                 setOriginalImage(img);
-                setMaskCanvas(null);
-                setHistory([]);
-                setHistoryIndex(-1);
+                initializeMask(img);
             };
             img.src = state.image;
             // Clear state to avoid reloading on refresh if desired, but harmless here
@@ -42,6 +56,7 @@ const SmartRemoveTab = () => {
     const [tool, setTool] = useState<'erase' | 'restore' | 'magic-wand' | 'move' | 'crop'>('erase');
     const [brushSize, setBrushSize] = useState(40);
     const [brushHardness, setBrushHardness] = useState(0.5);
+    const [magicToolMode, setMagicToolMode] = useState<'fill' | 'brush'>('fill');
     const [tolerance, setTolerance] = useState(10); // For Magic Wand
 
     const [zoom, setZoom] = useState(1);
@@ -76,8 +91,6 @@ const SmartRemoveTab = () => {
 
             setZoom(fitScale);
             setPan({ x: 0, y: 0 });
-            setZoom(fitScale);
-            setPan({ x: 0, y: 0 });
         }
     }, [originalImage]);
 
@@ -93,9 +106,7 @@ const SmartRemoveTab = () => {
         const img = new Image();
         img.onload = () => {
             setOriginalImage(img);
-            setMaskCanvas(null);
-            setHistory([]);
-            setHistoryIndex(-1);
+            initializeMask(img);
         };
         img.src = url;
     };
@@ -380,6 +391,7 @@ const SmartRemoveTab = () => {
                                         pan={pan}
                                         bgColor={bgColor}
                                         tolerance={tolerance}
+                                        magicToolMode={magicToolMode}
                                         onPanChange={setPan}
                                         onInteractionEnd={handleInteractionEnd}
                                         historyVersion={historyVersion}
@@ -407,14 +419,7 @@ const SmartRemoveTab = () => {
                                     </div>
                                 )}
 
-                                {/* Quick Hint if no mask yet */}
-                                {!maskCanvas && !isProcessing && (
-                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                        <div className="bg-bronze-text/80 text-white px-4 py-2 rounded-full font-bold backdrop-blur-sm animate-pulse z-10">
-                                            Click "AI Auto Remove" to start
-                                        </div>
-                                    </div>
-                                )}
+                                {/* Quick Hint removed as tools are now available instantly */}
 
                                 {isProcessing && (
                                     <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-20">
@@ -566,19 +571,52 @@ const SmartRemoveTab = () => {
 
                         {
                             tool === 'magic-wand' ? (
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-xs font-bold text-bronze-text">
-                                        <span>{t('eraser.toolbar.tolerance')}</span>
-                                        <span>{tolerance}</span>
+                                <>
+                                    <div className="flex bg-cream-medium p-1 rounded-lg mb-2">
+                                        <button
+                                            className={`flex-1 py-1 text-[10px] font-bold rounded-md transition-all ${magicToolMode === 'fill' ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}
+                                            onClick={() => setMagicToolMode('fill')}
+                                        >
+                                            {t('eraser.magic.fill') || 'Flood Fill'}
+                                        </button>
+                                        <button
+                                            className={`flex-1 py-1 text-[10px] font-bold rounded-md transition-all ${magicToolMode === 'brush' ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}
+                                            onClick={() => setMagicToolMode('brush')}
+                                        >
+                                            {t('eraser.magic.brush') || 'Magic Brush'}
+                                        </button>
                                     </div>
-                                    <input
-                                        type="range"
-                                        min="1" max="100"
-                                        value={tolerance}
-                                        onChange={(e) => setTolerance(Number(e.target.value))}
-                                        className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-accent"
-                                    />
-                                </div>
+
+                                    {magicToolMode === 'brush' && (
+                                        <div className="space-y-2 mb-2">
+                                            <div className="flex justify-between text-xs font-bold text-bronze-text">
+                                                <span>{t('eraser.toolbar.size')}</span>
+                                                <span>{brushSize}px</span>
+                                            </div>
+                                            <input
+                                                type="range"
+                                                min="1" max="200"
+                                                value={brushSize}
+                                                onChange={(e) => setBrushSize(Number(e.target.value))}
+                                                className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-xs font-bold text-bronze-text">
+                                            <span>{t('eraser.toolbar.tolerance')}</span>
+                                            <span>{tolerance}</span>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="1" max="100"
+                                            value={tolerance}
+                                            onChange={(e) => setTolerance(Number(e.target.value))}
+                                            className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-accent"
+                                        />
+                                    </div>
+                                </>
                             ) : (tool === 'erase' || tool === 'restore') ? (
                                 <>
                                     <div className="space-y-2">

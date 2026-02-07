@@ -42,10 +42,11 @@ const App: React.FC = () => {
   // Pass to Toolbar:
   // onRemoveBackground={handleRemoveBackground}
   // isProcessing={isProcessing}
-  const [brushSize, setBrushSize] = useState(30); // Restored
+  const [brushSize, setBrushSize] = useState(30);
   const [tolerance, setTolerance] = useState(20);
   const [zoom, setZoom] = useState(1);
   const [toolMode, setToolMode] = useState<ToolMode>('erase');
+  const [magicToolMode, setMagicToolMode] = useState<'fill' | 'brush'>('fill');
   const [bgColor, setBgColor] = useState<string>('checkerboard');
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
@@ -190,6 +191,7 @@ const App: React.FC = () => {
                 tolerance={tolerance}
                 zoom={zoom}
                 toolMode={toolMode}
+                magicToolMode={magicToolMode}
                 bgColor={bgColor}
                 onSaveHistory={saveHistory}
                 triggerUndo={triggerUndo}
@@ -235,6 +237,8 @@ const App: React.FC = () => {
               <Toolbar
                 toolMode={toolMode}
                 setToolMode={setToolMode}
+                magicToolMode={magicToolMode}
+                setMagicToolMode={setMagicToolMode}
                 brushSize={brushSize}
                 setBrushSize={setBrushSize}
                 tolerance={tolerance}

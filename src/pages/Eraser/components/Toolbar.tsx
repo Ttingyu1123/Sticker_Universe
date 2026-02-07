@@ -6,6 +6,8 @@ export type ToolMode = 'erase' | 'restore' | 'magic-wand' | 'move';
 interface ToolbarProps {
   toolMode: ToolMode;
   setToolMode: (mode: ToolMode) => void;
+  magicToolMode: 'fill' | 'brush';
+  setMagicToolMode: (mode: 'fill' | 'brush') => void;
   brushSize: number;
   setBrushSize: (size: number) => void;
   tolerance: number;
@@ -27,6 +29,8 @@ interface ToolbarProps {
 const Toolbar: React.FC<ToolbarProps> = ({
   toolMode,
   setToolMode,
+  magicToolMode,
+  setMagicToolMode,
   brushSize,
   setBrushSize,
   tolerance,
@@ -115,14 +119,14 @@ const Toolbar: React.FC<ToolbarProps> = ({
         <div className="bg-cream-light/50 p-4 rounded-xl border border-cream-dark">
           <div className="flex items-center justify-between mb-3">
             <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">
-              {toolMode === 'magic-wand' ? t('eraser.toolbar.tolerance') : t('eraser.toolbar.size')}
+              {toolMode === 'magic-wand' && magicToolMode === 'fill' ? t('eraser.toolbar.tolerance') : t('eraser.toolbar.size')}
             </label>
             <span className="text-[10px] font-mono bg-white px-2 py-0.5 rounded shadow-sm text-bronze-text border border-cream-dark">
-              {toolMode === 'magic-wand' ? tolerance : `${brushSize}px`}
+              {toolMode === 'magic-wand' && magicToolMode === 'fill' ? tolerance : `${brushSize}px`}
             </span>
           </div>
 
-          {toolMode === 'magic-wand' ? (
+          {toolMode === 'magic-wand' && magicToolMode === 'fill' ? (
             <input
               type="range" min="0" max="100" value={tolerance}
               onChange={(e) => setTolerance(parseInt(e.target.value))}
@@ -130,12 +134,35 @@ const Toolbar: React.FC<ToolbarProps> = ({
               className="w-full h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-secondary"
             />
           ) : (
-            <input
-              type="range" min="1" max="150" value={brushSize}
-              onChange={(e) => setBrushSize(parseInt(e.target.value))}
-              title="Brush Size"
-              className={`w-full h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer ${toolMode === 'restore' ? 'accent-emerald-500' : 'accent-primary'}`}
-            />
+            <div className="space-y-4">
+              {/* Brush Size */}
+              <input
+                type="range" min="1" max="150" value={brushSize}
+                onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                title="Brush Size"
+                className={`w-full h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer ${toolMode === 'restore' ? 'accent-emerald-500' : 'accent-primary'}`}
+              />
+
+              {/* Show tolerance slider IF in magic brush mode too, as it needs tolerance! */}
+              {toolMode === 'magic-wand' && magicToolMode === 'brush' && (
+                <div className="pt-2 border-t border-cream-dark/50">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-[10px] font-bold text-bronze-light uppercase tracking-widest">
+                      {t('eraser.toolbar.tolerance')}
+                    </label>
+                    <span className="text-[10px] font-mono bg-white px-2 py-0.5 rounded shadow-sm text-bronze-text border border-cream-dark">
+                      {tolerance}
+                    </span>
+                  </div>
+                  <input
+                    type="range" min="0" max="100" value={tolerance}
+                    onChange={(e) => setTolerance(parseInt(e.target.value))}
+                    title="Magic Brush Tolerance"
+                    className="w-full h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-secondary"
+                  />
+                </div>
+              )}
+            </div>
           )}
         </div>
 

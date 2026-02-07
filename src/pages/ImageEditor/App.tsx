@@ -1,14 +1,12 @@
 import React, { useState, Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Scissors, Eraser, Image, Sparkles, Video, FileCode } from 'lucide-react';
+import { Scissors, Image, Sparkles, Video, FileCode } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import EditorTab from './components/EditorTab';
 import PackagerTab from './components/PackagerTab';
-import EraserTab from './components/EraserTab';
 import SmartRemoveTab from './components/SmartRemoveTab';
 import AnimatorTab from './components/AnimatorTab';
 import SvgConverterTab from './components/SvgConverterTab';
-import BeautifyTab from './components/BeautifyTab';
 
 import { Tabs, TabList, Tab, TabPanel } from 'react-aria-components';
 
@@ -48,23 +46,7 @@ const ImageEditorApp: React.FC = () => {
                                 </>
                             )}
                         </Tab>
-                        <Tab
-                            id="beautify"
-                            className={({ isSelected }) => `
-                        px-5 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer outline-none flex items-center gap-2.5 select-none
-                        ${isSelected
-                                    ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5 scale-[1.02]'
-                                    : 'text-slate-500 hover:text-indigo-600 hover:bg-white/60'
-                                }
-                    `}
-                        >
-                            {({ isSelected }) => (
-                                <>
-                                    <Sparkles size={18} className={isSelected ? 'fill-indigo-100/50' : ''} />
-                                    {t('editor.tabs.beautify') || 'Beautify'}
-                                </>
-                            )}
-                        </Tab>
+
                         <Tab
                             id="smart-remove"
                             className={({ isSelected }) => `
@@ -82,23 +64,7 @@ const ImageEditorApp: React.FC = () => {
                                 </>
                             )}
                         </Tab>
-                        <Tab
-                            id="eraser"
-                            className={({ isSelected }) => `
-                        px-5 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer outline-none flex items-center gap-2.5 select-none
-                        ${isSelected
-                                    ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5 scale-[1.02]'
-                                    : 'text-slate-500 hover:text-indigo-600 hover:bg-white/60'
-                                }
-                    `}
-                        >
-                            {({ isSelected }) => (
-                                <>
-                                    <Eraser size={18} className={isSelected ? 'fill-indigo-100/50' : ''} />
-                                    {t('editor.tabs.eraser') || 'Magic Eraser'}
-                                </>
-                            )}
-                        </Tab>
+
                         <Tab
                             id="animator"
                             className={({ isSelected }) => `
@@ -158,21 +124,13 @@ const ImageEditorApp: React.FC = () => {
                                 <PackagerTab />
                             </Suspense>
                         </TabPanel>
-                        <TabPanel id="beautify" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
-                            <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
-                                <BeautifyTab />
-                            </Suspense>
-                        </TabPanel>
+
                         <TabPanel id="smart-remove" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <SmartRemoveTab />
                             </Suspense>
                         </TabPanel>
-                        <TabPanel id="eraser" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
-                            <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
-                                <EraserTab />
-                            </Suspense>
-                        </TabPanel>
+
                         <TabPanel id="animator" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <AnimatorTab />

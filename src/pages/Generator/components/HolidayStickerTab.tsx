@@ -31,7 +31,8 @@ const HOLIDAYS = [
     { id: 'teachers_day', prompt: 'Teachers Day', names: { 'zh-TW': '教師節', 'en': 'Teachers Day' } },
     { id: 'childrens_day', prompt: 'Childrens Day', names: { 'zh-TW': '兒童節', 'en': 'Childrens Day' } },
     { id: 'housewarming', prompt: 'Housewarming', names: { 'zh-TW': '喬遷之喜', 'en': 'Housewarming' } },
-    { id: 'new_job', prompt: 'New Job', names: { 'zh-TW': '新工作', 'en': 'New Job' } }
+    { id: 'new_job', prompt: 'New Job', names: { 'zh-TW': '新工作', 'en': 'New Job' } },
+    { id: 'custom', prompt: 'Custom Theme', names: { 'zh-TW': '自訂主題 (請輸入)', 'en': 'Custom Theme' } }
 ];
 
 const STYLES = [
@@ -42,8 +43,14 @@ const STYLES = [
     { id: 'oil', prompt: 'Oil painting style', names: { 'zh-TW': '油畫風格', 'en': 'Oil Painting' } },
     { id: 'line', prompt: 'Line art style', names: { 'zh-TW': '線條藝術', 'en': 'Line Art' } },
     { id: 'vintage', prompt: 'Vintage poster style', names: { 'zh-TW': '復古海報', 'en': 'Vintage Poster' } },
-    { id: 'chibi', prompt: 'Chibi style', names: { 'zh-TW': 'Q版風格', 'en': 'Chibi' } }
+    { id: 'realistic', prompt: 'Photorealistic style, identical to the original photo', names: { 'zh-TW': '真實風格 (保持原臉)', 'en': 'Realism (Keep Face)' } },
+    { id: 'realistic-cosplay', prompt: 'Photorealistic style with themed costume', names: { 'zh-TW': '真實風格 (變裝)', 'en': 'Realism (Cosplay)' } },
+    { id: 'illustration', prompt: 'Modern flat vector illustration', names: { 'zh-TW': '質感插畫', 'en': 'Flat Illustration' } },
+    { id: 'comic', prompt: 'American comic book style', names: { 'zh-TW': '美式漫畫', 'en': 'American Comic' } },
+    { id: 'watercolor', prompt: 'Soft watercolor painting style', names: { 'zh-TW': '夢幻水彩', 'en': 'Watercolor' } }
 ];
+
+// ... (existing code)
 
 interface HolidayStickerTabProps {
     apiKey: string;
@@ -56,6 +63,7 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
     const [selectedHoliday, setSelectedHoliday] = useState(HOLIDAYS[0].id);
     const [selectedStyle, setSelectedStyle] = useState(STYLES[0].id);
     const [customName, setCustomName] = useState('');
+    const [customHoliday, setCustomHoliday] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [results, setResults] = useState<string[]>(Array(3).fill(''));
     const [generationErrors, setGenerationErrors] = useState<boolean[]>(Array(3).fill(false));
@@ -221,7 +229,7 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
             const imagePart = candidate?.content?.parts?.find((p: any) => p.inlineData);
 
             if (imagePart && imagePart.inlineData?.data) {
-                let imgUrl = `data:image/png;base64,${imagePart.inlineData.data}`;
+                let imgUrl = `data: image/png;base64,${imagePart.inlineData.data}`;
 
                 // Auto Remove Background if Enabled
                 if (autoRemoveBg) {
@@ -240,7 +248,8 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
 
                 // Auto-save to Gallery
                 // We use a simplified prompt for the gallery title
-                const stickerTitle = `[${HOLIDAYS.find(h => h.id === selectedHoliday)?.names['zh-TW']}] ${STYLES.find(s => s.id === selectedStyle)?.names['zh-TW']} Sticker`;
+                const displayHolidayName = selectedHoliday === 'custom' ? customHoliday : HOLIDAYS.find(h => h.id === selectedHoliday)?.names['zh-TW'];
+                const stickerTitle = `[${displayHolidayName}] ${STYLES.find(s => s.id === selectedStyle)?.names['zh-TW']} Sticker`;
                 onSuccess(imgUrl, stickerTitle);
             } else {
                 const textContent = candidate?.content?.parts?.find((p: any) => p.text)?.text;
@@ -254,9 +263,9 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
                 const newErrors = [...prev];
                 // Ensure array size matches batch size if changed dynamically, 
                 // though usually we reset strictly on generate.
-                if (newErrors.length <= index) {
-                    newErrors.length = index + 1;
-                    newErrors.fill(false, prev.length);
+                if (newResults.length <= index) {
+                    newResults.length = index + 1;
+                    newResults.fill(false, prev.length);
                 }
                 newErrors[index] = true;
                 return newErrors;
@@ -283,33 +292,71 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
         setGenerationErrors(Array(batchSize).fill(false)); // Clear errors
 
         const holiday = HOLIDAYS.find(h => h.id === selectedHoliday)!;
+        let holidayPrompt = holiday.prompt;
+
+        if (selectedHoliday === 'custom') {
+            if (!customHoliday.trim()) {
+                const msg = '請輸入自訂節日主題';
+                setErrorMessage(msg);
+                onError(msg);
+                setIsGenerating(false);
+                return;
+            }
+            holidayPrompt = customHoliday;
+        }
+
         const style = STYLES.find(s => s.id === selectedStyle)!;
         const imageBase64 = uploadedImage.split(',')[1];
 
         const promptVariations = [
-            "with festive decorations in the background.",
-            "focusing on related food and drinks.",
+            "surrounded by festive decorations that are part of the sticker design.",
+            "interacting with related food and drinks.",
             "performing a traditional activity.",
-            "in a joyful celebratory pose with dynamic lighting."
+            "in a joyful celebratory pose with integrated background elements."
         ];
 
         const promises = Array.from({ length: batchSize }).map((_, index) => {
             // Cycle through variations if batchSize > variations length
             const variation = promptVariations[index % promptVariations.length];
 
-            let basePrompt = `Create a festive sticker of a person who strongly resembles the person in the provided image. 
-            The sticker should be in ${style.prompt} style, specifically for ${holiday.prompt}. ${variation}
+            // Define Identity Instruction based on style
+            let identityInstruction = '';
+            if (selectedStyle === 'realistic-cosplay') {
+                identityInstruction = `
+            CHARACTER IDENTITY (FACE ONLY - COSPLAY MODE):
+            - You MUST preserve the FACIAL FEATURES (eyes, nose, mouth, face shape) of the person in the uploaded image EXACTLY.
+            - However, you MUST CHANGE the hair style and clothing to match the "${holidayPrompt}" theme.
+            - It should look like the specific person from the photo is wearing a full costume and wig for the holiday.`;
+            } else {
+                identityInstruction = `
+            CHARACTER IDENTITY (TOP PRIORITY):
+            - You MUST preserve the facial features, hair style, and key characteristics of the person in the uploaded image.
+            - Do NOT replace the person with a generic character. The goal is to make the user recognizable in the sticker.
+            - Integrate the holiday elements around THEM, do not change who they look like.`;
+            }
+
+            let basePrompt = `Create a single die-cut sticker of a person who strongly resembles the person in the provided image.
+            The sticker should be in ${style.prompt} style, specifically for ${holidayPrompt}.
+            
+            ${identityInstruction}
+
+            COMPOSITION:
+            - The character and ${holidayPrompt} elements/accessories must be grouped together as a single cohesive unit.
+            - ${variation}
+            - Do not leave floating distinct background elements; everything should be connected or framed as one sticker item.
+
+            STICKER OUTLINE (IMPORTANT):
+            - Add a thick, white die-cut border (sticker edge) surrounding the entire unified composition.
 
             BACKGROUND (CRITICAL CHROMA KEY):
-            - The background MUST be a 100% SOLID, FLAT, PURE NEON GREEN (#00FF00). 
-            - No gradients, no textures, no shadows, no background objects.
-            - Think of this as a character sprite for a game engine.
+            - The background OUTSIDE the white sticker border MUST be a 100% SOLID, FLAT, PURE NEON GREEN (#00FF00). 
+            - No gradients, no textures, no shadows.
             
-            BORDER & EDGES:
-            - STRICT FORBIDDEN: DO NOT add any white border, offset, outline, or glow. The character's outermost lines must be the black ink lines or the character colors themselves, touching the green background directly.
-            - For anime/cartoon styles, ensure the edges are sharp and clean against the green.`;
+            TEXT RESTRICTIONS:
+            - Do NOT write the name of the holiday/theme ("${holidayPrompt}") as text in the sticker.
+            - The sticker should only contain text if explicitly requested below.`;
 
-            if (customName && /^[a-zA-Z\s]+$/.test(customName)) {
+            if (customName) {
                 basePrompt += ` Include the text "${customName}" artistically in the sticker.`;
             }
 
@@ -389,12 +436,12 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
 
                     {/* Name Input */}
                     <div className="space-y-3">
-                        <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">您的英文名 (選填)</label>
+                        <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">貼圖文字 (選填)</label>
                         <input
                             type="text"
                             value={customName}
                             onChange={(e) => setCustomName(e.target.value)}
-                            placeholder="e.g. Tingyu"
+                            placeholder="中英文皆可 (例如：Happy New Year, 新年快樂)"
                             className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-2xl font-bold text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light"
                         />
                     </div>
@@ -417,6 +464,15 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
                             </div>
                         </div>
+                        {selectedHoliday === 'custom' && (
+                            <input
+                                type="text"
+                                value={customHoliday}
+                                onChange={(e) => setCustomHoliday(e.target.value)}
+                                placeholder="請輸入自訂節日或主題 (例如：萬聖節派對)"
+                                className="w-full px-4 py-3 mt-2 bg-cream-light border border-cream-dark rounded-2xl font-bold text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light animate-in fade-in slide-in-from-top-1"
+                            />
+                        )}
                     </div>
 
                     {/* 3. Select Style */}

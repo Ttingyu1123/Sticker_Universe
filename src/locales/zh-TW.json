@@ -685,6 +685,10 @@
             "enhanceText": "增強文字細節",
             "enableStroke": "啟用物件描邊",
             "enableShadow": "啟用物件陰影"
+        },
+        "magic": {
+            "fill": "連通填充",
+            "brush": "魔術筆刷"
         }
     },
     "editor": {

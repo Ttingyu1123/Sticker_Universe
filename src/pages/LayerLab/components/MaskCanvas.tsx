@@ -10,6 +10,7 @@ interface MaskCanvasProps {
     pan?: { x: number, y: number };
     bgColor?: 'checkerboard' | 'white' | 'black';
     tolerance?: number;
+    magicToolMode?: 'fill' | 'brush'; // New prop
     onPanChange?: (newPan: { x: number, y: number }) => void;
     onInteractionEnd?: () => void;
     historyVersion?: number;
@@ -37,6 +38,7 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
     pan = { x: 0, y: 0 },
     bgColor = 'checkerboard',
     tolerance = 10,
+    magicToolMode = 'fill',
     onPanChange,
 
     onInteractionEnd,
@@ -50,10 +52,12 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
 
     const lastPanPos = useRef<{ x: number, y: number } | null>(null);
     const [cursorPos, setCursorPos] = useState({ x: -1000, y: -1000 });
-    // Cache for effects to avoid continuous re-calculation if possible, 
-    // though simplicity favors re-running render.
 
-    const requestRef = useRef<number>();
+    // Magic Brush Refs
+    const magicStartColor = useRef<[number, number, number, number] | null>(null);
+    const cachedOriginalData = useRef<Uint8ClampedArray | null>(null);
+
+    const requestRef = useRef<number | null>(null);
 
     // Initial Setup & Redraw Loop
     useEffect(() => {
@@ -89,10 +93,20 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
 
         render();
 
-        // We could run a loop, but we only strictly need to re-render when interactions happen.
-        // For smoother brush strokes, we might trigger render on mouse move.
-
     }, [originalImage, maskCanvas, tool, brushSize, bgColor, historyVersion, strokeConfig, shadowConfig]);
+
+    // Cache Original Image Data when image changes
+    useEffect(() => {
+        if (!originalImage) return;
+        const c = document.createElement('canvas');
+        c.width = originalImage.width;
+        c.height = originalImage.height;
+        const ctx = c.getContext('2d');
+        if (ctx) {
+            ctx.drawImage(originalImage, 0, 0);
+            cachedOriginalData.current = ctx.getImageData(0, 0, c.width, c.height).data;
+        }
+    }, [originalImage]);
 
     const renderCanvas = () => {
         if (!canvasRef.current || !originalImage || !maskCanvas) return;
@@ -213,7 +227,11 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
 
         // Magic Wand Logic
         if (tool === 'magic-wand') {
-            performMagicWand(x, y);
+            if (magicToolMode === 'brush') {
+                performMagicBrush(x, y);
+            } else {
+                performMagicWand(x, y);
+            }
             return;
         }
 
@@ -267,6 +285,134 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
 
 
 
+
+    // Magic Brush: Erase pixels that match the start color within tolerance
+    const performMagicBrush = (x: number, y: number) => {
+        if (!maskCanvas || !magicStartColor.current || !cachedOriginalData.current) return;
+
+        const width = maskCanvas.width;
+        const height = maskCanvas.height;
+        const ctx = maskCanvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) return;
+
+        const srcData = cachedOriginalData.current;
+        const [targetR, targetG, targetB, targetA] = magicStartColor.current;
+
+        const tol = (tolerance || 10) * 3;
+
+        // Localized Flood Fill
+        // We only process within the bounding box of the brush for efficiency,
+        // but we follow connectivity from the center.
+
+        const r = Math.ceil(brushSize / 2);
+        const startX = Math.round(x);
+        const startY = Math.round(y);
+
+        // Stack for BFS: [x, y]
+        const stack = [[startX, startY]];
+
+        // Track visited pixels for this stroke to avoid loops
+        // Using a Set might be slow for many pixels, but efficiently we can use a small Uint8Array relative to the brush box?
+        // Or simpler: just use a Set for now as brush is small.
+        // Or even better: direct check.
+        // Since we are modifing 'maskData', we can read 'maskData' to see if already erased?
+        // NO, maskData might be erased by PREVIOUS strokes. We need to distinguish "erased by previous" vs "visited in this BFS".
+        // Actually, if it's already erased (alpha=0), we don't need to process it again to erase it.
+        // But we DO need to traverse THROUGH it if it matches color? 
+        // Wait, mask is separate from image color.
+
+        // Let's use a flat set for visited within the bounding box.
+        const boxX = Math.max(0, startX - r);
+        const boxY = Math.max(0, startY - r);
+        const boxW = Math.min(width, startX + r) - boxX;
+        const boxH = Math.min(height, startY + r) - boxY;
+
+        if (boxW <= 0 || boxH <= 0) return;
+
+        // We need to read/write mask data
+        // For performance, get the whole box
+        const maskData = ctx.getImageData(boxX, boxY, boxW, boxH);
+
+        const visited = new Uint8Array(boxW * boxH); // 0 = unvisited, 1 = visited
+
+        // Check if start point matches color (it should, as it's the sample source usually, but we check tolerance)
+        // Also check if start point is inside bounds
+        if (startX < 0 || startX >= width || startY < 0 || startY >= height) return;
+
+        // Helper to get local index
+        const getIndex = (lx: number, ly: number) => (ly * boxW + lx);
+
+        // Add start node
+        // Local coordinates
+        const localStartX = startX - boxX;
+        const localStartY = startY - boxY;
+
+        if (localStartX < 0 || localStartX >= boxW || localStartY < 0 || localStartY >= boxH) return;
+
+        stack.length = 0; // Clear
+        stack.push([localStartX, localStartY]);
+        visited[getIndex(localStartX, localStartY)] = 1;
+
+        while (stack.length > 0) {
+            const [lx, ly] = stack.pop()!;
+
+            const globalX = boxX + lx;
+            const globalY = boxY + ly;
+
+            // Check distance to cursor center
+            const distSq = (globalX - x) ** 2 + (globalY - y) ** 2;
+            if (distSq > r * r) continue;
+
+            const srcIdx = (globalY * width + globalX) * 4;
+            const rVal = srcData[srcIdx];
+            const gVal = srcData[srcIdx + 1];
+            const bVal = srcData[srcIdx + 2];
+            const aVal = srcData[srcIdx + 3];
+
+            // If completely transparent in SOURCE, consider it matching? 
+            // Or if we are erasing a color, we expect it to be opaque.
+            // If source is transparent, nothing to erase?
+            // Let's assume we match non-transparent colors.
+
+            let isMatch = false;
+
+            if (targetA === 0) {
+                // Special case: Erasing transparency? No, usually erasing color.
+                // If target is transparent, maybe match transparent?
+                isMatch = (aVal < 10);
+            } else {
+                const diff = Math.abs(rVal - targetR) + Math.abs(gVal - targetG) + Math.abs(bVal - targetB) + Math.abs(aVal - targetA);
+                isMatch = (diff <= tol * 4);
+            }
+
+            if (isMatch) {
+                // Erase in Mask
+                const maskIdx = (ly * boxW + lx) * 4;
+                maskData.data[maskIdx + 3] = 0; // Set Alpha to 0
+
+                // Add neighbors
+                const neighbors = [
+                    [lx + 1, ly],
+                    [lx - 1, ly],
+                    [lx, ly + 1],
+                    [lx, ly - 1]
+                ];
+
+                for (const [nx, ny] of neighbors) {
+                    if (nx >= 0 && nx < boxW && ny >= 0 && ny < boxH) {
+                        const vIdx = getIndex(nx, ny);
+                        if (visited[vIdx] === 0) {
+                            visited[vIdx] = 1;
+                            stack.push([nx, ny]);
+                        }
+                    }
+                }
+            }
+        }
+
+        ctx.putImageData(maskData, boxX, boxY);
+        redrawVisible();
+    };
 
     // Magic Wand Implementation
     const performMagicWand = (startX: number, startY: number) => {
@@ -392,6 +538,20 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
 
         setIsDrawing(true);
         const { x, y } = getPointerPos(e);
+
+        // For Magic Brush, sample the color at start
+        if (tool === 'magic-wand' && magicToolMode === 'brush' && cachedOriginalData.current && maskCanvas) {
+            const width = maskCanvas.width;
+            const ix = Math.floor(x);
+            const iy = Math.floor(y);
+            // Handle out of bounds
+            if (ix >= 0 && ix < width && iy >= 0 && iy < maskCanvas.height) {
+                const idx = (iy * width + ix) * 4;
+                const data = cachedOriginalData.current;
+                magicStartColor.current = [data[idx], data[idx + 1], data[idx + 2], data[idx + 3]];
+            }
+        }
+
         paint(x, y);
     };
 
@@ -462,9 +622,28 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
                 handleMouseUp();
                 setCursorPos({ x: -1000, y: -1000 });
             }}
-            onTouchStart={handleMouseDown}
-            onTouchMove={handleMouseMove}
-            onTouchEnd={handleMouseUp}
+            onTouchStart={(e) => {
+                handleMouseDown(e);
+                const rect = containerRef.current?.getBoundingClientRect();
+                if (rect) {
+                    const clientX = e.touches[0].clientX;
+                    const clientY = e.touches[0].clientY;
+                    setCursorPos({ x: clientX - rect.left, y: clientY - rect.top });
+                }
+            }}
+            onTouchMove={(e) => {
+                handleMouseMove(e);
+                const rect = containerRef.current?.getBoundingClientRect();
+                if (rect) {
+                    const clientX = e.touches[0].clientX;
+                    const clientY = e.touches[0].clientY;
+                    setCursorPos({ x: clientX - rect.left, y: clientY - rect.top });
+                }
+            }}
+            onTouchEnd={() => {
+                handleMouseUp();
+                setCursorPos({ x: -1000, y: -1000 });
+            }}
         >
             <canvas
                 ref={canvasRef}
@@ -486,26 +665,21 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
                 }}
             />
             {/* Custom Brush Cursor (High Performance CSS) */}
-            {(tool === 'erase' || tool === 'restore') && (
+            {(tool === 'erase' || tool === 'restore' || (tool === 'magic-wand' && magicToolMode === 'brush')) && (
                 <div
-                    className="absolute pointer-events-none rounded-full border border-white shadow-[0_0_2px_rgba(0,0,0,0.8)] z-50 mix-blend-difference box-content"
+                    className={`absolute pointer-events-none rounded-full border border-white/80 outline outline-1 outline-black/20 z-50 mix-blend-normal shadow-sm ${tool === 'restore' ? 'bg-green-500/20' : tool === 'magic-wand' ? 'bg-indigo-500/20' : ''}`}
                     style={{
-                        // Account for shadowBlur spread (approx 2x softness on each side)
-                        width: (brushSize * 2 + (1 - brushHardness) * 40) * zoom,
-                        height: (brushSize * 2 + (1 - brushHardness) * 40) * zoom,
-                        // Cursor position is relative to the container (viewport), 
-                        // but getPointerPos calculates relative to unscaled canvas?
-                        // Wait, simple CSS cursor follows mouse pointer in the viewport.
-                        // But here we set left/top based on cursorPos.
-                        left: cursorPos.x, // These need to be viewport coordinates?
+                        // Account for shadowBlur spread if needed, but for precision we show the core brush size
+                        width: brushSize * zoom,
+                        height: brushSize * zoom,
+                        left: cursorPos.x,
                         top: cursorPos.y,
                         transform: 'translate(-50%, -50%)',
-                        // backgroundColor: 'rgba(255, 255, 255, 0.1)' // Optional: Slight fill
                     }}
                 />
             )}
             {/* Crosshair for Magic Wand */}
-            {tool === 'magic-wand' && (
+            {tool === 'magic-wand' && magicToolMode === 'fill' && (
                 <div
                     className="absolute pointer-events-none text-white drop-shadow-md z-50 mix-blend-difference"
                     style={{

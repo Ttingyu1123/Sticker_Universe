@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Trash2, Download, Image as ImageIcon, Search, FileArchive, Palette, Eraser, Layers, MoreHorizontal, CheckCircle2, Circle, Upload, FileText, X, Maximize2, Share2, Copy } from 'lucide-react';
+import { Trash2, Download, Image as ImageIcon, Search, FileArchive, Palette, Layers, MoreHorizontal, CheckCircle2, Circle, Upload, FileText, X, Maximize2, Share2, Copy } from 'lucide-react';
 import { getAllStickersFromDB, deleteStickerFromDB, clearAllStickersFromDB, saveStickerToDB } from '../../db';
 import { Sticker } from '../Generator/types';
 import JSZip from 'jszip';
@@ -77,12 +77,6 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
                             </button>
                         </div>
                         <div className="flex items-center gap-2">
-                            <button
-                                onClick={(e) => { e.stopPropagation(); navigate('/image-editor', { state: { image: sticker.imageUrl, tab: 'eraser' } }); }}
-                                className="px-3 py-1.5 bg-white/10 hover:bg-white text-white hover:text-bronze-text rounded-lg text-[10px] font-bold backdrop-blur-md transition-all border border-white/20 flex items-center gap-1.5"
-                            >
-                                <Eraser size={12} /> {t('editor.tabs.eraser') || '橡皮擦'}
-                            </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); navigate('/image-editor', { state: { image: sticker.imageUrl, tab: 'packager' } }); }}
                                 className="px-3 py-1.5 bg-white/10 hover:bg-white text-white hover:text-bronze-text rounded-lg text-[10px] font-bold backdrop-blur-md transition-all border border-white/20 flex items-center gap-1.5"

@@ -9,6 +9,7 @@ interface CanvasEditorProps {
   tolerance: number;
   zoom: number;
   toolMode: ToolMode;
+  magicToolMode?: 'fill' | 'brush';
   bgColor: string;
   onSaveHistory: (dataUrl: string) => void;
   triggerUndo: string | null;
@@ -21,6 +22,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
   tolerance,
   zoom,
   toolMode,
+  magicToolMode = 'fill',
   bgColor,
   onSaveHistory,
   triggerUndo,
@@ -39,6 +41,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
   // Refs for panning
   const isPanning = useRef(false);
   const lastPanPos = useRef<Point>({ x: 0, y: 0 });
+  const magicStartColor = useRef<[number, number, number, number] | null>(null);
 
   // Keep track of toolMode for event listeners
   const toolModeRef = useRef(toolMode);
@@ -211,6 +214,80 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
     onSaveHistory(canvas.toDataURL());
   };
 
+  const performMagicBrush = (x: number, y: number) => {
+    const canvas = canvasRef.current;
+    const ctx = contextRef.current;
+    if (!canvas || !ctx || !magicStartColor.current) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // Contiguous Flood Fill within Brush Radius (Magic Brush)
+    const r = Math.ceil(brushSize / 2);
+    const startX = Math.round(x);
+    const startY = Math.round(y);
+
+    const boxX = Math.max(0, startX - r);
+    const boxY = Math.max(0, startY - r);
+    const boxW = Math.min(width, startX + r) - boxX;
+    const boxH = Math.min(height, startY + r) - boxY;
+
+    if (boxW <= 0 || boxH <= 0) return;
+
+    const imageData = ctx.getImageData(boxX, boxY, boxW, boxH);
+    const data = imageData.data;
+    const [targetR, targetG, targetB, targetA] = magicStartColor.current;
+
+    const tol = (tolerance || 10) * 3;
+
+    const stack = [[startX - boxX, startY - boxY]];
+    const visited = new Uint8Array(boxW * boxH);
+
+    // Bounds check for start relative to box
+    if (stack[0][0] < 0 || stack[0][0] >= boxW || stack[0][1] < 0 || stack[0][1] >= boxH) return;
+
+    visited[stack[0][1] * boxW + stack[0][0]] = 1;
+
+    while (stack.length) {
+      const [lx, ly] = stack.pop()!;
+      const globalX = boxX + lx;
+      const globalY = boxY + ly;
+
+      const distSq = (globalX - x) ** 2 + (globalY - y) ** 2;
+      if (distSq > r * r) continue;
+
+      const idx = (ly * boxW + lx) * 4;
+      const rVal = data[idx];
+      const gVal = data[idx + 1];
+      const bVal = data[idx + 2];
+      const aVal = data[idx + 3];
+
+      if (aVal === 0) continue; // Already erased
+
+      const diff = Math.abs(rVal - targetR) + Math.abs(gVal - targetG) + Math.abs(bVal - targetB) + Math.abs(aVal - targetA);
+
+      if (diff <= tol * 4) {
+        data[idx + 3] = 0; // Erase
+
+        const neighbors = [
+          [lx + 1, ly], [lx - 1, ly], [lx, ly + 1], [lx, ly - 1]
+        ];
+
+        for (const [nx, ny] of neighbors) {
+          if (nx >= 0 && nx < boxW && ny >= 0 && ny < boxH) {
+            const vIdx = ny * boxW + nx;
+            if (visited[vIdx] === 0) {
+              visited[vIdx] = 1;
+              stack.push([nx, ny]);
+            }
+          }
+        }
+      }
+    }
+
+    ctx.putImageData(imageData, boxX, boxY);
+  };
+
   const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
     if (e.cancelable) e.preventDefault(); // Always prevent default to stop scrolling
     const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
@@ -228,7 +305,19 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
     const pos = getCoordinates(e);
 
     if (toolMode === 'magic-wand') {
-      performFloodFill(pos.x, pos.y);
+      if (magicToolMode === 'brush') {
+        const ctx = contextRef.current;
+        if (ctx) {
+          // Sample color
+          const pixel = ctx.getImageData(pos.x, pos.y, 1, 1).data;
+          magicStartColor.current = [pixel[0], pixel[1], pixel[2], pixel[3]];
+
+          setIsDrawing(true);
+          performMagicBrush(pos.x, pos.y);
+        }
+      } else {
+        performFloodFill(pos.x, pos.y);
+      }
       return;
     }
 
@@ -273,6 +362,11 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
 
     if (!isDrawing) return;
 
+    if (toolMode === 'magic-wand' && magicToolMode === 'brush') {
+      performMagicBrush(pos.x, pos.y);
+      return;
+    }
+
     const ctx = contextRef.current;
     if (ctx) {
       ctx.lineTo(pos.x, pos.y);
@@ -306,7 +400,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
   const visibleCursor = getVisibleCursorPos();
 
   const getCursorStyle = () => {
-    if (toolMode === 'magic-wand') {
+    if (toolMode === 'magic-wand' && magicToolMode === 'fill') {
       return (
         <div
           className="absolute pointer-events-none text-purple-600 drop-shadow-md"
@@ -323,12 +417,13 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
       );
     }
 
+    // Brush Cursor (Eraser, Restore, Magic Brush)
     return (
       <div
-        className={`absolute pointer-events-none rounded-full border border-white shadow-[0_0_0_1px_rgba(0,0,0,0.3)] ${toolMode === 'erase' ? 'bg-blue-400/30' : 'bg-green-400/30'}`}
+        className={`absolute pointer-events-none rounded-full border border-white/80 outline outline-1 outline-black/20 shadow-sm ${toolMode === 'erase' ? 'bg-blue-400/30' : toolMode === 'magic-wand' ? 'bg-indigo-500/30' : 'bg-green-400/30'}`}
         style={{
-          width: `${brushSize}px`,
-          height: `${brushSize}px`,
+          width: `${brushSize * zoom}px`, // Apply zoom to cursor size
+          height: `${brushSize * zoom}px`,
           left: `${visibleCursor!.x}px`,
           top: `${visibleCursor!.y}px`,
           transform: 'translate(-50%, -50%)',
@@ -338,6 +433,8 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
         <div className="absolute inset-0 flex items-center justify-center opacity-30">
           {toolMode === 'erase' ? (
             <svg className="w-1/2 h-1/2 text-white" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+          ) : toolMode === 'magic-wand' ? (
+            <span className="text-white font-bold text-[10px]">MAGIC</span>
           ) : (
             <svg className="w-1/2 h-1/2 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
           )}
