@@ -25,7 +25,9 @@
     "common": {
         "reset": "重置",
         "cancel": "取消",
-        "confirm": "確認"
+        "confirm": "確認",
+        "download": "下載圖片",
+        "or": "或"
     },
     "linePreview": {
         "title": "LINE 預覽 (Preview)",
@@ -714,7 +716,26 @@
             "packager": "批量裁切",
             "beautify": "美化加工",
             "animator": "動態貼圖",
-            "svg": "SVG 魔法"
+            "svg": "SVG 魔法",
+            "resize": "調整尺寸"
+        },
+        "resize": {
+            "title": "調整圖片尺寸",
+            "subtitle": "輕鬆調整、縮放與優化您的圖片尺寸",
+            "uploadPrompt": "點擊上傳圖片",
+            "uploadHint": "支援 JPG, PNG, WEBP",
+            "originalSize": "原始尺寸",
+            "reduceSection": "縮小與縮圖",
+            "width": "寬度",
+            "height": "高度",
+            "applyResize": "套用調整大小",
+            "upscaleNote": "使用本地瀏覽器處理，速度快且完全離線",
+            "qualityWarning": "放大圖片（超過100%）可能導致畫質下降或像素化。縮小圖片通常適合製作縮圖。",
+            "loadingModel": "載入模型中...",
+            "downloadingModel": "下載模型中 (~20MB)... 僅需一次",
+            "downloading": "下載模型中",
+            "modelReady": "模型已就緒！開始放大...",
+            "processing": "處理中..."
         },
         "bubblePicker": {
             "chooseStyle": "選擇氣泡樣式",

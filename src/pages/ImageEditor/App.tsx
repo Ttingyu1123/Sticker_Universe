@@ -1,11 +1,12 @@
 import React, { useState, Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Scissors, Image, Sparkles, Video, FileCode } from 'lucide-react';
+import { Scissors, Image, Sparkles, Video, FileCode, Expand } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import EditorTab from './components/EditorTab';
 import PackagerTab from './components/PackagerTab';
 import SmartRemoveTab from './components/SmartRemoveTab';
 import AnimatorTab from './components/AnimatorTab';
+import ImageResizerTab from './components/ImageResizerTab';
 import SvgConverterTab from './components/SvgConverterTab';
 
 import { Tabs, TabList, Tab, TabPanel } from 'react-aria-components';
@@ -100,6 +101,23 @@ const ImageEditorApp: React.FC = () => {
                             )}
                         </Tab>
                         <Tab
+                            id="resize"
+                            className={({ isSelected }) => `
+                        px-5 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer outline-none flex items-center gap-2.5 select-none
+                        ${isSelected
+                                    ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5 scale-[1.02]'
+                                    : 'text-slate-500 hover:text-indigo-600 hover:bg-white/60'
+                                }
+                    `}
+                        >
+                            {({ isSelected }) => (
+                                <>
+                                    <Expand size={18} className={isSelected ? 'fill-indigo-100/50' : ''} />
+                                    {t('editor.tabs.resize') || 'Resize Image'}
+                                </>
+                            )}
+                        </Tab>
+                        <Tab
                             id="svg"
                             className={({ isSelected }) => `
                         px-5 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer outline-none flex items-center gap-2.5 select-none
@@ -139,6 +157,11 @@ const ImageEditorApp: React.FC = () => {
                         <TabPanel id="editor" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <EditorTab />
+                            </Suspense>
+                        </TabPanel>
+                        <TabPanel id="resize" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
+                            <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
+                                <ImageResizerTab />
                             </Suspense>
                         </TabPanel>
                         <TabPanel id="svg" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">

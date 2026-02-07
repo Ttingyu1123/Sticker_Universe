@@ -137,3 +137,74 @@ if (error.message?.includes("403") || error.message?.includes("401")) {
     // Trigger UI to show Key Modal
 }
 ```
+
+## 5. Advanced Implementation Patterns
+
+### A. Two-Step Generation Flow (Prompt Optimization)
+
+For high-quality results, use a two-step process:
+
+1. **Text Generation**: Use `gemini-3-pro-image-preview` to act as a "Prompt Engineer", converting user intent into a detailed English visual prompt (and optional structured data like JSON).
+2. **Image Generation**: Use the generated visual prompt to create the actual image.
+
+```typescript
+// 1. Prompt Optimization (Text Mode)
+const optimizePrompt = `You are a professional designer.
+Inputs: "${userBuffer}"
+Output: JSON with "visualPrompt" (detailed English description) and "title".`;
+
+const textResult = await ai.models.generateContent({
+    model: 'gemini-3-pro-image-preview',
+    contents: [{ parts: [{ text: optimizePrompt }] }],
+    config: { responseMimeType: "application/json" }
+});
+
+// SANITIZATION: Strip Markdown code blocks from JSON response
+const rawText = textResult.candidates?.[0]?.content?.parts?.[0]?.text || "";
+const jsonString = rawText.replace(/```json\n?|\n?```/g, '').trim();
+const metadata = JSON.parse(jsonString);
+
+// 2. Image Generation (Image Mode)
+const imageResult = await ai.models.generateContent({
+    model: 'gemini-3-pro-image-preview',
+    contents: [{ parts: [{ text: metadata.visualPrompt }] }],
+    config: {
+        imageConfig: { aspectRatio: "3:4", imageSize: "1K" }
+    }
+});
+```
+
+### B. Robustness & Error Handling
+
+#### 1. Rendering Crashes (The "Blank Screen" Issue)
+
+When using AI-generated JSON content in React, **ALWAYS** enforce string types. AI might return objects or arrays for fields you expect to be strings, which causes React to crash immediately (Blank Screen).
+
+```typescript
+// BAD: causing crash if title is an object
+// <div>{metadata.title}</div> 
+
+// GOOD: Safe Rendering
+const safeData = {
+    title: String(metadata.title || ""), // Force string
+    description: String(metadata.description || "")
+};
+```
+
+#### 2. LocalStorage Quota Management
+
+Base64 images are large. Storing them in `localStorage` history will quickly hit the quota limit (usually 5MB), causing `QuotaExceededError` and crashing the app.
+
+- **Limit History Size**: Keep only the last 3-5 items.
+- **Try-Catch Block**: Always wrap `setItem` in a try-catch block.
+
+```typescript
+useEffect(() => {
+    try {
+        localStorage.setItem('history', JSON.stringify(history));
+    } catch (e) {
+        console.error("Storage quota exceeded", e);
+        // Handle gracefully (e.g., pop oldest item and retry)
+    }
+}, [history]);
+```

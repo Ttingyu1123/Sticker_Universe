@@ -15,7 +15,7 @@ import { processImage } from '../../Packager/services/ai/backgroundRemoval';
 
 // --- Constants & DB ---
 const FESTIVALS = [
-    { id: 'new-year', label: '🧧 Lunar New Year (農曆新年)', icon: '🧧' },
+    { id: 'new-year', label: '🧧 Lunar New Year (農曆新年 - 2026 Year of the Horse 🐎)', icon: '🧧' },
     { id: 'christmas', label: '🎄 Christmas (聖誕節)', icon: '🎄' },
     { id: 'birthday', label: '🎂 Birthday (生日)', icon: '🎂' },
     { id: 'valentine', label: '❤️ Valentine\'s Day (情人節)', icon: '❤️' },
@@ -181,9 +181,14 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({ apiKey, onError, onNe
         return () => clearInterval(interval);
     }, [isGenerating]);
 
-    // Save history to local storage
+    // Save history to local storage with error handling
     useEffect(() => {
-        localStorage.setItem('greeting_card_history', JSON.stringify(history));
+        try {
+            localStorage.setItem('greeting_card_history', JSON.stringify(history));
+        } catch (e) {
+            console.error("Failed to save history to localStorage (Quota Exceeded?)", e);
+            // Optionally could try to save fewer items here
+        }
     }, [history]);
 
     // Helper: Load Image
@@ -484,7 +489,17 @@ Instructions:
 
         const text = optimizeResult.candidates?.[0]?.content?.parts?.[0]?.text;
         if (!text) throw new Error("文案生成失敗");
-        const themeData = JSON.parse(text);
+
+        // Sanitize JSON string (remove markdown code blocks if present)
+        const jsonString = text.replace(/```json\n?|\n?```/g, '').trim();
+        let themeData;
+        try {
+            themeData = JSON.parse(jsonString);
+        } catch (e) {
+            console.error("JSON Parse Error:", e);
+            console.log("Raw Text:", text);
+            throw new Error("文案格式錯誤，請重試");
+        }
 
         // 2. Generate Image
         // --- Deep AI Integration Logic ---
@@ -588,11 +603,12 @@ Instructions:
 
             const result = {
                 imageUrl,
-                title: theme.title,
-                message: theme.refinedMessage,
+                // Ensure strictly string type to avoid rendering crashes if object is returned
+                title: typeof theme.title === 'string' ? theme.title : String(theme.title || "Greeting Card"),
+                message: typeof theme.refinedMessage === 'string' ? theme.refinedMessage : String(theme.refinedMessage || ""),
                 festival: FESTIVALS.find(f => f.id === festival)?.label,
                 style: CARD_STYLES.find(s => s.id === style)?.label,
-                visualPrompt: theme.visualPrompt
+                visualPrompt: String(theme.visualPrompt || "")
             };
 
             setGeneratedResult(result);
@@ -603,7 +619,7 @@ Instructions:
                 id: Date.now().toString(),
                 timestamp: Date.now()
             };
-            setHistory(prev => [newHistoryItem, ...prev].slice(0, 5));
+            setHistory(prev => [newHistoryItem, ...prev].slice(0, 3)); // Limit to 3 to avoid localStorage quota issues
 
             // Auto-save to Gallery
             const savePrompt = `[${result.festival}] ${result.title}`;
@@ -660,7 +676,7 @@ Negative Prompt: ${negativePrompt || 'None'}
                     id: Date.now().toString(),
                     timestamp: Date.now()
                 };
-                setHistory(history => [newHistoryItem, ...history].slice(0, 5));
+                setHistory(history => [newHistoryItem, ...history].slice(0, 3));
 
                 return updated;
             });
