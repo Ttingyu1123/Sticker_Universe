@@ -214,25 +214,41 @@ const App = () => {
     };
 
     const handleDownload = (imageUrl: string, filename: string) => {
-        const link = document.createElement('a');
-        link.href = imageUrl;
-        link.download = `${filename.replace(/\s/g, '_')}_sticker.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Use FileSaver.js for better cross-browser compatibility, especially mobile
+        saveAs(imageUrl, `${filename.replace(/\s/g, '_')}_sticker.png`);
+    };
+
+    // Helper to convert Base64 Data URL to Blob for reliable sharing
+    const base64ToBlob = (base64: string, mimeType: string = 'image/png'): Blob => {
+        const byteString = atob(base64.split(',')[1]);
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+        return new Blob([ab], { type: mimeType });
     };
 
     const handleShare = async (sticker: Sticker) => {
         try {
-            const response = await fetch(sticker.imageUrl);
-            const blob = await response.blob();
-            const file = new File([blob], `${sticker.phrase}.png`, { type: 'image/png' });
+            let file: File;
+
+            if (sticker.imageUrl.startsWith('data:')) {
+                // Handle Base64 Data URL (Generated Images)
+                const blob = base64ToBlob(sticker.imageUrl);
+                file = new File([blob], `${sticker.phrase}.png`, { type: 'image/png' });
+            } else {
+                // Handle Remote URL (Uploaded/Stored Images)
+                const response = await fetch(sticker.imageUrl);
+                const blob = await response.blob();
+                file = new File([blob], `${sticker.phrase}.png`, { type: 'image/png' });
+            }
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
-                    title: sticker.phrase,
-                    text: sticker.description || `Check out this sticker: ${sticker.phrase}`,
-                    files: [file]
+                    files: [file],
+                    // Minimal metadata to encourage "Save Image" vs "Share Note" behavior on iOS
+                    // title: sticker.phrase, 
                 });
             } else {
                 // Fallback to clipboard
