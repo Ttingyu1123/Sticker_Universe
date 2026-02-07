@@ -327,44 +327,16 @@ const App: React.FC = () => {
               </label>
             </div>
 
-            <div className="bg-primary/5 p-4 rounded-xl border border-primary/10 text-[10px] text-bronze-light space-y-3 max-h-60 overflow-y-auto custom-scrollbar">
-              <p className="font-bold text-primary flex items-center gap-1 text-xs sticky top-0 bg-primary/5 backdrop-blur-sm -mx-1 px-1 py-1">
+            <div className="bg-primary/5 p-3 rounded-xl border border-primary/10 text-[10px] text-bronze-light space-y-1">
+              <p className="font-bold text-primary flex items-center gap-1 text-xs">
                 🛡️ 安全聲明 (Security Notice)
               </p>
-
-              <div className="space-y-1">
-                <p className="font-bold text-bronze-text opacity-90">1. 金鑰儲存在哪裡？</p>
-                <ul className="list-disc pl-3 space-y-0.5 opacity-80 leading-relaxed">
-                  <li><span className="font-bold">瀏覽器本地：</span>您的金鑰直接儲存在 LocalStorage/SessionStorage 中。</li>
-                  <li><span className="font-bold">非伺服器存儲：</span>我們絕對不會將金鑰上傳至我們的伺服器或任何第三方。</li>
-                  <li><span className="font-bold">物理隔離：</span>金鑰僅存在於此設備，更換設備需重新輸入。</li>
-                </ul>
-              </div>
-
-              <div className="space-y-1">
-                <p className="font-bold text-bronze-text opacity-90">2. 資料傳輸安全</p>
-                <ul className="list-disc pl-3 space-y-0.5 opacity-80 leading-relaxed">
-                  <li><span className="font-bold">端到端傳輸：</span>金鑰由您的瀏覽器直接發送至官方 API (如 Google)。</li>
-                  <li><span className="font-bold">全程加密：</span>所有通訊經由 HTTPS 加密，防止中間人攔截。</li>
-                </ul>
-              </div>
-
-              <div className="space-y-1">
-                <p className="font-bold text-bronze-text opacity-90">3. 如何確保金鑰沒有被偷偷上傳？</p>
-                <ul className="list-disc pl-3 space-y-0.5 opacity-80 leading-relaxed">
-                  <li><span className="font-bold">開發者工具檢查：</span>您可以按 F12 打開 Network 分頁，確認請求僅發送至官方網域。</li>
-                  <li><span className="font-bold">開源透明：</span>本專案原始碼已公開，可隨時審閱金鑰處理邏輯。</li>
-                </ul>
-              </div>
-
-              <div className="space-y-1">
-                <p className="font-bold text-bronze-text opacity-90">4. 最佳安全實踐建議</p>
-                <ul className="list-disc pl-3 space-y-0.5 opacity-80 leading-relaxed">
-                  <li><span className="font-bold">設定限額：</span>請在 API 後台設定使用的 Monthly Usage Limit。</li>
-                  <li><span className="font-bold">定期更換：</span>養成定期更新 API 金鑰的習慣。</li>
-                  <li><span className="font-bold">使用後清除：</span>公用電腦使用後，請務必點擊「清除金鑰」按鈕。</li>
-                </ul>
-              </div>
+              <ul className="list-disc pl-4 space-y-0.5 opacity-80 leading-relaxed">
+                <li><span className="font-bold">本地儲存 -</span> 金鑰僅存於瀏覽器 (LocalStorage)，絕不上傳至本站伺服器。</li>
+                <li><span className="font-bold">直接傳輸 -</span> 請求由瀏覽器直接發送至 Google API，全程 HTTPS 加密。</li>
+                <li><span className="font-bold">開源透明 -</span> 程式碼公開於 GitHub，可隨時檢視金鑰處理邏輯。</li>
+                <li><span className="font-bold">自我控管 -</span> 建議定期更換金鑰，公用電腦請使用後清除。</li>
+              </ul>
             </div>
             {error && <p className="text-secondary text-xs font-bold text-center">{error}</p>}
             <div className="flex gap-3">
