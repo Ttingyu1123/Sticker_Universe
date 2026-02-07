@@ -9,6 +9,7 @@
         "manual": "User Manual",
         "backHome": "Back Home",
         "generator": "AI Sticker Studio",
+        "cinematic": "Cinematic Poster",
         "editor": "Editor",
         "packager": "Refiner",
         "eraser": "Eraser",
@@ -171,6 +172,9 @@
         "cancelSelection": "Done",
         "downloadSelected": "Download ({{count}})",
         "deleteSelected": "Delete ({{count}})",
+        "shareSelected": "Share ({{count}})",
+        "shareError": "Sharing failed",
+        "shareNotSupported": "Sharing files is not supported on this device",
         "addSelected": "Add Selected",
         "items": "Items"
     },
@@ -234,6 +238,15 @@
     "generator": {
         "title": "AI Sticker Studio",
         "subtitle": "AI Sticker Creation",
+        "tabs": {
+            "style": "Style Sticker",
+            "holiday": "Holiday Sticker",
+            "greeting": "Greeting Card",
+            "manga": "Manga Master (Beta)",
+            "cinematic": "Cinematic Poster",
+            "imageGen": "AI Image Gen",
+            "headshot": "Headshot Pro"
+        },
         "apiKey": {
             "title": "Enter Your Gemini API Key",
             "desc": "We need your Google Gemini API Key to generate stickers. It's stored locally in your browser.",
@@ -282,12 +295,17 @@
             "showText": "Show Text",
             "noText": "No Text",
             "postProcessing": "Post-Processing",
-            "smartRemoveBg": "Smart Remove BG"
+            "smartRemoveBg": "Smart Remove BG",
+            "whiteBorder": "Generate White Border"
         },
         "action": {
             "generate": "Generate Stickers",
             "generating": "Generating Magic...",
             "downloadZip": "Download ZIP",
+            "zoom": "Zoom Preview",
+            "close": "Close",
+            "copyPrompt": "Copy Prompt",
+            "downloadPrompt": "Download Prompt",
             "results": "Results",
             "batchProcessing": "Batch Processing",
             "generatingArt": "Generating AI Art...",

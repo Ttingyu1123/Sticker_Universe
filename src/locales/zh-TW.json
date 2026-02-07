@@ -180,6 +180,9 @@
         "cancelSelection": "完成",
         "downloadSelected": "下載 ({{count}})",
         "deleteSelected": "刪除 ({{count}})",
+        "shareSelected": "分享 ({{count}})",
+        "shareError": "分享失敗",
+        "shareNotSupported": "此裝置不支援檔案分享功能",
         "addSelected": "添加選取項目",
         "items": "項目"
     },
@@ -293,12 +296,17 @@
             "showText": "顯示文字",
             "noText": "不顯示",
             "postProcessing": "後製處理",
-            "smartRemoveBg": "智慧去背"
+            "smartRemoveBg": "智慧去背",
+            "whiteBorder": "產生白邊"
         },
         "action": {
             "generate": "生成貼圖",
             "generating": "正在施展魔法...",
             "downloadZip": "下載 ZIP",
+            "zoom": "放大預覽",
+            "close": "關閉",
+            "copyPrompt": "複製提示詞",
+            "downloadPrompt": "下載提示詞",
             "results": "生成結果",
             "batchProcessing": "批次處理中",
             "generatingArt": "正在生成 AI 藝術...",
@@ -312,8 +320,13 @@
             }
         },
         "tabs": {
-            "headshot": "形象照生成",
-            "manga": "漫畫大師"
+            "style": "風格貼圖",
+            "holiday": "節慶貼圖",
+            "greeting": "賀卡大師",
+            "manga": "漫畫大師",
+            "cinematic": "影劇海報",
+            "imageGen": "AI圖片生成",
+            "headshot": "形象照大師"
         },
         "errors": {
             "general": "生成失敗：",

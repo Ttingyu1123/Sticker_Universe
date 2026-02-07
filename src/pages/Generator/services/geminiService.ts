@@ -8,7 +8,7 @@ export async function generateSticker(
   model: string,
   styleSnippet: string,
   includeText: boolean
-): Promise<string> {
+): Promise<{ imageUrl: string; prompt: string }> {
   const ai = new GoogleGenAI({ apiKey });
 
   const textInstruction = includeText

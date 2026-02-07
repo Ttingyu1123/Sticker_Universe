@@ -58,6 +58,8 @@ interface HolidayStickerTabProps {
     onSuccess: (imageUrl: string, prompt: string, description?: string) => void;
 }
 
+
+
 const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, onSuccess }) => {
     const [uploadedImage, setUploadedImage] = useState<string | null>(null);
     const [selectedHoliday, setSelectedHoliday] = useState(HOLIDAYS[0].id);
@@ -86,6 +88,8 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
             reader.readAsDataURL(file);
         }
     };
+
+
 
     /**
      * SMART CHROMA KEY REMOVAL (Green Screen)
@@ -250,7 +254,8 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
                 // We use a simplified prompt for the gallery title
                 const displayHolidayName = selectedHoliday === 'custom' ? customHoliday : HOLIDAYS.find(h => h.id === selectedHoliday)?.names['zh-TW'];
                 const stickerTitle = `[${displayHolidayName}] ${STYLES.find(s => s.id === selectedStyle)?.names['zh-TW']} Sticker`;
-                onSuccess(imgUrl, stickerTitle);
+                // Pass the FULL prompt as the third argument (description)
+                onSuccess(imgUrl, stickerTitle, prompt);
             } else {
                 const textContent = candidate?.content?.parts?.find((p: any) => p.text)?.text;
                 const errorMsg = textContent ? `Model Refusal: ${textContent}` : `No image/text returned. Raw Candidate: ${JSON.stringify(candidate).substring(0, 200)}...`;
@@ -261,11 +266,10 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
             console.error(`Generation failed for slot ${index}`, error);
             setGenerationErrors(prev => {
                 const newErrors = [...prev];
-                // Ensure array size matches batch size if changed dynamically, 
-                // though usually we reset strictly on generate.
-                if (newResults.length <= index) {
-                    newResults.length = index + 1;
-                    newResults.fill(false, prev.length);
+                // Ensure array size matches batch size
+                if (newErrors.length <= index) {
+                    newErrors.length = index + 1;
+                    newErrors.fill(false, prev.length);
                 }
                 newErrors[index] = true;
                 return newErrors;
@@ -335,6 +339,7 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
             - Integrate the holiday elements around THEM, do not change who they look like.`;
             }
 
+            // Base Subject Description - Always a sticker now
             let basePrompt = `Create a single die-cut sticker of a person who strongly resembles the person in the provided image.
             The sticker should be in ${style.prompt} style, specifically for ${holidayPrompt}.
             
@@ -357,7 +362,12 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
             - The sticker should only contain text if explicitly requested below.`;
 
             if (customName) {
-                basePrompt += ` Include the text "${customName}" artistically in the sticker.`;
+                basePrompt += ` 
+            
+            TEXT INSTRUCTION:
+            - Incorporate the EXACT text: "${customName}" into the design.
+            - Write the text ONCE. Do NOT repeat characters.
+            - Ensure the text is legible, correctly spelled, and artistically integrated.`;
             }
 
             // Using the user's specific model
@@ -445,6 +455,7 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
                             className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-2xl font-bold text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light"
                         />
                     </div>
+
 
                     {/* 2. Select Holiday */}
                     <div className="space-y-3">

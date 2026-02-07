@@ -18,9 +18,11 @@ interface StickerCardProps {
     onViewDetails: (sticker: Sticker) => void;
     onPreview: (sticker: Sticker) => void;
     onShare: (sticker: Sticker) => void;
+    onCopyPrompt: (sticker: Sticker) => void;
+    onDownloadPrompt: (sticker: Sticker) => void;
 }
 
-const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload, isSelectionMode, isSelected, onToggleSelect, onViewDetails, onPreview, onShare }) => {
+const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload, isSelectionMode, isSelected, onToggleSelect, onViewDetails, onPreview, onShare, onCopyPrompt, onDownloadPrompt }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [showOverlay, setShowOverlay] = useState(false);
@@ -87,44 +89,64 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
 
                         <div className="w-full h-px bg-white/20 my-1"></div>
 
-                        <div className="flex items-center gap-2">
+                        {/* Row 1: Primary Actions (Preview, Download, Share) */}
+                        <div className="flex items-center justify-center gap-3">
                             <button
-                                onClick={(e) => { e.stopPropagation(); onShare(sticker); }}
-                                className="p-2 bg-white/10 hover:bg-white rounded-full text-white hover:text-pink-500 transition-all border border-white/20"
-                                title={t('gallery.share') || "Share"}
+                                onClick={(e) => { e.stopPropagation(); onPreview(sticker); }}
+                                className="p-2 bg-white/10 hover:bg-white rounded-full text-white hover:text-primary transition-all border border-white/20"
+                                title="Zoom Preview"
                             >
-                                <Share2 size={14} />
+                                <Maximize2 size={16} />
                             </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); onDownload(sticker.imageUrl, sticker.phrase); }}
                                 className="p-2 bg-white/10 hover:bg-white rounded-full text-white hover:text-secondary transition-all border border-white/20"
                                 title={t('gallery.download')}
                             >
-                                <Download size={14} />
+                                <Download size={16} />
                             </button>
                             <button
-                                onClick={(e) => { e.stopPropagation(); onDelete(sticker.id); }}
-                                className="p-2 bg-white/10 hover:bg-red-500 rounded-full text-white hover:text-white transition-all border border-white/20"
-                                title={t('gallery.delete')}
+                                onClick={(e) => { e.stopPropagation(); onShare(sticker); }}
+                                className="p-2 bg-white/10 hover:bg-white rounded-full text-white hover:text-pink-500 transition-all border border-white/20"
+                                title={t('gallery.share') || "Share"}
                             >
-                                <Trash2 size={14} />
+                                <Share2 size={16} />
+                            </button>
+                        </div>
+
+                        {/* Row 2: Secondary/Prompt Actions */}
+                        <div className="flex items-center justify-center gap-2 mt-1">
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onDownloadPrompt(sticker); }}
+                                className="p-1.5 bg-white/10 hover:bg-white rounded-full text-white hover:text-bronze-text transition-all border border-white/20"
+                                title={t('generator.action.downloadPrompt') || "Download Prompt"}
+                            >
+                                <FileText size={14} />
                             </button>
                             <button
-                                onClick={(e) => { e.stopPropagation(); onPreview(sticker); }}
-                                className="p-2 bg-white/10 hover:bg-white rounded-full text-white hover:text-primary transition-all border border-white/20"
-                                title="Zoom Preview"
+                                onClick={(e) => { e.stopPropagation(); onCopyPrompt(sticker); }}
+                                className="p-1.5 bg-white/10 hover:bg-white rounded-full text-white hover:text-bronze-text transition-all border border-white/20"
+                                title={t('generator.action.copyPrompt') || "Copy Prompt"}
                             >
-                                <Maximize2 size={14} />
+                                <Copy size={14} />
                             </button>
                             {sticker.description && (
                                 <button
                                     onClick={(e) => { e.stopPropagation(); onViewDetails(sticker); }}
-                                    className="p-2 bg-white/10 hover:bg-white rounded-full text-white hover:text-primary transition-all border border-white/20"
+                                    className="p-1.5 bg-white/10 hover:bg-white rounded-full text-white hover:text-primary transition-all border border-white/20"
                                     title="View Details"
                                 >
                                     <FileText size={14} />
                                 </button>
                             )}
+                            <div className="w-px h-4 bg-white/20 mx-1"></div>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onDelete(sticker.id); }}
+                                className="p-1.5 bg-white/10 hover:bg-red-500 rounded-full text-white hover:text-white transition-all border border-white/20"
+                                title={t('gallery.delete')}
+                            >
+                                <Trash2 size={14} />
+                            </button>
                         </div>
                     </div>
                 )}
@@ -303,7 +325,36 @@ const App = () => {
         const selectedStickers = stickers.filter(s => selectedIds.has(s.id));
         handleDownloadZip(selectedStickers);
         setSelectedIds(new Set());
+        setSelectedIds(new Set());
         setIsSelectionMode(false);
+    };
+
+    const handleBatchShare = async () => {
+        const selectedStickers = stickers.filter(s => selectedIds.has(s.id));
+        if (selectedStickers.length === 0) return;
+
+        try {
+            const files: File[] = [];
+            for (const sticker of selectedStickers) {
+                const response = await fetch(sticker.imageUrl);
+                const blob = await response.blob();
+                const file = new File([blob], `${sticker.phrase}.png`, { type: 'image/png' });
+                files.push(file);
+            }
+
+            if (navigator.canShare && navigator.canShare({ files })) {
+                await navigator.share({
+                    files: files,
+                    title: 'Sticker Collection',
+                    text: `Check out these ${selectedStickers.length} stickers!`
+                });
+            } else {
+                alert(t('gallery.shareNotSupported'));
+            }
+        } catch (error) {
+            console.error("Batch share failed:", error);
+            // Don't alert on error as it might be user cancellation
+        }
     };
 
     const filteredStickers = stickers.filter(s =>
@@ -465,6 +516,8 @@ const App = () => {
                             onViewDetails={setViewingSticker}
                             onPreview={setPreviewSticker}
                             onShare={handleShare}
+                            onCopyPrompt={handleCopyText}
+                            onDownloadPrompt={handleDownloadText}
                         />
                     ))}
                 </div>
@@ -477,6 +530,14 @@ const App = () => {
                     <div className="fixed bottom-6 inset-x-0 flex justify-center z-50 animate-in slide-in-from-bottom-10 fade-in">
                         <div className="bg-bronze-text/95 backdrop-blur-md text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-4 border border-cream-light/10">
                             <span className="text-xs font-bold bg-white/20 px-2 py-1 rounded-md">{selectedIds.size}</span>
+                            <div className="h-6 w-px bg-white/20"></div>
+                            <button
+                                onClick={handleBatchShare}
+                                className="flex items-center gap-2 text-sm font-bold hover:text-pink-300 transition-colors"
+                            >
+                                <Share2 size={18} />
+                                {t('gallery.shareSelected', { count: selectedIds.size })}
+                            </button>
                             <div className="h-6 w-px bg-white/20"></div>
                             <button
                                 onClick={handleBatchDownload}
@@ -584,6 +645,31 @@ const App = () => {
                             className="max-w-full max-h-screen object-contain drop-shadow-2xl animate-in zoom-in-90 duration-300"
                             onClick={(e) => e.stopPropagation()}
                         />
+
+                        {/* Lightbox Actions */}
+                        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-white/10 backdrop-blur-md p-3 rounded-full border border-white/20" onClick={e => e.stopPropagation()}>
+                            <button
+                                onClick={() => handleDownload(previewSticker.imageUrl, previewSticker.phrase)}
+                                className="px-4 py-2 bg-primary text-white rounded-full font-bold text-sm hover:bg-primary-hover transition-all flex items-center gap-2"
+                            >
+                                <Download size={16} /> {t('gallery.download')}
+                            </button>
+                            <div className="w-px h-6 bg-white/20"></div>
+                            <button
+                                onClick={() => handleDownloadText(previewSticker)}
+                                className="p-2 hover:bg-white/20 rounded-full text-white transition-all text-sm font-bold flex items-center gap-2"
+                                title={t('generator.action.downloadPrompt') || "Download Prompt"}
+                            >
+                                <FileText size={18} /> <span className="hidden sm:inline">{t('generator.action.downloadPrompt') || "Prompt"}</span>
+                            </button>
+                            <button
+                                onClick={() => handleCopyText(previewSticker)}
+                                className="p-2 hover:bg-white/20 rounded-full text-white transition-all text-sm font-bold flex items-center gap-2"
+                                title={t('generator.action.copyPrompt') || "Copy Prompt"}
+                            >
+                                <Copy size={18} /> <span className="hidden sm:inline">{t('generator.action.copyPrompt') || "Copy"}</span>
+                            </button>
+                        </div>
 
                     </div>
                 )

@@ -204,7 +204,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                     phraseToUse = i < phrases.length ? phrases[i].text : phrases[i % phrases.length].text;
                 }
 
-                let resultImageUrl = await generateSticker(
+                const { imageUrl: resultImageUrl, prompt: usedPrompt } = await generateSticker(
                     apiKey,
                     image,
                     phraseToUse,
@@ -213,15 +213,18 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                     includeText
                 );
 
+                let finalImageUrl = resultImageUrl;
+
                 if (autoRemoveBg) {
-                    resultImageUrl = await smartRemoveBackground(resultImageUrl);
+                    finalImageUrl = await smartRemoveBackground(resultImageUrl);
                 }
 
                 const newSticker: Sticker = {
                     id: `${Date.now()}-${i}`,
-                    imageUrl: resultImageUrl,
+                    imageUrl: finalImageUrl,
                     phrase: phraseToUse,
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
+                    description: usedPrompt // Save the prompt!
                 };
 
                 setStickers(prev => [newSticker, ...prev]);
