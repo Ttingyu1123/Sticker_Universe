@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { X, Download, Image as ImageIcon, Trash2, ZoomIn, ZoomOut, Edit2, Check, Wand2, RotateCw, Scaling, Plus, FolderHeart, Save } from 'lucide-react';
+import { X, Download, Image as ImageIcon, Trash2, ZoomIn, ZoomOut, Edit2, Check, Wand2, RotateCw, Scaling, Plus, FolderHeart, Save, Star } from 'lucide-react';
 import { AspectRatio, CollageSettings, LayoutType, UploadedImage } from './types';
 import { Controls } from './components/Controls';
 import { PhotoCanvas, PhotoCanvasHandle } from './components/PhotoCanvas';
@@ -192,6 +192,18 @@ export const AutoCollageTab: React.FC = () => {
         if (selectedImageId !== id) setSelectedImageId(id);
     };
 
+    const toggleHero = (id: string) => {
+        const heroCount = images.filter(img => img.isHero).length;
+        const targetImage = images.find(img => img.id === id);
+
+        if (targetImage?.isHero || heroCount < 2) {
+            saveCheckpoint();
+            updateImageProperty(id, { isHero: !targetImage?.isHero });
+        } else {
+            alert(t('collage.maxHeroLimit'));
+        }
+    };
+
     const handleImageSwap = (id1: string, id2: string) => {
         saveCheckpoint();
         setImages(prev => {
@@ -243,14 +255,17 @@ export const AutoCollageTab: React.FC = () => {
     };
 
     const handleGallerySelect = async (blobs: Blob[]) => {
+        console.log('[AutoCollageTab] handleGallerySelect called with blobs:', blobs.length, blobs);
         if (blobs.length === 0) return;
 
         // Convert blobs to files
         const files = blobs.map((blob, index) =>
             new File([blob], `gallery-image-${index}.png`, { type: blob.type })
         );
+        console.log('[AutoCollageTab] Created files from blobs:', files.length);
 
         processFiles(files);
+        console.log('[AutoCollageTab] processFiles called');
     };
 
     // AI Generation
@@ -399,10 +414,31 @@ export const AutoCollageTab: React.FC = () => {
                                 onClick={() => setSelectedImageId(img.id)}
                                 draggable
                                 onDragStart={(e) => e.dataTransfer.setData('text/plain', img.id)}
-                                // Simple drag handling for thumbnails could be added here similar to App.tsx
-                                className={`relative aspect-square rounded-lg overflow-hidden border cursor-pointer ${selectedImageId === img.id ? 'ring-2 ring-primary border-transparent' : 'border-gray-200 hover:border-primary/50'}`}
+                                className={`relative aspect-square rounded-lg overflow-hidden border cursor-pointer ${img.isHero
+                                    ? 'ring-2 ring-yellow-500 border-yellow-500'
+                                    : selectedImageId === img.id
+                                        ? 'ring-2 ring-primary border-transparent'
+                                        : 'border-gray-200 hover:border-primary/50'
+                                    }`}
                             >
                                 <img src={img.url} alt="Thumbnail" className="w-full h-full object-cover" />
+
+                                {/* Hero Star Badge */}
+                                {img.isHero && (
+                                    <div className="absolute top-1 left-1 bg-yellow-500 text-white rounded-full p-1">
+                                        <Star size={12} fill="white" />
+                                    </div>
+                                )}
+
+                                {/* Hero Toggle Button */}
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); toggleHero(img.id); }}
+                                    className="absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors"
+                                    title={img.isHero ? t('collage.removeHero') : t('collage.setHero')}
+                                >
+                                    <Star size={12} fill={img.isHero ? '#fbbf24' : 'none'} stroke={img.isHero ? '#fbbf24' : 'white'} />
+                                </button>
+
                                 {selectedImageId === img.id && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><Check size={16} className="text-white drop-shadow-md" /></div>}
                             </div>
                         ))}

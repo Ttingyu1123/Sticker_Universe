@@ -36,6 +36,7 @@ export const getCanvasDimensions = (
 
 /**
  * Generates rectangle coordinates for each image based on the count and layout mode.
+ * @param heroIndices Optional array of indices marking "hero" photos that should get prominent placement
  */
 export const calculateFrames = (
     count: number,
@@ -43,7 +44,8 @@ export const calculateFrames = (
     containerWidth: number,
     containerHeight: number,
     gap: number,
-    padding: number
+    padding: number,
+    heroIndices?: number[]
 ): ImageFrame[] => {
     // Effective area after padding
     const w = containerWidth - padding * 2;
@@ -83,34 +85,133 @@ export const calculateFrames = (
         }
 
         case LayoutType.GRID: {
-            let cols = Math.ceil(Math.sqrt(count));
-            let rows = Math.ceil(count / cols);
+            // Enhanced GRID with hero support
+            const hasHero = heroIndices && heroIndices.length > 0;
 
-            // Special case for 2 items to ensure side-by-side if square-ish, or let logic decide.
-            // But usually Grid for 2 is side-by-side (2 cols, 1 row)
-            if (count === 2) {
-                cols = 2;
-                rows = 1;
-            }
+            if (hasHero && count > 2) {
+                // Hero photos get 2x2 cells, others get 1x1
 
-            const itemW = (w - (cols - 1) * gap) / cols;
-            const itemH = (h - (rows - 1) * gap) / rows;
+                // Simplified approach: Place heroes first (2x2), then fill remaining with 1x1
+                let cols = Math.ceil(Math.sqrt(count)) + 1; // Extra space for hero cells
+                let rows = Math.ceil(count / cols) + 1;
 
-            for (let i = 0; i < count; i++) {
-                const col = i % cols;
-                const row = Math.floor(i / cols);
+                // Hero cell size (2x2 grid cells)
+                const heroCellSize = 2;
+                const itemW = (w - (cols - 1) * gap) / cols;
+                const itemH = (h - (rows - 1) * gap) / rows;
 
-                frames.push({
-                    x: startX + col * (itemW + gap),
-                    y: startY + row * (itemH + gap),
-                    width: itemW,
-                    height: itemH,
+                const heroW = itemW * heroCellSize + gap * (heroCellSize - 1);
+                const heroH = itemH * heroCellSize + gap * (heroCellSize - 1);
+
+                // Track occupied cells
+                const occupied = new Set<string>();
+
+                // Place heroes first
+                heroIndices!.forEach((heroIdx, i) => {
+                    // Place hero in prominent position (top-left, top-right)
+                    const heroRow = i === 0 ? 0 : 0;
+                    const heroCol = i === 0 ? 0 : (cols - heroCellSize);
+
+                    frames[heroIdx] = {
+                        x: startX + heroCol * (itemW + gap),
+                        y: startY + heroRow * (itemH + gap),
+                        width: heroW,
+                        height: heroH
+                    };
+
+                    // Mark cells as occupied
+                    for (let r = 0; r < heroCellSize; r++) {
+                        for (let c = 0; c < heroCellSize; c++) {
+                            occupied.add(`${heroRow + r},${heroCol + c}`);
+                        }
+                    }
                 });
+
+                // Place regular photos
+                let currentRow = 0;
+                let currentCol = 0;
+                for (let i = 0; i < count; i++) {
+                    if (heroIndices!.includes(i)) continue; // Skip heroes
+
+                    // Find next available cell
+                    while (occupied.has(`${currentRow},${currentCol}`)) {
+                        currentCol++;
+                        if (currentCol >= cols) {
+                            currentCol = 0;
+                            currentRow++;
+                        }
+                    }
+
+                    frames[i] = {
+                        x: startX + currentCol * (itemW + gap),
+                        y: startY + currentRow * (itemH + gap),
+                        width: itemW,
+                        height: itemH
+                    };
+
+                    occupied.add(`${currentRow},${currentCol}`);
+                    currentCol++;
+                    if (currentCol >= cols) {
+                        currentCol = 0;
+                        currentRow++;
+                    }
+                }
+            } else {
+                // Standard grid without hero - optimize for container aspect ratio
+                const aspectRatio = w / h;
+                let cols, rows;
+
+                if (count === 2) {
+                    // 2 items: side by side
+                    cols = 2;
+                    rows = 1;
+                } else if (count === 3) {
+                    // 3 items: prefer horizontal if wide, otherwise triangle
+                    cols = aspectRatio > 1.5 ? 3 : 2;
+                    rows = Math.ceil(count / cols);
+                } else {
+                    // For 4+ items: optimize based on aspect ratio
+                    // Start with square-ish and adjust based on container shape
+                    const sqrtCount = Math.sqrt(count);
+
+                    if (aspectRatio > 1.3) {
+                        // Wide container: prefer more columns
+                        cols = Math.ceil(sqrtCount * 1.2);
+                    } else if (aspectRatio < 0.8) {
+                        // Tall container: prefer more rows
+                        cols = Math.floor(sqrtCount * 0.8);
+                    } else {
+                        // Roughly square container
+                        cols = Math.ceil(sqrtCount);
+                    }
+
+                    cols = Math.max(2, Math.min(cols, count)); // At least 2, at most count
+                    rows = Math.ceil(count / cols);
+                }
+
+                const itemW = (w - (cols - 1) * gap) / cols;
+                const itemH = (h - (rows - 1) * gap) / rows;
+
+                for (let i = 0; i < count; i++) {
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+
+                    frames.push({
+                        x: startX + col * (itemW + gap),
+                        y: startY + row * (itemH + gap),
+                        width: itemW,
+                        height: itemH
+                    });
+                }
             }
             break;
         }
 
         case LayoutType.FEATURED: {
+            // Enhanced FEATURED: Auto-promote hero to the big position
+            const hasHero = heroIndices && heroIndices.length > 0;
+            const featuredIndex = hasHero ? heroIndices![0] : 0; // Use first hero or first image
+
             if (count <= 2) {
                 // Feature: Strict Vertical Stack for 2 items (1 Top, 1 Bottom)
                 const itemH = (h - gap) / 2;
@@ -119,25 +220,32 @@ export const calculateFrames = (
                     frames.push({ x: startX, y: startY + itemH + gap, width: w, height: itemH }); // Bottom
                 }
             } else {
-                // First image is big (Left half), others grid on Right half
-                const leftW = (w - gap) * 0.6; // 60% width
+                // First image (or hero) is big (Left 60%), others grid on Right
+                const leftW = (w - gap) * 0.6;
                 const rightW = w - leftW - gap;
 
-                // First frame
-                frames.push({ x: startX, y: startY, width: leftW, height: h });
+                // Featured frame (will be filled by hero or first image)
+                const featuredFrame = { x: startX, y: startY, width: leftW, height: h };
 
                 // Rest frames
                 const remaining = count - 1;
                 const rRows = remaining;
                 const rItemH = (h - (rRows - 1) * gap) / rRows;
 
-                for (let i = 0; i < remaining; i++) {
-                    frames.push({
-                        x: startX + leftW + gap,
-                        y: startY + i * (rItemH + gap),
-                        width: rightW,
-                        height: rItemH
-                    });
+                // Assign frames in original order, but swap the featured image to position 0
+                for (let i = 0; i < count; i++) {
+                    if (i === featuredIndex) {
+                        frames[i] = featuredFrame;
+                    } else {
+                        // Calculate position in the right column
+                        const rightIndex = i < featuredIndex ? i : i - 1;
+                        frames[i] = {
+                            x: startX + leftW + gap,
+                            y: startY + rightIndex * (rItemH + gap),
+                            width: rightW,
+                            height: rItemH
+                        };
+                    }
                 }
             }
             break;

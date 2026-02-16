@@ -46,17 +46,40 @@ export const GalleryPicker: React.FC<GalleryPickerProps> = ({ onSelect, onClose 
     const handleConfirm = async () => {
         if (selectedIds.size === 0) return;
         setProcessing(true);
+        console.log('[GalleryPicker] handleConfirm called, selected count:', selectedIds.size);
         try {
             const selectedStickers = stickers.filter(s => selectedIds.has(s.id));
-            const blobPromises = selectedStickers.map(async (s) => {
-                const response = await fetch(s.imageUrl);
-                return await response.blob();
+            console.log('[GalleryPicker] Selected stickers:', selectedStickers.length);
+
+            // Convert data URLs to Blobs directly (avoid fetch CSP issues)
+            const blobs = selectedStickers.map((s) => {
+                const dataUrl = s.imageUrl;
+
+                // Extract base64 data and mime type
+                const [header, base64Data] = dataUrl.split(',');
+                const mimeMatch = header.match(/:(.*?);/);
+                const mimeType = mimeMatch ? mimeMatch[1] : 'image/png';
+
+                // Convert base64 to binary
+                const byteString = atob(base64Data);
+                const arrayBuffer = new ArrayBuffer(byteString.length);
+                const uint8Array = new Uint8Array(arrayBuffer);
+
+                for (let i = 0; i < byteString.length; i++) {
+                    uint8Array[i] = byteString.charCodeAt(i);
+                }
+
+                return new Blob([arrayBuffer], { type: mimeType });
             });
-            const blobs = await Promise.all(blobPromises);
+
+            console.log('[GalleryPicker] Blobs created:', blobs.length, blobs);
+            console.log('[GalleryPicker] Calling onSelect with blobs');
             onSelect(blobs);
+            console.log('[GalleryPicker] onSelect called successfully');
             onClose();
         } catch (e) {
-            console.error("Failed to process selection:", e);
+            console.error("[GalleryPicker] Failed to process selection:", e);
+            alert('Failed to import images. Error: ' + (e as Error).message);
         } finally {
             setProcessing(false);
         }

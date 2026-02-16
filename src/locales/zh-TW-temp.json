@@ -80,27 +80,27 @@
         "linePreview": "LINE 預覽 (APNG)"
     },
     "printSheet": {
-        "title": "排版與列印",
         "tabs": {
-            "printStudio": "貼紙列印室",
+            "printStudio": "貼紙列印",
             "idPrint": "證件照列印"
         },
+        "addStickers": "添加貼紙",
+        "upload": "上傳圖片",
+        "fromGallery": "從作品集選取",
+        "tips": "提示",
+        "tipDrag": "拖曳移動貼紙",
+        "tipWheel": "滾輪調整大小",
+        "tipDelete": "點擊 X 刪除",
+        "grid": "顯示網格",
+        "background": "背景色彩",
         "idPrint": {
-            "workspace": {
-                "cropTitle": "裁切照片",
-                "cropSubtitle": "目標",
-                "previewTitle": "列印預覽",
-                "emptyTitle": "開始使用",
-                "emptyDescription": "拖放或點擊上傳照片",
-                "dropHere": "放開以上傳照片"
-            },
             "sidebar": {
-                "title": "證件照列印工作室",
-                "subtitle": "Multi-Photo Layout Tool",
+                "title": "證件照排版",
+                "subtitle": "上傳照片並裁切為證件照尺寸",
                 "photosSection": "照片",
                 "addPhoto": "新增",
                 "fromGallery": "從作品集選取",
-                "emptyPhotos": "點擊或拖放照片",
+                "emptyPhotos": "點擊上傳照片",
                 "fillPage": "填滿頁面",
                 "settingsSection": "版面設定"
             },
@@ -112,39 +112,40 @@
             "settings": {
                 "photoSize": "照片尺寸",
                 "paperSize": "紙張尺寸",
-                "margin": "邊距 (mm)",
+                "paperOrientation": "紙張方向",
+                "portrait": "直式",
+                "landscape": "橫式",
+                "margin": "邊界 (mm)",
                 "gap": "間距 (mm)",
                 "showCutLines": "裁切線",
-                "enableMirror": "鏡像"
+                "enableMirror": "鏡像",
+                "outputFormat": "輸出格式"
+            },
+            "workspace": {
+                "dropHere": "釋放以上傳照片",
+                "cropTitle": "裁切照片",
+                "cropSubtitle": "調整裁切區域",
+                "emptyTitle": "開始上傳照片",
+                "emptyDescription": "點擊上方按鈕上傳照片，或直接拖曳到這裡",
+                "previewTitle": "列印預覽"
             },
             "cropper": {
                 "cancel": "取消",
-                "done": "完成",
+                "dragHint": "拖曳調整裁切區域",
                 "processing": "處理中...",
-                "dragHint": "拖曳角落調整大小"
+                "done": "完成"
             },
             "preview": {
-                "updating": "更新版面中...",
-                "noFit": "照片無法放入！",
-                "noFitHint": "試試減少邊距/間距或\n選擇更大的紙張尺寸。",
-                "totalPhotos": "照片總數",
+                "updating": "更新中...",
+                "noFit": "無法配置照片",
+                "noFitHint": "請調整紙張大小或減少照片數量",
+                "totalPhotos": "總照片數",
                 "format": "格式",
-                "download": "下載列印檔"
+                "download": "下載",
+                "saveToGallery": "儲存至作品集",
+                "zoom": "縮放"
             }
-        },
-        "description": "將您的貼紙排列在 A4 畫布上並列印成 PDF。",
-        "addStickers": "添加貼紙",
-        "upload": "上傳圖片",
-        "fromGallery": "從作品集選取",
-        "grid": "顯示格線",
-        "background": "背景顏色",
-        "exportPDF": "匯出 PDF",
-        "exporting": "匯出中...",
-        "tips": "操作技巧",
-        "tipDrag": "拖曳可移動貼紙",
-        "tipWheel": "滾輪可縮放貼紙",
-        "tipDelete": "點擊 X 可刪除",
-        "exportFailed": "匯出失敗，請重試。"
+        }
     },
     "svgConverterPage": {
         "title": "SVG 魔法",
@@ -194,61 +195,197 @@
         "items": "項目"
     },
     "landing": {
-        "tagline": "終極創意套件",
-        "heroTitle": "用 AI 創造魔法貼圖",
-        "heroDesc": "一套強大的整合工具，讓您輕鬆生成、編輯、去背並打包符合 LINE 與 Telegram 規格的貼圖。",
+        "tagline": "AI 創作工具",
+        "heroTitle": "專業 AI 貼圖創作平台",
+        "heroDesc": "從文字到圖片，從構思到實現，一站式解決你所有的創意需求",
         "startCreating": "開始創作",
         "exploreTools": "探索工具",
-        "launchApp": "啟動程式",
-        "features": {
-            "generatorTitle": "AI貼圖工作室",
-            "generatorDesc": "使用 Google Gemini AI 將文字提示轉化為精美的貼圖包。無需任何設計技能。",
-            "editorTitle": "圖片編輯器",
-            "editorDesc": "整合裁切、智慧去背與魔術橡皮擦的全能圖片編輯工具。",
-            "eraserTitle": "魔術橡皮擦",
-            "eraserDesc": "智慧去背工具。立即清理圖像背景並導出透明 PNG。",
-            "packagerTitle": "裁切與加工",
-            "packagerDesc": "自動排版、針對不同平台輸出與格式化。",
-            "svgTitle": "SVG 魔法",
-            "svgDesc": "將點陣圖轉為向量圖，無限縮放不失真。",
-            "animatorTitle": "動態貼圖",
-            "animatorDesc": "製作多圖層動態貼圖，支援 APNG 與 GIF 格式匯出。"
+        "footer": "© 2024 CreativeOS - 讓創意無限可能",
+        "stats": {
+            "tools": "專業工具",
+            "categories": "功能分類",
+            "aiPowered": "AI 驅動"
         },
-        "featureDetails": {
-            "generator": {
-                "title": "AI 貼圖工作室",
-                "desc": "輸入文字即可生成高品質貼圖。支援多種藝術風格（賽璐璐、水彩、像素風等），並具備自動去背功能。"
+        "cta": {
+            "launch": "立即使用"
+        },
+        "categories": {
+            "aiGeneration": {
+                "title": "AI 智慧生成",
+                "desc": "運用 AI 技術，快速生成各種風格的圖片和貼圖"
             },
-            "editor": {
-                "title": "全能圖片編輯器",
-                "desc": "支援圖層管理的專業編輯器。可自由組合照片、文字、貼圖，並提供豐富的濾鏡與特效。"
+            "imageProcessing": {
+                "title": "專業圖片編輯",
+                "desc": "強大的圖片處理功能，從裁切到去背一應俱全"
             },
-            "eraser": {
-                "title": "魔術橡皮擦",
-                "desc": "強大的背景移除工具。支援 AI 自動偵測與手動細部修補，輕鬆製作透明背景素材。"
+            "creative": {
+                "title": "創意排版",
+                "desc": "多張照片創意拼貼，製作獨特視覺效果"
             },
-            "packager": {
-                "title": "貼圖裁切與打包",
-                "desc": "專為 LINE 與 Telegram 設計的批次處理工具。自動統一尺寸、添加白邊，並一鍵導出符合規範的格式。"
+            "printing": {
+                "title": "印刷與輸出",
+                "desc": "專業排版工具，輕鬆製作實體貼圖和證件照"
             },
-            "collage": {
-                "title": "創意拼圖",
-                "desc": "提供網格、瀑布流、幾何圖形等多種版型。智慧排版讓多張照片完美呈現。"
-            },
-            "animator": {
-                "title": "動態貼圖製作",
-                "desc": "將靜態圖片轉化為生動的 APNG/GIF 動畫。支援關鍵影格設置與即時預覽。"
-            },
-            "svg": {
-                "title": "點陣轉向量",
-                "desc": "將 JPG/PNG 圖片轉換為無限縮放的 SVG 向量圖，適合印刷與大尺寸輸出。"
-            },
-            "printSheet": {
-                "title": "排版與列印",
-                "desc": "支援證件照與 A4 貼紙排版。自訂列印尺寸與邊距，在家也能印出專業成品。"
+            "management": {
+                "title": "作品管理",
+                "desc": "統一管理所有創作，隨時查看和下載"
             }
         },
-        "footer": "由 Google Gemini Pro 驅動 • 需在瀏覽器中直接使用 API Key"
+        "tabs": {
+            "styleSticker": {
+                "title": "風格貼圖",
+                "desc": "輸入文字，AI 自動生成台灣動漫風格貼圖",
+                "features": [
+                    "多種風格選擇",
+                    "一鍵生成",
+                    "高品質輸出"
+                ]
+            },
+            "holidaySticker": {
+                "title": "節慶貼圖",
+                "desc": "為各種節日快速製作應景貼圖",
+                "features": [
+                    "節日主題模板",
+                    "自動排版",
+                    "批次生成"
+                ]
+            },
+            "greetingCard": {
+                "title": "賀卡大師",
+                "desc": "AI 協助設計精美節日賀卡",
+                "features": [
+                    "智能配文",
+                    "精美模板",
+                    "多種節日"
+                ]
+            },
+            "mangaMaster": {
+                "title": "漫畫大師",
+                "desc": "將照片轉換為漫畫風格圖片",
+                "features": [
+                    "多種漫畫風格",
+                    "高度還原",
+                    "專業效果"
+                ]
+            },
+            "cinematicPoster": {
+                "title": "影劇海報",
+                "desc": "製作電影海報風格的創意圖片",
+                "features": [
+                    "電影級質感",
+                    "多種風格",
+                    "專業排版"
+                ]
+            },
+            "imageGenerator": {
+                "title": "AI 圖片生成",
+                "desc": "通用 AI 圖片生成工具，創造無限可能",
+                "features": [
+                    "自由創作",
+                    "高解析度",
+                    "快速生成"
+                ]
+            },
+            "headshotMaster": {
+                "title": "形象照大師",
+                "desc": "AI 生成專業形象照和大頭貼",
+                "features": [
+                    "專業質感",
+                    "多種風格",
+                    "快速處理"
+                ]
+            },
+            "batchCrop": {
+                "title": "批量裁切",
+                "desc": "一次處理多張圖片的裁切、調整和優化",
+                "features": [
+                    "批次處理",
+                    "自動對齊",
+                    "一鍵輸出"
+                ]
+            },
+            "smartRemoveBg": {
+                "title": "智慧去背",
+                "desc": "AI 自動識別並移除圖片背景",
+                "features": [
+                    "AI 精準識別",
+                    "快速處理",
+                    "完美邊緣"
+                ]
+            },
+            "animator": {
+                "title": "動態貼圖",
+                "desc": "製作多圖層動畫貼圖",
+                "features": [
+                    "多圖層編輯",
+                    "時間軸控制",
+                    "導出 APNG"
+                ]
+            },
+            "layerEditor": {
+                "title": "圖層編輯",
+                "desc": "專業的圖層編輯與裁切工具",
+                "features": [
+                    "多圖層管理",
+                    "精確裁切",
+                    "濾鏡效果"
+                ]
+            },
+            "imageResizer": {
+                "title": "調整尺寸",
+                "desc": "智能調整圖片尺寸，支持多種縮放模式",
+                "features": [
+                    "AI 超取樣",
+                    "多種模式",
+                    "保持品質"
+                ]
+            },
+            "svgConverter": {
+                "title": "SVG 魔法",
+                "desc": "將圖片轉換為可編輯的 SVG 向量圖",
+                "features": [
+                    "向量轉換",
+                    "可編輯",
+                    "無損縮放"
+                ]
+            },
+            "photoCollage": {
+                "title": "照片拼貼",
+                "desc": "多張照片創意拼貼，豐富布局選擇",
+                "features": [
+                    "多種布局",
+                    "自由排版",
+                    "一鍵生成"
+                ]
+            },
+            "stickerPrint": {
+                "title": "貼紙列印",
+                "desc": "專業貼紙排版工具，支持多種尺寸",
+                "features": [
+                    "自動排版",
+                    "多種尺寸",
+                    "列印預覽"
+                ]
+            },
+            "idPhotoPrint": {
+                "title": "證件照列印",
+                "desc": "快速製作各國證件照規格",
+                "features": [
+                    "多國規格",
+                    "自動裁切",
+                    "背景替換"
+                ]
+            },
+            "gallery": {
+                "title": "作品集",
+                "desc": "統一管理所有創作，隨時查看和下載",
+                "features": [
+                    "集中管理",
+                    "快速搜尋",
+                    "批量下載"
+                ]
+            }
+        }
     },
     "generator": {
         "title": "AI貼圖工作室",
@@ -853,110 +990,7 @@
             "downloadZip": "下載 ZIP"
         }
     },
-    "manual": {
-        "title": "使用說明書",
-        "subtitle": "完整的貼圖製作指南與工具介紹",
-        "generator": {
-            "desc": "輸入文字提示，讓 AI 自動為您生成獨特的貼圖。支援多種藝術風格與自動去背。",
-            "step1": "輸入想要生成的貼圖描述，或選擇預設台詞。",
-            "step2": "選擇喜歡的藝術風格 (如：賽璐璐、水彩、像素風)。",
-            "step3": "點擊生成，AI 將產生四張貼圖。",
-            "step4": "點擊喜歡的貼圖即可儲存至作品集。"
-        },
-        "packager": {
-            "desc": "批次處理您的貼圖，進行統一的裁切、去背與打包，符合 LINE/Telegram 規格。",
-            "step1": "上傳多張圖片或從作品集選取。",
-            "step2": "AI 自動偵測主體邊界並進行裁切。",
-            "step3": "調整白邊、陰影等統一風格並下載 ZIP。"
-        },
-        "smartEraser": {
-            "desc": "強大的背景移除工具，適合單張圖片精修。",
-            "step1": "上傳圖片，使用魔術棒或 AI 自動去背。",
-            "step2": "使用修復筆刷微調邊緣，匯出透明 PNG。"
-        },
-        "eraser": {
-            "desc": "傳統橡皮擦工具，可手動擦除不需要的區域，適合細部修整。"
-        },
-        "editor": {
-            "desc": "強大的圖層編輯器，可組合多張貼圖、加入文字與特效。",
-            "step1": "從作品集匯入貼圖或新增文字圖層。",
-            "step2": "調整圖層順序、套用濾鏡與陰影效果，完成獨一無二的貼圖。"
-        },
-        "animator": {
-            "desc": "將多張靜態貼圖組合成 APNG 動態貼圖。設定幀率與播放順序，讓貼圖動起來！"
-        },
-        "svgConverter": {
-            "desc": "將點陣圖 (JPG/PNG) 轉換為向量圖 (SVG)，無限放大不失真，適合印刷與設計使用。"
-        },
-        "printSheet": {
-            "desc": "將多張貼圖排版至 A4 畫布，方便直接列印成實體貼紙。"
-        },
-        "gallery": {
-            "desc": "統一管理您生成的所有貼圖作品。可在此預覽、刪除或批次下載。"
-        }
-    },
     "collage": {
-        "title": "照片拼貼",
-        "create": "建立拼貼",
-        "dragDrop": "拖放照片至此，或從裝置上傳。",
-        "upload": "上傳",
-        "gallery": "作品集",
-        "reset": "重置",
-        "photos": "照片",
-        "addFromGallery": "從作品集新增",
-        "addPhoto": "新增照片",
-        "clearAll": "清除全部",
-        "editImage": "編輯圖片",
-        "remove": "移除",
-        "copyright": "AutoCollage AI © 2026",
-        "layout": {
-            "title": "版面配置",
-            "grid": "網格",
-            "cols": "直欄",
-            "rows": "橫列",
-            "focus": "焦點",
-            "masonry": "瀑布流",
-            "center": "置中",
-            "scatter": "散落",
-            "shuffle": "隨機",
-            "randomize": "隨機排列",
-            "lLeft": "L型(左)",
-            "lRight": "L型(右)",
-            "tShape": "T型",
-            "crossFocus": "十字聚焦",
-            "ySplit": "Y型"
-        },
-        "frameStyle": {
-            "title": "邊框風格",
-            "normal": "標準",
-            "film": "底片",
-            "polaroid": "拍立得"
-        },
-        "ratio": {
-            "title": "比例",
-            "custom": "自訂",
-            "width": "寬度",
-            "height": "高度"
-        },
-        "style": {
-            "title": "樣式",
-            "seamless": "無縫",
-            "seamlessHint": "移除間距、邊距與圓角",
-            "gap": "間距",
-            "padding": "邊距",
-            "roundness": "圓角",
-            "shadow": "陰影"
-        },
-        "background": {
-            "title": "背景",
-            "transparent": "透明",
-            "smart": "智慧背景"
-        },
-        "image": {
-            "rotation": "旋轉",
-            "scale": "縮放",
-            "effect": "特效強度"
-        },
         "setHero": "設為主角",
         "removeHero": "取消主角",
         "maxHeroLimit": "最多只能設置 2 張主角照片",
@@ -1126,271 +1160,5 @@
             "sitting_side": "坐姿側拍（椅子）",
             "lying_side": "躺姿側拍半身"
         }
-    },
-    "printSheet": {
-        "tabs": {
-            "printStudio": "貼紙列印",
-            "idPrint": "證件照列印"
-        },
-        "addStickers": "添加貼紙",
-        "upload": "上傳圖片",
-        "fromGallery": "從作品集選取",
-        "tips": "提示",
-        "tipDrag": "拖曳移動貼紙",
-        "tipWheel": "滾輪調整大小",
-        "tipDelete": "點擊 X 刪除",
-        "grid": "顯示網格",
-        "background": "背景色彩",
-        "idPrint": {
-            "sidebar": {
-                "title": "證件照排版",
-                "subtitle": "上傳照片並裁切為證件照尺寸",
-                "photosSection": "照片",
-                "addPhoto": "新增",
-                "fromGallery": "從作品集選取",
-                "emptyPhotos": "點擊上傳照片",
-                "fillPage": "填滿頁面",
-                "settingsSection": "版面設定"
-            },
-            "photoCard": {
-                "recrop": "重新裁切",
-                "duplicate": "複製",
-                "delete": "刪除"
-            },
-            "settings": {
-                "photoSize": "照片尺寸",
-                "paperSize": "紙張尺寸",
-                "paperOrientation": "紙張方向",
-                "portrait": "直式",
-                "landscape": "橫式",
-                "margin": "邊界 (mm)",
-                "gap": "間距 (mm)",
-                "showCutLines": "裁切線",
-                "enableMirror": "鏡像",
-                "outputFormat": "輸出格式"
-            },
-            "workspace": {
-                "dropHere": "釋放以上傳照片",
-                "cropTitle": "裁切照片",
-                "cropSubtitle": "調整裁切區域",
-                "emptyTitle": "開始上傳照片",
-                "emptyDescription": "點擊上方按鈕上傳照片，或直接拖曳到這裡",
-                "previewTitle": "列印預覽"
-            },
-            "cropper": {
-                "cancel": "取消",
-                "dragHint": "拖曳調整裁切區域",
-                "processing": "處理中...",
-                "done": "完成"
-            },
-            "preview": {
-                "updating": "更新中...",
-                "noFit": "無法配置照片",
-                "noFitHint": "請調整紙張大小或減少照片數量",
-                "totalPhotos": "總照片數",
-                "format": "格式",
-                "download": "下載",
-                "saveToGallery": "儲存至作品集",
-                "zoom": "縮放"
-            }
-        }
-    },
-    "landing": {
-        "tagline": "AI 創作工具",
-        "heroTitle": "專業 AI 貼圖創作平台",
-        "heroDesc": "從文字到圖片，從構思到實現，一站式解決你所有的創意需求",
-        "startCreating": "開始創作",
-        "exploreTools": "探索工具",
-        "footer": "© 2024 CreativeOS - 讓創意無限可能",
-        "stats": {
-            "tools": "專業工具",
-            "categories": "功能分類",
-            "aiPowered": "AI 驅動"
-        },
-        "cta": {
-            "launch": "立即使用"
-        },
-        "categories": {
-            "aiGeneration": {
-                "title": "AI 智慧生成",
-                "desc": "運用 AI 技術，快速生成各種風格的圖片和貼圖"
-            },
-            "imageProcessing": {
-                "title": "專業圖片編輯",
-                "desc": "強大的圖片處理功能，從裁切到去背一應俱全"
-            },
-            "creative": {
-                "title": "創意排版",
-                "desc": "多張照片創意拼貼，製作獨特視覺效果"
-            },
-            "printing": {
-                "title": "印刷與輸出",
-                "desc": "專業排版工具，輕鬆製作實體貼圖和證件照"
-            },
-            "management": {
-                "title": "作品管理",
-                "desc": "統一管理所有創作，隨時查看和下載"
-            }
-        },
-        "tabs": {
-            "styleSticker": {
-                "title": "風格貼圖",
-                "desc": "輸入文字，AI 自動生成台灣動漫風格貼圖",
-                "features": [
-                    "多種風格選擇",
-                    "一鍵生成",
-                    "高品質輸出"
-                ]
-            },
-            "holidaySticker": {
-                "title": "節慶貼圖",
-                "desc": "為各種節日快速製作應景貼圖",
-                "features": [
-                    "節日主題模板",
-                    "自動排版",
-                    "批次生成"
-                ]
-            },
-            "greetingCard": {
-                "title": "賀卡大師",
-                "desc": "AI 協助設計精美節日賀卡",
-                "features": [
-                    "智能配文",
-                    "精美模板",
-                    "多種節日"
-                ]
-            },
-            "mangaMaster": {
-                "title": "漫畫大師",
-                "desc": "將照片轉換為漫畫風格圖片",
-                "features": [
-                    "多種漫畫風格",
-                    "高度還原",
-                    "專業效果"
-                ]
-            },
-            "cinematicPoster": {
-                "title": "影劇海報",
-                "desc": "製作電影海報風格的創意圖片",
-                "features": [
-                    "電影級質感",
-                    "多種風格",
-                    "專業排版"
-                ]
-            },
-            "imageGenerator": {
-                "title": "AI 圖片生成",
-                "desc": "通用 AI 圖片生成工具，創造無限可能",
-                "features": [
-                    "自由創作",
-                    "高解析度",
-                    "快速生成"
-                ]
-            },
-            "headshotMaster": {
-                "title": "形象照大師",
-                "desc": "AI 生成專業形象照和大頭貼",
-                "features": [
-                    "專業質感",
-                    "多種風格",
-                    "快速處理"
-                ]
-            },
-            "batchCrop": {
-                "title": "批量裁切",
-                "desc": "一次處理多張圖片的裁切、調整和優化",
-                "features": [
-                    "批次處理",
-                    "自動對齊",
-                    "一鍵輸出"
-                ]
-            },
-            "smartRemoveBg": {
-                "title": "智慧去背",
-                "desc": "AI 自動識別並移除圖片背景",
-                "features": [
-                    "AI 精準識別",
-                    "快速處理",
-                    "完美邊緣"
-                ]
-            },
-            "animator": {
-                "title": "動態貼圖",
-                "desc": "製作多圖層動畫貼圖",
-                "features": [
-                    "多圖層編輯",
-                    "時間軸控制",
-                    "導出 APNG"
-                ]
-            },
-            "layerEditor": {
-                "title": "圖層編輯",
-                "desc": "專業的圖層編輯與裁切工具",
-                "features": [
-                    "多圖層管理",
-                    "精確裁切",
-                    "濾鏡效果"
-                ]
-            },
-            "imageResizer": {
-                "title": "調整尺寸",
-                "desc": "智能調整圖片尺寸，支持多種縮放模式",
-                "features": [
-                    "AI 超取樣",
-                    "多種模式",
-                    "保持品質"
-                ]
-            },
-            "svgConverter": {
-                "title": "SVG 魔法",
-                "desc": "將圖片轉換為可編輯的 SVG 向量圖",
-                "features": [
-                    "向量轉換",
-                    "可編輯",
-                    "無損縮放"
-                ]
-            },
-            "photoCollage": {
-                "title": "照片拼貼",
-                "desc": "多張照片創意拼貼，豐富布局選擇",
-                "features": [
-                    "多種布局",
-                    "自由排版",
-                    "一鍵生成"
-                ]
-            },
-            "stickerPrint": {
-                "title": "貼紙列印",
-                "desc": "專業貼紙排版工具，支持多種尺寸",
-                "features": [
-                    "自動排版",
-                    "多種尺寸",
-                    "列印預覽"
-                ]
-            },
-            "idPhotoPrint": {
-                "title": "證件照列印",
-                "desc": "快速製作各國證件照規格",
-                "features": [
-                    "多國規格",
-                    "自動裁切",
-                    "背景替換"
-                ]
-            },
-            "gallery": {
-                "title": "作品集",
-                "desc": "統一管理所有創作，隨時查看和下載",
-                "features": [
-                    "集中管理",
-                    "快速搜尋",
-                    "批量下載"
-                ]
-            }
-        }
-    },
-    "manual": {
-        "title": "使用說明書",
-        "subtitle": "完整的貼圖製作工具介紹",
-        "tip": "提示：選擇您需要的工具即可開始創作，所有處理都在本地瀏覽器完成，保護您的隱私安全！"
     }
 }

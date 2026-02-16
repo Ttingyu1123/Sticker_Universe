@@ -57,14 +57,19 @@ const renderCollageToContext = (
         }
     }
 
-    // 2. Calculate frames
+    // 2. Calculate frames (with hero photo indices for smart positioning)
+    const heroIndices = images
+        .map((img, idx) => img.isHero ? idx : -1)
+        .filter(idx => idx !== -1);
+
     const frames = calculateFrames(
         images.length,
         settings.layout,
         width,
         height,
         settings.gap * scaleFactor,
-        settings.padding * scaleFactor
+        settings.padding * scaleFactor,
+        heroIndices.length > 0 ? heroIndices : undefined
     );
 
     if (images.length === 0) return frames;

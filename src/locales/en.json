@@ -8,6 +8,7 @@
         "settings": "Settings",
         "manual": "User Manual",
         "backHome": "Back Home",
+        "footer": "Tip: Select the tool you need to start creating. All processing is done locally in your browser to protect your privacy!",
         "generator": "AI Sticker Studio",
         "cinematic": "Cinematic Poster",
         "editor": "Editor",
@@ -64,6 +65,11 @@
         "textStyle": "Text Style",
         "deleteLayer": "Delete Layer",
         "linePreview": "LINE Preview (APNG)"
+    },
+    "manual": {
+        "title": "User Manual",
+        "subtitle": "Complete guide to all creative tools",
+        "tip": "Tip: Select the tool you need to start creating. All processing is done locally in your browser to protect your privacy!"
     },
     "printSheet": {
         "title": "Layout & Print",
@@ -896,7 +902,11 @@
             "rotation": "Rotation",
             "scale": "Scale",
             "effect": "Effect Intensity"
-        }
+        },
+        "setHero": "Set as Hero",
+        "removeHero": "Remove Hero",
+        "maxHeroLimit": "Maximum 2 hero photos allowed",
+        "heroPhoto": "Hero Photo"
     },
     "headshot": {
         "step1_upload": "Step 1: Upload Photo",
@@ -1323,5 +1333,10 @@
                 ]
             }
         }
+    },
+    "manual": {
+        "title": "User Manual",
+        "subtitle": "Complete guide to all creative tools",
+        "tip": "Tip: Select the tool you need to start creating. All processing is done locally in your browser to protect your privacy!"
     }
 }

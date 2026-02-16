@@ -51,6 +51,7 @@ export interface UploadedImage {
     filterIntensity?: number; // 0 to 100
     offsetX: number;
     offsetY: number;
+    isHero?: boolean; // Hero photo gets 1.5-2x size and prominent placement
 }
 
 // Represents a calculated frame for an image on the canvas
