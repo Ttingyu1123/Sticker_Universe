@@ -1,4 +1,4 @@
-# ✨ Sticker Universe (StickerOS)
+# ✨ Sticker Universe (CreativeOS)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
@@ -6,9 +6,9 @@
 ![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?logo=vite)
 ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?logo=tailwindcss)
 
-> **Sticker Universe** is a unified creative suite for designing, generating, and packaging digital stickers. It consolidates AI generation, background removal, and layer-based editing into a single powerful web application.
+> **Sticker Universe (CreativeOS)** is a unified creative suite for designing, generating, and packaging digital content. It consolidates AI generation, image processing, background removal, and creative layouts into a single powerful web application.
 >
-> **Sticker Universe** 是一個專為貼圖創作者打造的綜合創意套件。它將 AI 生成、自動去背、圖層編輯與批量打包功能整合在一個強大的網頁應用中。
+> **Sticker Universe (CreativeOS)** 是一個專為創作者打造的綜合創意套件。它將 AI 生成、圖片編輯、自動去背、拼貼排版等功能整合在一個強大的網頁應用中。
 
 ---
 

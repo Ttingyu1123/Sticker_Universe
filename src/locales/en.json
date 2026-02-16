@@ -1,6 +1,6 @@
 {
     "app": {
-        "title": "StickerOS",
+        "title": "CreativeOS",
         "subtitle": "Creative Suite",
         "apps": "Apps",
         "system": "System",
@@ -1128,6 +1128,199 @@
                 "download": "Download",
                 "saveToGallery": "Save to Gallery",
                 "zoom": "Zoom"
+            }
+        }
+    },
+    "landing": {
+        "tagline": "AI Creative Tools",
+        "heroTitle": "Professional AI Sticker Creation Platform",
+        "heroDesc": "From text to image, from idea to reality, one-stop solution for all your creative needs",
+        "startCreating": "Start Creating",
+        "exploreTools": "Explore Tools",
+        "footer": "© 2024 CreativeOS - Unleash Your Creativity",
+        "stats": {
+            "tools": "Professional Tools",
+            "categories": "Categories",
+            "aiPowered": "AI Powered"
+        },
+        "cta": {
+            "launch": "Launch"
+        },
+        "categories": {
+            "aiGeneration": {
+                "title": "AI Generation",
+                "desc": "Create stunning images and stickers with AI technology"
+            },
+            "imageProcessing": {
+                "title": "Image Processing",
+                "desc": "Professional image editing tools from cropping to background removal"
+            },
+            "creative": {
+                "title": "Creative Layouts",
+                "desc": "Create unique photo collages with creative layouts"
+            },
+            "printing": {
+                "title": "Print & Output",
+                "desc": "Professional layout tools for stickers and ID photos"
+            },
+            "management": {
+                "title": "Gallery",
+                "desc": "Manage all your creations in one place"
+            }
+        },
+        "tabs": {
+            "styleSticker": {
+                "title": "Style Sticker",
+                "desc": "Generate Taiwan anime-style stickers from text",
+                "features": [
+                    "Multiple styles",
+                    "One-click gen",
+                    "High quality"
+                ]
+            },
+            "holidaySticker": {
+                "title": "Holiday Sticker",
+                "desc": "Create festive stickers for various holidays",
+                "features": [
+                    "Holiday themes",
+                    "Auto layout",
+                    "Batch generation"
+                ]
+            },
+            "greetingCard": {
+                "title": "Greeting Card",
+                "desc": "AI-assisted holiday greeting card design",
+                "features": [
+                    "Smart captions",
+                    "Beautiful templates",
+                    "Various holidays"
+                ]
+            },
+            "mangaMaster": {
+                "title": "Manga Master",
+                "desc": "Transform photos into manga-style illustrations",
+                "features": [
+                    "Multiple styles",
+                    "High fidelity",
+                    "Professional"
+                ]
+            },
+            "cinematicPoster": {
+                "title": "Cinematic Poster",
+                "desc": "Create movie poster-style creative images",
+                "features": [
+                    "Cinematic quality",
+                    "Multiple styles",
+                    "Pro layouts"
+                ]
+            },
+            "imageGenerator": {
+                "title": "Image Generator",
+                "desc": "Universal AI image generation tool",
+                "features": [
+                    "Free creation",
+                    "High resolution",
+                    "Fast generation"
+                ]
+            },
+            "headshotMaster": {
+                "title": "Headshot Master",
+                "desc": "AI-generated professional headshots and avatars",
+                "features": [
+                    "Professional",
+                    "Multiple styles",
+                    "Fast process"
+                ]
+            },
+            "batchCrop": {
+                "title": "Batch Crop",
+                "desc": "Process multiple images at once for cropping and optimization",
+                "features": [
+                    "Batch processing",
+                    "Auto-alignment",
+                    "One-click export"
+                ]
+            },
+            "smartRemoveBg": {
+                "title": "Smart BG Removal",
+                "desc": "AI auto-identifies and removes image backgrounds",
+                "features": [
+                    "AI precision",
+                    "Fast processing",
+                    "Perfect edges"
+                ]
+            },
+            "animator": {
+                "title": "Animator",
+                "desc": "Create multi-layer animated stickers",
+                "features": [
+                    "Multi-layer editing",
+                    "Timeline control",
+                    "Export APNG"
+                ]
+            },
+            "layerEditor": {
+                "title": "Layer Editor",
+                "desc": "Professional layer editing and cropping tool",
+                "features": [
+                    "Layer management",
+                    "Precise cropping",
+                    "Filter effects"
+                ]
+            },
+            "imageResizer": {
+                "title": "Image Resizer",
+                "desc": "Smart image resizing with multiple scaling modes",
+                "features": [
+                    "AI upscaling",
+                    "Multiple modes",
+                    "Quality retained"
+                ]
+            },
+            "svgConverter": {
+                "title": "SVG Magic",
+                "desc": "Convert images to editable SVG vectors",
+                "features": [
+                    "Vector conversion",
+                    "Editable",
+                    "Lossless scaling"
+                ]
+            },
+            "photoCollage": {
+                "title": "Photo Collage",
+                "desc": "Creative photo collages with rich layout options",
+                "features": [
+                    "Multiple layouts",
+                    "Free arrangement",
+                    "One-click gen"
+                ]
+            },
+            "stickerPrint": {
+                "title": "Sticker Print",
+                "desc": "Professional sticker layout tool with multiple sizes",
+                "features": [
+                    "Auto layout",
+                    "Multiple sizes",
+                    "Print preview"
+                ]
+            },
+            "idPhotoPrint": {
+                "title": "ID Photo Print",
+                "desc": "Quickly create ID photos for various countries",
+                "features": [
+                    "Multi-country specs",
+                    "Auto crop",
+                    "BG replacement"
+                ]
+            },
+            "gallery": {
+                "title": "Gallery",
+                "desc": "Manage all your creations and download anytime",
+                "features": [
+                    "Centralized",
+                    "Quick search",
+                    "Batch download"
+                ]
             }
         }
     }

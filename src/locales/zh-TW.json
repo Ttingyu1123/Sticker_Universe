@@ -1,6 +1,6 @@
 {
     "app": {
-        "title": "StickerOS",
+        "title": "CreativeOS",
         "subtitle": "創意套件",
         "apps": "應用程式",
         "system": "系統",
@@ -1182,6 +1182,199 @@
                 "download": "下載",
                 "saveToGallery": "儲存至作品集",
                 "zoom": "縮放"
+            }
+        }
+    },
+    "landing": {
+        "tagline": "AI 創作工具",
+        "heroTitle": "專業 AI 貼圖創作平台",
+        "heroDesc": "從文字到圖片，從構思到實現，一站式解決你所有的創意需求",
+        "startCreating": "開始創作",
+        "exploreTools": "探索工具",
+        "footer": "© 2024 CreativeOS - 讓創意無限可能",
+        "stats": {
+            "tools": "專業工具",
+            "categories": "功能分類",
+            "aiPowered": "AI 驅動"
+        },
+        "cta": {
+            "launch": "立即使用"
+        },
+        "categories": {
+            "aiGeneration": {
+                "title": "AI 智慧生成",
+                "desc": "運用 AI 技術，快速生成各種風格的圖片和貼圖"
+            },
+            "imageProcessing": {
+                "title": "專業圖片編輯",
+                "desc": "強大的圖片處理功能，從裁切到去背一應俱全"
+            },
+            "creative": {
+                "title": "創意排版",
+                "desc": "多張照片創意拼貼，製作獨特視覺效果"
+            },
+            "printing": {
+                "title": "印刷與輸出",
+                "desc": "專業排版工具，輕鬆製作實體貼圖和證件照"
+            },
+            "management": {
+                "title": "作品管理",
+                "desc": "統一管理所有創作，隨時查看和下載"
+            }
+        },
+        "tabs": {
+            "styleSticker": {
+                "title": "風格貼圖",
+                "desc": "輸入文字，AI 自動生成台灣動漫風格貼圖",
+                "features": [
+                    "多種風格選擇",
+                    "一鍵生成",
+                    "高品質輸出"
+                ]
+            },
+            "holidaySticker": {
+                "title": "節慶貼圖",
+                "desc": "為各種節日快速製作應景貼圖",
+                "features": [
+                    "節日主題模板",
+                    "自動排版",
+                    "批次生成"
+                ]
+            },
+            "greetingCard": {
+                "title": "賀卡大師",
+                "desc": "AI 協助設計精美節日賀卡",
+                "features": [
+                    "智能配文",
+                    "精美模板",
+                    "多種節日"
+                ]
+            },
+            "mangaMaster": {
+                "title": "漫畫大師",
+                "desc": "將照片轉換為漫畫風格圖片",
+                "features": [
+                    "多種漫畫風格",
+                    "高度還原",
+                    "專業效果"
+                ]
+            },
+            "cinematicPoster": {
+                "title": "影劇海報",
+                "desc": "製作電影海報風格的創意圖片",
+                "features": [
+                    "電影級質感",
+                    "多種風格",
+                    "專業排版"
+                ]
+            },
+            "imageGenerator": {
+                "title": "AI 圖片生成",
+                "desc": "通用 AI 圖片生成工具，創造無限可能",
+                "features": [
+                    "自由創作",
+                    "高解析度",
+                    "快速生成"
+                ]
+            },
+            "headshotMaster": {
+                "title": "形象照大師",
+                "desc": "AI 生成專業形象照和大頭貼",
+                "features": [
+                    "專業質感",
+                    "多種風格",
+                    "快速處理"
+                ]
+            },
+            "batchCrop": {
+                "title": "批量裁切",
+                "desc": "一次處理多張圖片的裁切、調整和優化",
+                "features": [
+                    "批次處理",
+                    "自動對齊",
+                    "一鍵輸出"
+                ]
+            },
+            "smartRemoveBg": {
+                "title": "智慧去背",
+                "desc": "AI 自動識別並移除圖片背景",
+                "features": [
+                    "AI 精準識別",
+                    "快速處理",
+                    "完美邊緣"
+                ]
+            },
+            "animator": {
+                "title": "動態貼圖",
+                "desc": "製作多圖層動畫貼圖",
+                "features": [
+                    "多圖層編輯",
+                    "時間軸控制",
+                    "導出 APNG"
+                ]
+            },
+            "layerEditor": {
+                "title": "圖層編輯",
+                "desc": "專業的圖層編輯與裁切工具",
+                "features": [
+                    "多圖層管理",
+                    "精確裁切",
+                    "濾鏡效果"
+                ]
+            },
+            "imageResizer": {
+                "title": "調整尺寸",
+                "desc": "智能調整圖片尺寸，支持多種縮放模式",
+                "features": [
+                    "AI 超取樣",
+                    "多種模式",
+                    "保持品質"
+                ]
+            },
+            "svgConverter": {
+                "title": "SVG 魔法",
+                "desc": "將圖片轉換為可編輯的 SVG 向量圖",
+                "features": [
+                    "向量轉換",
+                    "可編輯",
+                    "無損縮放"
+                ]
+            },
+            "photoCollage": {
+                "title": "照片拼貼",
+                "desc": "多張照片創意拼貼，豐富布局選擇",
+                "features": [
+                    "多種布局",
+                    "自由排版",
+                    "一鍵生成"
+                ]
+            },
+            "stickerPrint": {
+                "title": "貼紙列印",
+                "desc": "專業貼紙排版工具，支持多種尺寸",
+                "features": [
+                    "自動排版",
+                    "多種尺寸",
+                    "列印預覽"
+                ]
+            },
+            "idPhotoPrint": {
+                "title": "證件照列印",
+                "desc": "快速製作各國證件照規格",
+                "features": [
+                    "多國規格",
+                    "自動裁切",
+                    "背景替換"
+                ]
+            },
+            "gallery": {
+                "title": "作品集",
+                "desc": "統一管理所有創作，隨時查看和下載",
+                "features": [
+                    "集中管理",
+                    "快速搜尋",
+                    "批量下載"
+                ]
             }
         }
     }

@@ -19,8 +19,8 @@ export default defineConfig({
                 navigateFallbackDenylist: [/^\/imgly-data/]
             },
             manifest: {
-                name: 'StickerOS',
-                short_name: 'StickerOS',
+                name: 'CreativeOS',
+                short_name: 'CreativeOS',
                 description: 'Taiwanese-style Anime Sticker Generator',
                 theme_color: '#ffffff',
                 icons: [
