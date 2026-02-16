@@ -164,8 +164,17 @@ const SmartRemoveTab = () => {
             setTimeout(handleFitView, 100);
 
         } catch (e) {
-            console.error(e);
-            alert("AI Removal Failed");
+            console.error('AI Background Removal Error:', e);
+            const errorMsg = e instanceof Error ? e.message : String(e);
+            alert(
+                t('editor.aiRemoval.error') ||
+                `AI 去背失敗\n\n可能原因：\n` +
+                `• 瀏覽器安全性設定問題\n` +
+                `• 網路連線問題\n` +
+                `• 圖片格式不支援\n\n` +
+                `錯誤詳情：${errorMsg}\n\n` +
+                `建議：請重新整理頁面後再試，或使用其他瀏覽器`
+            );
         } finally {
             setIsProcessing(false);
         }
