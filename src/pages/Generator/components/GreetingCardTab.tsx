@@ -1418,15 +1418,20 @@ Negative Prompt: ${negativePrompt || 'None'}
                                 {cardLayout === 'magazine' && (
                                     <div className="relative w-full h-full min-h-[500px] flex items-end rounded-xl overflow-hidden shadow-2xl group">
                                         <img src={generatedResult.imageUrl} className="absolute inset-0 w-full h-full object-cover" alt="Generated Card" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-8 text-left z-10">
-                                            <h3 className="text-5xl font-black text-white font-sans uppercase leading-tight drop-shadow-lg mb-2">
+
+                                        {/* Gradient for legibility at bottom only */}
+                                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+
+                                        {/* Glass Card for Text */}
+                                        <div className="absolute bottom-6 left-6 right-6 bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-xl flex flex-col items-start text-left z-10 transition-transform group-hover:scale-[1.02]">
+                                            <h3 className="text-3xl md:text-4xl font-black text-white font-sans uppercase leading-tight drop-shadow-lg mb-3">
                                                 {generatedResult.title || "Greeting"}
                                             </h3>
-                                            <div className="text-sm font-mono text-gray-300 mb-6 bg-black/50 px-2 py-1 w-fit backdrop-blur-md">
+                                            <div className="text-xs font-mono text-white/80 mb-4 bg-white/20 px-2 py-1 rounded backdrop-blur-md tracking-wider">
                                                 TO {recipientName?.toUpperCase() || "YOU"} • FROM {userName?.toUpperCase() || "ME"}
                                             </div>
                                             {showTextOnCard && generatedResult.message && (
-                                                <p className={`text-lg text-white/90 max-w-lg drop-shadow-md ${[...FONTS, ...customFonts].find(f => f.id === selectedFont)?.className || ''}`} style={{ fontFamily: [...FONTS, ...customFonts].find(f => f.id === selectedFont)?.family }}>
+                                                <p className={`text-base text-white/95 leading-relaxed drop-shadow-md border-t border-white/20 pt-3 w-full ${[...FONTS, ...customFonts].find(f => f.id === selectedFont)?.className || ''}`} style={{ fontFamily: [...FONTS, ...customFonts].find(f => f.id === selectedFont)?.family }}>
                                                     {generatedResult.message}
                                                 </p>
                                             )}

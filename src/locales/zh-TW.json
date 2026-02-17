@@ -77,7 +77,15 @@
         "animation": "動畫",
         "textStyle": "文字樣式",
         "deleteLayer": "刪除圖層",
-        "linePreview": "LINE 預覽 (APNG)"
+        "linePreview": "LINE 預覽 (APNG)",
+        "guidelines": {
+            "title": "LINE 動態貼圖製作準則",
+            "size": "圖片大小必須在寬320px × 高270px以內；寬或高其中一邊必須是270px以上",
+            "duration": "最長播放時間為4秒。時間單位為1、2、3、4秒，無法以小數（1.5秒）單位設定。",
+            "frames": "每個APNG檔的PNG畫格數：插圖為最少5個畫格，最多20個畫格。",
+            "loop": "調整畫格排序，將該貼圖所要傳達情緒的插圖，設定在以靜態圖片顯示的第一張畫格。",
+            "link": "動態貼圖製作準則"
+        }
     },
     "printSheet": {
         "title": "排版與列印",
@@ -334,7 +342,8 @@
             "manga": "漫畫大師",
             "cinematic": "影劇海報",
             "imageGen": "AI圖片生成",
-            "headshot": "形象照大師"
+            "headshot": "形象照大師",
+            "portrait": "寫真大師"
         },
         "errors": {
             "general": "生成失敗：",
@@ -616,6 +625,36 @@
                 "to": "To: You | From:",
                 "defaultTitle": "你的專屬賀卡將會出現在這裡"
             }
+        },
+        "portrait": {
+            "title": "寫真大師",
+            "steps": {
+                "upload": "上傳照片",
+                "style": "選擇風格"
+            },
+            "styles": {
+                "new_year": "新春賀歲",
+                "new_year_desc": "大紅錦緞襖裙，吉祥紋樣與雪白狐毛披風。手持福字，背景為大氣書法，充滿春節喜氣。",
+                "hanfu_studio": "古風漢服",
+                "hanfu_studio_desc": "優雅傳統漢服，飄逸質感。背景為典雅中式攝影棚，如詩如畫。",
+                "cyberpunk": "賽博龐克",
+                "cyberpunk_desc": "未來科技感工裝，霓虹燈光雨夜背景。高對比、前衛視覺。",
+                "nature": "日系清新",
+                "nature_desc": "自然光線，森林草地背景。清新淡雅，展現最自然的你。"
+            },
+            "settings": {
+                "ratio": "圖片比例",
+                "custom": "自訂物品/場景 (選填)",
+                "custom_placeholder": "例如：拿著相機、身後有櫻花樹..."
+            },
+            "action": {
+                "generate": "生成寫真",
+                "generating": "AI 攝影師拍攝中..."
+            },
+            "upload_hint": "上傳照片 (建議半身或全身照)",
+            "crop_title": "裁切照片",
+            "results": "寫真成品",
+            "empty_hint": "您的專屬寫真將顯示於此"
         }
     },
     "packager": {

@@ -5,8 +5,7 @@ import { Layout } from './layouts/Layout';
 // Lazy load pages for better performance
 const LandingApp = React.lazy(() => import('./pages/Landing/App').catch(err => { console.error("Failed to load Landing:", err); return { default: () => <div className="p-10 text-red-500">Landing Load Error: {err.message}</div> }; }));
 const GeneratorApp = React.lazy(() => import('./pages/Generator/App').catch(err => { console.error("Failed to load Generator:", err); return { default: () => <div className="p-10 text-red-500">Generator Load Error: {err.message}</div> }; }));
-const PackagerApp = React.lazy(() => import('./pages/Packager/App').catch(err => { console.error("Failed to load Packager:", err); return { default: () => <div className="p-10 text-red-500">Packager Load Error: {err.message}</div> }; }));
-const EraserApp = React.lazy(() => import('./pages/Eraser/App').catch(err => { console.error("Failed to load Eraser:", err); return { default: () => <div className="p-10 text-red-500">Eraser Load Error: {err.message}</div> }; }));
+
 
 const PrintSheetApp = React.lazy(() => import('./pages/PrintSheet/App').catch(err => { console.error("Failed to load PrintSheet:", err); return { default: () => <div className="p-10 text-red-500">PrintSheet Load Error: {err.message}</div> }; }));
 const GalleryApp = React.lazy(() => import('./pages/Gallery/App').catch(err => { console.error("Failed to load Gallery:", err); return { default: () => <div className="p-10 text-red-500">Gallery Load Error: {err.message}</div> }; }));
@@ -14,7 +13,7 @@ const LayerLabApp = React.lazy(() => import('./pages/LayerLab/App').then(module 
 const ImageEditorApp = React.lazy(() => import('./pages/ImageEditor/App').catch(err => { console.error("Failed to load ImageEditor:", err); return { default: () => <div className="p-10 text-red-500">ImageEditor Load Error: {err.message}</div> }; }));
 
 const PhotoCollageApp = React.lazy(() => import('./pages/PhotoCollage/App').catch(err => { console.error("Failed to load PhotoCollage:", err); return { default: () => <div className="p-10 text-red-500">PhotoCollage Load Error: {err.message}</div> }; }));
-const SvgConverterApp = React.lazy(() => import('./pages/SvgConverter/App').catch(err => { console.error("Failed to load SvgConverter:", err); return { default: () => <div className="p-10 text-red-500">SvgConverter Load Error: {err.message}</div> }; }));
+
 
 
 const Loading = () => (
@@ -57,32 +56,6 @@ function App() {
                         </div>
                     </Suspense>
                 } />
-
-                <Route path="/svg-converter/*" element={
-                    <Suspense fallback={<Loading />}>
-                        <div className="p-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <SvgConverterApp />
-                        </div>
-                    </Suspense>
-                } />
-
-                <Route path="/packager/*" element={
-                    <Suspense fallback={<Loading />}>
-                        <div className="p-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <PackagerApp />
-                        </div>
-                    </Suspense>
-                } />
-
-                <Route path="/eraser/*" element={
-                    <Suspense fallback={<Loading />}>
-                        <div className="p-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <EraserApp />
-                        </div>
-                    </Suspense>
-                } />
-
-
 
                 <Route path="/print-sheet" element={
                     <Suspense fallback={<Loading />}>

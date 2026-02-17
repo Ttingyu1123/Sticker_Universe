@@ -64,7 +64,15 @@
         "animation": "Animation",
         "textStyle": "Text Style",
         "deleteLayer": "Delete Layer",
-        "linePreview": "LINE Preview (APNG)"
+        "linePreview": "LINE Preview (APNG)",
+        "guidelines": {
+            "title": "LINE Animated Sticker Guidelines",
+            "size": "Image size: W320px × H270px max; one side ≥ 270px.",
+            "duration": "Max 4 seconds. (1, 2, 3, 4s only, no decimals).",
+            "frames": "Frames per APNG: Min 5, Max 20.",
+            "loop": "First frame is the static preview; ensure it conveys the emotion.",
+            "link": "Creation Guidelines"
+        }
     },
     "manual": {
         "title": "User Manual",
@@ -592,6 +600,36 @@
                 "to": "To: You | From:",
                 "defaultTitle": "Your masterpiece will appear here"
             }
+        },
+        "portrait": {
+            "title": "Portrait Master",
+            "steps": {
+                "upload": "Upload Photo",
+                "style": "Choose Style"
+            },
+            "styles": {
+                "new_year": "Lunar New Year",
+                "new_year_desc": "Red brocade jacket, auspicious patterns, white fox fur cape. Holding 'Fu' character, festive calligraphy background.",
+                "hanfu_studio": "Hanfu Studio",
+                "hanfu_studio_desc": "Elegant traditional Hanfu, flowing silk. Classical Chinese studio setting with ink wash screens.",
+                "cyberpunk": "Cyberpunk City",
+                "cyberpunk_desc": "Futuristic techwear, neon lights, rainy night city background. High contrast, edgy look.",
+                "nature": "Nature Fresh",
+                "nature_desc": "Natural sunlight, meadow background. Fresh, airy, Japanese magazine style."
+            },
+            "settings": {
+                "ratio": "Aspect Ratio",
+                "custom": "Custom Items/Scene (Optional)",
+                "custom_placeholder": "e.g., holding a camera, under cherry blossoms..."
+            },
+            "action": {
+                "generate": "Generate Portrait",
+                "generating": "AI Photographer is shooting..."
+            },
+            "upload_hint": "Upload Photo (Half-body recommended)",
+            "crop_title": "Crop Photo",
+            "results": "Portrait Results",
+            "empty_hint": "Your generated portraits will appear here"
         }
     },
     "packager": {

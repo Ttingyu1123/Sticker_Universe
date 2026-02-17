@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, Image as ImageIcon, Video, Upload, Type, Layers, ChevronUp, ChevronDown, Settings, ZoomIn, ZoomOut, Smartphone, Loader2, MessageCircle } from 'lucide-react';
+import { Download, Image as ImageIcon, Video, Upload, Type, Layers, ChevronUp, ChevronDown, Settings, ZoomIn, ZoomOut, Smartphone, Loader2, MessageCircle, Info, ExternalLink } from 'lucide-react';
 import './animations.css';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { LinePreviewModal } from '../../components/LinePreviewModal';
@@ -331,6 +331,8 @@ export const AnimatorApp = () => {
                         </button>
                     </div>
 
+
+
                     <div className="bg-cream-medium/50 p-10 rounded-3xl shadow-inner mb-4 flex items-center justify-center min-h-[400px] w-full overflow-hidden border border-cream-dark">
                         <div style={{ transform: `scale(${zoom})`, transition: 'transform 0.2s ease-out' }}>
                             <LayerCanvas
@@ -345,7 +347,28 @@ export const AnimatorApp = () => {
                             />
                         </div>
                     </div>
-                    <p className="text-bronze-light text-xs">{t('animator.dragHint')}</p>
+                    <p className="text-bronze-light text-xs mb-4">{t('animator.dragHint')}</p>
+
+                    {/* Guidelines Section */}
+                    <div className="w-full max-w-2xl bg-white/40 backdrop-blur-md rounded-2xl border border-cream-dark p-5 text-xs text-bronze-text space-y-3 shadow-sm">
+                        <h4 className="font-bold flex items-center gap-2 text-sm uppercase tracking-wider text-secondary">
+                            <Info size={16} /> {t('animator.guidelines.title')}
+                        </h4>
+                        <ul className="list-disc list-inside space-y-1.5 text-bronze-text/80 ml-2 leading-relaxed marker:text-secondary">
+                            <li>{t('animator.guidelines.size')}</li>
+                            <li>{t('animator.guidelines.duration')}</li>
+                            <li>{t('animator.guidelines.frames')}</li>
+                            <li>{t('animator.guidelines.loop')}</li>
+                        </ul>
+                        <a
+                            href="https://creator.line.me/zh-hant/guideline/animationsticker/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-primary hover:text-primary-hover hover:underline mt-2 font-bold transition-colors group"
+                        >
+                            {t('animator.guidelines.link')} <ExternalLink size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                        </a>
+                    </div>
                 </div>
 
                 {/* Right: Properties & Layers */}

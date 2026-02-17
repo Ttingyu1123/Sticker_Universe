@@ -15,10 +15,11 @@ import CinematicPosterTab from './components/CinematicPosterTab';
 import HeadshotGeneratorTab from './components/HeadshotGeneratorTab';
 import GreetingCardTab from './components/GreetingCardTab';
 import MangaMasterTab from './components/MangaMasterTab';
+import PortraitMasterTab from './components/PortraitMasterTab';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'sticker' | 'holiday' | 'greeting' | 'image-gen' | 'cinematic' | 'headshot' | 'manga'>('sticker');
+  const [activeTab, setActiveTab] = useState<'sticker' | 'holiday' | 'greeting' | 'image-gen' | 'cinematic' | 'headshot' | 'manga' | 'portrait'>('sticker');
   const [apiKey, setApiKey] = useState('');
   const [tempKey, setTempKey] = useState('');
   const [showKeyModal, setShowKeyModal] = useState(false);
@@ -364,7 +365,14 @@ const App: React.FC = () => {
         {/* Tab Navigation */}
         <div className="flex flex-col gap-3 bg-cream backdrop-blur rounded-[2rem] p-3 sm:p-4 border border-cream-dark shadow-sm">
           {/* Tabs - Grid Layout for Better Visibility */}
-          <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+          <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+            <button
+              onClick={() => setActiveTab('image-gen')}
+              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'image-gen' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
+            >
+              <Sparkles size={18} className="sm:w-4 sm:h-4" />
+              <span className="text-center leading-tight">{t('generator.tabs.imageGen')}</span>
+            </button>
             <button
               onClick={() => setActiveTab('sticker')}
               className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'sticker' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
@@ -378,6 +386,13 @@ const App: React.FC = () => {
             >
               <Calendar size={18} className="sm:w-4 sm:h-4" />
               <span>{t('generator.tabs.holiday')}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('cinematic')}
+              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'cinematic' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
+            >
+              <Sparkles size={18} className="sm:w-4 sm:h-4" />
+              <span>{t('generator.tabs.cinematic')}</span>
             </button>
             <button
               onClick={() => setActiveTab('greeting')}
@@ -395,27 +410,22 @@ const App: React.FC = () => {
               <span>{t('generator.tabs.manga')}</span>
             </button>
             <button
-              onClick={() => setActiveTab('cinematic')}
-              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'cinematic' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
-            >
-              <Sparkles size={18} className="sm:w-4 sm:h-4" />
-              <span>{t('generator.tabs.cinematic')}</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('image-gen')}
-              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'image-gen' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
-            >
-              <Sparkles size={18} className="sm:w-4 sm:h-4" />
-              <span className="text-center leading-tight">{t('generator.tabs.imageGen')}</span>
-            </button>
-            <button
               onClick={() => setActiveTab('headshot')}
               className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'headshot' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
               <User size={18} className="sm:w-4 sm:h-4" />
               <span className="text-center leading-tight">{t('generator.tabs.headshot')}</span>
             </button>
+            <button
+              onClick={() => setActiveTab('portrait')}
+              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'portrait' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
+            >
+              <User size={18} className="sm:w-4 sm:h-4" />
+              <span>{t('generator.tabs.portrait')}</span>
+            </button>
           </div>
+
+
 
           {/* API Key Button */}
           <button
@@ -468,6 +478,13 @@ const App: React.FC = () => {
             onError={(msg) => setError(msg)}
             onNeedApiKey={() => setShowKeyModal(true)}
             onSuccess={handleImageGenSuccess}
+          />
+        ) : activeTab === 'portrait' ? (
+          <PortraitMasterTab
+            apiKey={apiKey}
+            onSuccess={handleImageGenSuccess}
+            onError={(msg) => setError(msg)}
+            onNeedApiKey={handleOpenKeyModal}
           />
         ) : (
           <ImageGeneratorTab
