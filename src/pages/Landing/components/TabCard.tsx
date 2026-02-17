@@ -63,7 +63,7 @@ export const TabCard: React.FC<TabCardProps> = ({
             </h3>
 
             {/* Description */}
-            <p className="relative text-slate-600 text-sm leading-relaxed mb-4 line-clamp-2">
+            <p className="relative text-slate-600 text-base leading-relaxed mb-4 line-clamp-2">
                 {desc}
             </p>
 
@@ -71,7 +71,7 @@ export const TabCard: React.FC<TabCardProps> = ({
             {Array.isArray(features) && features.length > 0 && (
                 <ul className="relative space-y-1.5 mb-5">
                     {features.slice(0, 3).map((feature, index) => (
-                        <li key={index} className="flex items-start gap-2 text-xs text-slate-500">
+                        <li key={index} className="flex items-start gap-2 text-sm text-slate-500">
                             <span className={`inline-block w-1.5 h-1.5 rounded-full mt-1.5 bg-gradient-to-br ${color}`} />
                             <span>{feature}</span>
                         </li>
@@ -80,9 +80,9 @@ export const TabCard: React.FC<TabCardProps> = ({
             )}
 
             {/* CTA */}
-            <div className={`relative flex items-center gap-2 text-sm font-bold bg-gradient-to-br ${color} bg-clip-text text-transparent group-hover:gap-3 transition-all`}>
+            <div className={`relative flex items-center gap-2 text-base font-bold bg-gradient-to-br ${color} bg-clip-text text-transparent group-hover:gap-3 transition-all`}>
                 <span>{t('landing.cta.launch')}</span>
-                <ArrowRight size={16} className={`${iconColor} group-hover:translate-x-1 transition-transform`} />
+                <ArrowRight size={18} className={`${iconColor} group-hover:translate-x-1 transition-transform`} />
             </div>
         </Link>
     );

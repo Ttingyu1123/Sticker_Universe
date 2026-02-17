@@ -577,6 +577,22 @@
             "cancel": "取消",
             "confirm": "確認"
         },
+        "apiKey": {
+            "title": "輸入您的 Gemini API Key",
+            "desc": "我們需要您的 Google Gemini API Key 來生成貼圖。它將直接存儲在您的瀏覽器中。",
+            "get": "獲取 API Key",
+            "placeholder": "在此貼上 API Key...",
+            "save": "儲存金鑰",
+            "change": "更換 API Key",
+            "clearConfirm": "確定要清除 API Key 嗎？這將會從您的瀏覽器中移除金鑰。",
+            "securityTitle": "安全聲明 (Security Notice)",
+            "securityLocalStorage": "本地儲存 - 金鑰僅存於瀏覽器 (LocalStorage)，絕不上傳至本站伺服器。",
+            "securityDirect": "直接傳輸 - 請求由瀏覽器直接發送至 Google API。",
+            "rememberKey": "記住金鑰 (Remember Key)",
+            "rememberKeyDesc": "勾選後儲存於 LocalStorage，下次自動載入。",
+            "settings": "已設定",
+            "clear": "清除"
+        },
         "greeting": {
             "title": "賀卡大師",
             "settings": {

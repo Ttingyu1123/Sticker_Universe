@@ -553,6 +553,22 @@
                 }
             }
         },
+        "apiKey": {
+            "title": "Enter Your Gemini API Key",
+            "desc": "We need your Google Gemini API Key to generate stickers. It's stored locally in your browser.",
+            "get": "Get your API Key",
+            "placeholder": "Paste API Key here...",
+            "save": "Save Key",
+            "change": "Change API Key",
+            "clearConfirm": "Are you sure you want to remove your API Key? This will remove it from your browser.",
+            "securityTitle": "Security Notice",
+            "securityLocalStorage": "Local Storage - Key is stored only in your browser (LocalStorage) and never uploaded to our servers.",
+            "securityDirect": "Direct Transmission - Requests are sent directly from your browser to Google API.",
+            "rememberKey": "Remember Key",
+            "rememberKeyDesc": "Check to save in LocalStorage for auto-load next time.",
+            "settings": "Set",
+            "clear": "Clear"
+        },
         "greeting": {
             "title": "Greeting Card Master",
             "settings": {

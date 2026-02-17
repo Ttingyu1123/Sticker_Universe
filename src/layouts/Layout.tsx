@@ -83,7 +83,7 @@ export const Layout = () => {
                         <p className="text-[10px] font-black text-bronze-light uppercase tracking-widest">{t('app.system')}</p>
                         <LanguageSwitcher />
                     </div>
-                    <NavLink to="/manual" className={({ isActive }) =>
+                    <NavLink to="/" className={({ isActive }) =>
                         clsx(
                             "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all",
                             isActive
@@ -100,8 +100,10 @@ export const Layout = () => {
                     </a>
 
                     <div className="px-4 py-2 mt-2">
-                        <div className="text-[10px] text-bronze-light font-bold uppercase tracking-widest opacity-50">
-                            TingYu’s Creative OS <span className="mx-1">|</span> v2.0
+                        <div className="text-[10px] text-bronze-light font-bold uppercase tracking-widest opacity-50 flex flex-col gap-1">
+                            <a href="https://tingyusdeco.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                                Made by tingyusdeco.com
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -176,6 +178,13 @@ export const Layout = () => {
                     </div>
                 )}
                 <Outlet />
+
+                {/* Mobile Footer - Visible only on mobile/tablet */}
+                <div className="lg:hidden mt-auto py-8 text-center pb-24 opacity-50 hover:opacity-100 transition-opacity">
+                    <a href="https://tingyusdeco.com" target="_blank" rel="noopener noreferrer" className="text-[10px] text-bronze-light font-bold uppercase tracking-widest">
+                        Made by tingyusdeco.com
+                    </a>
+                </div>
             </main>
         </div>
     );

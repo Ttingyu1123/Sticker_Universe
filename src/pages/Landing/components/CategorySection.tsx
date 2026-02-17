@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { TabCard } from './TabCard';
 import { CategoryConfig } from '../../../config/landingTabs';
+import { APIKeySetup } from '../../../components/shared/APIKeySetup';
 
 interface CategorySectionProps {
     category: CategoryConfig;
@@ -16,7 +17,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ category }) =>
             <div className="text-center mb-12">
                 <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${category.bgColor} border border-current/10 mb-4`}>
                     <div className={`w-2 h-2 rounded-full bg-gradient-to-br ${category.color}`} />
-                    <span className={`text-sm font-bold bg-gradient-to-br ${category.color} bg-clip-text text-transparent`}>
+                    <span className={`text-lg font-bold bg-gradient-to-br ${category.color} bg-clip-text text-transparent`}>
                         {t(category.titleKey)}
                     </span>
                 </div>
@@ -36,6 +37,13 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ category }) =>
                     />
                 ))}
             </div>
+
+            {/* API Key Setup Section - Specific for AI Generation */}
+            {category.id === 'ai-generation' && (
+                <div className="mt-8">
+                    <APIKeySetup />
+                </div>
+            )}
         </section>
     );
 };
