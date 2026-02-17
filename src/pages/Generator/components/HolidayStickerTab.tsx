@@ -402,7 +402,7 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Controls Panel */}
-                <div className="lg:col-span-1 space-y-6 bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8">
+                <div className="lg:col-span-1 space-y-6 bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8">
 
                     {/* 1. Upload */}
                     <div className="space-y-3">
@@ -569,7 +569,7 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
                 </div>
 
                 {/* Results Panel */}
-                <div className="lg:col-span-2 space-y-6 bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8">
+                <div className="lg:col-span-2 space-y-6 bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8">
                     <div className="flex items-center justify-between border-b border-cream-dark/50 pb-4">
                         <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest">
                             <Sparkles size={18} className="text-yellow-400" /> 您的專屬貼圖結果

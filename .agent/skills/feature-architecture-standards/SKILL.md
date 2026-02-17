@@ -78,13 +78,45 @@ All user-facing text **MUST** be internationalized.
     * Use hook: `const { t } = useTranslation();`
     * Render: `{t('collage.layout.grid')}`
 
-## 4. Design System (Cream/Bronze Theme)
+## 4. Design System (Mint/Cream Theme)
 
-* **Primary Text**: `text-bronze-text` (Dark brownish gray)
-* **Accent Text**: `text-bronze` (Brand color) or `text-primary` (Coral/Red accent)
-* **Backgrounds**: `bg-cream-light` (App background), `bg-slate-50` (Canvas background)
-* **Borders**: `border-cream-dark`
-* **Icons**: Use `lucide-react` icons. Standard size is often `size={18}` or `size={20}`.
+The application uses a specific "Taiwanese Anime" inspired palette characterized by soft creams, mints, and desaturated purples.
+
+### Core Palette
+
+| Role | Color Name | Hex | Tailwind Utility | Usage |
+| :--- | :--- | :--- | :--- | :--- |
+| **App Background** | **Mint Ice** | `#E3F3F1` | `bg-cream-light` | Main background for the entire application window. |
+| **Surface / Card** | **Faint Cream** | `#F8F7EE` | `bg-cream` | Background for Sidebars, Toolbars, and Cards. |
+| **Primary Accent** | **Lavender** | `#A186B4` | `text-primary`, `bg-primary` | Key actions, active states, icons. |
+| **Text (Body)** | **Deep Bronze** | `#4A4055` | `text-bronze-text` | Main content text. |
+| **Text (Heading)** | **Bronze** | `#4A4055` | `text-bronze` | Headings (often bold/black). |
+| **Borders** | **Cream Dark** | `#D8D7CE` | `border-cream-dark` | Dividers and container borders. |
+
+### UI Implementation Rules
+
+1. **Layout Structure**:
+    * **Root Container**: `min-h-screen bg-cream-light text-bronze-text`
+    * **Sidebar / Panels**: `bg-cream/90 backdrop-blur-md border-r border-cream-dark`
+    * **Workspace / Canvas Layout**:
+        * Wrapper: `bg-cream-light` (matches app background for seamless feel)
+        * Actual Canvas/Paper: `bg-white` (representing physical paper/sticker)
+
+2. **Typography**:
+    * Headings: `font-black text-bronze`
+    * Body: `font-sans text-bronze-text`
+    * Muted text: `text-bronze-text/60` (Do not use `text-gray-500`)
+
+3. **Interactive Elements**:
+    * **Primary Button**: `bg-primary text-white hover:bg-primary-hover`
+    * **Secondary/Ghost Button**: `text-bronze-light hover:text-primary hover:bg-white/60`
+    * **Tabs**:
+        * Selected: `bg-white text-primary shadow-sm ring-1 ring-primary/20`
+        * Unselected: `text-bronze-light hover:text-primary`
+
+4. **Shadows & Effects**:
+    * Use soft colored shadows: `shadow-xl shadow-bronze/5` or `shadow-primary/5`
+    * Glassmorphism: `backdrop-blur-md` on sidebars/floating toolbars.
 
 ## 5. Mobile-Friendly Image Sharing (Web Share API)
 
@@ -120,6 +152,7 @@ All features that generate or export images **MUST** implement mobile-friendly s
 Generated filenames follow: `[type]_[metadata]_[date]_[time].png`
 
 **Examples**:
+
 * `sticker_cute_哈囉_2026-02-04_18-30-15.png`
 * `headshot_photo_1inch_28x35mm_Professional_2026-02-04_18-30-35.png`
 
@@ -138,6 +171,7 @@ Generated filenames follow: `[type]_[metadata]_[date]_[time].png`
 ### Browser Behavior
 
 The hook automatically detects capabilities:
+
 * **iOS/Android**: Native share panel (save to Files/Drive or share to apps)
 * **Desktop/Old Browsers**: Falls back to traditional download
 * **Error Handling**: Silently handles user cancellation

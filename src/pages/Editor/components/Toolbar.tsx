@@ -56,10 +56,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       className={`
         flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all border
         ${primary
-          ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-200'
+          ? 'bg-primary text-white border-primary hover:bg-primary-hover shadow-md shadow-primary/20'
           : active
-            ? 'bg-white text-indigo-600 border-indigo-200 shadow-sm'
-            : 'bg-transparent text-slate-600 border-transparent hover:bg-white hover:shadow-sm hover:text-indigo-600'
+            ? 'bg-white text-primary border-primary/20 shadow-sm'
+            : 'bg-transparent text-bronze-light border-transparent hover:bg-white hover:shadow-sm hover:text-primary'
         }
       `}
       title={label}
@@ -77,10 +77,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       className={`
         p-2 rounded-lg transition-all
         ${active
-          ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5'
+          ? 'bg-white text-primary shadow-sm ring-1 ring-primary/10'
           : disabled
-            ? 'text-slate-300 cursor-not-allowed'
-            : 'text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm'
+            ? 'text-bronze-light/30 cursor-not-allowed'
+            : 'text-bronze-light hover:text-primary hover:bg-white hover:shadow-sm'
         }
       `}
     >
@@ -89,21 +89,21 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   );
 
   return (
-    <div className="block px-4 md:px-6 py-3 bg-slate-50/50 backdrop-blur-xl border-b border-indigo-50/50 sticky top-0 z-30 transition-all duration-300">
+    <div className="block px-4 md:px-6 py-3 bg-cream-light/80 backdrop-blur-xl border-b border-cream-dark/50 sticky top-0 z-30 transition-all duration-300">
       <div className="flex flex-wrap md:flex-nowrap items-center justify-center md:justify-between gap-3 md:gap-4 max-w-[1920px] mx-auto">
 
         {/* Left: Canvas Controls */}
         <div className="flex items-center gap-3">
           {/* History Group */}
-          <div className="flex items-center gap-1 bg-slate-200/50 p-1 rounded-xl border border-white/50">
+          <div className="flex items-center gap-1 bg-cream-medium/50 p-1 rounded-xl border border-white/50">
             <IconButton onClick={onUndo} icon={Undo} title={t('editor.toolbar.undo')} disabled={!canUndo} />
             <IconButton onClick={onRedo} icon={Redo} title={t('editor.toolbar.redo')} disabled={!canRedo} />
           </div>
 
-          <div className="w-px h-6 bg-slate-200" />
+          <div className="w-px h-6 bg-cream-dark/50" />
 
           {/* Background Group */}
-          <div className="flex items-center gap-1 bg-slate-200/50 p-1 rounded-xl border border-white/50">
+          <div className="flex items-center gap-1 bg-cream-medium/50 p-1 rounded-xl border border-white/50">
             <IconButton
               onClick={() => setBackground('grid')}
               icon={Grid}
@@ -133,15 +133,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </div>
 
         {/* Center: Add Content */}
-        <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl shadow-sm border border-indigo-50">
+        <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl shadow-sm border border-cream-dark">
           <ActionButton onClick={onAddText} icon={Type} label={t('editor.toolbar.text') || 'Text'} />
 
           {/* Debug wrapper for Bubble button */}
           <ActionButton onClick={onAddBubble} icon={MessageCircle} label={t('editor.toolbar.bubble') || 'Bubble'} />
 
-          <div className="w-px h-4 bg-slate-100" />
+          <div className="w-px h-4 bg-cream-dark/30" />
           <ActionButton onClick={() => fileInputRef.current?.click()} icon={ImageIcon} label={t('editor.toolbar.image') || 'Image'} />
-          <div className="w-px h-4 bg-slate-100" />
+          <div className="w-px h-4 bg-cream-dark/30" />
           <ActionButton onClick={onAddFromGallery} icon={Layout} label={t('editor.toolbar.gallery') || 'Gallery'} />
         </div>
 
@@ -149,13 +149,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <div className="flex items-center gap-3 justify-end">
           <ActionButton onClick={onLinePreview} icon={Smartphone} label={t('editor.toolbar.linePreview') || 'Preview'} />
 
-          <div className="w-px h-6 bg-slate-200" />
+          <div className="w-px h-6 bg-cream-dark/50" />
 
           {/* Save & Export */}
           <div className="flex items-center gap-2">
             <button
               onClick={onSaveToGallery}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center gap-2 border border-slate-200 hover:border-indigo-200 bg-white"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-bronze-light hover:text-primary hover:bg-cream-light transition-colors flex items-center gap-2 border border-cream-dark hover:border-primary/20 bg-white"
               title={t('editor.toolbar.saveToGallery')}
             >
               <Save size={18} />
@@ -163,7 +163,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             </button>
             <button
               onClick={onDownload}
-              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-md shadow-indigo-200 transition-all active:scale-95 flex items-center gap-2"
+              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-primary hover:bg-primary-hover shadow-md shadow-primary/20 transition-all active:scale-95 flex items-center gap-2"
               title={t('editor.toolbar.export')}
             >
               <Download size={18} />

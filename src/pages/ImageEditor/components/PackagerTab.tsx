@@ -658,10 +658,10 @@ const PackagerTab: React.FC = () => {
                 <div className="flex-1"></div>
                 <div className="flex items-center gap-2 sm:gap-3">
                     <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-                        <button onClick={undo} disabled={historyIdx <= 0} className="p-1.5 sm:p-2 hover:bg-white rounded-lg disabled:opacity-30 text-slate-500 hover:text-violet-600 transition-all shadow-sm"><Undo2 size={16} /></button>
-                        <button onClick={redo} disabled={historyIdx >= history.length - 1} className="p-1.5 sm:p-2 hover:bg-white rounded-lg disabled:opacity-30 text-slate-500 hover:text-violet-600 transition-all shadow-sm"><Redo2 size={16} /></button>
+                        <button onClick={undo} disabled={historyIdx <= 0} className="p-1.5 sm:p-2 hover:bg-white rounded-lg disabled:opacity-30 text-bronze-light hover:text-primary transition-all shadow-sm"><Undo2 size={16} /></button>
+                        <button onClick={redo} disabled={historyIdx >= history.length - 1} className="p-1.5 sm:p-2 hover:bg-white rounded-lg disabled:opacity-30 text-bronze-light hover:text-primary transition-all shadow-sm"><Redo2 size={16} /></button>
                     </div>
-                    <button onClick={reset} className="px-3 py-2 sm:px-4 bg-white border border-slate-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500 text-slate-500 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
+                    <button onClick={reset} className="px-3 py-2 sm:px-4 bg-white border border-slate-200 hover:border-red-200 hover:bg-red-50 hover:text-red-500 text-bronze-light rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
                         <RefreshCw size={14} /> <span className="hidden sm:inline">{t('packager.reset')}</span>
                     </button>
                 </div>
@@ -784,12 +784,19 @@ const PackagerTab: React.FC = () => {
                                                         </div>
                                                     );
                                                 })}
-                                                {Array.from({ length: (config.rowLines.length - 1) * (config.colLines.length - 1) }).map((_, i) => {
-                                                    const r = Math.floor(i / (config.colLines.length - 1)), c = i % (config.colLines.length - 1);
-                                                    return <div key={i} className="absolute border border-white/20 bg-primary/10 pointer-events-none flex items-center justify-center overflow-hidden" style={{ top: `${config.rowLines[r] * 100}%`, left: `${config.colLines[c] * 100}%`, width: `${(config.colLines[c + 1] - config.colLines[c]) * 100}%`, height: `${(config.rowLines[r + 1] - config.rowLines[r]) * 100}%` }}>
-                                                        <span className="text-[10px] font-black text-white bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm">#{r + 1}-{c + 1}</span>
-                                                    </div>
-                                                })}
+                                                {config.rowLines.slice(0, -1).map((_, r) => (
+                                                    config.colLines.slice(0, -1).map((_, c) => (
+                                                        <div key={`${r}-${c}`} className="absolute border border-white/20 bg-primary/10 pointer-events-none flex items-center justify-center overflow-hidden"
+                                                            style={{
+                                                                top: `${config.rowLines[r] * 100}%`,
+                                                                left: `${config.colLines[c] * 100}%`,
+                                                                width: `${(config.colLines[c + 1] - config.colLines[c]) * 100}%`,
+                                                                height: `${(config.rowLines[r + 1] - config.rowLines[r]) * 100}%`
+                                                            }}>
+                                                            <span className="text-[10px] font-black text-white bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm">#{r + 1}-{c + 1}</span>
+                                                        </div>
+                                                    ))
+                                                ))}
                                             </div>
                                             {/* Debug Info Overlay */}
                                             <div className="mt-2 text-[10px] text-gray-400 font-mono bg-black/80 p-2 rounded max-w-lg">

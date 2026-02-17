@@ -120,7 +120,7 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
 
                     <button
                         onClick={() => onShuffle?.()}
-                        className="flex flex-col items-center justify-center p-2 rounded-xl bg-secondary/5 text-secondary border border-secondary/20 hover:bg-secondary/10 transition-all h-16"
+                        className="flex flex-col items-center justify-center p-2 rounded-xl bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10 transition-all h-16"
                         title={t('collage.layout.randomize')}
                     >
                         <RefreshCcw size={20} />
@@ -142,8 +142,8 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                             key={style.id}
                             onClick={() => handleChange('frameStyle', style.id)}
                             className={`flex flex-col items-center justify-center p-2 rounded-xl text-[10px] font-bold capitalize border transition-all h-14 ${settings.frameStyle === style.id
-                                ? 'bg-secondary text-white border-secondary shadow-md'
-                                : 'bg-white border-cream-dark text-bronze-light hover:bg-cream-light hover:text-secondary'
+                                ? 'bg-primary text-white border-primary shadow-md'
+                                : 'bg-white border-cream-dark text-bronze-light hover:bg-cream-light hover:text-primary'
                                 }`}
                         >
                             {style.icon ? <style.icon size={18} className="mb-1" /> : <div className="w-6 h-6 rounded border-2 border-current mb-0.5" />}

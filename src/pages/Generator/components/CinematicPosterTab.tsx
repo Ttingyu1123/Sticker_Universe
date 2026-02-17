@@ -402,7 +402,7 @@ ${generatedResult.plot}
                 {/* Left: Controls */}
                 <div className="space-y-6">
                     {/* Upload Section */}
-                    <div className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-6 text-center group transition-all hover:bg-white/60">
+                    <div className="bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-6 text-center group transition-all hover:bg-white/60">
                         <div
                             onClick={() => fileInputRef.current?.click()}
                             className={`border-4 border-dashed rounded-3xl h-64 flex flex-col items-center justify-center cursor-pointer overflow-hidden transition-all ${userImage ? 'border-primary' : 'border-bronze-light/30 hover:border-primary/50'}`}
@@ -428,7 +428,7 @@ ${generatedResult.plot}
                     </div>
 
                     {/* Settings Section */}
-                    <div className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-6 space-y-4">
+                    <div className="bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-6 space-y-4">
                         <h2 className="text-sm font-black text-bronze-light uppercase tracking-widest flex items-center gap-2">
                             <Settings size={16} /> 劇本與角色設定
                         </h2>
@@ -449,10 +449,10 @@ ${generatedResult.plot}
                         </div>
 
                         <div className="flex bg-white rounded-2xl border border-cream-dark p-1">
-                            <button onClick={() => setRole('male')} className={`flex-1 py-2 rounded-xl font-bold text-xs transition-all ${role === 'male' ? 'bg-blue-500 text-white shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>
+                            <button onClick={() => setRole('male')} className={`flex-1 py-2 rounded-xl font-bold text-xs transition-all ${role === 'male' ? 'bg-secondary text-bronze shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>
                                 男主角
                             </button>
-                            <button onClick={() => setRole('female')} className={`flex-1 py-2 rounded-xl font-bold text-xs transition-all ${role === 'female' ? 'bg-pink-500 text-white shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>
+                            <button onClick={() => setRole('female')} className={`flex-1 py-2 rounded-xl font-bold text-xs transition-all ${role === 'female' ? 'bg-primary text-white shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>
                                 女主角
                             </button>
                         </div>
@@ -484,7 +484,7 @@ ${generatedResult.plot}
                         <button
                             onClick={handleGenerate}
                             disabled={isGenerating || isRegenerating}
-                            className={`w-full py-4 rounded-xl font-black text-lg shadow-lg transform transition-all active:scale-95 flex items-center justify-center gap-2 ${isGenerating ? 'bg-cream-dark text-bronze-light cursor-not-allowed' : 'bg-gradient-to-r from-primary to-secondary text-white hover:shadow-primary/30'}`}
+                            className={`w-full py-4 rounded-xl font-black text-lg shadow-lg transform transition-all active:scale-95 flex items-center justify-center gap-2 ${isGenerating ? 'bg-cream-dark text-bronze-light cursor-not-allowed' : 'bg-primary hover:bg-primary-hover text-white shadow-primary/30'}`}
                         >
                             {isGenerating ? <RefreshCw className="animate-spin" /> : <Sparkles />}
                             {isGenerating ? '導演正在開拍中...' : '生成影劇海報'}
@@ -494,7 +494,7 @@ ${generatedResult.plot}
                 </div>
 
                 {/* Right: Results */}
-                <div className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 h-fit min-h-[500px] flex flex-col items-center justify-center relative group">
+                <div className="bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 h-fit min-h-[500px] flex flex-col items-center justify-center relative group">
                     {generatedResult ? (
                         <>
                             <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white">

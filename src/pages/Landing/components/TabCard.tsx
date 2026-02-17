@@ -42,7 +42,7 @@ export const TabCard: React.FC<TabCardProps> = ({
     return (
         <Link
             to={fullPath}
-            className="group relative overflow-hidden rounded-3xl bg-white border border-slate-200/50 p-6 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+            className="group relative overflow-hidden rounded-3xl bg-cream border border-slate-200/50 p-6 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
         >
             {/* Background gradient on hover */}
             <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 bg-gradient-to-br ${color}`} />

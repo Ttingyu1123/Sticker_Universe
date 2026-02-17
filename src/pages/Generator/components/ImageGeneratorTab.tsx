@@ -128,7 +128,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
                 {/* Left Panel: Styles & Inspiration */}
-                <div className="space-y-6 bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 h-fit">
+                <div className="lg:col-span-1 space-y-6 bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-6 h-fit">
                     <div className="flex items-center gap-2 border-b border-cream-dark/50 pb-4 mb-2">
                         <Sparkles size={18} className="text-yellow-400" />
                         <h2 className="text-sm font-black text-bronze-light uppercase tracking-widest">風格與靈感 (Styles & Inspiration)</h2>
@@ -154,7 +154,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                     {/* Dropdowns */}
                     <div className="space-y-3">
                         {/* 12-Grid Style Stickers */}
-                        <div className="border border-cream-dark rounded-2xl bg-white/60 overflow-hidden">
+                        <div className="border border-cream-dark rounded-2xl bg-cream overflow-hidden">
                             <button
                                 onClick={() => setIsTwelveGridOpen(!isTwelveGridOpen)}
                                 className="w-full flex items-center justify-between p-4 text-xs font-bold text-bronze-text hover:bg-white/80 transition-colors"
@@ -164,7 +164,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                             </button>
 
                             {isTwelveGridOpen && (
-                                <div className="p-4 border-t border-cream-dark bg-white/40 max-h-80 overflow-y-auto custom-scrollbar space-y-6">
+                                <div className="p-4 border-t border-cream-dark bg-secondary/20 max-h-80 overflow-y-auto custom-scrollbar space-y-6">
                                     {TWELVE_GRID_CATEGORIES?.map((category: any, idx: number) => (
                                         <div key={idx} className="space-y-2">
                                             <h4 className="text-[10px] font-black text-bronze-light uppercase tracking-wider sticky top-0 bg-white/90 backdrop-blur-sm p-1 z-10 rounded-md">{category.categoryName}</h4>
@@ -187,7 +187,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                         </div>
 
                         {/* Top 100 Styles */}
-                        <div className="border border-cream-dark rounded-2xl bg-white/60 overflow-hidden">
+                        <div className="border border-cream-dark rounded-2xl bg-cream overflow-hidden">
                             <button
                                 onClick={() => setIsTop100Open(!isTop100Open)}
                                 className="w-full flex items-center justify-between p-4 text-xs font-bold text-bronze-text hover:bg-white/80 transition-colors"
@@ -197,7 +197,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                             </button>
 
                             {isTop100Open && (
-                                <div className="p-4 border-t border-cream-dark bg-white/40 max-h-80 overflow-y-auto custom-scrollbar space-y-6">
+                                <div className="p-4 border-t border-cream-dark bg-secondary/20 max-h-80 overflow-y-auto custom-scrollbar space-y-6">
                                     {TOP_100_STYLES_CATEGORIZED?.map((category: any, cIdx: number) => (
                                         <div key={cIdx} className="space-y-2">
                                             <h4 className="text-[10px] font-black text-bronze-light uppercase tracking-wider sticky top-0 bg-white/90 backdrop-blur-sm p-1 z-10 rounded-md">{category.categoryName}</h4>
@@ -221,7 +221,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                         </div>
 
                         {/* Art Styles */}
-                        <div className="border border-cream-dark rounded-2xl bg-white/60 overflow-hidden">
+                        <div className="border border-cream-dark rounded-2xl bg-cream overflow-hidden">
                             <button
                                 onClick={() => setIsStyleOpen(!isStyleOpen)}
                                 className="w-full flex items-center justify-between p-4 text-xs font-bold text-bronze-text hover:bg-white/80 transition-colors"
@@ -231,7 +231,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                             </button>
 
                             {isStyleOpen && (
-                                <div className="p-4 border-t border-cream-dark bg-white/40 max-h-80 overflow-y-auto custom-scrollbar space-y-6">
+                                <div className="p-4 border-t border-cream-dark bg-secondary/20 max-h-80 overflow-y-auto custom-scrollbar space-y-6">
                                     {ART_STYLES_CATEGORIES.map((category: any, idx: number) => (
                                         <div key={idx} className="space-y-2">
                                             <h4 className="text-[10px] font-black text-bronze-light uppercase tracking-wider sticky top-0 bg-white/90 backdrop-blur-sm p-1 z-10 rounded-md">{category.name}</h4>
@@ -254,7 +254,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                         </div>
 
                         {/* Editing Guide */}
-                        <div className="border border-cream-dark rounded-2xl bg-white/60 overflow-hidden">
+                        <div className="border border-cream-dark rounded-2xl bg-cream overflow-hidden">
                             <button
                                 onClick={() => setIsGuideOpen(!isGuideOpen)}
                                 className="w-full flex items-center justify-between p-4 text-xs font-bold text-bronze-text hover:bg-white/80 transition-colors"
@@ -264,7 +264,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                             </button>
 
                             {isGuideOpen && (
-                                <div className="p-4 border-t border-cream-dark bg-white/40 space-y-4 max-h-80 overflow-y-auto custom-scrollbar">
+                                <div className="p-4 border-t border-cream-dark bg-secondary/20 space-y-4 max-h-80 overflow-y-auto custom-scrollbar">
                                     {EDITING_EXAMPLES.map((category: any, idx: number) => (
                                         <div key={idx}>
                                             <h4 className="text-[10px] font-black text-bronze-light uppercase tracking-wider mb-2 sticky top-0 bg-white/90 backdrop-blur-sm p-1 z-10 rounded-md">{category.category}</h4>
@@ -289,7 +289,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                 </div>
 
                 {/* Right Panel: Generation Controls */}
-                <div className="space-y-6 bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 h-fit">
+                <div className="space-y-6 bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 h-fit">
                     <div className="flex items-center gap-2 border-b border-cream-dark/50 pb-4 mb-2">
                         <Wand2 size={18} className="text-primary" />
                         <h2 className="text-sm font-black text-bronze-light uppercase tracking-widest">生成設定 (Settings)</h2>

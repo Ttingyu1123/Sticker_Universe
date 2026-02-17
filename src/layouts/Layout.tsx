@@ -49,7 +49,7 @@ export const Layout = () => {
     return (
         <div className="flex min-h-screen bg-cream-light font-sans text-bronze-text selection:bg-primary-light selection:text-bronze-text">
             {/* Desktop Sidebar - Always visible on Desktop */}
-            <aside className="w-64 fixed inset-y-0 left-0 z-50 bg-cream-light/80 backdrop-blur-xl border-r border-cream-dark p-4 hidden lg:flex flex-col gap-2">
+            <aside className="w-64 fixed inset-y-0 left-0 z-50 bg-white/80 backdrop-blur-xl border-r border-cream-dark p-4 hidden lg:flex flex-col gap-2">
                 {/* Header */}
                 <div className="px-4 py-6 mb-2">
                     <div className="flex items-center gap-3">
@@ -113,7 +113,7 @@ export const Layout = () => {
             {/* Keeping it consistent: It shows on LG-hidden, so mobile/tablet still sees bottom nav. */}
             <div className="fixed bottom-0 left-0 right-0 z-50 bg-cream-light/90 backdrop-blur-xl border-t border-cream-dark/50 p-2 lg:hidden">
                 <nav className="flex items-center justify-around">
-                    <NavLink to="/generator" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                    <NavLink to="/generator" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-primary bg-primary/10" : "text-bronze-light")}>
                         {({ isActive }) => (
                             <>
                                 <Sparkles size={20} strokeWidth={isActive ? 2.5 : 2} />
@@ -121,7 +121,7 @@ export const Layout = () => {
                             </>
                         )}
                     </NavLink>
-                    <NavLink to="/image-editor" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                    <NavLink to="/image-editor" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-primary bg-primary/10" : "text-bronze-light")}>
                         {({ isActive }) => (
                             <>
                                 <Palette size={20} strokeWidth={isActive ? 2.5 : 2} />
@@ -131,7 +131,7 @@ export const Layout = () => {
                     </NavLink>
 
 
-                    <NavLink to="/print-sheet" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                    <NavLink to="/print-sheet" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-primary bg-primary/10" : "text-bronze-light")}>
                         {({ isActive }) => (
                             <>
                                 <Printer size={20} strokeWidth={isActive ? 2.5 : 2} />
@@ -139,7 +139,7 @@ export const Layout = () => {
                             </>
                         )}
                     </NavLink>
-                    <NavLink to="/gallery" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-violet-600 bg-violet-50" : "text-slate-400")}>
+                    <NavLink to="/gallery" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-primary bg-primary/10" : "text-bronze-light")}>
                         {({ isActive }) => (
                             <>
                                 <FolderHeart size={20} strokeWidth={isActive ? 2.5 : 2} />
@@ -154,7 +154,7 @@ export const Layout = () => {
             <main className="flex-1 min-w-0 pb-20 lg:pb-0 lg:ml-64 transition-all duration-300">
                 {/* Unified Global Header - Visible on Mobile and Desktop */}
                 {location.pathname !== '/' && (
-                    <div className="flex items-center justify-between py-5 px-8 bg-cream-light/80 backdrop-blur-xl border-b border-cream-dark/50 sticky top-0 z-40 transition-all duration-300">
+                    <div className="flex items-center justify-between py-5 px-8 bg-white/80 backdrop-blur-xl border-b border-cream-dark/50 sticky top-0 z-40 transition-all duration-300">
                         <div className="flex items-center gap-4">
                             <NavLink to="/" className="w-10 h-10 bg-white/50 hover:bg-white border border-cream-dark/50 rounded-full flex items-center justify-center text-bronze-light hover:text-primary transition-all shadow-sm hover:shadow-md hover:scale-105 active:scale-95 group">
                                 <ArrowLeft size={20} strokeWidth={2.5} className="group-hover:-translate-x-0.5 transition-transform" />

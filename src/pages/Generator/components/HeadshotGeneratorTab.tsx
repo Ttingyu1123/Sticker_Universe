@@ -435,7 +435,7 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                 <div className="lg:col-span-4 space-y-6">
 
                     {/* 1. Upload & Crop Preview */}
-                    <div className="bg-white/60 backdrop-blur-xl border border-cream-dark rounded-[2rem] p-6 shadow-sm">
+                    <div className="bg-cream backdrop-blur-xl border border-cream-dark rounded-[2rem] p-6 shadow-sm">
                         <h3 className="text-sm font-black text-bronze-light uppercase tracking-widest mb-4 flex items-center gap-2">
                             <Camera size={16} /> {t('headshot.step1_upload')}
                         </h3>
@@ -478,7 +478,7 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                     </div>
 
                     {/* 2. Settings */}
-                    <div className="bg-white/60 backdrop-blur-xl border border-cream-dark rounded-[2rem] p-6 shadow-sm space-y-6">
+                    <div className="bg-cream backdrop-blur-xl border border-cream-dark rounded-[2rem] p-6 shadow-sm space-y-6">
                         <h3 className="text-sm font-black text-bronze-light uppercase tracking-widest mb-2 flex items-center gap-2">
                             <User size={16} /> {t('headshot.step2_settings')}
                         </h3>
@@ -698,7 +698,7 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                         <Button
                             onClick={generateHeadshot}
                             disabled={!croppedImage || isGenerating}
-                            className="w-full h-12 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover hover:to-secondary-hover text-white shadow-lg shadow-primary/20 rounded-xl text-base font-black flex items-center justify-center gap-2"
+                            className="w-full h-12 bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/20 rounded-xl text-base font-black flex items-center justify-center gap-2"
                         >
                             {isGenerating ? <Loader2 size={20} className="animate-spin" /> : <Sparkles size={20} />}
                             {t('headshot.action.generate')}
@@ -708,7 +708,7 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
 
                 {/* Right Panel: Results */}
                 <div className="lg:col-span-8">
-                    <div className="bg-white/40 backdrop-blur-xl border border-cream-dark rounded-[2rem] p-8 min-h-[600px] flex flex-col">
+                    <div className="bg-cream backdrop-blur-xl border border-cream-dark rounded-[2rem] p-8 min-h-[600px] flex flex-col">
                         <h3 className="text-sm font-black text-bronze-light uppercase tracking-widest mb-6 flex items-center gap-2">
                             <ImageIcon size={16} /> {t('headshot.results')} ({generatedImages.length})
                         </h3>

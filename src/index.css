@@ -1,30 +1,37 @@
 @import "tailwindcss";
 
 @theme {
-    /* Vintage Palette */
-    --color-primary: #C496A1;
-    /* Dusty Rose */
-    --color-primary-hover: #B08590;
-    --color-primary-light: #DCC0C8;
+    /* Lavender & Mint Palette */
+    --color-primary: #A186B4;
+    /* Lavender */
+    --color-primary-hover: #745A86;
+    /* Deep Lavender */
+    --color-primary-light: #D4C4E0;
+    /* Light Lavender */
 
-    --color-secondary: #8E88A3;
-    /* Lavender Purple */
-    --color-secondary-hover: #7D7791;
+    --color-secondary: #C9E4E2;
+    /* Mint */
+    --color-secondary-hover: #A8CFCB;
+    /* Darker Mint */
 
-    --color-accent: #919D85;
-    /* Muted Sage */
-    --color-accent-hover: #7D8A72;
+    --color-accent: #E3F3F1;
+    /* Mint Ice */
+    --color-accent-hover: #C9E4E2;
 
-    --color-cream: #EBE1C6;
-    /* Vintage Cream */
-    --color-cream-light: #FDFCF8;
-    --color-cream-medium: #F5F0E6;
-    --color-cream-dark: #DDD0B0;
+    --color-cream: #F8F7EE;
+    /* Faint Cream (Surface) */
+    --color-cream-light: #E3F3F1;
+    /* Mint Ice (Background) */
+    --color-cream-medium: #F0EFE6;
+    --color-cream-dark: #D8D7CE;
+    /* Borders */
 
-    --color-bronze: #81785A;
-    /* Antique Bronze */
-    --color-bronze-text: #5D5540;
-    --color-bronze-light: #A3997A;
+    --color-bronze: #4A4055;
+    /* Deep Slate Purple */
+    --color-bronze-text: #4A4055;
+    /* Main Text */
+    --color-bronze-light: #7A6E85;
+    /* Lighter Text */
 }
 
 @layer base {

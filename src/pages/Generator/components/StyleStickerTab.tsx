@@ -338,7 +338,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                         ))}
                     </div>
 
-                    <div className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 space-y-6">
+                    <div className="bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 space-y-6">
 
                         {/* Upload */}
                         <div className="space-y-3">
@@ -383,12 +383,12 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                     <button
                                         key={style.id}
                                         onClick={() => setSelectedStyleId(style.id)}
-                                        className={`p-3 rounded-2xl border transition-all flex flex-col items-center gap-2 text-center group ${selectedStyleId === style.id ? `bg-white ${currentTheme.id === 'taiwanese' ? 'border-secondary' : 'border-primary'} shadow-inner` : 'bg-white/40 border-cream-dark hover:bg-white'}`}
+                                        className={`p-3 rounded-2xl border transition-all flex flex-col items-center gap-2 text-center group ${selectedStyleId === style.id ? 'bg-white border-primary shadow-inner' : 'bg-white/40 border-cream-dark hover:bg-white'}`}
                                     >
-                                        <div className={`p-2 rounded-full transition-colors ${selectedStyleId === style.id ? `${currentTheme.id === 'taiwanese' ? 'bg-secondary' : 'bg-primary'} text-white shadow-md` : 'bg-cream-dark text-bronze-light'}`}>
+                                        <div className={`p-2 rounded-full transition-colors ${selectedStyleId === style.id ? 'bg-primary text-white shadow-md' : 'bg-cream-dark text-bronze-light'}`}>
                                             <Palette size={14} />
                                         </div>
-                                        <span className={`text-[10px] font-black ${selectedStyleId === style.id ? (currentTheme.id === 'taiwanese' ? 'text-secondary' : 'text-primary') : 'text-bronze-light'}`}>{t(`generator.themes.${currentTheme.id}.styles.${style.id}.name`)}</span>
+                                        <span className={`text-[10px] font-black ${selectedStyleId === style.id ? 'text-primary' : 'text-bronze-light'}`}>{t(`generator.themes.${currentTheme.id}.styles.${style.id}.name`)}</span>
                                     </button>
                                 ))}
                             </div>
@@ -402,7 +402,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                     <button
                                         key={phrase.text}
                                         onClick={() => { setSelectedPhrase(phrase.text); setCustomPhrase(''); setBatchSize(1); }}
-                                        className={`p-2 rounded-xl border transition-all text-xs font-bold truncate ${selectedPhrase === phrase.text ? 'bg-bronze-text text-white border-bronze-text shadow-md' : 'bg-white/40 text-bronze-text border-cream-dark hover:bg-white'}`}
+                                        className={`p-2 rounded-xl border transition-all text-xs font-bold truncate ${selectedPhrase === phrase.text ? 'bg-primary text-white border-primary shadow-md' : 'bg-white/40 text-bronze-text border-cream-dark hover:bg-white'}`}
                                         title={phrase.text}
                                     >
                                         {phrase.text}
@@ -428,7 +428,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                         <button
                                             key={size}
                                             onClick={() => { setBatchSize(size); }}
-                                            className={`flex-1 py-2 rounded-xl font-bold text-xs transition-all border ${batchSize === size ? 'bg-bronze-text text-white border-bronze-text shadow-md' : 'bg-white/40 border-cream-dark text-bronze-light hover:bg-white'}`}
+                                            className={`flex-1 py-2 rounded-xl font-bold text-xs transition-all border ${batchSize === size ? 'bg-primary text-white border-primary shadow-md' : 'bg-white/40 border-cream-dark text-bronze-light hover:bg-white'}`}
                                             disabled={size > 1 && !!(selectedPhrase || customPhrase)}
                                         >
                                             {size}
@@ -478,7 +478,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                 </div>
 
                 {/* Right Panel: Results */}
-                <div className="space-y-6 bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 h-fit">
+                <div className="space-y-6 bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 h-fit">
                     <div className="flex items-center justify-between border-b border-cream-dark/50 pb-4">
                         <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest">
                             <Star size={18} className="text-yellow-400" /> {t('generator.action.results')} ({stickers.length})

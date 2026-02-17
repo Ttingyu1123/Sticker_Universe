@@ -61,7 +61,7 @@ const SmartRemoveTab = () => {
 
     const [zoom, setZoom] = useState(1);
     const [pan, setPan] = useState({ x: 0, y: 0 });
-    const [bgColor, setBgColor] = useState<'checkerboard' | 'white' | 'black'>('checkerboard');
+    const [bgColor, setBgColor] = useState<'checkerboard' | 'white' | 'black' | 'green'>('checkerboard');
 
     // History & Gallery
     const [history, setHistory] = useState<ImageData[]>([]);
@@ -622,7 +622,7 @@ const SmartRemoveTab = () => {
                                             min="1" max="100"
                                             value={tolerance}
                                             onChange={(e) => setTolerance(Number(e.target.value))}
-                                            className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-accent"
+                                            className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
                                         />
                                     </div>
                                 </>
@@ -782,10 +782,10 @@ const SmartRemoveTab = () => {
                         </div>
                     </div>
                 </div>
-            </main>
+            </main >
 
             {/* Hidden Input */}
-            <input
+            < input
                 type="file"
                 ref={fileInputRef}
                 className="hidden"

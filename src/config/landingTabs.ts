@@ -23,7 +23,7 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
         id: 'ai-generation',
         titleKey: 'landing.categories.aiGeneration.title',
         descKey: 'landing.categories.aiGeneration.desc',
-        color: 'from-primary to-secondary',
+        color: 'from-primary via-primary-hover to-bronze',
         bgColor: 'bg-primary/5',
         iconColor: 'text-primary',
         tabs: [
@@ -96,9 +96,9 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
         id: 'image-processing',
         titleKey: 'landing.categories.imageProcessing.title',
         descKey: 'landing.categories.imageProcessing.desc',
-        color: 'from-secondary to-accent',
+        color: 'from-primary via-primary-hover to-bronze',
         bgColor: 'bg-secondary/5',
-        iconColor: 'text-secondary',
+        iconColor: 'text-primary',
         tabs: [
             {
                 id: 'batch-crop',
@@ -160,9 +160,9 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
         id: 'creative',
         titleKey: 'landing.categories.creative.title',
         descKey: 'landing.categories.creative.desc',
-        color: 'from-accent to-primary',
+        color: 'from-primary via-primary-hover to-bronze',
         bgColor: 'bg-accent/5',
-        iconColor: 'text-accent',
+        iconColor: 'text-primary',
         tabs: [
             {
                 id: 'photo-collage',
@@ -178,7 +178,7 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
         id: 'printing',
         titleKey: 'landing.categories.printing.title',
         descKey: 'landing.categories.printing.desc',
-        color: 'from-bronze to-bronze-light',
+        color: 'from-primary via-primary-hover to-bronze',
         bgColor: 'bg-bronze/5',
         iconColor: 'text-bronze',
         tabs: [
@@ -206,7 +206,7 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
         id: 'management',
         titleKey: 'landing.categories.management.title',
         descKey: 'landing.categories.management.desc',
-        color: 'from-bronze-light to-primary',
+        color: 'from-primary via-primary-hover to-bronze',
         bgColor: 'bg-bronze-light/5',
         iconColor: 'text-bronze-light',
         tabs: [

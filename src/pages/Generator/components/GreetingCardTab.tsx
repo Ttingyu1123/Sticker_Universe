@@ -978,7 +978,7 @@ Negative Prompt: ${negativePrompt || 'None'}
                 {/* Left: Controls */}
                 <div className="space-y-6">
                     {/* Upload Section */}
-                    <div className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-6 text-center group transition-all hover:bg-white/60">
+                    <div className="bg-cream backdrop-blur-xl border border-cream-dark rounded-[2rem] p-8 min-h-[600px] flex flex-col group transition-all hover:bg-white/60">
                         <div
                             onClick={() => fileInputRef.current?.click()}
                             className={`border-4 border-dashed rounded-3xl h-64 flex flex-col items-center justify-center cursor-pointer overflow-hidden transition-all ${userImage ? 'border-primary' : 'border-bronze-light/30 hover:border-primary/50'}`}
@@ -1035,7 +1035,7 @@ Negative Prompt: ${negativePrompt || 'None'}
                     </div>
 
                     {/* Settings Section */}
-                    <div className="bg-white/40 backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-6 space-y-4">
+                    <div className="bg-cream backdrop-blur-xl border border-cream-dark rounded-[2rem] p-6 shadow-sm mb-6">
                         <h2 className="text-sm font-black text-bronze-light uppercase tracking-widest flex items-center gap-2">
                             <Settings size={16} /> 賀卡設定
                         </h2>
@@ -1359,7 +1359,7 @@ Negative Prompt: ${negativePrompt || 'None'}
                         <button
                             onClick={handleGenerate}
                             disabled={isGenerating || isRegenerating}
-                            className={`w-full py-4 rounded-xl font-black text-lg shadow-lg transform transition-all active:scale-95 flex items-center justify-center gap-2 ${isGenerating ? 'bg-cream-dark text-bronze-light cursor-not-allowed' : 'bg-gradient-to-r from-pink-500 to-rose-400 text-white hover:shadow-pink-500/30'}`}
+                            className={`w-full py-4 rounded-xl font-black text-lg shadow-lg transform transition-all active:scale-95 flex items-center justify-center gap-2 ${isGenerating ? 'bg-cream-dark text-bronze-light cursor-not-allowed' : 'bg-primary hover:bg-primary-hover text-white shadow-primary/30'}`}
                         >
                             {isGenerating ? <RefreshCw className="animate-spin" /> : <Heart className="fill-white" />}
                             {isGenerating ? 'AI 繪製中...' : '生成專屬賀卡'}

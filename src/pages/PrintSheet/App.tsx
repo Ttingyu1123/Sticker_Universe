@@ -21,23 +21,23 @@ const PrintSheetApp: React.FC = () => {
     }, [searchParams]);
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex flex-col">
+        <div className="min-h-screen bg-cream-light text-bronze-text flex flex-col">
             <div className="flex-1 max-w-[1920px] mx-auto w-full p-4 md:p-6">
                 <Tabs className="flex flex-col h-full gap-6" selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as string)}>
-                    <TabList className="flex gap-1 p-1 bg-slate-100/50 backdrop-blur-md rounded-2xl w-fit mx-auto border border-slate-200/50 flex-wrap justify-center mb-2">
+                    <TabList className="flex gap-1 p-1 bg-cream/50 backdrop-blur-md rounded-2xl w-fit mx-auto border border-cream-dark/50 flex-wrap justify-center mb-2">
                         <Tab
                             id="print-studio"
                             className={({ isSelected }) => `
                         px-5 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer outline-none flex items-center gap-2.5 select-none
                         ${isSelected
-                                    ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5 scale-[1.02]'
-                                    : 'text-slate-500 hover:text-indigo-600 hover:bg-white/60'
+                                    ? 'bg-white text-primary shadow-sm ring-1 ring-primary/20 scale-[1.02]'
+                                    : 'text-bronze-light hover:text-primary hover:bg-white/60'
                                 }
                     `}
                         >
                             {({ isSelected }) => (
                                 <>
-                                    <Printer size={18} className={isSelected ? 'fill-indigo-100/50' : ''} />
+                                    <Printer size={18} className={isSelected ? 'fill-primary/20' : ''} />
                                     {t('printSheet.tabs.printStudio') || '貼紙列印室'}
                                 </>
                             )}
@@ -47,21 +47,21 @@ const PrintSheetApp: React.FC = () => {
                             className={({ isSelected }) => `
                         px-5 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer outline-none flex items-center gap-2.5 select-none
                         ${isSelected
-                                    ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5 scale-[1.02]'
-                                    : 'text-slate-500 hover:text-indigo-600 hover:bg-white/60'
+                                    ? 'bg-white text-primary shadow-sm ring-1 ring-primary/20 scale-[1.02]'
+                                    : 'text-bronze-light hover:text-primary hover:bg-white/60'
                                 }
                     `}
                         >
                             {({ isSelected }) => (
                                 <>
-                                    <IdCard size={18} className={isSelected ? 'fill-indigo-100/50' : ''} />
+                                    <IdCard size={18} className={isSelected ? 'fill-primary/20' : ''} />
                                     {t('printSheet.tabs.idPrint') || '證件照列印'}
                                 </>
                             )}
                         </Tab>
                     </TabList>
 
-                    <div className="flex-1 bg-white rounded-3xl shadow-xl shadow-indigo-100/50 border border-white overflow-hidden min-h-[600px] relative">
+                    <div className="flex-1 bg-cream rounded-3xl shadow-xl shadow-primary/5 border border-cream-dark overflow-hidden min-h-[600px] relative">
                         <TabPanel id="print-studio" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <PrintSheetTab />

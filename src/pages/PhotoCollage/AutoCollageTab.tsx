@@ -304,7 +304,7 @@ export const AutoCollageTab: React.FC = () => {
     const selectedImage = images.find(i => i.id === selectedImageId);
 
     return (
-        <div className="flex h-[calc(100vh-140px)] w-full flex-col md:flex-row overflow-hidden bg-slate-50 relative">
+        <div className="flex h-[calc(100vh-140px)] w-full flex-col md:flex-row overflow-hidden bg-cream-light relative">
 
             {/* Gallery Picker Modal */}
             {showGalleryPicker && (
@@ -320,7 +320,7 @@ export const AutoCollageTab: React.FC = () => {
 
                 {/* Toolbar (Zoom & Actions) */}
                 <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-start pointer-events-none">
-                    <div className="pointer-events-auto flex items-center gap-2 bg-white/90 backdrop-blur shadow-sm p-1.5 rounded-xl border border-cream-dark">
+                    <div className="pointer-events-auto flex items-center gap-2 bg-cream/90 backdrop-blur shadow-sm p-1.5 rounded-xl border border-cream-dark">
                         <button
                             onClick={handleZoomOut}
                             className="p-2 hover:bg-cream-light rounded-lg text-bronze-light hover:text-bronze"
@@ -340,7 +340,7 @@ export const AutoCollageTab: React.FC = () => {
                         <button
                             onClick={handleSaveToGallery}
                             disabled={isSaving}
-                            className="bg-white/90 backdrop-blur shadow-sm text-secondary px-4 py-2 rounded-xl border border-secondary/20 flex items-center gap-2 font-black hover:bg-secondary/5 transition-colors disabled:opacity-50"
+                            className="bg-cream/90 backdrop-blur shadow-sm text-secondary px-4 py-2 rounded-xl border border-secondary/20 flex items-center gap-2 font-black hover:bg-secondary/5 transition-colors disabled:opacity-50"
                             title={t('editor.toolbar.saveToGallery')}
                         >
                             <Save size={16} />
@@ -359,12 +359,12 @@ export const AutoCollageTab: React.FC = () => {
 
                 {/* Canvas Area */}
                 <div
-                    className="flex-1 bg-slate-50 flex items-center justify-center overflow-hidden p-8"
+                    className="flex-1 bg-cream-light flex items-center justify-center overflow-hidden p-8"
                     onDragOver={handleCanvasDragOver}
                     onDrop={handleCanvasDrop}
                 >
                     {images.length === 0 ? (
-                        <div className="text-center p-10 border-4 border-dashed border-cream-dark rounded-3xl bg-white/40 backdrop-blur-sm max-w-md">
+                        <div className="text-center p-10 border-4 border-dashed border-cream-dark rounded-3xl bg-cream/60 backdrop-blur-sm max-w-md">
                             <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
                                 <ImageIcon size={40} />
                             </div>
@@ -394,7 +394,7 @@ export const AutoCollageTab: React.FC = () => {
             </main>
 
             {/* Sidebar Controls - RIGHT SIDE */}
-            <aside className="w-full md:w-80 bg-white/80 backdrop-blur-md border-l border-cream-dark h-full overflow-y-auto flex flex-col z-20 shadow-xl shadow-bronze/5">
+            <aside className="w-full md:w-80 bg-cream/90 backdrop-blur-md border-l border-cream-dark h-full overflow-y-auto flex flex-col z-20 shadow-xl shadow-bronze/5">
                 <div className="p-4 border-b border-cream-dark/50">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="font-black text-bronze">{t('collage.photos')} ({images.length}/12)</h2>

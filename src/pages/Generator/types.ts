@@ -41,8 +41,8 @@ export const THEMES: StickerTheme[] = [
     name: '台味霓虹',
     icon: 'Zap',
     colors: {
-      primary: 'text-pink-500',
-      secondary: 'bg-pink-500',
+      primary: 'text-primary',
+      secondary: 'bg-primary',
       background: 'from-purple-900 to-slate-900' // Dark mode vibe
     },
     styles: [
@@ -103,8 +103,8 @@ export const THEMES: StickerTheme[] = [
     name: '文青手繪',
     icon: 'Feather',
     colors: {
-      primary: 'text-teal-600',
-      secondary: 'bg-teal-600',
+      primary: 'text-primary',
+      secondary: 'bg-primary',
       background: 'from-stone-50 to-orange-50' // Light paper vibe
     },
     styles: [
@@ -177,8 +177,8 @@ export const THEMES: StickerTheme[] = [
     name: '3D軟糖黏土',
     icon: 'Cloud',
     colors: {
-      primary: 'text-sky-500',
-      secondary: 'bg-sky-500',
+      primary: 'text-primary',
+      secondary: 'bg-primary',
       background: 'from-blue-50 to-pink-50' // Soft pastel layout
     },
     styles: [
@@ -239,8 +239,8 @@ export const THEMES: StickerTheme[] = [
     name: 'Y2K千禧辣妹',
     icon: 'Disc',
     colors: {
-      primary: 'text-fuchsia-600',
-      secondary: 'bg-fuchsia-600',
+      primary: 'text-primary',
+      secondary: 'bg-primary',
       background: 'from-slate-900 to-fuchsia-900' // Cyber vibe
     },
     styles: [
@@ -301,8 +301,8 @@ export const THEMES: StickerTheme[] = [
     name: '美式復古漫畫',
     icon: 'Tv',
     colors: {
-      primary: 'text-red-600',
-      secondary: 'bg-red-600',
+      primary: 'text-primary',
+      secondary: 'bg-primary',
       background: 'from-yellow-50 to-red-50' // Vintage paper
     },
     styles: [
@@ -363,8 +363,8 @@ export const THEMES: StickerTheme[] = [
     name: '浪漫夢幻',
     icon: 'Heart',
     colors: {
-      primary: 'text-rose-400',
-      secondary: 'bg-rose-400',
+      primary: 'text-primary',
+      secondary: 'bg-primary',
       background: 'from-rose-50 to-pink-100' // Romantic vibe
     },
     styles: [

@@ -126,7 +126,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
             <div className="lg:col-span-5 space-y-6">
 
                 {/* 1. Characters Section */}
-                <div className="bg-white/60 border border-cream-dark rounded-[2rem] p-6 backdrop-blur-sm shadow-sm">
+                <div className="bg-cream border border-cream-dark rounded-[2rem] p-6 backdrop-blur-sm shadow-sm">
                     <h2 className="text-lg font-black text-bronze mb-4 flex items-center gap-2">
                         <span className="bg-primary/10 text-primary w-6 h-6 rounded-full flex items-center justify-center text-xs border border-primary/20">1</span>
                         角色設定
@@ -138,7 +138,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                 </div>
 
                 {/* 2. Style Section */}
-                <div className="bg-white/60 border border-cream-dark rounded-[2rem] p-6 backdrop-blur-sm shadow-sm">
+                <div className="bg-cream border border-cream-dark rounded-[2rem] p-6 backdrop-blur-sm shadow-sm">
                     <h2 className="text-lg font-black text-bronze mb-4 flex items-center gap-2">
                         <span className="bg-primary/10 text-primary w-6 h-6 rounded-full flex items-center justify-center text-xs border border-primary/20">2</span>
                         繪畫風格
@@ -185,7 +185,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                 </div>
 
                 {/* 3. Layout Section */}
-                <div className="bg-white/60 border border-cream-dark rounded-[2rem] p-6 backdrop-blur-sm shadow-sm">
+                <div className="bg-cream border border-cream-dark rounded-[2rem] p-6 backdrop-blur-sm shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-black text-bronze flex items-center gap-2">
                             <span className="bg-primary/10 text-primary w-6 h-6 rounded-full flex items-center justify-center text-xs border border-primary/20">3</span>
@@ -220,7 +220,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                 </div>
 
                 {/* 4. Story Section (Moved Here) */}
-                <div className="bg-white/60 border border-cream-dark rounded-[2rem] p-6 backdrop-blur-sm shadow-sm">
+                <div className="bg-cream border border-cream-dark rounded-[2rem] p-6 backdrop-blur-sm shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-black text-bronze flex items-center gap-2">
                             <span className="bg-primary/10 text-primary w-6 h-6 rounded-full flex items-center justify-center text-xs border border-primary/20">4</span>
@@ -245,7 +245,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                 </div>
 
                 {/* Advanced Settings Accordion */}
-                <div className="bg-white/60 border border-cream-dark rounded-[2rem] overflow-hidden backdrop-blur-sm shadow-sm">
+                <div className="bg-cream border border-cream-dark rounded-[2rem] overflow-hidden backdrop-blur-sm shadow-sm">
                     <button
                         onClick={() => setShowAdvanced(!showAdvanced)}
                         className="w-full flex items-center justify-between p-4 text-left text-bronze hover:bg-cream-light transition-colors"
@@ -329,7 +329,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                     <button
                         onClick={handleGenerate}
                         disabled={isLoading}
-                        className="w-full group relative flex items-center justify-center px-8 py-4 font-black text-white transition-all duration-200 bg-gradient-to-r from-primary to-rose-400 rounded-[2rem] hover:shadow-lg hover:shadow-primary/30 disabled:opacity-70 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99]"
+                        className="w-full group relative flex items-center justify-center px-8 py-4 font-black text-white transition-all duration-200 bg-primary hover:bg-primary-hover rounded-[2rem] hover:shadow-lg hover:shadow-primary/30 disabled:opacity-70 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99]"
                     >
                         {isLoading ? (
                             <RefreshCw className="w-5 h-5 animate-spin mr-2" />

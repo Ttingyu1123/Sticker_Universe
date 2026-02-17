@@ -7,7 +7,7 @@ import {
   AlignHorizontalJustifyCenter, AlignVerticalJustifyCenter,
   ArrowDown, ArrowUp, Trash2, Upload, Copy,
   Layers, Settings, Type, Image as ImageIcon, ChevronUp, ChevronDown,
-  FlipHorizontal, X, ArrowRight, MessageCircle
+  FlipHorizontal, ArrowRight, MessageCircle
 } from 'lucide-react';
 import { ColorPickerInput } from './ColorPickerInput';
 
@@ -558,7 +558,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </>
         )}
 
-        <div className="pt-6 mt-6 border-t border-slate-100">
+        <div className="pt-6 mt-6 border-t border-cream-light">
           <button
             onClick={onDeleteLayer}
             className="w-full flex items-center justify-center space-x-2 bg-secondary/10 text-secondary py-3 rounded-xl hover:bg-secondary/20 hover:shadow-inner transition-colors font-bold text-sm"

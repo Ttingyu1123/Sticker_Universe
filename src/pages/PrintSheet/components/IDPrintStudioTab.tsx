@@ -176,7 +176,7 @@ const IDPrintStudioTab: React.FC = () => {
             )}
 
             {/* Sidebar / Control Panel */}
-            <aside className="w-full lg:w-96 bg-white border-r border-cream-dark flex flex-col lg:h-full max-h-[45vh] lg:max-h-none z-10 shadow-sm flex-shrink-0 overflow-hidden">
+            <aside className="w-full lg:w-96 bg-cream/90 backdrop-blur-md border-r border-cream-dark flex flex-col lg:h-full max-h-[45vh] lg:max-h-none z-10 shadow-sm flex-shrink-0 overflow-hidden">
                 <div className="p-4 border-b border-cream-dark/30">
                     <div className="flex items-center gap-2 text-bronze font-bold text-lg mb-1">
                         <Layout size={24} />
@@ -413,10 +413,10 @@ const IDPrintStudioTab: React.FC = () => {
             </aside>
 
             {/* Main Content / Workspace */}
-            <main className="flex-1 bg-slate-50 relative overflow-hidden flex flex-col">
+            <main className="flex-1 bg-cream-light relative overflow-hidden flex flex-col">
                 {/* State: Cropping */}
                 {cropSession ? (
-                    <div className="flex-1 p-2 md:p-8 flex flex-col h-full bg-slate-50">
+                    <div className="flex-1 p-2 md:p-8 flex flex-col h-full bg-cream-light">
                         <header className="flex justify-between items-center mb-2 md:mb-4 flex-shrink-0">
                             <div>
                                 <h2 className="text-lg md:text-2xl font-bold text-bronze">
@@ -457,7 +457,7 @@ const IDPrintStudioTab: React.FC = () => {
                                         </p>
                                     </div>
                                 </header>
-                                <div className="flex-1 min-h-0 bg-slate-100/50 rounded-lg md:rounded-xl border border-cream-dark/20 flex flex-col relative overflow-hidden shadow-sm">
+                                <div className="flex-1 min-h-0 bg-white/50 rounded-lg md:rounded-xl border border-cream-dark/20 flex flex-col relative overflow-hidden shadow-sm">
                                     <div className="absolute inset-0 overflow-auto p-2 md:p-4 flex items-center justify-center">
                                         <LayoutPreview assets={assets} config={config} />
                                     </div>

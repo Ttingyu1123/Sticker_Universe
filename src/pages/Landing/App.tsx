@@ -40,7 +40,7 @@ const Landing = () => {
                     <h1 className="text-5xl sm:text-7xl font-black tracking-tight text-bronze mb-8 leading-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
                         {t('landing.heroTitle').split('AI')[0]}
                         <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary-hover to-bronze">
                             AI {t('landing.heroTitle').split('AI')[1] || t('landing.heroTitle')}
                         </span>
                     </h1>
@@ -59,15 +59,15 @@ const Landing = () => {
                         </div>
                         <div className="w-px h-8 bg-cream-dark hidden sm:block" />
                         <div className="flex items-center gap-2">
-                            <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
-                                <span className="text-2xl font-black text-secondary">5</span>
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                <span className="text-2xl font-black text-primary">5</span>
                             </div>
                             <span className="text-sm font-bold text-bronze-text">{t('landing.stats.categories')}</span>
                         </div>
                         <div className="w-px h-8 bg-cream-dark hidden sm:block" />
                         <div className="flex items-center gap-2">
-                            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                                <Sparkles size={20} className="text-accent" fill="currentColor" />
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                <Sparkles size={20} className="text-primary" fill="currentColor" />
                             </div>
                             <span className="text-sm font-bold text-bronze-text">{t('landing.stats.aiPowered')}</span>
                         </div>

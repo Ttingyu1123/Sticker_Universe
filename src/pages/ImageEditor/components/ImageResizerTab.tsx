@@ -310,15 +310,15 @@ const ImageResizerTab: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50/50 p-6 rounded-3xl gap-6 overflow-hidden">
+        <div className="flex flex-col h-full bg-white/50 p-6 rounded-3xl gap-6 overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-                        <Expand className="text-indigo-600" />
+                    <h2 className="text-2xl font-black text-bronze-text flex items-center gap-2">
+                        <Expand className="text-primary" />
                         {t('editor.resize.title') || 'Resize Image'}
                     </h2>
-                    <p className="text-slate-500 text-sm mt-1">
+                    <p className="text-bronze-light text-sm mt-1">
                         {t('editor.resize.subtitle') || 'Easily resize, scale, and optimize your images dimensions.'}
                     </p>
                 </div>
@@ -326,7 +326,7 @@ const ImageResizerTab: React.FC = () => {
                 {resizedImage && (
                     <button
                         onClick={handleDownload}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-200 transition-all hover:scale-105 active:scale-95"
+                        className="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95"
                     >
                         <Download size={18} />
                         {t('common.download') || 'Download Image'}
@@ -336,14 +336,14 @@ const ImageResizerTab: React.FC = () => {
 
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden">
                 {/* Left: Controls */}
-                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col gap-6 overflow-y-auto custom-scrollbar">
+                <div className="bg-white rounded-2xl border border-cream-dark p-6 shadow-sm flex flex-col gap-6 overflow-y-auto custom-scrollbar">
 
                     {/* Upload */}
                     {!originalImage ? (
                         <div className="space-y-4 h-full flex flex-col justify-center min-h-[300px]">
                             <div
                                 onClick={() => fileInputRef.current?.click()}
-                                className="border-2 border-dashed border-slate-300 rounded-2xl p-8 flex flex-col items-center justify-center text-slate-400 hover:text-indigo-500 hover:border-indigo-400 hover:bg-indigo-50/50 transition-all cursor-pointer"
+                                className="border-2 border-dashed border-cream-dark rounded-2xl p-8 flex flex-col items-center justify-center text-bronze-light hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer"
                             >
                                 <input
                                     type="file"
@@ -351,6 +351,8 @@ const ImageResizerTab: React.FC = () => {
                                     onChange={handleFileChange}
                                     className="hidden"
                                     accept="image/*"
+                                    title={t('editor.resize.uploadPrompt') || 'Upload Image'}
+                                    aria-label={t('editor.resize.uploadPrompt') || 'Upload Image'}
                                 />
                                 <div className="bg-slate-100 p-4 rounded-full mb-3 group-hover:bg-indigo-100 transition-colors">
                                     <Upload size={28} />
@@ -360,14 +362,14 @@ const ImageResizerTab: React.FC = () => {
                             </div>
 
                             <div className="flex items-center gap-3">
-                                <div className="flex-1 h-px bg-slate-200"></div>
-                                <span className="text-xs text-slate-400 font-bold">{t('common.or') || '或'}</span>
-                                <div className="flex-1 h-px bg-slate-200"></div>
+                                <div className="flex-1 h-px bg-cream-dark"></div>
+                                <span className="text-xs text-bronze-light/50 font-bold">{t('common.or') || '或'}</span>
+                                <div className="flex-1 h-px bg-cream-dark"></div>
                             </div>
 
                             <button
                                 onClick={() => setShowGalleryPicker(true)}
-                                className="w-full bg-white hover:bg-violet-50 border-2 border-slate-200 hover:border-violet-400 text-slate-600 hover:text-violet-600 px-6 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all"
+                                className="w-full bg-white hover:bg-cream-light border-2 border-cream-dark hover:border-primary/50 text-bronze-light hover:text-primary px-6 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all"
                             >
                                 <FolderOpen size={20} />
                                 {t('app.selectFromGallery') || '從作品集選取'}
@@ -377,21 +379,21 @@ const ImageResizerTab: React.FC = () => {
                         <div className="space-y-6">
                             {/* Original Info + Reset */}
                             <div className="flex items-center justify-between gap-2">
-                                <div className="flex-1 bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm">
+                                <div className="flex-1 bg-cream-light p-3 rounded-xl border border-cream-dark text-sm">
                                     <div className="flex items-center justify-between mb-1">
-                                        <span className="text-slate-500 text-xs">原始尺寸</span>
-                                        <span className="font-mono font-bold text-slate-700 text-sm">{originalDimensions.width} x {originalDimensions.height} px</span>
+                                        <span className="text-bronze-light text-xs">原始尺寸</span>
+                                        <span className="font-mono font-bold text-bronze-text text-sm">{originalDimensions.width} x {originalDimensions.height} px</span>
                                     </div>
                                     {originalFileSize > 0 && (
                                         <div className="flex items-center justify-between">
-                                            <span className="text-slate-500 text-xs">檔案大小</span>
-                                            <span className="font-mono text-slate-600 text-xs">{formatFileSize(originalFileSize)}</span>
+                                            <span className="text-bronze-light text-xs">檔案大小</span>
+                                            <span className="font-mono text-bronze-text text-xs">{formatFileSize(originalFileSize)}</span>
                                         </div>
                                     )}
                                 </div>
                                 <button
                                     onClick={handleReset}
-                                    className="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-sm transition-all flex-shrink-0"
+                                    className="px-4 py-3 bg-white hover:bg-cream-light border border-cream-dark text-bronze-light hover:text-bronze-text rounded-xl font-bold text-sm transition-all flex-shrink-0"
                                 >
                                     重置
                                 </button>
@@ -399,64 +401,64 @@ const ImageResizerTab: React.FC = () => {
 
                             {/* Resized Image Info */}
                             {resizedImage && resizedFileSize > 0 && (
-                                <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-100 text-sm">
+                                <div className="bg-primary/5 p-3 rounded-xl border border-primary/20 text-sm">
                                     <div className="flex items-center justify-between mb-1">
-                                        <span className="text-indigo-600 text-xs font-bold">✨ 處理後尺寸</span>
-                                        <span className="font-mono font-bold text-indigo-700 text-sm">{targetWidth} x {targetHeight} px</span>
+                                        <span className="text-primary text-xs font-bold">✨ 處理後尺寸</span>
+                                        <span className="font-mono font-bold text-primary text-sm">{targetWidth} x {targetHeight} px</span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-indigo-600 text-xs">檔案大小</span>
-                                        <span className="font-mono text-indigo-700 text-xs">{formatFileSize(resizedFileSize)}</span>
+                                        <span className="text-primary text-xs">檔案大小</span>
+                                        <span className="font-mono text-primary text-xs">{formatFileSize(resizedFileSize)}</span>
                                     </div>
                                 </div>
                             )}
 
-                            <hr className="border-slate-100" />
+                            <hr className="border-cream-dark/50" />
 
                             {/* Scale Sections */}
                             <div className="space-y-6">
                                 {/* Section 1: Common Presets */}
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2 text-slate-700 font-bold text-sm">
-                                            <Expand size={14} className="text-violet-500" />
+                                        <div className="flex items-center gap-2 text-bronze-text font-bold text-sm">
+                                            <Expand size={14} className="text-primary" />
                                             <span>常用尺寸</span>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button
                                             onClick={() => { setTargetWidth(370); setTargetHeight(320); setScalePercent(Math.round((370 / originalDimensions.width) * 100)); }}
-                                            className="px-3 py-2 bg-white hover:bg-violet-50 border border-slate-200 hover:border-violet-400 rounded-lg text-xs font-bold text-slate-600 hover:text-violet-600 transition-all"
+                                            className="px-3 py-2 bg-white hover:bg-cream-light border border-cream-dark hover:border-primary/50 rounded-lg text-xs font-bold text-bronze-light hover:text-primary transition-all"
                                         >
                                             LINE 貼圖 (370x320)
                                         </button>
                                         <button
                                             onClick={() => { setTargetWidth(1080); setTargetHeight(1080); setScalePercent(Math.round((1080 / originalDimensions.width) * 100)); }}
-                                            className="px-3 py-2 bg-white hover:bg-violet-50 border border-slate-200 hover:border-violet-400 rounded-lg text-xs font-bold text-slate-600 hover:text-violet-600 transition-all"
+                                            className="px-3 py-2 bg-white hover:bg-cream-light border border-cream-dark hover:border-primary/50 rounded-lg text-xs font-bold text-bronze-light hover:text-primary transition-all"
                                         >
                                             IG 正方形 (1080x1080)
                                         </button>
                                         <button
                                             onClick={() => { setTargetWidth(1920); setTargetHeight(1080); setScalePercent(Math.round((1920 / originalDimensions.width) * 100)); }}
-                                            className="px-3 py-2 bg-white hover:bg-violet-50 border border-slate-200 hover:border-violet-400 rounded-lg text-xs font-bold text-slate-600 hover:text-violet-600 transition-all"
+                                            className="px-3 py-2 bg-white hover:bg-cream-light border border-cream-dark hover:border-primary/50 rounded-lg text-xs font-bold text-bronze-light hover:text-primary transition-all"
                                         >
                                             Full HD (1920x1080)
                                         </button>
                                         <button
                                             onClick={() => { setTargetWidth(800); setTargetHeight(600); setScalePercent(Math.round((800 / originalDimensions.width) * 100)); }}
-                                            className="px-3 py-2 bg-white hover:bg-violet-50 border border-slate-200 hover:border-violet-400 rounded-lg text-xs font-bold text-slate-600 hover:text-violet-600 transition-all"
+                                            className="px-3 py-2 bg-white hover:bg-cream-light border border-cream-dark hover:border-primary/50 rounded-lg text-xs font-bold text-bronze-light hover:text-primary transition-all"
                                         >
                                             標準 (800x600)
                                         </button>
                                     </div>
                                 </div>
 
-                                <hr className="border-slate-100" />
+                                <hr className="border-cream-dark/50" />
 
                                 {/* Section 2: Thumbnail / Reduce */}
                                 <div className="space-y-3">
-                                    <div className="flex items-center gap-2 text-slate-700 font-bold text-sm">
-                                        <Shrink size={14} className="text-indigo-500" />
+                                    <div className="flex items-center gap-2 text-bronze-text font-bold text-sm">
+                                        <Shrink size={14} className="text-primary" />
                                         <span>{t('editor.resize.reduceSection') || '縮小與縮圖'}</span>
                                     </div>
                                     <div className="grid grid-cols-4 gap-2">
@@ -464,7 +466,7 @@ const ImageResizerTab: React.FC = () => {
                                             <button
                                                 key={p}
                                                 onClick={() => handleScaleChange(p)}
-                                                className={`py-2 rounded-lg text-xs font-bold transition-all ${scalePercent === p ? 'bg-indigo-100 text-indigo-700 border border-indigo-200' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                                                className={`py-2 rounded-lg text-xs font-bold transition-all ${scalePercent === p ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-white border border-cream-dark text-bronze-light hover:bg-cream-light'}`}
                                             >
                                                 {p}%
                                             </button>
@@ -473,8 +475,10 @@ const ImageResizerTab: React.FC = () => {
                                             <input
                                                 type="number"
                                                 placeholder="%"
-                                                className="w-full h-full text-center text-xs font-bold border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                                className="w-full h-full text-center text-xs font-bold border border-cream-dark rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-bronze-text"
                                                 onChange={(e) => handleScaleChange(Number(e.target.value))}
+                                                title="Scale Percentage"
+                                                aria-label="Scale Percentage"
                                             />
                                         </div>
                                     </div>
@@ -482,49 +486,53 @@ const ImageResizerTab: React.FC = () => {
                                     {/* Manual Dimensions moved here for context */}
                                     <div className="grid grid-cols-2 gap-4 pt-2">
                                         <div className="space-y-1">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t('editor.resize.width') || '寬度'}</label>
+                                            <label className="text-[10px] font-bold text-bronze-light uppercase tracking-wider">{t('editor.resize.width') || '寬度'}</label>
                                             <input
                                                 type="number"
                                                 value={targetWidth}
                                                 onChange={(e) => handleWidthChange(Number(e.target.value))}
-                                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                                                className="w-full bg-cream-light border border-cream-dark rounded-lg px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-bronze-text"
+                                                title={t('editor.resize.width') || 'Width'}
+                                                aria-label={t('editor.resize.width') || 'Width'}
                                             />
                                         </div>
                                         <div className="space-y-1">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t('editor.resize.height') || '高度'}</label>
+                                            <label className="text-[10px] font-bold text-bronze-light uppercase tracking-wider">{t('editor.resize.height') || '高度'}</label>
                                             <input
                                                 type="number"
                                                 value={targetHeight}
                                                 onChange={(e) => handleHeightChange(Number(e.target.value))}
-                                                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                                                className="w-full bg-cream-light border border-cream-dark rounded-lg px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-bronze-text"
+                                                title={t('editor.resize.height') || 'Height'}
+                                                aria-label={t('editor.resize.height') || 'Height'}
                                             />
                                         </div>
                                     </div>
 
                                     {/* Resize Mode Selection */}
                                     <div className="space-y-2 pt-2">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">調整模式</label>
+                                        <label className="text-[10px] font-bold text-bronze-light uppercase tracking-wider">調整模式</label>
                                         <div className="grid grid-cols-3 gap-2">
                                             <button
                                                 onClick={() => setResizeMode('crop')}
-                                                className={`px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${resizeMode === 'crop' ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                                                className={`px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${resizeMode === 'crop' ? 'bg-primary text-white' : 'bg-white border border-cream-dark text-bronze-light hover:bg-cream-light'}`}
                                             >
                                                 ✂️ 裁切
                                             </button>
                                             <button
                                                 onClick={() => setResizeMode('contain')}
-                                                className={`px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${resizeMode === 'contain' ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                                                className={`px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${resizeMode === 'contain' ? 'bg-primary text-white' : 'bg-white border border-cream-dark text-bronze-light hover:bg-cream-light'}`}
                                             >
                                                 📐 填充
                                             </button>
                                             <button
                                                 onClick={() => setResizeMode('stretch')}
-                                                className={`px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${resizeMode === 'stretch' ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                                                className={`px-3 py-2.5 rounded-lg text-xs font-bold transition-all ${resizeMode === 'stretch' ? 'bg-primary text-white' : 'bg-white border border-cream-dark text-bronze-light hover:bg-cream-light'}`}
                                             >
                                                 ↔️ 拉伸
                                             </button>
                                         </div>
-                                        <p className="text-[9px] text-slate-400 px-1">
+                                        <p className="text-[9px] text-bronze-light/50 px-1">
                                             {resizeMode === 'crop' && '保持比例，裁切多餘部分'}
                                             {resizeMode === 'contain' && '保持比例，白色背景填充'}
                                             {resizeMode === 'stretch' && '強制縮放（可能變形）'}
@@ -534,19 +542,19 @@ const ImageResizerTab: React.FC = () => {
                                     <button
                                         onClick={processResize}
                                         disabled={isProcessing}
-                                        className="w-full bg-slate-100 text-slate-600 hover:bg-indigo-600 hover:text-white py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 mt-2"
+                                        className="w-full bg-cream-light text-bronze-text hover:bg-primary hover:text-white py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 mt-2"
                                     >
                                         {isProcessing ? <RotateCw className="animate-spin" size={16} /> : <Expand size={16} />}
                                         {t('editor.resize.applyResize') || '套用調整大小'}
                                     </button>
                                 </div>
 
-                                <hr className="border-slate-100" />
+                                <hr className="border-cream-dark/50" />
 
                                 {/* Section 2: Upscale / Enlarge */}
                                 <div className="space-y-3">
-                                    <div className="flex items-center gap-2 text-slate-700 font-bold">
-                                        <Expand size={16} className="text-amber-500" />
+                                    <div className="flex items-center gap-2 text-bronze-text font-bold">
+                                        <Expand size={16} className="text-secondary" />
                                         <span>高質量放大（傳統插值）</span>
                                     </div>
 
@@ -554,37 +562,37 @@ const ImageResizerTab: React.FC = () => {
                                         <button
                                             onClick={() => handleTraditionalUpscale(2)}
                                             disabled={isProcessing || isUpscaling}
-                                            className="relative overflow-hidden group bg-slate-50 hover:bg-slate-900 border border-slate-200 hover:border-slate-900 rounded-xl p-3 text-left transition-all"
+                                            className="relative overflow-hidden group bg-cream-light hover:bg-[#1a1a1a] border border-cream-dark hover:border-[#1a1a1a] rounded-xl p-3 text-left transition-all"
                                         >
-                                            <span className="block text-lg font-black text-slate-800 group-hover:text-white">2x</span>
-                                            <span className="text-[10px] text-slate-400 font-bold group-hover:text-slate-300">快速放大</span>
-                                            <Expand size={64} className="absolute -bottom-4 -right-4 text-amber-500/10 group-hover:text-amber-500/20 rotate-12" />
+                                            <span className="block text-lg font-black text-bronze-text group-hover:text-white">2x</span>
+                                            <span className="text-[10px] text-bronze-light font-bold group-hover:text-white/70">快速放大</span>
+                                            <Expand size={64} className="absolute -bottom-4 -right-4 text-secondary/10 group-hover:text-secondary/20 rotate-12" />
                                         </button>
                                         <button
                                             onClick={() => handleTraditionalUpscale(4)}
                                             disabled={isProcessing || isUpscaling}
-                                            className="relative overflow-hidden group bg-slate-900 hover:bg-black text-white rounded-xl p-3 text-left shadow-lg shadow-indigo-200/50 transition-all hover:scale-[1.02]"
+                                            className="relative overflow-hidden group bg-[#1a1a1a] hover:bg-black text-white rounded-xl p-3 text-left shadow-lg shadow-black/20 transition-all hover:scale-[1.02]"
                                         >
-                                            <span className="block text-lg font-black text-amber-400">4x</span>
-                                            <span className="text-[10px] text-slate-300 font-bold">多階段放大</span>
+                                            <span className="block text-lg font-black text-secondary">4x</span>
+                                            <span className="text-[10px] text-white/70 font-bold">多階段放大</span>
                                             <Expand size={64} className="absolute -bottom-4 -right-4 text-white/5 group-hover:text-white/10 rotate-12" />
                                         </button>
                                     </div>
 
                                     {/* Loading State Display */}
                                     {isUpscaling && (
-                                        <div className="bg-slate-900 text-white p-3 rounded-lg text-xs flex items-center gap-3">
-                                            <RotateCw className="animate-spin text-amber-400 flex-shrink-0" size={16} />
+                                        <div className="bg-[#1a1a1a] text-white p-3 rounded-lg text-xs flex items-center gap-3">
+                                            <RotateCw className="animate-spin text-secondary flex-shrink-0" size={16} />
                                             <div className="flex-1 min-w-0">
                                                 <div className="font-bold truncate">{upscaleStatus || 'Processing...'}</div>
-                                                <div className="h-1 bg-slate-700 rounded-full mt-1.5 overflow-hidden">
-                                                    <div className="h-full bg-amber-400 transition-all duration-300" style={{ width: `${upscaleProgress}%` }}></div>
+                                                <div className="h-1 bg-white/20 rounded-full mt-1.5 overflow-hidden">
+                                                    <div className="h-full bg-secondary transition-all duration-300" style={{ width: `${upscaleProgress}%` }}></div>
                                                 </div>
                                             </div>
                                         </div>
                                     )}
 
-                                    <div className="text-[10px] text-slate-400 leading-relaxed text-center">
+                                    <div className="text-[10px] text-bronze-light leading-relaxed text-center">
                                         {t('editor.resize.upscaleNote') || '使用本地瀏覽器處理，速度快且完全離線'}
                                     </div>
 
@@ -592,7 +600,7 @@ const ImageResizerTab: React.FC = () => {
                             </div>
 
                             {/* Info */}
-                            <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-amber-800 flex gap-2 items-start">
+                            <div className="bg-secondary/10 border border-secondary/20 rounded-xl p-3 text-xs text-secondary-dark flex gap-2 items-start">
                                 <span className="text-lg">💡</span>
                                 <p>{t('editor.resize.qualityWarning') || '放大圖片（超過100%）可能導致畫質下降或像素化。縮小圖片通常適合製作縮圖。'}</p>
                             </div>
