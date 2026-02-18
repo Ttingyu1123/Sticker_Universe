@@ -261,60 +261,214 @@
     "generator": {
         "title": "AI貼圖工作室",
         "subtitle": "AI 貼圖創作",
-        "apiKey": {
-            "title": "輸入您的 Gemini API Key",
-            "desc": "我們需要您的 Google Gemini API Key 來生成貼圖。它將直接存儲在您的瀏覽器中。",
-            "placeholder": "在此輸入您的 API Key...",
-            "save": "儲存金鑰",
-            "clear": "清除金鑰",
-            "get": "獲取 API Key",
-            "change": "變更金鑰",
-            "invalid": "請輸入有效的 API Key",
-            "expired": "API Key 無效或已過期，請重新輸入。",
-            "notFound": "找不到 API Key 或無效。"
+        "tabs": {
+            "style": "風格貼圖",
+            "holiday": "節慶貼圖",
+            "greeting": "賀卡大師",
+            "manga": "漫畫大師 (Beta)",
+            "cinematic": "影劇海報",
+            "imageGen": "AI 圖片生成",
+            "headshot": "形象照大師",
+            "portrait": "寫真大師"
         },
-        "mode": {
-            "textToSticker": "文字轉貼圖",
-            "aiCaptioning": "AI 智慧配文"
-        },
-        "caption": {
-            "title": "AI 靈感配文",
-            "suggested": "AI 推薦台詞",
-            "uploadTitle": "點擊或拖放圖片至此",
-            "uploadDesc": "上傳照片，讓 AI 幫你想梗",
-            "placeholder": "上傳圖片以獲取推薦台詞！",
-            "useThis": "選用",
-            "analyzing": "正在分析圖片...",
-            "thinking": "正在構思有趣的梗..."
-        },
-        "phases": {
-            "upload": "第一步：上傳",
-            "style": "第二步：風格",
-            "phrase": "第三步：台詞",
-            "settings": "第四步：設定"
-        },
-        "upload": {
-            "dragDrop": "點擊或拖放照片至此",
-            "support": "支援 JPG, PNG, WebP",
-            "remove": "移除",
-            "errorNoImage": "請先上傳照片！"
-        },
-        "phrase": {
-            "custom": "自訂台詞",
-            "customPlaceholder": "或輸入自訂台詞...",
-            "errorNoPhrase": "請選擇或輸入一個台詞！"
-        },
-        "settings": {
-            "batchSize": "生成張數",
-            "includeText": "包含文字",
-            "textOverlay": "文字疊加",
-            "showText": "顯示文字",
-            "noText": "不顯示",
-            "postProcessing": "後製處理",
-            "smartRemoveBg": "智慧去背",
-            "whiteBorder": "產生白邊"
+        "portrait": {
+            "title": "寫真大師",
+            "steps": {
+                "upload": "上傳照片",
+                "style": "選擇風格"
+            },
+            "styles": {
+                "new_year": "新春賀歲",
+                "new_year_desc": "大紅錦緞襖裙，吉祥紋樣與雪白狐毛披風。手持福字，背景為大氣書法，充滿春節喜氣。",
+                "hanfu_studio": "古風漢服",
+                "hanfu_studio_desc": "優雅傳統漢服，飄逸質感。背景為典雅中式攝影棚，如詩如畫。",
+                "cyberpunk": "賽博龐克",
+                "cyberpunk_desc": "未來科技感工裝，霓虹燈光雨夜背景。高對比、前衛視覺。",
+                "nature": "日系清新",
+                "nature_desc": "自然光線，森林草地背景。清新淡雅，展現最自然的你。",
+                "wedding_dress": "夢幻婚紗",
+                "wedding_dress_desc": "華麗蕾絲婚紗與精緻頭紗，搭配唯美花園或教堂背景。浪漫、優雅且充滿光影質感。",
+                "ethnic_style": "民族風情",
+                "ethnic_style_desc": "色彩斑斕的傳統民族服飾，搭配壯麗山川或古鎮背景。展現獨特的文化底蘊與原始美感。",
+                "pure_desire": "純欲寫真",
+                "pure_desire_desc": "輕盈通透的水光感，慵懶居家氛圍。搭配柔和自然光，呈現清新空靈、溫柔迷人的視覺。",
+                "business_elite": "商務精英",
+                "business_elite_desc": "專業合身的西裝與簡潔辦公室背景。光影沉穩，展現專業、自信與值得信賴的商業形象。",
+                "retro_hk": "復古港風",
+                "retro_hk_desc": "模擬 90 年代港片質感。高對比色彩、柔光鏡頭搭配懷舊場景，營造強烈的電影氛圍感。",
+                "magazine_cover": "流行雜誌",
+                "magazine_cover_desc": "高端時尚雜誌封面感。大膽的排版暗示、影棚級打光與精緻妝造。",
+                "winter_snow": "冬日雪景",
+                "winter_snow_desc": "唯美浪漫的銀白世界。飄落的雪花、暖色系的冬裝與如夢似幻的冰雪背景。",
+                "fantasy_animal": "奇幻動物",
+                "fantasy_animal_desc": "虛實結合的神秘冒險。與傳說中的靈獸共處，充滿魔法色彩的史詩場景。",
+                "christmas": "聖誕快樂",
+                "christmas_desc": "溫馨熱鬧的聖誕氛圍。色彩豐富的裝飾、閃爍的燈火與節日專屬的喜悅感。",
+                "handsome_god": "男神萬歲",
+                "handsome_god_desc": "展現極致的英氣與魅力。強調深邃的輪廓、力量感與不同時空背景下的英雄氣概。"
+            },
+            "settings": {
+                "ratio": "圖片比例",
+                "sub_style": "風格微調",
+                "custom": "自訂物品/場景 (選填)",
+                "custom_placeholder": "例如：拿著相機、身後有櫻花樹...",
+                "generate": "生成寫真",
+                "prompt_preview": "提示詞生成預覽 (可自行修改)",
+                "prompt_reset": "恢復預設"
+            },
+            "action": {
+                "generate": "生成寫真",
+                "generating": "AI 攝影師拍攝中..."
+            },
+            "upload_hint": "上傳照片 (建議半身或全身照)",
+            "crop_title": "裁切照片",
+            "results": "寫真成品",
+            "empty_hint": "您的專屬寫真將顯示於此",
+            "sub_styles": {
+                "ny_classic": "經典唐裝",
+                "ny_cheongsam": "新派旗袍",
+                "ny_calligraphy": "墨韻書香",
+                "ny_lion_dance": "舞龍舞獅",
+                "ny_opera": "梨園戲曲",
+                "ny_traditional_red": "正紅大氣",
+                "ny_golden_fortune": "金玉滿堂",
+                "ny_lantern_festival": "元宵燈火",
+                "ny_ink_wash": "水墨賀歲",
+                "ny_floral_blossom": "花開富貴",
+                "hanfu_tang": "大唐盛世",
+                "hanfu_song": "大宋雅韻",
+                "hanfu_ming": "大明風華",
+                "hanfu_dunhuang": "敦煌飛天",
+                "hanfu_scholar": "竹林儒士",
+                "hanfu_fairy": "廣寒仙子",
+                "hanfu_martial": "快意恩仇",
+                "hanfu_court": "宮廷儀仗",
+                "hanfu_simple": "素雅平民",
+                "hanfu_ceremony": "典禮盛裝",
+                "cyber_neon": "霓虹街道",
+                "cyber_lab": "科技實驗室",
+                "cyber_wasteland": "廢土荒原",
+                "cyber_hacker": "駭客中心",
+                "cyber_underground": "地下診所",
+                "cyber_rooftop": "摩天天台",
+                "cyber_market": "賽博夜市",
+                "cyber_glitch": "數位破碎",
+                "cyber_android": "仿生軍團",
+                "cyber_virtual": "虛擬幻象",
+                "nature_forest": "森林物語",
+                "nature_meadow": "陽光草坪",
+                "nature_sea": "蔚藍海岸",
+                "nature_mountain": "高山雲海",
+                "nature_autumn": "楓紅之秋",
+                "nature_spring": "櫻花雨下",
+                "nature_desert": "異域荒漠",
+                "nature_lake": "靜謐湖畔",
+                "nature_garden": "私家花園",
+                "nature_greenhouse": "玻璃溫室",
+                "wedding_classic": "歐式經典",
+                "wedding_forest": "極簡森系",
+                "wedding_chinese": "新中式婚紗",
+                "wedding_beach": "海島浪漫",
+                "wedding_castle": "皇家城堡",
+                "wedding_vintage": "復古宮廷",
+                "wedding_underwater": "水下幻境",
+                "wedding_night": "星空之約",
+                "wedding_minimal": "純白極簡",
+                "wedding_urban": "都會時尚",
+                "ethnic_tibetan": "藏族 (風中祈福)",
+                "ethnic_mongolian": "蒙族 (草原英雄)",
+                "ethnic_miao": "苗族 (銀飾盛裝)",
+                "ethnic_dai": "傣族 (雨林風情)",
+                "ethnic_uyghur": "維族 (天山之舞)",
+                "ethnic_yi": "彝族 (火把節)",
+                "ethnic_zhuang": "壯族 (山歌流水)",
+                "ethnic_bai": "白族 (風花雪月)",
+                "ethnic_kazakh": "哈薩克 (鷹獵天涯)",
+                "ethnic_korean": "韓族 (延邊秋韻)",
+                "pure_white_shirt": "空靈白襯衫",
+                "pure_knitwear": "慵懶針織衫",
+                "pure_floral": "夏日陽光碎花",
+                "pure_bathrobe": "浴袍晨光",
+                "pure_ribbon": "絲帶纏繞",
+                "pure_wet_hair": "水氣氤氳 (濕髮)",
+                "pure_sun_shadow": "百葉窗影",
+                "pure_glass": "磨砂玻璃",
+                "pure_feather": "羽毛紛飛",
+                "pure_milk_bath": "牛奶浴覺醒",
+                "business_executive": "金融主管 (正式)",
+                "business_tech": "科技創業 (休閒)",
+                "business_creative": "創意總監 (時尚)",
+                "business_lawyer": "律政精英 (犀利)",
+                "business_medical": "頂級醫師 (知性)",
+                "business_architect": "建築大師 (結構)",
+                "business_journalist": "戰地記者 (探尋)",
+                "business_pilot": "英氣飛行員",
+                "business_diplomat": "外交大使 (睿智)",
+                "business_trader": "華爾街交易員",
+                "hk_street": "90s 街頭",
+                "hk_studio": "經典室內",
+                "hk_cafe": "茶餐廳氛圍",
+                "hk_detective": "探案電影 (冷峻)",
+                "hk_underworld": "江湖豪情 (義氣)",
+                "hk_classic_bar": "午夜酒吧 (微醺)",
+                "hk_rooftop": "霓虹天台 (俯瞰)",
+                "hk_vintage_shop": "古董唱片行",
+                "hk_taxi": "紅色的士 (流光)",
+                "hk_cinema": "老舊電影院",
+                "magazine_cover_story": "封面故事 (Vogue 風)",
+                "magazine_editorial": "時尚大片 (前衛)",
+                "magazine_street_look": "街頭潮流 (自然光)",
+                "magazine_bw_classic": "黑白經典 (徠卡)",
+                "magazine_pop_art": "波普藝術 (強烈)",
+                "magazine_vintage_glam": "金卡戴珊 (奢華)",
+                "magazine_sport_illustrated": "運動休閒 (活力)",
+                "magazine_minimalist": "極簡美學 (Celine)",
+                "magazine_traveler": "國家地理 (探險)",
+                "magazine_cyber_vibe": "科技時尚 (未來)",
+                "winter_ice_palace": "冰雪宮殿",
+                "winter_snowy_forest": "銀色森林",
+                "winter_cozy_cabin": "暖心木屋",
+                "winter_frozen_lake": "冰晶湖面",
+                "winter_aurora_night": "極光之夜",
+                "winter_ski_resort": "滑雪勝地",
+                "winter_crystal_cave": "水晶冰洞",
+                "winter_reindeer_sleigh": "馴鹿雪橇",
+                "winter_white_christmas": "白色聖誕",
+                "winter_ice_sculpture": "冰雕藝術",
+                "fantasy_phoenix": "神廟鳳凰 (輝煌)",
+                "fantasy_dragon_tamer": "雲端巨龍 (磅礡)",
+                "fantasy_forest_elf": "奇幻神鹿 (自然)",
+                "fantasy_pegasus": "獨角天馬",
+                "fantasy_mermaid_reef": "人魚珊瑚礁",
+                "fantasy_wizard_tower": "魔法師高塔",
+                "fantasy_kitsune": "九尾神狐",
+                "fantasy_steampunk": "蒸氣龐克飛艇",
+                "fantasy_floating_island": "天空浮島",
+                "fantasy_dark_abyss": "深淵領主",
+                "christmas_workshop": "禮物工坊 (童話)",
+                "christmas_sparkling_tree": "燦爛聖誕樹 (浪漫)",
+                "christmas_vintage_red": "復古紅金 (晚宴)",
+                "christmas_snowy_market": "北歐聖誕市集",
+                "christmas_fireplace": "壁爐火光",
+                "christmas_gingerbread": "糖果薑餅屋",
+                "christmas_carol": "報佳音唱詩班",
+                "christmas_reindeer_park": "麋鹿樂園",
+                "christmas_starry_night": "伯利恆之星",
+                "christmas_modern_minimal": "現代極簡藍白",
+                "handsome_dark_knight": "暗夜騎士 (力量)",
+                "handsome_gentle_prince": "優雅王子 (儒雅)",
+                "handsome_ancient_warrior": "不屈戰魂 (史詩)",
+                "handsome_scifi_commander": "星際指揮官",
+                "handsome_noir_detective": "黑色電影偵探",
+                "handsome_cyber_vanguard": "賽博先鋒",
+                "handsome_tribal_chief": "原始部落酋長",
+                "handsome_olymphic_god": "奧林匹斯眾神",
+                "handsome_wasteland_wanderer": "荒原浪人",
+                "handsome_modern_rockstar": "現代搖滾巨星"
+            }
         },
         "action": {
+            "download": "下載圖片",
             "generate": "生成貼圖",
             "generating": "正在施展魔法...",
             "downloadZip": "下載 ZIP",
@@ -334,16 +488,6 @@
                 "layout": "分鏡佈局",
                 "characters": "角色設定"
             }
-        },
-        "tabs": {
-            "style": "風格貼圖",
-            "holiday": "節慶貼圖",
-            "greeting": "賀卡大師",
-            "manga": "漫畫大師",
-            "cinematic": "影劇海報",
-            "imageGen": "AI圖片生成",
-            "headshot": "形象照大師",
-            "portrait": "寫真大師"
         },
         "errors": {
             "general": "生成失敗：",
@@ -580,81 +724,6 @@
                     "唯美日常": "唯美日常"
                 }
             }
-        },
-        "common": {
-            "reset": "重置",
-            "cancel": "取消",
-            "confirm": "確認"
-        },
-        "apiKey": {
-            "title": "輸入您的 Gemini API Key",
-            "desc": "我們需要您的 Google Gemini API Key 來生成貼圖。它將直接存儲在您的瀏覽器中。",
-            "get": "獲取 API Key",
-            "placeholder": "在此貼上 API Key...",
-            "save": "儲存金鑰",
-            "change": "更換 API Key",
-            "clearConfirm": "確定要清除 API Key 嗎？這將會從您的瀏覽器中移除金鑰。",
-            "securityTitle": "安全聲明 (Security Notice)",
-            "securityLocalStorage": "本地儲存 - 金鑰僅存於瀏覽器 (LocalStorage)，絕不上傳至本站伺服器。",
-            "securityDirect": "直接傳輸 - 請求由瀏覽器直接發送至 Google API。",
-            "rememberKey": "記住金鑰 (Remember Key)",
-            "rememberKeyDesc": "勾選後儲存於 LocalStorage，下次自動載入。",
-            "settings": "已設定",
-            "clear": "清除"
-        },
-        "greeting": {
-            "title": "賀卡大師",
-            "settings": {
-                "title": "賀卡設定",
-                "festival": "節日主題",
-                "style": "繪圖風格",
-                "name": "你的名字/暱稱",
-                "namePlaceholder": "例如：小明、Alice...",
-                "message": "想要說的祝福語 (AI 會幫你潤飾)",
-                "messagePlaceholder": "例如：祝你生日快樂，天天開心！"
-            },
-            "action": {
-                "generate": "生成專屬賀卡",
-                "regenerate": "重新繪製中...",
-                "download": "下載賀卡",
-                "upload": "點擊上傳照片 (主角)",
-                "uploadHint": "(建議清晰的人像照)",
-                "gallery": "從作品集選取"
-            },
-            "result": {
-                "to": "To: You | From:",
-                "defaultTitle": "你的專屬賀卡將會出現在這裡"
-            }
-        },
-        "portrait": {
-            "title": "寫真大師",
-            "steps": {
-                "upload": "上傳照片",
-                "style": "選擇風格"
-            },
-            "styles": {
-                "new_year": "新春賀歲",
-                "new_year_desc": "大紅錦緞襖裙，吉祥紋樣與雪白狐毛披風。手持福字，背景為大氣書法，充滿春節喜氣。",
-                "hanfu_studio": "古風漢服",
-                "hanfu_studio_desc": "優雅傳統漢服，飄逸質感。背景為典雅中式攝影棚，如詩如畫。",
-                "cyberpunk": "賽博龐克",
-                "cyberpunk_desc": "未來科技感工裝，霓虹燈光雨夜背景。高對比、前衛視覺。",
-                "nature": "日系清新",
-                "nature_desc": "自然光線，森林草地背景。清新淡雅，展現最自然的你。"
-            },
-            "settings": {
-                "ratio": "圖片比例",
-                "custom": "自訂物品/場景 (選填)",
-                "custom_placeholder": "例如：拿著相機、身後有櫻花樹..."
-            },
-            "action": {
-                "generate": "生成寫真",
-                "generating": "AI 攝影師拍攝中..."
-            },
-            "upload_hint": "上傳照片 (建議半身或全身照)",
-            "crop_title": "裁切照片",
-            "results": "寫真成品",
-            "empty_hint": "您的專屬寫真將顯示於此"
         }
     },
     "packager": {
@@ -1351,6 +1420,15 @@
                     "快速處理"
                 ]
             },
+            "portraitMaster": {
+                "title": "寫真大師",
+                "desc": "AI 攝影師為您拍攝各類寫真人像",
+                "features": [
+                    "光影寫實",
+                    "場景多變",
+                    "藝術風格"
+                ]
+            },
             "batchCrop": {
                 "title": "批量裁切",
                 "desc": "一次處理多張圖片的裁切、調整和優化",
@@ -1405,6 +1483,33 @@
                     "無損縮放"
                 ]
             },
+            "eraserTool": {
+                "title": "魔術橡皮擦",
+                "desc": "手動精細擦除圖片中的特定區域",
+                "features": [
+                    "精準擦除",
+                    "智能填補",
+                    "細節修復"
+                ]
+            },
+            "beautifyTool": {
+                "title": "美化加工",
+                "desc": "為貼圖添加外框、陰影與精緻特效",
+                "features": [
+                    "批次加邊",
+                    "智能陰影",
+                    "預設規格"
+                ]
+            },
+            "layerLab": {
+                "title": "圖層實驗室",
+                "desc": "進階圖層合成與智能邊緣處理技術",
+                "features": [
+                    "智慧邊緣",
+                    "透明度控制",
+                    "實驗性功能"
+                ]
+            },
             "photoCollage": {
                 "title": "照片拼貼",
                 "desc": "多張照片創意拼貼，豐富布局選擇",
@@ -1442,10 +1547,5 @@
                 ]
             }
         }
-    },
-    "manual": {
-        "title": "使用說明書",
-        "subtitle": "完整的貼圖製作工具介紹",
-        "tip": "提示：選擇您需要的工具即可開始創作，所有處理都在本地瀏覽器完成，保護您的隱私安全！"
     }
 }

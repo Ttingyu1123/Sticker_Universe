@@ -53,7 +53,7 @@ const Landing = () => {
                     <div className="flex flex-wrap items-center justify-center gap-6 mb-10 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
                         <div className="flex items-center gap-2">
                             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                <span className="text-2xl font-black text-primary">17</span>
+                                <span className="text-2xl font-black text-primary">19</span>
                             </div>
                             <span className="text-sm font-bold text-bronze-text">{t('landing.stats.tools')}</span>
                         </div>

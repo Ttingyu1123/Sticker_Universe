@@ -89,6 +89,15 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
                 titleKey: 'landing.tabs.headshotMaster.title',
                 descKey: 'landing.tabs.headshotMaster.desc',
                 featuresKey: 'landing.tabs.headshotMaster.features'
+            },
+            {
+                id: 'portrait-master',
+                icon: 'Camera',
+                path: '/generator',
+                tab: 'portrait',
+                titleKey: 'landing.tabs.portraitMaster.title',
+                descKey: 'landing.tabs.portraitMaster.desc',
+                featuresKey: 'landing.tabs.portraitMaster.features'
             }
         ]
     },
@@ -153,6 +162,14 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
                 titleKey: 'landing.tabs.svgConverter.title',
                 descKey: 'landing.tabs.svgConverter.desc',
                 featuresKey: 'landing.tabs.svgConverter.features'
+            },
+            {
+                id: 'layer-lab',
+                icon: 'Library',
+                path: '/layer-lab',
+                titleKey: 'landing.tabs.layerLab.title',
+                descKey: 'landing.tabs.layerLab.desc',
+                featuresKey: 'landing.tabs.layerLab.features'
             }
         ]
     },

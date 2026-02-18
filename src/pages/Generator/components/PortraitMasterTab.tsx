@@ -1,14 +1,29 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GoogleGenAI, Modality } from "@google/genai";
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
-import { Upload, Camera, Sparkles, Scissors, Trash2, Image as ImageIcon, Briefcase, Download, Printer, User, FolderHeart, Wand2, Flower2, Zap, Palmtree, ZoomIn } from 'lucide-react';
+import { Upload, Camera, Sparkles, Scissors, Trash2, Image as ImageIcon, Download, User, FolderHeart, Wand2, Zap, ZoomIn, Edit3 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 
 // Mock types if not available, or import from types.ts
+interface SubStyle {
+    id: string;
+    nameKey: string;
+    prompt: string;
+}
+
+interface PortraitStyle {
+    id: string;
+    icon: string;
+    nameKey: string;
+    descKey: string;
+    prompt: string;
+    subStyles?: SubStyle[];
+}
+
 interface GeneratedImage {
     id: string;
     src: string;
@@ -23,21 +38,31 @@ interface PortraitMasterTabProps {
     onNeedApiKey?: () => void;
 }
 
-const PORTRAIT_STYLES = [
+const PORTRAIT_STYLES: PortraitStyle[] = [
     {
         id: 'new_year',
         icon: 'Flower2',
         nameKey: 'generator.portrait.styles.new_year',
         descKey: 'generator.portrait.styles.new_year_desc',
         prompt: `
-        Subject: A girl (or person based on input image)
+        Subject: A person (based on input image)
         Clothing: Wearing a red brocade jacket with golden auspicious patterns and snowy plum blossoms embroidery, draped with a snow-white fox fur cape.
-        Makeup: Eyebrows like willow leaves, exquisitely painted in dark blue-black. Eyes full of the joy of New Year, with pale gold peach blossom appliques at the corners of the eyes. Lips like cherry beads.
-        Hairstyle: Peony bun, with a few playful strands of hair hanging on the forehead.
-        Pose: Holding a "Fu" (Fortune) character in hand, standing in a courtyard, with a graceful posture.
-        Background: A large, tension-filled black calligraphy "Fu" character (cursive script) as the backdrop, with Spring Festival theme elements.
-        Style: High-quality fashion photography, festive atmosphere, elegant, detailed texture.
-        `
+        Makeup: Festive New Year makeup with cherry red lips.
+        Background: Traditional Chinese Spring Festival courtyard with festive red lanterns and calligraphy.
+        Style: High-quality fashion photography, festive, elegant.
+        `,
+        subStyles: [
+            { id: 'classic', nameKey: 'generator.portrait.sub_styles.ny_classic', prompt: 'Clothing: Red brocade jacket with gold auspicious embroidery. Background: Festive courtyard with red lanterns.' },
+            { id: 'cheongsam', nameKey: 'generator.portrait.sub_styles.ny_cheongsam', prompt: 'Clothing: Modern cheongsam with white fur collar. Setting: Elegant winter garden with light snow.' },
+            { id: 'calligraphy', nameKey: 'generator.portrait.sub_styles.ny_calligraphy', prompt: 'Background: Grand black calligraphy strokes on red paper. Style: Artistic, minimalist, powerful.' },
+            { id: 'lion_dance', nameKey: 'generator.portrait.sub_styles.ny_lion_dance', prompt: 'Setting: Dynamic Chinese lion dance performance in a festive street. Elements: Colorful lion masks, red firecrackers.' },
+            { id: 'opera', nameKey: 'generator.portrait.sub_styles.ny_opera', prompt: 'Style: Traditional Peking Opera aesthetic. Makeup: Elaborate face paint. Clothing: Ornate opera costume.' },
+            { id: 'red', nameKey: 'generator.portrait.sub_styles.ny_traditional_red', prompt: 'Style: Pure festive red theme. Background: Wall of red envelopes and spring couplets.' },
+            { id: 'golden', nameKey: 'generator.portrait.sub_styles.ny_golden_fortune', prompt: 'Theme: Wealth and prosperity. Elements: Gold ingots, golden ornaments, warm glowing light.' },
+            { id: 'lantern', nameKey: 'generator.portrait.sub_styles.ny_lantern_festival', prompt: 'Setting: Night festival with thousands of floating sky lanterns. Lighting: Warm glowing orange light.' },
+            { id: 'ink', nameKey: 'generator.portrait.sub_styles.ny_ink_wash', prompt: 'Style: Traditional Chinese ink wash painting. Minimal color, focus on brushwork and flow.' },
+            { id: 'floral', nameKey: 'generator.portrait.sub_styles.ny_floral_blossom', prompt: 'Theme: Peony flowers in bloom. Setting: Rich garden with pink and red blossoms, representing wealth.' }
+        ]
     },
     {
         id: 'hanfu_studio',
@@ -46,11 +71,22 @@ const PORTRAIT_STYLES = [
         descKey: 'generator.portrait.styles.hanfu_studio_desc',
         prompt: `
         Subject: A person (based on input image)
-        Clothing: Elegant traditional Hanfu, flowing silk robes in pastel colors (light blue and white).
-        Setting: A classical Chinese studio background with ink wash painting screens and a guzheng (zither) prop.
-        Lighting: Soft, ethereal lighting, creating a dreamlike atmosphere.
-        Style: Classical Chinese portrait, poetic, refined, high-definition photography.
-        `
+        Clothing: Elegant traditional Hanfu, flowing silk robes in pastel colors.
+        Setting: Classical Chinese studio with ink wash painting screens and traditional props.
+        Style: Classical Chinese portrait, poetic, refined photography.
+        `,
+        subStyles: [
+            { id: 'tang', nameKey: 'generator.portrait.sub_styles.hanfu_tang', prompt: 'Clothing: Grand Tang dynasty style, vibrant colors, high-waisted skirt. Style: Royal, magnificent.' },
+            { id: 'song', nameKey: 'generator.portrait.sub_styles.hanfu_song', prompt: 'Clothing: Simple and elegant Song dynasty style, light colors, long coat. Style: Intellectual, refined.' },
+            { id: 'ming', nameKey: 'generator.portrait.sub_styles.hanfu_ming', prompt: 'Clothing: Stately Ming dynasty style, cross-collar robe with standing collar. Style: Dignified, traditional.' },
+            { id: 'dunhuang', nameKey: 'generator.portrait.sub_styles.hanfu_dunhuang', prompt: 'Style: Dunhuang flying Apsaras. Clothing: Flowing colorful ribbons, ornate jewelry. Pose: Ethereal and dancing.' },
+            { id: 'scholar', nameKey: 'generator.portrait.sub_styles.hanfu_scholar', prompt: 'Style: Ancient scholar. Setting: Bamboo forest with a stone table and tea set. Mood: Peaceful, scholarly.' },
+            { id: 'fairy', nameKey: 'generator.portrait.sub_styles.hanfu_fairy', prompt: 'Style: Immortal fairy. Setting: Above the clouds with a crescent moon. Mood: Ethereal, celestial.' },
+            { id: 'martial', nameKey: 'generator.portrait.sub_styles.hanfu_martial', prompt: 'Style: Wuxia warrior. Clothing: Simple robust travel robes. Elements: Long sword, weathered straw hat.' },
+            { id: 'court', nameKey: 'generator.portrait.sub_styles.hanfu_court', prompt: 'Style: Imperial court. Setting: Grand Palace hall with golden pillars and red carpets.' },
+            { id: 'simple', nameKey: 'generator.portrait.sub_styles.hanfu_simple', prompt: 'Style: Everyday ancient life. Clothing: Plain linen robes in earth tones. Setting: Rustic village garden.' },
+            { id: 'ceremony', nameKey: 'generator.portrait.sub_styles.hanfu_ceremony', prompt: 'Style: Wedding ceremony. Clothing: Deep red robes with intricate phoenix/dragon embroidery.' }
+        ]
     },
     {
         id: 'cyberpunk_city',
@@ -59,11 +95,22 @@ const PORTRAIT_STYLES = [
         descKey: 'generator.portrait.styles.cyberpunk_desc',
         prompt: `
         Subject: A person (based on input image)
-        Clothing: Techwear, futuristic jacket with glowing neon accents.
-        Setting: A rainy cyberpunk city street at night, with neon signs (pink and blue) reflecting on wet pavement.
-        Lighting: High contrast, dramatic neon lighting, cinematic look.
-        Style: Cyberpunk 2077 aesthetic, futuristic, edgy, highly detailed.
-        `
+        Clothing: Futuristic techwear jacket with glowing neon accents.
+        Setting: Rainy cyberpunk city street at night with multi-colored neon reflections.
+        Style: Cyberpunk aesthetic, futuristic, edgy, high contrast.
+        `,
+        subStyles: [
+            { id: 'neon', nameKey: 'generator.portrait.sub_styles.cyber_neon', prompt: 'Setting: Crowded neon-lit alleyway with holographic advertisements and flying cars.' },
+            { id: 'lab', nameKey: 'generator.portrait.sub_styles.cyber_lab', prompt: 'Setting: Clean laboratory with blue holographic interfaces and high-tech equipment.' },
+            { id: 'wasteland', nameKey: 'generator.portrait.sub_styles.cyber_wasteland', prompt: 'Clothing: Distressed post-apocalyptic techwear. Setting: Desert wasteland with scrap metal structures.' },
+            { id: 'hacker', nameKey: 'generator.portrait.sub_styles.cyber_hacker', prompt: 'Setting: Dimly lit room filled with multiple monitors and green cascading code screens.' },
+            { id: 'underground', nameKey: 'generator.portrait.sub_styles.cyber_underground', prompt: 'Setting: Nightclub with pink and purple laser lights and heavy smoke effects.' },
+            { id: 'rooftop', nameKey: 'generator.portrait.sub_styles.cyber_rooftop', prompt: 'Setting: Skyscraper rooftop overlooking a vast futuristic city with flying traffic.' },
+            { id: 'market', nameKey: 'generator.portrait.sub_styles.cyber_market', prompt: 'Setting: Bustling futuristic street market with synthetic food stalls and robot vendors.' },
+            { id: 'glitch', nameKey: 'generator.portrait.sub_styles.cyber_glitch', prompt: 'Style: Digital glitch art. Elements: Corrupted data visual effects, chromatic aberration.' },
+            { id: 'android', nameKey: 'generator.portrait.sub_styles.cyber_android', prompt: 'Style: Cyborg/Android. Elements: Visible metallic joints, glowing internal circuits on skin.' },
+            { id: 'virtual', nameKey: 'generator.portrait.sub_styles.cyber_virtual', prompt: 'Setting: Inside a virtual reality world with geometric grids and digital light trees.' }
+        ]
     },
     {
         id: 'nature_fresh',
@@ -72,11 +119,257 @@ const PORTRAIT_STYLES = [
         descKey: 'generator.portrait.styles.nature_desc',
         prompt: `
         Subject: A person (based on input image)
-        Clothing: Casual, light, and airy summer outfit (white linen or floral).
-        Setting: A sunlit meadow with wildflowers and a clear blue sky.
-        Lighting: Natural sunlight, golden hour, warm and inviting.
-        Style: Fresh, Japanese magazine style, natural, candid, bright.
-        `
+        Clothing: Casual, light summer outfit.
+        Setting: Sunlit meadow with wildflowers under a clear sky.
+        Style: Fresh, Japanese magazine style, natural, candid, warm tones.
+        `,
+        subStyles: [
+            { id: 'forest', nameKey: 'generator.portrait.sub_styles.nature_forest', prompt: 'Setting: Deep misty forest with sunlight filtering through tall ancient trees.' },
+            { id: 'meadow', nameKey: 'generator.portrait.sub_styles.nature_meadow', prompt: 'Setting: Infinite rolling green hills under a bright midday sun.' },
+            { id: 'sea', nameKey: 'generator.portrait.sub_styles.nature_sea', prompt: 'Setting: Quiet sandy beach at sunset with soft blue ocean waves.' },
+            { id: 'mountain', nameKey: 'generator.portrait.sub_styles.nature_mountain', prompt: 'Setting: High mountain ridge with a sea of clouds below. Mood: Grand, majestic.' },
+            { id: 'autumn', nameKey: 'generator.portrait.sub_styles.nature_autumn', prompt: 'Setting: Path covered in golden and red maple leaves. Lighting: Warm autumn glow.' },
+            { id: 'spring', nameKey: 'generator.portrait.sub_styles.nature_spring', prompt: 'Setting: Under a large blooming cherry blossom tree with falling pink petals.' },
+            { id: 'desert', nameKey: 'generator.portrait.sub_styles.nature_desert', prompt: 'Setting: Vast sand dunes at golden hour. Style: Travel photography vibes.' },
+            { id: 'lake', nameKey: 'generator.portrait.sub_styles.nature_lake', prompt: 'Setting: Crystal clear mountain lake reflecting the surrounding peaks.' },
+            { id: 'garden', nameKey: 'generator.portrait.sub_styles.nature_garden', prompt: 'Setting: Lush English country garden with roses and lavender.' },
+            { id: 'greenhouse', nameKey: 'generator.portrait.sub_styles.nature_greenhouse', prompt: 'Setting: Modern glass conservatory filled with exotic tropical plants.' }
+        ]
+    },
+    {
+        id: 'wedding_dress',
+        icon: 'Heart',
+        nameKey: 'generator.portrait.styles.wedding_dress',
+        descKey: 'generator.portrait.styles.wedding_dress_desc',
+        prompt: `
+        Subject: A person (based on input image)
+        Clothing: Gorgeous white wedding dress with fine details.
+        Lighting: Soft, romantic backlighting.
+        Style: High-end bridal photography, elegant, dreamy.
+        `,
+        subStyles: [
+            { id: 'classic', nameKey: 'generator.portrait.sub_styles.wedding_classic', prompt: 'Style: European classic cathedral setting, grand and timeless.' },
+            { id: 'forest', nameKey: 'generator.portrait.sub_styles.wedding_forest', prompt: 'Style: Minimalist forest aesthetic, natural green background, sheer materials.' },
+            { id: 'modern_chinese', nameKey: 'generator.portrait.sub_styles.wedding_chinese', prompt: 'Style: Modern Chinese style, red and white elements, artistic fusion.' },
+            { id: 'beach', nameKey: 'generator.portrait.sub_styles.wedding_beach', prompt: 'Style: Tropical beach wedding, sunset colors, flowing chiffon dress.' },
+            { id: 'castle', nameKey: 'generator.portrait.sub_styles.wedding_castle', prompt: 'Style: Royal castle wedding, grand staircase, opulent decorations.' },
+            { id: 'vintage', nameKey: 'generator.portrait.sub_styles.wedding_vintage', prompt: 'Style: 1920s vintage glam, lace details, sepia-toned lighting.' },
+            { id: 'underwater', nameKey: 'generator.portrait.sub_styles.wedding_underwater', prompt: 'Style: Surreal underwater wedding. Ethereal floating fabric, bubbles, blue light.' },
+            { id: 'night', nameKey: 'generator.portrait.sub_styles.wedding_night', prompt: 'Style: Night garden wedding with hanging fairy lights and dark blue sky.' },
+            { id: 'minimal', nameKey: 'generator.portrait.sub_styles.wedding_minimal', prompt: 'Style: Ultra-minimalist studio bridal. Pure white background, high-fashion pose.' },
+            { id: 'urban', nameKey: 'generator.portrait.sub_styles.wedding_urban', prompt: 'Style: Modern rooftop city wedding. Industrial chic, skyscrapers in background.' }
+        ]
+    },
+    {
+        id: 'ethnic_style',
+        icon: 'Map',
+        nameKey: 'generator.portrait.styles.ethnic_style',
+        descKey: 'generator.portrait.styles.ethnic_style_desc',
+        prompt: `
+        Subject: A person (based on input image)
+        Clothing: Detailed traditional ethnic costume with rich ornaments and cultural patterns.
+        Style: Authentic cultural travel photography, vibrant, rich textures.
+        `,
+        subStyles: [
+            { id: 'tibetan', nameKey: 'generator.portrait.sub_styles.ethnic_tibetan', prompt: 'Clothing: Tibetan traditional robe (chuba) with colorful sashes and prayer beads. Background: High plateau with snow mountains.' },
+            { id: 'mongolian', nameKey: 'generator.portrait.sub_styles.ethnic_mongolian', prompt: 'Clothing: Mongolian deel with leather belt and ornate hat. Background: Vast green grassland with yurts.' },
+            { id: 'miao', nameKey: 'generator.portrait.sub_styles.ethnic_miao', prompt: 'Clothing: Miao ethnic costume with heavy silver headgear and intricate embroidery. Background: Ancient stone village.' },
+            { id: 'dai', nameKey: 'generator.portrait.sub_styles.ethnic_dai', prompt: 'Clothing: Dai wrap-around skirt and silk top. Background: Tropical rainforest or golden temple.' },
+            { id: 'uyghur', nameKey: 'generator.portrait.sub_styles.ethnic_uyghur', prompt: 'Style: Uyghur dance. Clothing: Vibrant dress with pleated skirt, small embroidered cap. Setting: Sunny orchard.' },
+            { id: 'yi', nameKey: 'generator.portrait.sub_styles.ethnic_yi', prompt: 'Style: Yi Torch Festival. Clothing: Traditional black and red garments. Setting: Night bonfire celebration.' },
+            { id: 'zhuang', nameKey: 'generator.portrait.sub_styles.ethnic_zhuang', prompt: 'Style: Zhuang mountain songs. Setting: Near a river with lush green mountains (Guilin style).' },
+            { id: 'bai', nameKey: 'generator.portrait.sub_styles.ethnic_bai', prompt: 'Clothing: White and blue Bai costume. Setting: Beside a peaceful Dali lake with ancient pagodas.' },
+            { id: 'kazakh', nameKey: 'generator.portrait.sub_styles.ethnic_kazakh', prompt: 'Style: Kazakh eagle hunter. Clothing: Thick fur-trimmed robes. Setting: Rugged mountain peaks.' },
+            { id: 'korean', nameKey: 'generator.portrait.sub_styles.ethnic_korean', prompt: 'Style: Korean traditional hanbok. Setting: Traditional courtyard in autumn with yellow ginkgo leaves.' }
+        ]
+    },
+    {
+        id: 'pure_desire',
+        icon: 'Sun',
+        nameKey: 'generator.portrait.styles.pure_desire',
+        descKey: 'generator.portrait.styles.pure_desire_desc',
+        prompt: `
+        Subject: A person (based on input image)
+        Lighting: Diffused natural light, bright and airy.
+        Style: "Pure desire" aesthetic, ethereal, soft focus, extremely gentle.
+        `,
+        subStyles: [
+            { id: 'white_shirt', nameKey: 'generator.portrait.sub_styles.pure_white_shirt', prompt: 'Clothing: Crisp white oversized shirt. Setting: Cozy sunlit bedroom.' },
+            { id: 'knitwear', nameKey: 'generator.portrait.sub_styles.pure_knitwear', prompt: 'Clothing: Soft knit sweater in beige or cream tones.' },
+            { id: 'floral', nameKey: 'generator.portrait.sub_styles.pure_floral', prompt: 'Clothing: Light floral pattern slip dress. Setting: Summer garden breeze.' },
+            { id: 'bathrobe', nameKey: 'generator.portrait.sub_styles.pure_bathrobe', prompt: 'Style: Morning routine. Clothing: Fluffy white bathrobe. Lighting: Bright morning sunlight.' },
+            { id: 'ribbon', nameKey: 'generator.portrait.sub_styles.pure_ribbon', prompt: 'Style: Artistic. Element: Long silk ribbons weaving around. Mood: Ethereal and poetic.' },
+            { id: 'wet_hair', nameKey: 'generator.portrait.sub_styles.pure_wet_hair', prompt: 'Style: After shower look. Detail: Wet hair, damp skin texture, steam in background.' },
+            { id: 'sun_shadow', nameKey: 'generator.portrait.sub_styles.pure_sun_shadow', prompt: 'Lighting: Cinematic shadows from window blinds across the face and body. Mood: Moody yet pure.' },
+            { id: 'glass', nameKey: 'generator.portrait.sub_styles.pure_glass', prompt: 'Style: Dreamy photography. Element: Looking through a blurred frosted glass panel.' },
+            { id: 'feather', nameKey: 'generator.portrait.sub_styles.pure_feather', prompt: 'Element: Floating white feathers. Setting: Soft white cloud-like background.' },
+            { id: 'milk_bath', nameKey: 'generator.portrait.sub_styles.pure_milk_bath', prompt: 'Setting: In a white ceramic tub filled with milky water and white roses.' }
+        ]
+    },
+    {
+        id: 'business_elite',
+        icon: 'Briefcase',
+        nameKey: 'generator.portrait.styles.business_elite',
+        descKey: 'generator.portrait.styles.business_elite_desc',
+        prompt: `
+        Subject: A person (based on input image)
+        Style: Professional corporate headshot, confident, sharp, clean.
+        `,
+        subStyles: [
+            { id: 'executive', nameKey: 'generator.portrait.sub_styles.business_executive', prompt: 'Clothing: Formal navy suit with white shirt. Setting: High-end wood-paneled executive office.' },
+            { id: 'tech', nameKey: 'generator.portrait.sub_styles.business_tech', prompt: 'Clothing: Smart casual, blazer over T-shirt. Setting: Modern tech office with glass walls.' },
+            { id: 'creative', nameKey: 'generator.portrait.sub_styles.business_creative', prompt: 'Clothing: Fashionable artistic business attire. Setting: Industrial chic studio or gallery.' },
+            { id: 'lawyer', nameKey: 'generator.portrait.sub_styles.business_lawyer', prompt: 'Style: Sharp legal professional. Setting: Modern law library with organized files.' },
+            { id: 'medical', nameKey: 'generator.portrait.sub_styles.business_medical', prompt: 'Style: Top-tier doctor. Clothing: Clean white lab coat. Setting: High-tech medical research center.' },
+            { id: 'architect', nameKey: 'generator.portrait.sub_styles.business_architect', prompt: 'Style: Architect. Element: Holding architectural blueprints or a scale model. Setting: Bright studio.' },
+            { id: 'journalist', nameKey: 'generator.portrait.sub_styles.business_journalist', prompt: 'Style: Field reporter. Setting: Busy street corner with news equipment.' },
+            { id: 'pilot', nameKey: 'generator.portrait.sub_styles.business_pilot', prompt: 'Style: Commercial pilot. Setting: In front of an airplane hangar at sunset.' },
+            { id: 'diplomat', nameKey: 'generator.portrait.sub_styles.business_diplomat', prompt: 'Style: Diplomat. Setting: International conference hall with world flags.' },
+            { id: 'trader', nameKey: 'generator.portrait.sub_styles.business_trader', prompt: 'Style: Day trader. Setting: Wall street office with multiple financial stock charts.' }
+        ]
+    },
+    {
+        id: 'retro_hk',
+        icon: 'Clapperboard',
+        nameKey: 'generator.portrait.styles.retro_hk',
+        descKey: 'generator.portrait.styles.retro_hk_desc',
+        prompt: `
+        Subject: A person (based on input image)
+        Lighting: Cinematic low-key, warm tones, grainy film texture.
+        Style: 90s Hong Kong movie aesthetic, nostalgic, moody.
+        `,
+        subStyles: [
+            { id: 'street', nameKey: 'generator.portrait.sub_styles.hk_street', prompt: 'Setting: Night street with glowing neon signs and bustling city vibe.' },
+            { id: 'studio', nameKey: 'generator.portrait.sub_styles.hk_studio', prompt: 'Setting: Vintage photography studio with red velvet curtains and soft lighting.' },
+            { id: 'cafe', nameKey: 'generator.portrait.sub_styles.hk_cafe', prompt: 'Setting: Old-fashioned Hong Kong tea house (Cha Chaan Teng) with green tiles.' },
+            { id: 'detective', nameKey: 'generator.portrait.sub_styles.hk_detective', prompt: 'Style: Noir detective movie. Lighting: High contrast, heavy shadows. Element: Rain on window.' },
+            { id: 'underworld', nameKey: 'generator.portrait.sub_styles.hk_underworld', prompt: 'Style: Triad brotherhood thriller. Setting: Dark mahjong parlor with intense atmosphere.' },
+            { id: 'bar', nameKey: 'generator.portrait.sub_styles.hk_classic_bar', prompt: 'Setting: Dimly lit lounge with amber lighting and vintage liquor bottles.' },
+            { id: 'rooftop', nameKey: 'generator.portrait.sub_styles.hk_rooftop', prompt: 'Setting: Rooftop with laundry lines, overlooking the dense Kowloon city skyline at dusk.' },
+            { id: 'shop', nameKey: 'generator.portrait.sub_styles.hk_vintage_shop', prompt: 'Setting: Dusty antique record shop filled with vinyls and old posters.' },
+            { id: 'taxi', nameKey: 'generator.portrait.sub_styles.hk_taxi', prompt: 'Setting: Inside a red HK taxi. Lighting: Moving city lights through the window.' },
+            { id: 'cinema', nameKey: 'generator.portrait.sub_styles.hk_cinema', prompt: 'Setting: Empty 80s movie theater with plush red seats and flickering projector light.' }
+        ]
+    },
+    {
+        id: 'magazine_cover',
+        icon: 'ImageIcon',
+        nameKey: 'generator.portrait.styles.magazine_cover',
+        descKey: 'generator.portrait.styles.magazine_cover_desc',
+        prompt: `
+        Subject: A person (based on input image)
+        Style: High-end fashion magazine editorial.
+        Lighting: Professional studio lighting, sharp focus on eyes.
+        Composition: Magazine cover layout with polished skin textures and high-fashion pose.
+        `,
+        subStyles: [
+            { id: 'story', nameKey: 'generator.portrait.sub_styles.magazine_cover_story', prompt: 'Style: Iconic Vogue cover style, minimalist background, bold typography vibes.' },
+            { id: 'editorial', nameKey: 'generator.portrait.sub_styles.magazine_editorial', prompt: 'Style: High-fashion editorial, avant-garde makeup, dramatic shadows.' },
+            { id: 'street', nameKey: 'generator.portrait.sub_styles.magazine_street_look', prompt: 'Style: Street style magazine look, natural outdoor lighting, casual but chic.' },
+            { id: 'bw', nameKey: 'generator.portrait.sub_styles.magazine_bw_classic', prompt: 'Style: Classic black and white portrait, high grain, sharp focus, Leica aesthetic.' },
+            { id: 'pop', nameKey: 'generator.portrait.sub_styles.magazine_pop_art', prompt: 'Style: Vibrant pop art magazine, high saturation, flat background, bold colors.' },
+            { id: 'glam', nameKey: 'generator.portrait.sub_styles.magazine_vintage_glam', prompt: 'Style: Old Hollywood glamour, glittering jewelry, elegant evening gown.' },
+            { id: 'sport', nameKey: 'generator.portrait.sub_styles.magazine_sport_illustrated', prompt: 'Style: Athletic/Active look. Setting: High-end tennis court or fitness studio.' },
+            { id: 'minimal', nameKey: 'generator.portrait.sub_styles.magazine_minimalist', prompt: 'Style: Extreme minimalism. Setting: Soft grey background, neutral clothing, clean lines.' },
+            { id: 'traveler', nameKey: 'generator.portrait.sub_styles.magazine_traveler', prompt: 'Style: National Geographic explorer. Setting: Rugged outdoor environment, natural light.' },
+            { id: 'cyber', nameKey: 'generator.portrait.sub_styles.magazine_cyber_vibe', prompt: 'Style: Tech-fashion fusion, glowing futuristic fabrics, metallic makeup.' }
+        ]
+    },
+    {
+        id: 'winter_snow',
+        icon: 'Sparkles',
+        nameKey: 'generator.portrait.styles.winter_snow',
+        descKey: 'generator.portrait.styles.winter_snow_desc',
+        prompt: `
+        Subject: A person (based on input image)
+        Clothing: Cozy winter fashion, thick oversized scarf and elegant wool coat.
+        Setting: Beautiful snowy landscape with soft falling snowflakes.
+        Lighting: Dreamy, soft winter sunlight.
+        `,
+        subStyles: [
+            { id: 'palace', nameKey: 'generator.portrait.sub_styles.winter_ice_palace', prompt: 'Setting: Majestic ice palace with crystalline structures and blue glowing light.' },
+            { id: 'forest', nameKey: 'generator.portrait.sub_styles.winter_snowy_forest', prompt: 'Setting: Deep forest covered in thick white snow, misty and romantic.' },
+            { id: 'cabin', nameKey: 'generator.portrait.sub_styles.winter_cozy_cabin', prompt: 'Setting: Beside a warm wooden cabin, glowing windows, warm lantern light in the snow.' },
+            { id: 'lake', nameKey: 'generator.portrait.sub_styles.winter_frozen_lake', prompt: 'Setting: Standing on a frozen crystal clear lake with white cracks. Background: Snowy peaks.' },
+            { id: 'aurora', nameKey: 'generator.portrait.sub_styles.winter_aurora_night', prompt: 'Setting: Night sky with vibrant green aurora borealis. Lighting: Surreal green glow.' },
+            { id: 'ski', nameKey: 'generator.portrait.sub_styles.winter_ski_resort', prompt: 'Setting: Luxurious ski resort with cable cars and people skiing in background. Mood: Active, high-end.' },
+            { id: 'cave', nameKey: 'generator.portrait.sub_styles.winter_crystal_cave', prompt: 'Setting: Deep inside a glowing blue crystal ice cave. Lighting: Magical, ethereal.' },
+            { id: 'sleigh', nameKey: 'generator.portrait.sub_styles.winter_reindeer_sleigh', prompt: 'Element: Sitting in a vintage wooden sleigh pulled by reindeer. Mood: Dreamy, fairy tale.' },
+            { id: 'white', nameKey: 'generator.portrait.sub_styles.winter_white_christmas', prompt: 'Setting: Village covered in thick white snow with Christmas lights. Style: Warm, festive, cozy.' },
+            { id: 'sculpture', nameKey: 'generator.portrait.sub_styles.winter_ice_sculpture', prompt: 'Setting: Ice sculpture festival with massive illuminated ice carvings.' }
+        ]
+    },
+    {
+        id: 'fantasy_animal',
+        icon: 'Wand2',
+        nameKey: 'generator.portrait.styles.fantasy_animal',
+        descKey: 'generator.portrait.styles.fantasy_animal_desc',
+        prompt: `
+        Subject: A person (based on input image)
+        Style: Epic fantasy adventure, mystical and legendary.
+        Companion: Accompanied by a beautiful mythical spirit animal.
+        Atmosphere: Magical particles, glowing ancient symbols, ethereal light.
+        `,
+        subStyles: [
+            { id: 'phoenix', nameKey: 'generator.portrait.sub_styles.fantasy_phoenix', prompt: 'Companion: A magnificent flaming phoenix. Setting: Ancient celestial temple.' },
+            { id: 'dragon', nameKey: 'generator.portrait.sub_styles.fantasy_dragon_tamer', prompt: 'Companion: A massive noble dragon in the background. Setting: Peaks above the clouds.' },
+            { id: 'elf', nameKey: 'generator.portrait.sub_styles.fantasy_forest_elf', prompt: 'Companion: A glowing white spirit stag. Setting: Enchanted luminescent forest.' },
+            { id: 'pegasus', nameKey: 'generator.portrait.sub_styles.fantasy_pegasus', prompt: 'Companion: A winged white pegasus. Setting: Floating marble platform in a blue sky.' },
+            { id: 'mermaid', nameKey: 'generator.portrait.sub_styles.fantasy_mermaid_reef', prompt: 'Setting: Underwater coral kingdom with glowing sea life. Style: Ethereal, liquid motion.' },
+            { id: 'wizard', nameKey: 'generator.portrait.sub_styles.fantasy_wizard_tower', prompt: 'Setting: High wizard tower filled with floating books and magical artifacts.' },
+            { id: 'kitsune', nameKey: 'generator.portrait.sub_styles.fantasy_kitsune', prompt: 'Companion: Multi-tailed mystical white fox. Setting: Torii gates in a magical mist.' },
+            { id: 'steampunk', nameKey: 'generator.portrait.sub_styles.fantasy_steampunk', prompt: 'Setting: Brass and copper steampunk airship deck. Elements: Gears, steam, goggles.' },
+            { id: 'island', nameKey: 'generator.portrait.sub_styles.fantasy_floating_island', prompt: 'Setting: Standing on a small island floating in space. Background: Planets and nebulae.' },
+            { id: 'abyss', nameKey: 'generator.portrait.sub_styles.fantasy_dark_abyss', prompt: 'Style: Dark fantasy. Background: Shadowy fortress with crimson lightning.' }
+        ]
+    },
+    {
+        id: 'christmas',
+        icon: 'Sparkles',
+        nameKey: 'generator.portrait.styles.christmas',
+        descKey: 'generator.portrait.styles.christmas_desc',
+        prompt: `
+        Subject: A person (based on input image)
+        Style: Heartwarming and vibrant Christmas celebration.
+        Decor: Surrounded by rich holiday decorations, pine branches, and warm fairy lights.
+        Colors: Festive red, deep green, and glittering gold.
+        `,
+        subStyles: [
+            { id: 'workshop', nameKey: 'generator.portrait.sub_styles.christmas_workshop', prompt: 'Setting: Santa\'s cozy workshop filled with toys and magical atmosphere.' },
+            { id: 'tree', nameKey: 'generator.portrait.sub_styles.christmas_sparkling_tree', prompt: 'Setting: Right next to a giant, heavily decorated Christmas tree at night.' },
+            { id: 'vintage_red', nameKey: 'generator.portrait.sub_styles.christmas_vintage_red', prompt: 'Style: Classy vintage Christmas dinner, candle lights, elegant red silk.' },
+            { id: 'market', nameKey: 'generator.portrait.sub_styles.christmas_snowy_market', prompt: 'Setting: European outdoor Christmas market with wooden stalls and hot cocoa.' },
+            { id: 'fireplace', nameKey: 'generator.portrait.sub_styles.christmas_fireplace', prompt: 'Setting: Cozy living room with a crackling fireplace and stockings.' },
+            { id: 'gingerbread', nameKey: 'generator.portrait.sub_styles.christmas_gingerbread', prompt: 'Style: Whimsical candy land. Elements: Gingerbread house, candy cane forest.' },
+            { id: 'carol', nameKey: 'generator.portrait.sub_styles.christmas_carol', prompt: 'Style: Victorian carol singer. Setting: Snowy cobblestone street with vintage gas lamps.' },
+            { id: 'reindeer', nameKey: 'generator.portrait.sub_styles.christmas_reindeer_park', prompt: 'Setting: Snowy park filled with friendly reindeer wearing bells.' },
+            { id: 'starry', nameKey: 'generator.portrait.sub_styles.christmas_starry_night', prompt: 'Setting: Silent night under a massive bright guiding star. Mood: Peaceful, spiritual.' },
+            { id: 'modern', nameKey: 'generator.portrait.sub_styles.christmas_modern_minimal', prompt: 'Style: High-end modern Christmas. Color palette: White, silver, and ice blue.' }
+        ]
+    },
+    {
+        id: 'handsome_god',
+        icon: 'Zap',
+        nameKey: 'generator.portrait.styles.handsome_god',
+        descKey: 'generator.portrait.styles.handsome_god_desc',
+        prompt: `
+        Subject: A person (based on input image)
+        Style: Masculine, charismatic, and powerful portrait.
+        Lighting: Dramatic chiaroscuro lighting, emphasizing deep facial features and strong silhouette.
+        Atmosphere: Epic, heroic, and dignified.
+        `,
+        subStyles: [
+            { id: 'knight', nameKey: 'generator.portrait.sub_styles.handsome_dark_knight', prompt: 'Style: Dark knight aesthetic, wearing black leather armor in a moonlit castle.' },
+            { id: 'prince', nameKey: 'generator.portrait.sub_styles.handsome_gentle_prince', prompt: 'Style: Noble prince in a grand library, soft sunlight, refined and elegant.' },
+            { id: 'warrior', nameKey: 'generator.portrait.sub_styles.handsome_ancient_warrior', prompt: 'Style: Grizzled ancient warrior on a battlefield, cinematic embers and dust.' },
+            { id: 'commander', nameKey: 'generator.portrait.sub_styles.handsome_scifi_commander', prompt: 'Style: Galactic commander. Setting: Starship bridge with cosmic nebula outside.' },
+            { id: 'noir', nameKey: 'generator.portrait.sub_styles.handsome_noir_detective', prompt: 'Style: 1940s noir headshot. Elements: Fedora hat, cigarette smoke, harsh shadows.' },
+            { id: 'vanguard', nameKey: 'generator.portrait.sub_styles.handsome_cyber_vanguard', prompt: 'Style: Cyberpunk street racer. Elements: Glowing visor, neon jackets, futuristic bike.' },
+            { id: 'chief', nameKey: 'generator.portrait.sub_styles.handsome_tribal_chief', prompt: 'Style: Tribal leader. Elements: Intricate face paint, fur cloak, ancient forest setting.' },
+            { id: 'god', nameKey: 'generator.portrait.sub_styles.handsome_olymphic_god', prompt: 'Style: Greek god (Apollo/Ares). Elements: Golden laurel wreath, marble statues, divine light.' },
+            { id: 'wasteland', nameKey: 'generator.portrait.sub_styles.handsome_wasteland_wanderer', prompt: 'Style: Mad Max inspired survivor. Elements: Dust-covered face, scavenged armor.' },
+            { id: 'rockstar', nameKey: 'generator.portrait.sub_styles.handsome_modern_rockstar', prompt: 'Style: Modern rockstar. Setting: Under stage lights with electric guitars and smoke.' }
+        ]
     }
 ];
 
@@ -102,12 +395,53 @@ const PortraitMasterTab: React.FC<PortraitMasterTabProps> = ({ apiKey, onSuccess
 
     // Settings
     const [selectedStyleId, setSelectedStyleId] = useState('new_year');
+    const [selectedSubStyleId, setSelectedSubStyleId] = useState<string | null>(null);
     const [selectedRatio, setSelectedRatio] = useState('3:4');
+    const [manualPrompt, setManualPrompt] = useState<string | null>(null);
+    const [isPromptManuallyEdited, setIsPromptManuallyEdited] = useState(false);
 
     // Refs
     const fileInputRef = useRef<HTMLInputElement>(null);
     const cropperRef = useRef<Cropper | null>(null);
     const imageElementRef = useRef<HTMLImageElement>(null);
+
+    // Auto Prompt Generation
+    const autoPrompt = useMemo(() => {
+        const style = PORTRAIT_STYLES.find(s => s.id === selectedStyleId)!;
+        const subStyle = style.subStyles?.find(s => s.id === selectedSubStyleId);
+
+        const combinedStylePrompt = subStyle
+            ? `${style.prompt}\nSpecific Detail: ${subStyle.prompt}`
+            : style.prompt;
+
+        return `
+You are a world-class portrait photographer and digital artist. 
+Recreate the person from the reference image into a new high-quality stylized portrait.
+PRESERVE THE FACIAL IDENTITY, features, and expression of the subject.
+
+Target Style Description:
+${combinedStylePrompt.trim()}
+
+Technical Requirements:
+- Aspect Ratio: ${selectedRatio}
+- High Resolution, highly detailed.
+- Perfect lighting and composition.
+- Ensure the face looks like the person in the reference image.
+
+${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
+        `.trim();
+    }, [selectedStyleId, selectedSubStyleId, selectedRatio, customPrompt]);
+
+    // Handle manual prompt edits
+    const handlePromptChange = (val: string) => {
+        setManualPrompt(val);
+        setIsPromptManuallyEdited(true);
+    };
+
+    const resetPrompt = () => {
+        setManualPrompt(null);
+        setIsPromptManuallyEdited(false);
+    };
 
     // Initial Cropper Setup
     useEffect(() => {
@@ -181,24 +515,7 @@ const PortraitMasterTab: React.FC<PortraitMasterTabProps> = ({ apiKey, onSuccess
 
         setIsGenerating(true);
         try {
-            const style = PORTRAIT_STYLES.find(s => s.id === selectedStyleId)!;
-
-            const prompt = `
-            You are a world-class portrait photographer and digital artist. 
-            Recreate the person from the reference image into a new high-quality stylized portrait.
-            PRESERVE THE FACIAL IDENTITY, features, and expression of the subject.
-
-            Target Style Description:
-            ${style.prompt}
-
-            Technical Requirements:
-            - Aspect Ratio: ${selectedRatio}
-            - High Resolution, highly detailed.
-            - Perfect lighting and composition.
-            - Ensure the face looks like the person in the reference image.
-
-            ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
-            `;
+            const finalPrompt = manualPrompt ?? autoPrompt;
 
             const ai = new GoogleGenAI({ apiKey });
             const base64Data = croppedImage.split(',')[1];
@@ -209,7 +526,7 @@ const PortraitMasterTab: React.FC<PortraitMasterTabProps> = ({ apiKey, onSuccess
                 contents: {
                     parts: [
                         { inlineData: { data: base64Data, mimeType } },
-                        { text: prompt }
+                        { text: finalPrompt }
                     ]
                 },
                 config: {
@@ -227,12 +544,12 @@ const PortraitMasterTab: React.FC<PortraitMasterTabProps> = ({ apiKey, onSuccess
                         const newImage = {
                             id: Date.now().toString(),
                             src,
-                            style: style.id,
+                            style: selectedStyleId,
                             ratio: selectedRatio
                         };
                         setGeneratedImages(prev => [newImage, ...prev]);
                         // Only notify success for the first one if needed, or just let user see it
-                        onSuccess?.(src, prompt);
+                        onSuccess?.(src, finalPrompt);
                     }
                 }
             }
@@ -251,17 +568,6 @@ const PortraitMasterTab: React.FC<PortraitMasterTabProps> = ({ apiKey, onSuccess
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-    };
-
-    // Helper to render icons dynamically
-    const renderIcon = (iconName: string, size = 20) => {
-        switch (iconName) {
-            case 'Flower2': return <Flower2 size={size} />;
-            case 'Wand2': return <Wand2 size={size} />;
-            case 'Zap': return <Zap size={size} />;
-            case 'Palmtree': return <Palmtree size={size} />;
-            default: return <Sparkles size={size} />;
-        }
     };
 
     return (
@@ -327,23 +633,44 @@ const PortraitMasterTab: React.FC<PortraitMasterTabProps> = ({ apiKey, onSuccess
                             {PORTRAIT_STYLES.map(style => (
                                 <button
                                     key={style.id}
-                                    onClick={() => setSelectedStyleId(style.id)}
-                                    className={`relative p-3 rounded-2xl border-2 transition-all text-left flex flex-col gap-2 ${selectedStyleId === style.id
-                                        ? 'border-primary bg-primary/5 shadow-md shadow-primary/10'
+                                    onClick={() => {
+                                        setSelectedStyleId(style.id);
+                                        setSelectedSubStyleId(style.subStyles?.[0]?.id || null);
+                                    }}
+                                    className={`relative px-3 py-2 rounded-xl border-2 transition-all text-center flex items-center justify-center ${selectedStyleId === style.id
+                                        ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10'
                                         : 'border-cream-dark/50 bg-white/50 hover:bg-white hover:border-primary/50'
                                         }`}
                                 >
-                                    <div className={`p-2 rounded-full w-fit ${selectedStyleId === style.id ? 'bg-primary text-white' : 'bg-cream-dark/20 text-bronze-light'}`}>
-                                        {renderIcon(style.icon, 16)}
-                                    </div>
-                                    <div>
-                                        <div className={`text-xs font-bold ${selectedStyleId === style.id ? 'text-primary' : 'text-bronze-text'}`}>
-                                            {t(style.nameKey)}
-                                        </div>
+                                    <div className={`text-xs font-bold ${selectedStyleId === style.id ? 'text-primary' : 'text-bronze-text'}`}>
+                                        {t(style.nameKey)}
                                     </div>
                                 </button>
                             ))}
                         </div>
+
+                        {/* Sub Styles */}
+                        {PORTRAIT_STYLES.find(s => s.id === selectedStyleId)?.subStyles && (
+                            <div className="animate-in slide-in-from-top-2 duration-300">
+                                <label className="text-xs font-bold text-bronze-light mb-3 block flex items-center gap-2">
+                                    <Wand2 size={12} /> {t('generator.portrait.settings.sub_style')}
+                                </label>
+                                <div className="flex flex-wrap gap-2">
+                                    {PORTRAIT_STYLES.find(s => s.id === selectedStyleId)?.subStyles?.map(sub => (
+                                        <button
+                                            key={sub.id}
+                                            onClick={() => setSelectedSubStyleId(sub.id)}
+                                            className={`px-3 py-1.5 rounded-xl text-xs font-bold border-2 transition-all ${selectedSubStyleId === sub.id
+                                                ? 'bg-secondary text-white border-secondary shadow-sm'
+                                                : 'bg-white text-bronze-text border-cream-dark/50 hover:border-secondary/50'
+                                                }`}
+                                        >
+                                            {t(sub.nameKey)}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Aspect Ratio */}
                         <div>
@@ -373,6 +700,28 @@ const PortraitMasterTab: React.FC<PortraitMasterTabProps> = ({ apiKey, onSuccess
                                 onChange={(e) => setCustomPrompt(e.target.value)}
                                 placeholder={t('generator.portrait.settings.custom_placeholder')}
                                 className="w-full px-4 py-2 rounded-xl border border-cream-dark bg-white/50 text-sm font-bold text-bronze-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all placeholder:text-bronze-light/50"
+                            />
+                        </div>
+                        {/* Prompt Preview Editor */}
+                        <div className="bg-bronze-light/5 p-4 rounded-3xl border border-bronze/10 space-y-3">
+                            <div className="flex items-center justify-between">
+                                <label className="text-[10px] font-black text-bronze-light uppercase tracking-widest flex items-center gap-1.5 leading-none">
+                                    <Edit3 size={12} className="text-primary" /> {t('generator.portrait.settings.prompt_preview')}
+                                </label>
+                                {isPromptManuallyEdited && (
+                                    <button
+                                        onClick={resetPrompt}
+                                        className="text-[10px] font-bold text-primary hover:text-primary-hover transition-colors flex items-center gap-1"
+                                    >
+                                        <Zap size={10} /> {t('generator.portrait.settings.prompt_reset')}
+                                    </button>
+                                )}
+                            </div>
+                            <textarea
+                                value={manualPrompt ?? autoPrompt}
+                                onChange={(e) => handlePromptChange(e.target.value)}
+                                className="w-full bg-white/40 border-none rounded-2xl p-3 text-[11px] font-bold text-bronze-text focus:ring-1 focus:ring-primary/30 min-h-[100px] resize-none leading-relaxed placeholder:text-bronze-light/30"
+                                placeholder={t('generator.portrait.settings.prompt_manual_hint')}
                             />
                         </div>
 

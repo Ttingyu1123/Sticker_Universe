@@ -14,22 +14,53 @@
 
 ## 📑 Table of Contents / 目錄
 
-- [✨ Features / 功能特色](#-features--功能特色)
-- [🛠️ Installation / 安裝說明](#️-installation--安裝說明)
-- [📖 Usage Guide / 使用指南](#-usage-guide--使用指南)
-- [🔧 Tech Stack / 技術棧](#-tech-stack--技術棧)
-- [📝 License / 授權](#-license--授權)
+- [✨ 功能分類 / Features](#-功能分類--features)
+- [🛠️ 安裝說明 / Installation](#️-安裝說明--installation)
+- [📖 使用指南 / Usage Guide](#-使用指南--usage-guide)
+- [🔧 技術棧 / Tech Stack](#-技術棧--技術棧)
+- [📝 授權 / License](#-授權--license)
 
 ---
 
-## ✨ Features / 功能特色
+## ✨ 功能分類 / Features
 
-| Module | Features (English) | 功能特色 (中文) |
-| :--- | :--- | :--- |
-| **🚀 Generator** | **AI Sticker Generation**<br>Powered by Google Gemini. Generate unique stickers from text prompts with consistent character styles. | **AI 貼圖生成器**<br>基於 Google Gemini 模型。從文字提示生成風格一致的貼圖角色。 |
-| **📦 Packager** | **Batch Processor**<br>Local AI background removal (`@imgly`), auto-stroke/shadow effects, and batch export for Line/Telegram. | **批量打包工具**<br>本地端 AI 自動去背 (`@imgly`)、自動加白邊/陰影，支援 Line/Telegram 規格批量導出。 |
-| **🎨 Editor** | **Visual Composition**<br>Layer-based editor with drag-and-drop support, text tools, and element composition. | **圖層編輯器**<br>支援拖放操作的圖層編輯系統，提供文字工具與素材合成功能。 |
-| **🪄 Eraser** | **Magic Eraser**<br>Manual background refinement tool for precise edits on generated assets. | **魔術橡皮擦**<br>用於微調去背結果的手動修圖工具。 |
+### 1. AI 智慧生成 (AI Generation)
+
+運用 Google Gemini AI 技術，將文字創意瞬間轉化為視覺成品。
+
+- **風格貼圖**：輸入文字，AI 自動生成台灣風格、動漫風等多樣化貼圖。
+- **節慶貼圖**：為各種節日（如春節、中秋）快速製作應景的貼圖包。
+- **賀卡大師**：AI 協助設計精美節日賀卡，並提供智能配文潤飾。
+- **漫畫大師**：將照片轉換為高品質的漫畫風格圖片，支援多種藝術流派。
+- **影劇海報**：製作具有電影規格質感的創意海報與專業排版。
+- **AI 圖片生成**：通用型 AI 繪圖工具，支援高解析度與自由創意描述。
+- **形象照大師**：生成專業質感的商務形象照、學士照或社群大頭貼。
+- **寫真大師**：生成具備專業光影與場景質感的藝術寫真照。
+
+### 2. 專業圖片編輯 (Image Processing)
+
+強大的離線圖片處理功能，滿足您對細節的極致追求。
+
+- **批量裁切**：一次處理多張圖片的裁切、自動對齊與尺寸優化。
+- **智慧去背**：AI 自動精準識別主體並移除背景，邊緣處理完美無瑕。
+- **動態貼圖 (Animator)**：製作多圖層動畫，支援時間軸控制與 APNG 導出。
+- **圖層編輯 (Editor)**：專業級圖層管理、濾鏡效果、文字堆疊與素材組合。
+- **調整尺寸**：智慧縮放模式，採用 AI 超取樣技術保持圖片清晰度。
+- **SVG 魔法**：將點陣圖 (JPG/PNG) 轉換為無限縮放的向量圖形。
+- **圖層實驗室 (Lab)**：進階遮罩編輯與邊緣修復工具，掌握最底層的像素控制。
+
+### 3. 創意排版 (Creative)
+
+- **照片拼貼**：提供網格、瀑布流、幾何圖形等數十種佈局，支援智慧拼貼。
+
+### 4. 印刷與輸出 (Printing)
+
+- **貼紙列印**：將作品排列在 A4 畫布上，自訂間距，方便列印成實體貼紙。
+- **證件照列印**：符合各國證件照規範，自動排列最省紙的列印佈版。
+
+### 5. 作品管理 (Management)
+
+- **作品集 (Gallery)**：統一管理、預覽及批量下載您生成的所有創意作品。
 
 ---
 
@@ -67,27 +98,37 @@
 
 ---
 
-## 📖 Usage Guide / 使用指南
+## 📖 使用指南 / Usage Guide
 
-### 1. Setup API Key (Generator)
+### 第一步：設定 AI 金鑰 (API Key)
 
-- The **Generator** tool requires a Google Gemini API Key.
-- Click the **Settings (設定)** icon in the Generator app.
-- Paste your API Key. It is stored locally in your browser (`localStorage`).
-- **中文**: 進入 Generator 頁面，點擊設定圖示，輸入您的 Google Gemini API Key。金鑰僅儲存於您的瀏覽器本地端。
+為了啟動智慧生成功能，您需要設定 **Google Gemini API Key**：
 
-### 2. Create Stickers
+1. 進入 [AI 貼圖工作室] 或任何帶有「AI」標籤的工具。
+2. 點擊頂部的 **"Set API Key"** 按鈕。
+3. 貼上金鑰並勾選「記住金鑰」以便下次自動載入。
 
-- **Prompting**: Enter a prompt (e.g., "A cute cat eating pizza").
-- **Style**: Choose a predefined style (e.g., Anime, Watercolor).
-- **Generate**: Click generate to create assets.
+> [!TIP]
+> 可至 [Google AI Studio](https://aistudio.google.com/app/apikey) 免費申請金鑰。
 
-### 3. Package & Export
+### 第二步：標準創作流程 (Workflow)
 
-- **Import**: Send generated images to the **Packager**.
-- **Process**: The app automatically removes backgrounds.
-- **Stylize**: Add white strokes (stickers effect) or shadows.
-- **Export**: Download as a ZIP file formatted for Line or Telegram.
+```mermaid
+graph TD
+    A[1.靈感生成] -->|Generator| B(生成原始素材)
+    B -->|存入作品集| C[2.素材中心]
+    C -->|Editor/Lab| D(加工/去背/修正)
+    D -->|Refinery| E[3.規範加工]
+    E -->|批量處理| F(符合 LINE 規格)
+    F -->|PrintSheet| G[4.實體輸出]
+    G -->|PDF 導出| H(列印貼紙/照片)
+```
+
+### 🌟 創作小秘訣
+
+- **善用作品集 (Gallery)**：它是所有模組間的「橋樑」，生成的圖片先存入作品集，再到編輯器加工，最後用裁切工具打包。
+- **圖層實驗室的威力**：若 AI 去背不夠完美，使用圖層實驗室手動修正遮罩，再套用編輯器特效，能達到商用級別的精度。
+- **精準描述**：在描述詞中加入「高品質」、「精緻細節」能顯著提升 AI 生成品質。
 
 ---
 
