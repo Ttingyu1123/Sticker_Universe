@@ -7,6 +7,7 @@ import JSZip from 'jszip';
 import { saveStickerToDB } from '../../db';
 import { Sticker } from './types';
 import { Button } from '../../components/ui/Button';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import ImageGeneratorTab from './components/ImageGeneratorTab';
 import HolidayStickerTab from './components/HolidayStickerTab';
@@ -439,60 +440,70 @@ const App: React.FC = () => {
         </div>
 
         {/* Tab Content */}
-        {activeTab === 'sticker' ? (
-          <StyleStickerTab
-            apiKey={apiKey}
-            onError={(msg) => setError(msg)}
-            onNeedApiKey={() => setShowKeyModal(true)}
-          />
-        ) : activeTab === 'holiday' ? (
-          <HolidayStickerTab
-            apiKey={apiKey}
-            onError={(msg) => setError(msg)}
-            onSuccess={handleImageGenSuccess}
-          />
-        ) : activeTab === 'greeting' ? (
-          <GreetingCardTab
-            apiKey={apiKey}
-            onError={(msg) => setError(msg)}
-            onNeedApiKey={() => setShowKeyModal(true)}
-            onSuccess={handleImageGenSuccess}
-          />
-        ) : activeTab === 'manga' ? (
-          <MangaMasterTab
-            apiKey={apiKey}
-            onError={(msg) => setError(msg)}
-            onNeedApiKey={() => setShowKeyModal(true)}
-            onSuccess={handleImageGenSuccess}
-          />
-        ) : activeTab === 'cinematic' ? (
-          <CinematicPosterTab
-            apiKey={apiKey}
-            onError={(msg) => setError(msg)}
-            onNeedApiKey={() => setShowKeyModal(true)}
-            onSuccess={handleImageGenSuccess}
-          />
-        ) : activeTab === 'headshot' ? (
-          <HeadshotGeneratorTab
-            apiKey={apiKey}
-            onError={(msg) => setError(msg)}
-            onNeedApiKey={() => setShowKeyModal(true)}
-            onSuccess={handleImageGenSuccess}
-          />
-        ) : activeTab === 'portrait' ? (
-          <PortraitMasterTab
-            apiKey={apiKey}
-            onSuccess={handleImageGenSuccess}
-            onError={(msg) => setError(msg)}
-            onNeedApiKey={handleOpenKeyModal}
-          />
-        ) : (
-          <ImageGeneratorTab
-            apiKey={apiKey}
-            onSuccess={handleImageGenSuccess}
-            onError={(msg) => setError(msg)}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+          >
+            {activeTab === 'sticker' ? (
+              <StyleStickerTab
+                apiKey={apiKey}
+                onError={(msg) => setError(msg)}
+                onNeedApiKey={() => setShowKeyModal(true)}
+              />
+            ) : activeTab === 'holiday' ? (
+              <HolidayStickerTab
+                apiKey={apiKey}
+                onError={(msg) => setError(msg)}
+                onSuccess={handleImageGenSuccess}
+              />
+            ) : activeTab === 'greeting' ? (
+              <GreetingCardTab
+                apiKey={apiKey}
+                onError={(msg) => setError(msg)}
+                onNeedApiKey={() => setShowKeyModal(true)}
+                onSuccess={handleImageGenSuccess}
+              />
+            ) : activeTab === 'manga' ? (
+              <MangaMasterTab
+                apiKey={apiKey}
+                onError={(msg) => setError(msg)}
+                onNeedApiKey={() => setShowKeyModal(true)}
+                onSuccess={handleImageGenSuccess}
+              />
+            ) : activeTab === 'cinematic' ? (
+              <CinematicPosterTab
+                apiKey={apiKey}
+                onError={(msg) => setError(msg)}
+                onNeedApiKey={() => setShowKeyModal(true)}
+                onSuccess={handleImageGenSuccess}
+              />
+            ) : activeTab === 'headshot' ? (
+              <HeadshotGeneratorTab
+                apiKey={apiKey}
+                onError={(msg) => setError(msg)}
+                onNeedApiKey={() => setShowKeyModal(true)}
+                onSuccess={handleImageGenSuccess}
+              />
+            ) : activeTab === 'portrait' ? (
+              <PortraitMasterTab
+                apiKey={apiKey}
+                onSuccess={handleImageGenSuccess}
+                onError={(msg) => setError(msg)}
+                onNeedApiKey={handleOpenKeyModal}
+              />
+            ) : (
+              <ImageGeneratorTab
+                apiKey={apiKey}
+                onSuccess={handleImageGenSuccess}
+                onError={(msg) => setError(msg)}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
 
         {/* Global Results Gallery (Only for ImageGen) */}
         {activeTab === 'image-gen' && stickers.length > 0 && (

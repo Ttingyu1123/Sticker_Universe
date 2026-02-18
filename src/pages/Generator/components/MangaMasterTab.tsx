@@ -59,7 +59,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
             return;
         }
         if (!config.theme.trim()) {
-            onError("請輸入故事描述");
+            onError(t('generator.phrase.errorNoPhrase'));
             return;
         }
         setIsLoading(true);
@@ -72,7 +72,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
             onSuccess(imageUrl, `Manga: ${config.theme.substring(0, 30)}...`);
         } catch (error: any) {
             console.error(error);
-            onError(error.message || "產生漫畫失敗，請檢查 API Key 或重試。");
+            onError(error.message || t('generator.errors.general') + "Manga");
         } finally {
             setIsLoading(false);
         }
@@ -129,7 +129,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                 <div className="bg-cream border border-cream-dark rounded-[2rem] p-6 backdrop-blur-sm shadow-sm">
                     <h2 className="text-lg font-black text-bronze mb-4 flex items-center gap-2">
                         <span className="bg-primary/10 text-primary w-6 h-6 rounded-full flex items-center justify-center text-xs border border-primary/20">1</span>
-                        角色設定
+                        {t('generator.manga.sections.characters')}
                     </h2>
                     <CharacterCreator
                         characters={config.characters}
@@ -141,7 +141,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                 <div className="bg-cream border border-cream-dark rounded-[2rem] p-6 backdrop-blur-sm shadow-sm">
                     <h2 className="text-lg font-black text-bronze mb-4 flex items-center gap-2">
                         <span className="bg-primary/10 text-primary w-6 h-6 rounded-full flex items-center justify-center text-xs border border-primary/20">2</span>
-                        繪畫風格
+                        {t('generator.manga.sections.style')}
                     </h2>
 
                     {/* Color Mode Selection */}
@@ -159,7 +159,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                                 `}
                             >
                                 {option.id === ColorMode.Color && <Palette className="w-3 h-3" />}
-                                {option.label}
+                                {t(`generator.manga.labels.options.colors.${option.id}`)}
                             </button>
                         ))}
                     </div>
@@ -176,9 +176,9 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                                         : 'border-cream-dark bg-white text-bronze-light hover:bg-cream-light hover:text-bronze-text'
                                     }
                                 `}
-                                title={option.label}
+                                title={t(`generator.manga.labels.options.styles.${option.id}`)}
                             >
-                                {option.label}
+                                {t(`generator.manga.labels.options.styles.${option.id}`)}
                             </button>
                         ))}
                     </div>
@@ -189,7 +189,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-black text-bronze flex items-center gap-2">
                             <span className="bg-primary/10 text-primary w-6 h-6 rounded-full flex items-center justify-center text-xs border border-primary/20">3</span>
-                            分鏡佈局
+                            {t('generator.manga.sections.layout')}
                         </h2>
 
                         {/* Aspect Ratio Selector */}
@@ -224,23 +224,24 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-black text-bronze flex items-center gap-2">
                             <span className="bg-primary/10 text-primary w-6 h-6 rounded-full flex items-center justify-center text-xs border border-primary/20">4</span>
-                            故事劇本
+                            {t('generator.manga.sections.story')}
                         </h2>
                         <button
                             onClick={handleOptimizeTheme}
                             disabled={isOptimizing || !config.theme || !apiKey}
                             className="text-xs flex items-center space-x-1 bg-white hover:bg-cream-light text-primary border border-primary/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 font-bold"
-                            title="AI 協助分鏡"
+                            title={t('generator.manga.actions.optimize')}
                         >
                             {isOptimizing ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                            <span>AI 分鏡優化</span>
+                            <span>{isOptimizing ? t('generator.manga.actions.optimizing') : t('generator.manga.actions.optimize')}</span>
                         </button>
                     </div>
                     <textarea
                         value={config.theme}
                         onChange={(e) => setConfig({ ...config, theme: e.target.value })}
-                        placeholder="描述你的漫畫場景：一個賽博龐克偵探走在雨夜的街道..."
+                        placeholder={t('generator.manga.placeholders.story')}
                         className="w-full h-32 bg-white border border-cream-dark rounded-xl p-3 text-bronze-text placeholder-bronze-light/50 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none resize-none text-sm leading-relaxed shadow-inner"
+                        aria-label={t('generator.manga.sections.story')}
                     />
                 </div>
 
@@ -252,9 +253,9 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                     >
                         <div className="flex items-center gap-2 text-sm font-bold">
                             <Settings2 className="w-4 h-4 text-primary" />
-                            進階設定
+                            {t('generator.manga.sections.advanced')}
                         </div>
-                        <span className="text-xs text-bronze-light">{showAdvanced ? '隱藏' : '顯示'}</span>
+                        <span className="text-xs text-bronze-light">{showAdvanced ? t('generator.manga.labels.hide') : t('generator.manga.labels.show')}</span>
                     </button>
 
                     {showAdvanced && (
@@ -264,7 +265,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                             <div className="flex items-center justify-between mt-4">
                                 <div className="flex items-center gap-2">
                                     {config.withText ? <MessageSquare className="w-4 h-4 text-bronze" /> : <MessageSquareOff className="w-4 h-4 text-bronze-light" />}
-                                    <span className="text-sm font-bold text-bronze">生成對話框</span>
+                                    <span className="text-sm font-bold text-bronze">{t('generator.manga.labels.dialogBubbles')}</span>
                                 </div>
 
                                 <div className="flex items-center gap-3">
@@ -273,6 +274,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                                             value={config.textLanguage || 'zh-TW'}
                                             onChange={(e) => setConfig({ ...config, textLanguage: e.target.value })}
                                             className="bg-cream-light border border-cream-dark rounded-lg px-2 py-1 text-xs font-bold text-bronze-text outline-none focus:border-primary"
+                                            title={t('generator.manga.labels.dialogBubbles')}
                                         >
                                             {TEXT_LANGUAGES.map(lang => (
                                                 <option key={lang.id} value={lang.id}>{lang.label}</option>
@@ -281,30 +283,31 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                                     )}
                                     <button
                                         onClick={() => setConfig({ ...config, withText: !config.withText })}
-                                        className={`relative inline - flex h - 6 w - 11 items - center rounded - full transition - colors ${config.withText ? 'bg-primary' : 'bg-cream-dark'} `}
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${config.withText ? 'bg-primary' : 'bg-cream-dark'}`}
+                                        title={t('generator.manga.labels.dialogBubbles')}
                                     >
-                                        <span className={`inline - block h - 4 w - 4 transform rounded - full bg - white transition - transform ${config.withText ? 'translate-x-6' : 'translate-x-1'} `} />
+                                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${config.withText ? 'translate-x-6' : 'translate-x-1'}`} />
                                     </button>
                                 </div>
                             </div>
 
                             {/* Resolution Selector */}
                             <div className="space-y-1">
-                                <label className="text-xs text-bronze-light font-bold ml-1">輸出畫質</label>
+                                <label className="text-xs text-bronze-light font-bold ml-1">{t('generator.manga.labels.outputQuality')}</label>
                                 <div className="flex bg-cream-light p-1 rounded-lg border border-cream-dark">
                                     {RESOLUTION_OPTIONS.map((opt) => (
                                         <button
                                             key={opt.id}
                                             onClick={() => setConfig({ ...config, resolution: opt.id })}
                                             className={`
-                                            flex - 1 py - 1.5 text - xs font - bold rounded - md transition - all
+                                            flex-1 py-1.5 text-xs font-bold rounded-md transition-all
                                             ${config.resolution === opt.id
                                                     ? 'bg-white text-primary shadow-sm ring-1 ring-black/5'
                                                     : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'
                                                 }
                             `}
                                         >
-                                            {opt.label}
+                                            {t(`generator.manga.labels.options.resolutions.${opt.id}`)}
                                         </button>
                                     ))}
                                 </div>
@@ -312,12 +315,13 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
 
                             {/* Negative Prompt */}
                             <div className="space-y-1">
-                                <label className="text-xs text-bronze-light font-bold ml-1">負面提示詞 (排除)</label>
+                                <label className="text-xs text-bronze-light font-bold ml-1">{t('generator.manga.labels.negativePrompt')}</label>
                                 <textarea
                                     value={config.negativePrompt}
                                     onChange={(e) => setConfig({ ...config, negativePrompt: e.target.value })}
-                                    placeholder="low quality, bad anatomy, text, watermark..."
+                                    placeholder={t('generator.manga.placeholders.negative')}
                                     className="w-full bg-white border border-cream-dark rounded-lg p-2 text-xs text-bronze-text placeholder-bronze-light/50 focus:border-primary outline-none resize-none h-16"
+                                    aria-label={t('generator.manga.labels.negativePrompt')}
                                 />
                             </div>
                         </div>
@@ -336,7 +340,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                         ) : (
                             <Wand2 className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
                         )}
-                        <span>{isLoading ? '繪製漫畫中...' : '開始生成漫畫'}</span>
+                        <span>{isLoading ? t('generator.manga.actions.generating') : t('generator.manga.actions.generate')}</span>
                     </button>
                 </div>
             </div>
@@ -354,9 +358,9 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                             <div className="w-24 h-24 bg-cream-light rounded-full flex items-center justify-center mb-6 border border-cream-dark">
                                 <Sparkles className="w-10 h-10 text-bronze-light/50" />
                             </div>
-                            <h3 className="text-xl font-black text-bronze mb-2">準備好開始了嗎？</h3>
-                            <p className="max-w-md text-bronze-light leading-relaxed">
-                                在左側設定你的故事腳本、風格與角色，<br />AI 將為你繪製精彩的漫畫頁面。
+                            <h3 className="text-xl font-black text-bronze mb-2">{t('generator.manga.labels.readyTitle')}</h3>
+                            <p className="max-w-md text-bronze-light leading-relaxed whitespace-pre-line">
+                                {t('generator.manga.labels.readyDesc')}
                             </p>
                         </div>
                     )}
@@ -369,8 +373,8 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                                 <div className="absolute inset-0 border-4 border-t-primary rounded-full animate-spin"></div>
                                 <ImageIcon className="absolute inset-0 m-auto text-primary w-10 h-10 animate-pulse" />
                             </div>
-                            <h2 className="text-2xl font-black text-bronze mb-2 animate-pulse">正在繪製漫畫...</h2>
-                            <p className="text-bronze-light font-bold">AI 漫畫家正在構圖分鏡中</p>
+                            <h2 className="text-2xl font-black text-bronze mb-2 animate-pulse">{t('generator.manga.labels.sketching')}</h2>
+                            <p className="text-bronze-light font-bold">{t('generator.manga.labels.sketchingDesc')}</p>
                         </div>
                     )}
 
@@ -388,7 +392,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                                 <button
                                     onClick={() => setGeneratedImage(null)}
                                     className="p-3 hover:bg-cream-light rounded-full text-bronze-light hover:text-bronze transition-colors"
-                                    title="重新開始"
+                                    title={t('generator.manga.actions.restart')}
                                 >
                                     <RefreshCw className="w-5 h-5" />
                                 </button>
@@ -399,7 +403,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                                     className="flex items-center space-x-2 px-6 py-3 bg-primary hover:bg-primary-hover text-white rounded-full font-bold transition-colors shadow-lg shadow-primary/20"
                                 >
                                     {isSharing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                                    <span>{isSharing ? '處理中...' : '下載作品'}</span>
+                                    <span>{isSharing ? t('app.processing') : t('generator.manga.actions.download')}</span>
                                 </button>
                             </div>
                         </div>

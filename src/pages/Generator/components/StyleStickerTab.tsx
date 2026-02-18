@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
     Upload, Wand2, Download, Sparkles, Type, Palette,
     Image as ImageIcon, Zap, Feather, Cloud, Disc, Tv, Heart,
-    Scissors, AlertTriangle, Check, Trash2, Settings, Star, Eye, FileArchive, FolderHeart
+    Scissors, AlertTriangle, Trash2, Star, Eye, FileArchive, FolderHeart
 } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveStickerToDB } from '../../../db';
@@ -33,6 +33,7 @@ interface StyleStickerTabProps {
 }
 
 const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNeedApiKey }) => {
+    const { shareImage } = useImageShare();
     const { t } = useTranslation();
     const [currentTheme, setCurrentTheme] = useState<StickerTheme>(THEMES[0]);
     const [image, setImage] = useState<string | null>(null);
@@ -299,7 +300,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
             .then((content) => {
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(content);
-                link.download = "stickers.zip";
+                link.download = `${t('generator.action.zipName')}.zip`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -355,7 +356,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                     onClick={() => fileInputRef.current?.click()}
                                     className={`group border-3 border-dashed rounded-[2rem] p-8 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 min-h-[200px] ${isDragging ? 'drag-active border-primary bg-primary/10' : 'border-cream-dark bg-cream-light/50 hover:border-primary/50 hover:bg-white/60'}`}
                                 >
-                                    <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} title={t('generator.action.uploadImage')} />
                                     <div className="bg-white p-4 rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-primary/10 border border-cream-light text-primary mb-4">
                                         <Upload size={24} />
                                     </div>
@@ -413,7 +414,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                 type="text"
                                 value={customPhrase}
                                 onChange={(e) => { setCustomPhrase(e.target.value); setSelectedPhrase(''); setBatchSize(1); }}
-                                placeholder={t('generator.phrase.custom')}
+                                placeholder={t('generator.phrase.customPlaceholder')}
                                 className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-xl font-bold text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light"
                             />
                         </div>
@@ -497,7 +498,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                     <img src={sticker.imageUrl} alt={sticker.phrase} className="w-full h-full object-contain p-2" />
                                     <div className="absolute inset-0 bg-bronze-text/10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 items-center justify-center backdrop-blur-[2px]">
                                         <button onClick={() => setPreviewImage(sticker.imageUrl)} className="bg-white p-2.5 rounded-full text-bronze-text shadow-lg hover:scale-110 transition-transform" title={t('generator.action.preview')}><Eye size={18} /></button>
-                                        <button onClick={() => handleDownloadImage(sticker.imageUrl, sticker.phrase, sticker.theme)} className="bg-white p-2.5 rounded-full text-primary shadow-lg hover:scale-110 transition-transform active:scale-95" title={t('generator.action.download')}><Download size={18} strokeWidth={2.5} /></button>
+                                        <button onClick={() => handleDownloadImage(sticker.imageUrl, sticker.phrase, currentTheme.name)} className="bg-white p-2.5 rounded-full text-primary shadow-lg hover:scale-110 transition-transform active:scale-95" title={t('generator.action.download')}><Download size={18} strokeWidth={2.5} /></button>
                                         <button onClick={() => handleIndividualBgRemoval(sticker.id)} className="bg-white p-2.5 rounded-full text-secondary shadow-lg hover:scale-110 transition-transform" title={t('generator.action.removeBg')}><Scissors size={18} /></button>
                                     </div>
                                 </div>
@@ -508,8 +509,8 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
 
                     {stickers.length === 0 && !isGenerating && (
                         <div className="text-center py-12 px-6 rounded-3xl border-2 border-dashed border-cream-dark bg-cream-light/30">
-                            <h3 className="text-bronze text-sm font-black mb-2">準備開始製作！</h3>
-                            <p className="text-xs text-bronze-light">請在左側選擇主題與風格，AI 將為您生成獨一無二的貼圖。</p>
+                            <h3 className="text-bronze text-sm font-black mb-2">{t('generator.result.emptyTitle')}</h3>
+                            <p className="text-xs text-bronze-light">{t('generator.result.emptyDesc')}</p>
                         </div>
                     )}
                 </div>
@@ -566,7 +567,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                             onClick={() => setPreviewImage(null)}
                         >
                             <Trash2 className="hidden" /> {/* Dummy to keep import used if needed, or use X */}
-                            <span className="text-xl font-bold">✕ 關閉</span>
+                            <span className="text-xl font-bold">✕ {t('generator.action.close')}</span>
                         </button>
                     </div>
                 </div>

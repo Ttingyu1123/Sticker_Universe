@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { LAYOUT_OPTIONS } from './constants';
 import { ComicLayout } from './types';
 
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export const LayoutSelector: React.FC<Props> = ({ selected, onSelect }) => {
+    const { t } = useTranslation();
 
     // Helper to render custom SVG icons for each layout type
     const renderLayoutIcon = (type: ComicLayout) => {
@@ -116,7 +118,7 @@ export const LayoutSelector: React.FC<Props> = ({ selected, onSelect }) => {
                         {renderLayoutIcon(option.id)}
                     </div>
                     <span className={`text-xs font-bold text-center ${selected === option.id ? 'text-primary' : 'text-bronze-light group-hover:text-bronze'}`}>
-                        {option.label}
+                        {t(`generator.manga.labels.options.layouts.${option.id}`)}
                     </span>
                 </button>
             ))}

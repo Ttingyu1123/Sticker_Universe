@@ -76,8 +76,45 @@
     },
     "manual": {
         "title": "User Manual",
-        "subtitle": "Complete guide to all creative tools",
-        "tip": "Tip: Select the tool you need to start creating. All processing is done locally in your browser to protect your privacy!"
+        "subtitle": "Complete guide to creating stickers",
+        "generator": {
+            "desc": "Turn text prompts into unique stickers with AI. Supports various art styles.",
+            "step1": "Enter a description or choose a preset phrase.",
+            "step2": "Select an art style (e.g., Anime, Watercolor, Pixel).",
+            "step3": "Click Generate to create 4 stickers.",
+            "step4": "Click on a sticker to save it to your collection."
+        },
+        "packager": {
+            "desc": "Batch process stickers with uniform cropping and packaging for LINE/Telegram.",
+            "step1": "Upload valid images or select from gallery.",
+            "step2": "AI automatically detects boundaries and crops.",
+            "step3": "Adjust margins/shadows and download ZIP."
+        },
+        "smartEraser": {
+            "desc": "Powerful background removal tool for single image refinement.",
+            "step1": "Upload image and use AI or Magic Wand to remove background.",
+            "step2": "Refine edges with brushes and export transparent PNG."
+        },
+        "eraser": {
+            "desc": "Classic eraser tool for manual cleanup and fine-tuning."
+        },
+        "editor": {
+            "desc": "Layer-based editor to compose images, text, and effects.",
+            "step1": "Import stickers from gallery or add text layers.",
+            "step2": "Arrange layers and apply filters to create unique designs."
+        },
+        "animator": {
+            "desc": "Combine static stickers into APNG animations. Set frame rates and bring stickers to life!"
+        },
+        "svgConverter": {
+            "desc": "Convert raster images (JPG/PNG) to scalable vectors (SVG)."
+        },
+        "printSheet": {
+            "desc": "Arrange stickers on an A4 canvas for printing physical stickers."
+        },
+        "gallery": {
+            "desc": "Manage all your created stickers. Preview, delete, or batch download."
+        }
     },
     "printSheet": {
         "title": "Layout & Print",
@@ -256,10 +293,120 @@
             "style": "Style Sticker",
             "holiday": "Holiday Sticker",
             "greeting": "Greeting Card",
-            "manga": "Manga Master (Beta)",
+            "manga": "Manga Master",
             "cinematic": "Cinematic Poster",
             "imageGen": "AI Image Gen",
-            "headshot": "Headshot Pro"
+            "headshot": "Headshot Pro",
+            "portrait": "Portrait Master"
+        },
+        "manga": {
+            "sections": {
+                "characters": "Characters",
+                "style": "Art Style",
+                "layout": "Layout Selector",
+                "story": "Story Script",
+                "advanced": "Advanced Settings"
+            },
+            "actions": {
+                "optimize": "AI Story Optimization",
+                "optimizing": "Optimizing...",
+                "generate": "Generate Comic",
+                "generating": "Generating...",
+                "restart": "Start Over",
+                "download": "Download",
+                "addCharacter": "Add Character"
+            },
+            "options": {
+                "layouts": {
+                    "Single Panel Full Page": "1 Panel: Full",
+                    "2 Panels Vertical Stack": "2 Panels: V",
+                    "3 Panels Vertical Stack": "3 Panels: V",
+                    "3 Panels: 1 Top, 2 Bottom Split": "3 Panels: Split",
+                    "4 Panels Vertical Stack": "4 Panels: V",
+                    "4 Panels Grid (2x2)": "4 Panels: Grid",
+                    "5 Panels Dynamic Layout": "5 Panels: Mix",
+                    "6 Panels Grid (2 columns x 3 rows)": "6 Panels: Grid",
+                    "8 Panels Grid (2 columns x 4 rows)": "8 Panels: Grid"
+                },
+                "styles": {
+                    "Cute Manga/Chibi Style": "Cute Manga",
+                    "American Comic Book Style": "American Comic",
+                    "Japanese Anime Style": "Japanese Anime",
+                    "Japanese Horror Manga Style": "Japanese Horror",
+                    "Korean Webtoon Style": "Korean Webtoon",
+                    "Chinese Ink Wash Painting Style": "Chinese Ink",
+                    "Realistic Cinematic Lighting Style": "Realistic",
+                    "Cyberpunk Sci-Fi Style, Neon Lights, High Tech": "Cyberpunk",
+                    "Soft Watercolor Painting Style, Dreamy, Shoujo Manga": "Watercolor",
+                    "90s Retro Anime Style, Cel Shading, Nostalgic, Grainy": "Vintage 90s",
+                    "Modern Flat Illustration Style, Clean Lines, Minimalist, Vector Art": "Modern Flat",
+                    "Photorealistic Style, Real Life Photography 4k, Ultra Realistic, Live Action Movie": "Photorealism"
+                },
+                "colors": {
+                    "Vibrant Full Color": "Full Color",
+                    "Black and White, Manga Screen Tones, High Contrast": "B&W",
+                    "8-Bit Pixel Art Color Palette, Retro Game Style": "8-Bit"
+                },
+                "resolutions": {
+                    "Standard Detail (1K)": "1K Standard",
+                    "High Resolution (2K) with detailed textures": "2K High",
+                    "Ultra High Resolution (4K), incredibly detailed, sharp focus": "4K Ultra HD"
+                }
+            },
+            "labels": {
+                "show": "Show",
+                "hide": "Hide",
+                "dialogBubbles": "Dialog Bubbles",
+                "outputQuality": "Output Quality",
+                "negativePrompt": "Negative Prompt",
+                "characterName": "Character Name",
+                "appearance": "Appearance (Blue hair, school uniform...)",
+                "readyTitle": "Ready to Start?",
+                "readyDesc": "Set your story script, style, and characters on the left,\nAI will draw amazing comic pages for you.",
+                "sketching": "Sketching Comic...",
+                "sketchingDesc": "AI Manga artist is sketching panels...",
+                "options": {
+                    "layouts": {
+                        "Single Panel Full Page": "1 Panel: Full",
+                        "2 Panels Vertical Stack": "2 Panels: V",
+                        "3 Panels Vertical Stack": "3 Panels: V",
+                        "3 Panels: 1 Top, 2 Bottom Split": "3 Panels: Split",
+                        "4 Panels Vertical Stack": "4 Panels: V",
+                        "4 Panels Grid (2x2)": "4 Panels: Grid",
+                        "5 Panels Dynamic Layout": "5 Panels: Mix",
+                        "6 Panels Grid (2 columns x 3 rows)": "6 Panels: Grid",
+                        "8 Panels Grid (2 columns x 4 rows)": "8 Panels: Grid"
+                    },
+                    "styles": {
+                        "Cute Manga/Chibi Style": "Cute Manga",
+                        "American Comic Book Style": "American Comic",
+                        "Japanese Anime Style": "Japanese Anime",
+                        "Japanese Horror Manga Style": "Japanese Horror",
+                        "Korean Webtoon Style": "Korean Webtoon",
+                        "Chinese Ink Wash Painting Style": "Chinese Ink",
+                        "Realistic Cinematic Lighting Style": "Realistic",
+                        "Cyberpunk Sci-Fi Style, Neon Lights, High Tech": "Cyberpunk",
+                        "Soft Watercolor Painting Style, Dreamy, Shoujo Manga": "Watercolor",
+                        "90s Retro Anime Style, Cel Shading, Nostalgic, Grainy": "Vintage 90s",
+                        "Modern Flat Illustration Style, Clean Lines, Minimalist, Vector Art": "Modern Flat",
+                        "Photorealistic Style, Real Life Photography 4k, Ultra Realistic, Live Action Movie": "Photorealism"
+                    },
+                    "colors": {
+                        "Vibrant Full Color": "Full Color",
+                        "Black and White, Manga Screen Tones, High Contrast": "B&W",
+                        "8-Bit Pixel Art Color Palette, Retro Game Style": "8-Bit"
+                    },
+                    "resolutions": {
+                        "Standard Detail (1K)": "1K Standard",
+                        "High Resolution (2K) with detailed textures": "2K High",
+                        "Ultra High Resolution (4K), incredibly detailed, sharp focus": "4K Ultra HD"
+                    }
+                }
+            },
+            "placeholders": {
+                "story": "Describe your manga scene: A cyberpunk detective walking in rain...",
+                "negative": "low quality, bad anatomy, text, watermark..."
+            }
         },
         "apiKey": {
             "title": "Enter Your Gemini API Key",
@@ -301,7 +448,8 @@
         },
         "phrase": {
             "customPlaceholder": "Or type custom phrase...",
-            "errorNoPhrase": "Please select or type a phrase!"
+            "errorNoPhrase": "Please select or type a phrase!",
+            "custom": "Custom Phrase"
         },
         "settings": {
             "batchSize": "Batch Size",
@@ -310,11 +458,13 @@
             "noText": "No Text",
             "postProcessing": "Post-Processing",
             "smartRemoveBg": "Smart Remove BG",
-            "whiteBorder": "Generate White Border"
+            "whiteBorder": "Generate White Border",
+            "batchBatchWarning": "Batch size is fixed to 1 when using a phrase.",
+            "includeText": "Include Text"
         },
         "action": {
-            "generate": "Generate Stickers",
-            "generating": "Generating Magic...",
+            "generate": "Generate",
+            "generating": "Generating...",
             "downloadZip": "Download ZIP",
             "zoom": "Zoom Preview",
             "close": "Close",
@@ -323,7 +473,23 @@
             "results": "Results",
             "batchProcessing": "Batch Processing",
             "generatingArt": "Generating AI Art...",
-            "applyingMagic": "Applying Green Screen Magic & Removal"
+            "applyingMagic": "Applying Magic...",
+            "styleInspiration": "Style & Inspiration",
+            "autoOptimize": "AI Auto-Optimize",
+            "luckyPrompt": "Lucky Prompt",
+            "referenceImage": "Reference Image",
+            "clear": "Clear",
+            "uploadImage": "Upload Image",
+            "pasteImage": "Paste Image",
+            "fromGallery": "From Gallery",
+            "imageLoaded": "Image Loaded",
+            "aspectRatio": "Aspect Ratio",
+            "custom": "Custom",
+            "failed": "Generation Failed",
+            "zipName": "stickers",
+            "preview": "Preview",
+            "download": "Download",
+            "removeBg": "Remove Background"
         },
         "errors": {
             "general": "Generation failed: ",
@@ -561,22 +727,6 @@
                 }
             }
         },
-        "apiKey": {
-            "title": "Enter Your Gemini API Key",
-            "desc": "We need your Google Gemini API Key to generate stickers. It's stored locally in your browser.",
-            "get": "Get your API Key",
-            "placeholder": "Paste API Key here...",
-            "save": "Save Key",
-            "change": "Change API Key",
-            "clearConfirm": "Are you sure you want to remove your API Key? This will remove it from your browser.",
-            "securityTitle": "Security Notice",
-            "securityLocalStorage": "Local Storage - Key is stored only in your browser (LocalStorage) and never uploaded to our servers.",
-            "securityDirect": "Direct Transmission - Requests are sent directly from your browser to Google API.",
-            "rememberKey": "Remember Key",
-            "rememberKeyDesc": "Check to save in LocalStorage for auto-load next time.",
-            "settings": "Set",
-            "clear": "Clear"
-        },
         "greeting": {
             "title": "Greeting Card Master",
             "settings": {
@@ -608,28 +758,209 @@
                 "style": "Choose Style"
             },
             "styles": {
-                "new_year": "Lunar New Year",
-                "new_year_desc": "Red brocade jacket, auspicious patterns, white fox fur cape. Holding 'Fu' character, festive calligraphy background.",
-                "hanfu_studio": "Hanfu Studio",
-                "hanfu_studio_desc": "Elegant traditional Hanfu, flowing silk. Classical Chinese studio setting with ink wash screens.",
+                "new_year": "New Year Festive",
+                "new_year_desc": "Red brocade jacket with golden auspicious patterns and snowy plum blossoms embroidery.",
+                "hanfu_studio": "Classical Hanfu",
+                "hanfu_studio_desc": "Elegant traditional Hanfu, flowing silk robes in pastel colors.",
                 "cyberpunk": "Cyberpunk City",
-                "cyberpunk_desc": "Futuristic techwear, neon lights, rainy night city background. High contrast, edgy look.",
-                "nature": "Nature Fresh",
-                "nature_desc": "Natural sunlight, meadow background. Fresh, airy, Japanese magazine style."
+                "cyberpunk_desc": "Futuristic techwear jacket with glowing neon accents.",
+                "nature": "Japanese Fresh",
+                "nature_desc": "Natural light, forest meadow background. Fresh and natural.",
+                "wedding_dress": "Wedding Dress",
+                "wedding_dress_desc": "Gorgeous white wedding dress with fine details and soft backlighting.",
+                "ethnic_style": "Ethnic Style",
+                "ethnic_style_desc": "Detailed traditional ethnic costume with rich ornaments and cultural patterns.",
+                "pure_desire": "Pure Desire",
+                "pure_desire_desc": "Ethereal, soft focus, extremely gentle and bright aesthetic.",
+                "business_elite": "Business Elite",
+                "business_elite_desc": "Professional corporate headshot, confident and sharp.",
+                "retro_hk": "90s HK Retro",
+                "retro_hk_desc": "90s Hong Kong movie aesthetic, nostalgic and moody film texture.",
+                "magazine_cover": "Magazine Cover",
+                "magazine_cover_desc": "High-end fashion magazine editorial with professional studio lighting.",
+                "winter_snow": "Winter Snow",
+                "winter_snow_desc": "Cozy winter fashion in a beautiful snowy landscape.",
+                "fantasy_animal": "Fantasy Spirit",
+                "fantasy_animal_desc": "Epic fantasy adventure with a beautiful mythical spirit animal companion.",
+                "christmas": "Christmas Festive",
+                "christmas_desc": "Heartwarming Christmas celebration with rich holiday decorations.",
+                "handsome_god": "Heroic God",
+                "handsome_god_desc": "Masculine, charismatic, and powerful portrait with dramatic lighting."
+            },
+            "sub_styles": {
+                "ny_classic": "Classic New Year",
+                "ny_cheongsam": "Modern Cheongsam",
+                "ny_calligraphy": "Calligraphy Art",
+                "ny_lion_dance": "Lion Dance",
+                "ny_opera": "Peking Opera",
+                "ny_traditional_red": "Traditional Red",
+                "ny_golden_fortune": "Golden Fortune",
+                "ny_lantern_festival": "Lantern Festival",
+                "ny_ink_wash": "Ink Wash Painting",
+                "ny_floral_blossom": "Floral Blossom",
+                "hanfu_tang": "Tang Dynasty",
+                "hanfu_song": "Song Dynasty",
+                "hanfu_ming": "Ming Dynasty",
+                "hanfu_dunhuang": "Dunhuang Flying",
+                "hanfu_scholar": "Bamboo Scholar",
+                "hanfu_fairy": "Immortal Fairy",
+                "hanfu_martial": "Wuxia Warrior",
+                "hanfu_court": "Imperial Court",
+                "hanfu_simple": "Rustic Hanfu",
+                "hanfu_ceremony": "Wedding Hanfu",
+                "cyber_neon": "Neon Alley",
+                "cyber_lab": "High-Tech Lab",
+                "cyber_wasteland": "Wasteland Tech",
+                "cyber_hacker": "Hacker Room",
+                "cyber_underground": "Neon Club",
+                "cyber_rooftop": "Sky Rooftop",
+                "cyber_market": "Cyber Market",
+                "cyber_glitch": "Glitch Art",
+                "cyber_android": "Cyborg Identity",
+                "cyber_virtual": "Virtual Grids",
+                "nature_forest": "Misty Forest",
+                "nature_meadow": "Sunlit Meadow",
+                "nature_sea": "Quiet Beach",
+                "nature_mountain": "Mountain Ridge",
+                "nature_autumn": "Maple Path",
+                "nature_spring": "Cherry Blossom",
+                "nature_desert": "Sand Dunes",
+                "nature_lake": "Crystal Lake",
+                "nature_garden": "English Garden",
+                "nature_greenhouse": "Tropical Greenhouse",
+                "wedding_classic": "Cathedral Classic",
+                "wedding_forest": "Forest Aesthetic",
+                "wedding_chinese": "Modern Chinese",
+                "wedding_beach": "Tropical Beach",
+                "wedding_castle": "Royal Castle",
+                "wedding_vintage": "Vintage Glam",
+                "wedding_underwater": "Underwater Dream",
+                "wedding_night": "Fairy Lights",
+                "wedding_minimal": "Studio Minimal",
+                "wedding_urban": "Rooftop Urban",
+                "ethnic_tibetan": "Tibetan Chuba",
+                "ethnic_mongolian": "Mongolian Deel",
+                "ethnic_miao": "Miao Silver",
+                "ethnic_dai": "Dai Silk",
+                "ethnic_uyghur": "Uyghur Dance",
+                "ethnic_yi": "Yi Bonfire",
+                "ethnic_zhuang": "Zhuang Mountains",
+                "ethnic_bai": "Bai Pagoda",
+                "ethnic_kazakh": "Kazakh Eagle",
+                "ethnic_korean": "Korean Hanbok",
+                "pure_white_shirt": "White Shirt",
+                "pure_knitwear": "Soft Knitwear",
+                "pure_floral": "Floral Slip",
+                "pure_bathrobe": "Morning Bathrobe",
+                "pure_ribbon": "Silk Ribbon",
+                "pure_wet_hair": "Shower Look",
+                "pure_sun_shadow": "Cinematic Shadow",
+                "pure_glass": "Dreamy Glass",
+                "pure_feather": "Floating Feather",
+                "pure_milk_bath": "Rose Milk Bath",
+                "business_executive": "Executive Office",
+                "business_tech": "Modern Tech",
+                "business_creative": "Creative Studio",
+                "business_lawyer": "Legal Library",
+                "business_medical": "Medical Research",
+                "business_architect": "Architect Studio",
+                "business_journalist": "Field Reporter",
+                "business_pilot": "Aviation Hangar",
+                "business_diplomat": "International Hall",
+                "business_trader": "Wall Street",
+                "hk_street": "Neon Street",
+                "hk_studio": "Velvet Studio",
+                "hk_cafe": "Cha Chaan Teng",
+                "hk_detective": "Noir Detective",
+                "hk_underworld": "Mahjong Parlor",
+                "hk_classic_bar": "Amber Lounge",
+                "hk_rooftop": "Kowloon Rooftop",
+                "hk_vintage_shop": "Antique Record",
+                "hk_taxi": "Red Taxi",
+                "hk_cinema": "Retro Theater",
+                "magazine_cover_story": "Vogue Style",
+                "magazine_editorial": "Avant-Garde",
+                "magazine_street_look": "Street Chic",
+                "magazine_bw_classic": "B&W Leica",
+                "magazine_pop_art": "Pop Art",
+                "magazine_vintage_glam": "Hollywood Glam",
+                "magazine_sport_illustrated": "Sporty Look",
+                "magazine_minimalist": "Clean Minimal",
+                "magazine_traveler": "NG Explorer",
+                "magazine_cyber_vibe": "Tech-Fashion",
+                "winter_ice_palace": "Ice Palace",
+                "winter_snowy_forest": "Snow Forest",
+                "winter_cozy_cabin": "Lantern Cabin",
+                "winter_frozen_lake": "Frozen Lake",
+                "winter_aurora_night": "Aurora Night",
+                "winter_ski_resort": "Ski Resort",
+                "winter_crystal_cave": "Ice Cave",
+                "winter_reindeer_sleigh": "Fairy Tale Sleigh",
+                "winter_white_christmas": "White Christmas",
+                "winter_ice_sculpture": "Ice Sculpture",
+                "fantasy_phoenix": "Phoenix Spirit",
+                "fantasy_dragon_tamer": "Dragon Tamer",
+                "fantasy_forest_elf": "Forest Elf",
+                "fantasy_pegasus": "Pegasus Wing",
+                "fantasy_mermaid_reef": "Mermaid Reef",
+                "fantasy_wizard_tower": "Wizard Tower",
+                "fantasy_kitsune": "Mystical Kitsune",
+                "fantasy_steampunk": "Steampunk Deck",
+                "fantasy_floating_island": "Floating Island",
+                "fantasy_dark_abyss": "Dark Abyss",
+                "christmas_workshop": "Santa Workshop",
+                "christmas_sparkling_tree": "Sparkling Tree",
+                "christmas_vintage_red": "Vintage Red",
+                "christmas_snowy_market": "Snowy Market",
+                "christmas_fireplace": "Fireplace Cozy",
+                "christmas_gingerbread": "Gingerbread Land",
+                "christmas_carol": "Victorian Carol",
+                "christmas_reindeer_park": "Reindeer Park",
+                "christmas_starry_night": "Starry Night",
+                "christmas_modern_minimal": "Modern Silver",
+                "handsome_dark_knight": "Dark Knight",
+                "handsome_gentle_prince": "Gentle Prince",
+                "handsome_ancient_warrior": "Ancient Warrior",
+                "handsome_scifi_commander": "Sci-Fi Commander",
+                "handsome_noir_detective": "Noir Detective",
+                "handsome_cyber_vanguard": "Cyber Vanguard",
+                "handsome_tribal_chief": "Tribal Chief",
+                "handsome_olymphic_god": "Olympic God",
+                "handsome_wasteland_wanderer": "Wasteland Hero",
+                "handsome_modern_rockstar": "Modern Rockstar"
             },
             "settings": {
-                "ratio": "Aspect Ratio",
-                "custom": "Custom Items/Scene (Optional)",
-                "custom_placeholder": "e.g., holding a camera, under cherry blossoms..."
+                "ratio": "Image Ratio",
+                "custom": "Custom Props/Scene (Optional)",
+                "custom_placeholder": "e.g., holding a camera, cherry blossom background...",
+                "sub_style": "Sub Style",
+                "prompt_preview": "Prompt Preview",
+                "prompt_reset": "Reset Prompt",
+                "prompt_manual_hint": "Or edit the prompt manually..."
             },
             "action": {
                 "generate": "Generate Portrait",
-                "generating": "AI Photographer is shooting..."
+                "generating": "AI Photographer is taking shots..."
             },
-            "upload_hint": "Upload Photo (Half-body recommended)",
+            "upload_hint": "Upload Photo (Half or Full body recommended)",
             "crop_title": "Crop Photo",
             "results": "Portrait Results",
-            "empty_hint": "Your generated portraits will appear here"
+            "empty_hint": "Your exclusive portrait will appear here"
+        },
+        "imageGen": {
+            "styleInspiration": "Style & Inspiration",
+            "hotApps": "Hot Apps",
+            "twelveGrid": "Sticker Twelve Grid",
+            "top100": "TOP 100 Styles",
+            "artStyles": "Art Style Library",
+            "modGuide": "Modification Guide",
+            "settings": "Settings",
+            "prompt": "Prompt",
+            "promptPlaceholder": "Enter prompt..."
+        },
+        "result": {
+            "emptyTitle": "Ready to create?",
+            "emptyDesc": "Upload a photo and select a style to start."
         }
     },
     "packager": {
@@ -850,48 +1181,6 @@
             "deleteConfirm": "Delete this sticker?",
             "selected": "Selected",
             "downloadZip": "Download ZIP"
-        }
-    },
-    "manual": {
-        "title": "User Manual",
-        "subtitle": "Complete guide to creating stickers",
-        "generator": {
-            "desc": "Turn text prompts into unique stickers with AI. Supports various art styles.",
-            "step1": "Enter a description or choose a preset phrase.",
-            "step2": "Select an art style (e.g., Anime, Watercolor, Pixel).",
-            "step3": "Click Generate to create 4 stickers.",
-            "step4": "Click on a sticker to save it to your collection."
-        },
-        "packager": {
-            "desc": "Batch process stickers with uniform cropping and packaging for LINE/Telegram.",
-            "step1": "Upload valid images or select from gallery.",
-            "step2": "AI automatically detects boundaries and crops.",
-            "step3": "Adjust margins/shadows and download ZIP."
-        },
-        "smartEraser": {
-            "desc": "Powerful background removal tool for single image refinement.",
-            "step1": "Upload image and use AI or Magic Wand to remove background.",
-            "step2": "Refine edges with brushes and export transparent PNG."
-        },
-        "eraser": {
-            "desc": "Classic eraser tool for manual cleanup and fine-tuning."
-        },
-        "editor": {
-            "desc": "Layer-based editor to compose images, text, and effects.",
-            "step1": "Import stickers from gallery or add text layers.",
-            "step2": "Arrange layers and apply filters to create unique designs."
-        },
-        "animator": {
-            "desc": "Combine static stickers into APNG animations. Set frame rates and bring stickers to life!"
-        },
-        "svgConverter": {
-            "desc": "Convert raster images (JPG/PNG) to scalable vectors (SVG)."
-        },
-        "printSheet": {
-            "desc": "Arrange stickers on an A4 canvas for printing physical stickers."
-        },
-        "gallery": {
-            "desc": "Manage all your created stickers. Preview, delete, or batch download."
         }
     },
     "collage": {
@@ -1127,270 +1416,34 @@
             "lying_side": "Lying Side (Half Body)"
         }
     },
-    "printSheet": {
-        "tabs": {
-            "printStudio": "Sticker Print Studio",
-            "idPrint": "ID Photo Print Studio"
-        },
-        "addStickers": "Add Stickers",
-        "upload": "Upload Images",
-        "fromGallery": "From Gallery",
-        "tips": "Tips",
-        "tipDrag": "Drag to move stickers",
-        "tipWheel": "Scroll wheel to resize",
-        "tipDelete": "Click X to remove",
-        "grid": "Show Grid",
-        "background": "Background Color",
-        "idPrint": {
-            "sidebar": {
-                "title": "ID Photo Layout",
-                "subtitle": "Upload and crop photos to ID photo size",
-                "photosSection": "Photos",
-                "addPhoto": "Add",
-                "fromGallery": "From Gallery",
-                "emptyPhotos": "Click to upload photos",
-                "fillPage": "Fill Page",
-                "settingsSection": "Page Settings"
-            },
-            "photoCard": {
-                "recrop": "Re-crop",
-                "duplicate": "Duplicate",
-                "delete": "Delete"
-            },
-            "settings": {
-                "photoSize": "Photo Size",
-                "paperSize": "Paper Size",
-                "paperOrientation": "Paper Orientation",
-                "portrait": "Portrait",
-                "landscape": "Landscape",
-                "margin": "Margin (mm)",
-                "gap": "Gap (mm)",
-                "showCutLines": "Cut Lines",
-                "enableMirror": "Mirror",
-                "outputFormat": "Output Format"
-            },
-            "workspace": {
-                "dropHere": "Drop to upload photos",
-                "cropTitle": "Crop Photo",
-                "cropSubtitle": "Adjust crop area",
-                "emptyTitle": "Start Uploading Photos",
-                "emptyDescription": "Click the button above to upload photos, or drag them here",
-                "previewTitle": "Print Preview"
-            },
-            "cropper": {
-                "cancel": "Cancel",
-                "dragHint": "Drag to adjust crop area",
-                "processing": "Processing...",
-                "done": "Done"
-            },
-            "preview": {
-                "updating": "Updating...",
-                "noFit": "Cannot fit photos",
-                "noFitHint": "Please adjust paper size or reduce photo count",
-                "totalPhotos": "Total Photos",
-                "format": "Format",
-                "download": "Download",
-                "saveToGallery": "Save to Gallery",
-                "zoom": "Zoom"
-            }
-        }
+    "stats": {
+        "tools": "Professional Tools",
+        "categories": "Categories",
+        "aiPowered": "AI Powered"
     },
-    "landing": {
-        "tagline": "AI Creative Tools",
-        "heroTitle": "Professional AI Sticker Creation Platform",
-        "heroDesc": "From text to image, from idea to reality, one-stop solution for all your creative needs",
-        "startCreating": "Start Creating",
-        "exploreTools": "Explore Tools",
-        "footer": "© 2024 CreativeOS - Unleash Your Creativity",
-        "stats": {
-            "tools": "Professional Tools",
-            "categories": "Categories",
-            "aiPowered": "AI Powered"
-        },
-        "cta": {
-            "launch": "Launch"
-        },
-        "categories": {
-            "aiGeneration": {
-                "title": "AI Generation",
-                "desc": "Create stunning images and stickers with AI technology"
-            },
-            "imageProcessing": {
-                "title": "Image Processing",
-                "desc": "Professional image editing tools from cropping to background removal"
-            },
-            "creative": {
-                "title": "Creative Layouts",
-                "desc": "Create unique photo collages with creative layouts"
-            },
-            "printing": {
-                "title": "Print & Output",
-                "desc": "Professional layout tools for stickers and ID photos"
-            },
-            "management": {
-                "title": "Gallery",
-                "desc": "Manage all your creations in one place"
-            }
-        },
-        "tabs": {
-            "styleSticker": {
-                "title": "Style Sticker",
-                "desc": "Generate Taiwan anime-style stickers from text",
-                "features": [
-                    "Multiple styles",
-                    "One-click gen",
-                    "High quality"
-                ]
-            },
-            "holidaySticker": {
-                "title": "Holiday Sticker",
-                "desc": "Create festive stickers for various holidays",
-                "features": [
-                    "Holiday themes",
-                    "Auto layout",
-                    "Batch generation"
-                ]
-            },
-            "greetingCard": {
-                "title": "Greeting Card",
-                "desc": "AI-assisted holiday greeting card design",
-                "features": [
-                    "Smart captions",
-                    "Beautiful templates",
-                    "Various holidays"
-                ]
-            },
-            "mangaMaster": {
-                "title": "Manga Master",
-                "desc": "Transform photos into manga-style illustrations",
-                "features": [
-                    "Multiple styles",
-                    "High fidelity",
-                    "Professional"
-                ]
-            },
-            "cinematicPoster": {
-                "title": "Cinematic Poster",
-                "desc": "Create movie poster-style creative images",
-                "features": [
-                    "Cinematic quality",
-                    "Multiple styles",
-                    "Pro layouts"
-                ]
-            },
-            "imageGenerator": {
-                "title": "Image Generator",
-                "desc": "Universal AI image generation tool",
-                "features": [
-                    "Free creation",
-                    "High resolution",
-                    "Fast generation"
-                ]
-            },
-            "headshotMaster": {
-                "title": "Headshot Master",
-                "desc": "AI-generated professional headshots and avatars",
-                "features": [
-                    "Professional",
-                    "Multiple styles",
-                    "Fast process"
-                ]
-            },
-            "batchCrop": {
-                "title": "Batch Crop",
-                "desc": "Process multiple images at once for cropping and optimization",
-                "features": [
-                    "Batch processing",
-                    "Auto-alignment",
-                    "One-click export"
-                ]
-            },
-            "smartRemoveBg": {
-                "title": "Smart BG Removal",
-                "desc": "AI auto-identifies and removes image backgrounds",
-                "features": [
-                    "AI precision",
-                    "Fast processing",
-                    "Perfect edges"
-                ]
-            },
-            "animator": {
-                "title": "Animator",
-                "desc": "Create multi-layer animated stickers",
-                "features": [
-                    "Multi-layer editing",
-                    "Timeline control",
-                    "Export APNG"
-                ]
-            },
-            "layerEditor": {
-                "title": "Layer Editor",
-                "desc": "Professional layer editing and cropping tool",
-                "features": [
-                    "Layer management",
-                    "Precise cropping",
-                    "Filter effects"
-                ]
-            },
-            "imageResizer": {
-                "title": "Image Resizer",
-                "desc": "Smart image resizing with multiple scaling modes",
-                "features": [
-                    "AI upscaling",
-                    "Multiple modes",
-                    "Quality retained"
-                ]
-            },
-            "svgConverter": {
-                "title": "SVG Magic",
-                "desc": "Convert images to editable SVG vectors",
-                "features": [
-                    "Vector conversion",
-                    "Editable",
-                    "Lossless scaling"
-                ]
-            },
-            "photoCollage": {
-                "title": "Photo Collage",
-                "desc": "Creative photo collages with rich layout options",
-                "features": [
-                    "Multiple layouts",
-                    "Free arrangement",
-                    "One-click gen"
-                ]
-            },
-            "stickerPrint": {
-                "title": "Sticker Print",
-                "desc": "Professional sticker layout tool with multiple sizes",
-                "features": [
-                    "Auto layout",
-                    "Multiple sizes",
-                    "Print preview"
-                ]
-            },
-            "idPhotoPrint": {
-                "title": "ID Photo Print",
-                "desc": "Quickly create ID photos for various countries",
-                "features": [
-                    "Multi-country specs",
-                    "Auto crop",
-                    "BG replacement"
-                ]
-            },
-            "gallery": {
-                "title": "Gallery",
-                "desc": "Manage all your creations and download anytime",
-                "features": [
-                    "Centralized",
-                    "Quick search",
-                    "Batch download"
-                ]
-            }
-        }
+    "cta": {
+        "launch": "Launch"
     },
-    "manual": {
-        "title": "User Manual",
-        "subtitle": "Complete guide to all creative tools",
-        "tip": "Tip: Select the tool you need to start creating. All processing is done locally in your browser to protect your privacy!"
+    "categories": {
+        "aiGeneration": {
+            "title": "AI Generation",
+            "desc": "Create stunning images and stickers with AI technology"
+        },
+        "imageProcessing": {
+            "title": "Image Processing",
+            "desc": "Professional image editing tools from cropping to background removal"
+        },
+        "creative": {
+            "title": "Creative Layouts",
+            "desc": "Create unique photo collages with creative layouts"
+        },
+        "printing": {
+            "title": "Print & Output",
+            "desc": "Professional layout tools for stickers and ID photos"
+        },
+        "management": {
+            "title": "Gallery",
+            "desc": "Manage all your creations in one place"
+        }
     }
 }

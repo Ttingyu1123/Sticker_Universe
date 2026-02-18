@@ -1,5 +1,5 @@
-import React from 'react';
 import { Character } from './types';
+import { useTranslation } from 'react-i18next';
 import { Plus, X, Upload, User } from 'lucide-react';
 import { MAX_CHARACTERS } from './constants';
 
@@ -9,6 +9,7 @@ interface Props {
 }
 
 export const CharacterCreator: React.FC<Props> = ({ characters, onChange }) => {
+    const { t } = useTranslation();
     const handleAddCharacter = () => {
         if (characters.length >= MAX_CHARACTERS) return;
         const newChar: Character = {
@@ -87,16 +88,18 @@ export const CharacterCreator: React.FC<Props> = ({ characters, onChange }) => {
                         <div className="flex-1 space-y-2 min-w-0">
                             <input
                                 type="text"
-                                placeholder="角色名稱"
+                                placeholder={t('generator.manga.labels.characterName')}
                                 value={char.name}
                                 onChange={(e) => handleUpdate(char.id, 'name', e.target.value)}
                                 className="w-full bg-cream-light border border-cream-dark rounded-md px-2 py-1.5 text-xs text-bronze-text focus:border-primary outline-none font-bold placeholder-bronze-light/50"
+                                aria-label={t('generator.manga.labels.characterName')}
                             />
                             <textarea
-                                placeholder="外觀描述 (藍色頭髮、校服...)"
+                                placeholder={t('generator.manga.labels.appearance')}
                                 value={char.description}
                                 onChange={(e) => handleUpdate(char.id, 'description', e.target.value)}
                                 className="w-full bg-cream-light border border-cream-dark rounded-md px-2 py-1.5 text-xs text-bronze-text focus:border-primary outline-none resize-none h-14 leading-tight placeholder-bronze-light/50"
+                                aria-label={t('generator.manga.labels.appearance')}
                             />
                         </div>
                     </div>
@@ -109,7 +112,7 @@ export const CharacterCreator: React.FC<Props> = ({ characters, onChange }) => {
                     className="w-full flex items-center justify-center p-3 border border-dashed border-cream-dark rounded-xl bg-white hover:bg-cream-light hover:border-primary/50 hover:text-primary text-bronze-light transition-all text-sm gap-2 font-bold"
                 >
                     <Plus className="w-4 h-4" />
-                    <span>新增角色</span>
+                    <span>{t('generator.manga.actions.addCharacter')}</span>
                 </button>
             )}
         </div>

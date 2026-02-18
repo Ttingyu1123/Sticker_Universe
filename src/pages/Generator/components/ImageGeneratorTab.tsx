@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Upload, Camera, FileText, Wand2, Sparkles, ChevronDown, ChevronRight, X, Image as ImageIcon, FolderHeart } from 'lucide-react';
-// @ts-ignore
-import { ART_STYLES_CATEGORIES, ASPECT_RATIOS, EDITING_EXAMPLES, EXAMPLE_PROMPTS, FUNCTION_BUTTONS, TWELVE_GRID_CATEGORIES, TOP_100_STYLES, TOP_100_STYLES_CATEGORIZED } from '../../../../constants';
+import { Upload, FileText, Wand2, Sparkles, ChevronDown, X, FolderHeart } from 'lucide-react';
+import { ART_STYLES_CATEGORIES, ASPECT_RATIOS, EDITING_EXAMPLES, EXAMPLE_PROMPTS, FUNCTION_BUTTONS, TWELVE_GRID_CATEGORIES, TOP_100_STYLES_CATEGORIZED } from '../constants/generatorConstants';
 import { generateImage } from '../services/geminiService';
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
@@ -131,12 +130,12 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                 <div className="lg:col-span-1 space-y-6 bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-6 h-fit">
                     <div className="flex items-center gap-2 border-b border-cream-dark/50 pb-4 mb-2">
                         <Sparkles size={18} className="text-yellow-400" />
-                        <h2 className="text-sm font-black text-bronze-light uppercase tracking-widest">風格與靈感 (Styles & Inspiration)</h2>
+                        <h2 className="text-sm font-black text-bronze-light uppercase tracking-widest">{t('generator.imageGen.styleInspiration')}</h2>
                     </div>
 
                     {/* Hot Apps */}
                     <div className="space-y-3">
-                        <h3 className="text-xs font-black text-primary uppercase tracking-widest pl-1">熱門應用 (Hot Apps)</h3>
+                        <h3 className="text-xs font-black text-primary uppercase tracking-widest pl-1">{t('generator.imageGen.hotApps')}</h3>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                             {FUNCTION_BUTTONS.map((btn: any, idx: number) => (
                                 <button
@@ -159,7 +158,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                                 onClick={() => setIsTwelveGridOpen(!isTwelveGridOpen)}
                                 className="w-full flex items-center justify-between p-4 text-xs font-bold text-bronze-text hover:bg-white/80 transition-colors"
                             >
-                                <span>貼圖十二宮格 (12-Grid Styles)</span>
+                                <span>{t('generator.imageGen.twelveGrid')}</span>
                                 <ChevronDown size={16} className={`transition-transform ${isTwelveGridOpen ? 'rotate-180' : ''}`} />
                             </button>
 
@@ -192,7 +191,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                                 onClick={() => setIsTop100Open(!isTop100Open)}
                                 className="w-full flex items-center justify-between p-4 text-xs font-bold text-bronze-text hover:bg-white/80 transition-colors"
                             >
-                                <span>TOP 100 風格重繪 (Top 100 Styles)</span>
+                                <span>{t('generator.imageGen.top100')}</span>
                                 <ChevronDown size={16} className={`transition-transform ${isTop100Open ? 'rotate-180' : ''}`} />
                             </button>
 
@@ -206,11 +205,11 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                                                     <button
                                                         key={`${cIdx}-${idx}`}
                                                         onClick={() => { addPrompt(style.prompt); setIsTop100Open(false); }}
-                                                        className="p-2 rounded-lg text-[10px] sm:text-xs text-left truncate transition-colors hover:bg-primary/10 text-bronze-light hover:text-primary border border-transparent hover:border-primary/20"
+                                                        className="p-3 rounded-xl text-left transition-all hover:bg-primary/10 text-bronze-light hover:text-primary border border-transparent hover:border-primary/20 flex flex-col gap-1 group/btn"
                                                         title={style.prompt}
                                                     >
-                                                        <div className="font-bold truncate">{style.label}</div>
-                                                        {style.negativePrompt && <div className="text-[9px] opacity-60 truncate">Neg: {style.negativePrompt}</div>}
+                                                        <div className="font-bold text-xs sm:text-sm truncate group-hover/btn:text-primary transition-colors">{style.label}</div>
+                                                        {style.note && <div className="text-[10px] sm:text-[11px] text-primary/70 font-medium leading-tight">{style.note}</div>}
                                                     </button>
                                                 ))}
                                             </div>
@@ -226,7 +225,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                                 onClick={() => setIsStyleOpen(!isStyleOpen)}
                                 className="w-full flex items-center justify-between p-4 text-xs font-bold text-bronze-text hover:bg-white/80 transition-colors"
                             >
-                                <span>Top100藝術風格 (Art Styles)</span>
+                                <span>{t('generator.imageGen.artStyles')}</span>
                                 <ChevronDown size={16} className={`transition-transform ${isStyleOpen ? 'rotate-180' : ''}`} />
                             </button>
 
@@ -259,7 +258,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                                 onClick={() => setIsGuideOpen(!isGuideOpen)}
                                 className="w-full flex items-center justify-between p-4 text-xs font-bold text-bronze-text hover:bg-white/80 transition-colors"
                             >
-                                <span>各種改圖指南 (Modification Guide)</span>
+                                <span>{t('generator.imageGen.modGuide')}</span>
                                 <ChevronDown size={16} className={`transition-transform ${isGuideOpen ? 'rotate-180' : ''}`} />
                             </button>
 
@@ -292,16 +291,16 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                 <div className="space-y-6 bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 h-fit">
                     <div className="flex items-center gap-2 border-b border-cream-dark/50 pb-4 mb-2">
                         <Wand2 size={18} className="text-primary" />
-                        <h2 className="text-sm font-black text-bronze-light uppercase tracking-widest">生成設定 (Settings)</h2>
+                        <h2 className="text-sm font-black text-bronze-light uppercase tracking-widest">{t('generator.imageGen.settings')}</h2>
                     </div>
 
                     {/* Prompt Input */}
                     <div className="space-y-3">
-                        <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">提示詞 (Prompt)</label>
+                        <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">{t('generator.imageGen.prompt')}</label>
                         <textarea
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
-                            placeholder="請輸入提示詞，或選擇左側風格..."
+                            placeholder={t('generator.imageGen.promptPlaceholder')}
                             className="w-full h-32 p-4 rounded-2xl border border-cream-dark bg-cream-light text-bronze-text text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all resize-none shadow-inner placeholder-bronze-light/50"
                         />
                     </div>
@@ -312,23 +311,23 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                             onClick={autoOptimize}
                             className="flex items-center justify-center gap-2 p-3 bg-violet-600/5 hover:bg-violet-600/10 border border-violet-600/20 rounded-2xl text-violet-700 font-bold text-xs transition-all hover:scale-[1.02]"
                         >
-                            <Sparkles size={16} /> 自動優化
+                            <Sparkles size={16} /> {t('generator.action.autoOptimize')}
                         </button>
                         <button
                             onClick={luckyPrompt}
                             className="flex items-center justify-center gap-2 p-3 bg-amber-600/5 hover:bg-amber-600/10 border border-amber-600/20 rounded-2xl text-amber-700 font-bold text-xs transition-all hover:scale-[1.02]"
                         >
-                            <Wand2 size={16} /> 靈感提示
+                            <Wand2 size={16} /> {t('generator.action.luckyPrompt')}
                         </button>
                     </div>
 
                     {/* Reference Image */}
                     <div className="space-y-3">
                         <div className="flex justify-between items-center pl-1">
-                            <label className="text-xs font-black text-bronze-light uppercase tracking-widest">參考圖 (選填)</label>
+                            <label className="text-xs font-black text-bronze-light uppercase tracking-widest">{t('generator.action.referenceImage')}</label>
                             {referenceImage && (
                                 <button onClick={() => setReferenceImage(null)} className="text-[10px] text-red-500 hover:text-red-600 font-bold flex items-center gap-1 bg-red-50 px-2 py-1 rounded-full">
-                                    <X size={12} /> 清除
+                                    <X size={12} /> {t('generator.action.clear')}
                                 </button>
                             )}
                         </div>
@@ -340,29 +339,29 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                                     className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-cream-dark rounded-2xl hover:border-primary/50 hover:bg-white/60 transition-all text-bronze-light hover:text-primary gap-2 bg-cream-light/30"
                                 >
                                     <Upload size={20} />
-                                    <span className="text-xs font-bold">上傳圖片</span>
+                                    <span className="text-xs font-bold">{t('generator.action.uploadImage')}</span>
                                 </button>
                                 <button
                                     onClick={handlePaste}
                                     className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-cream-dark rounded-2xl hover:border-primary/50 hover:bg-white/60 transition-all text-bronze-light hover:text-primary gap-2 bg-cream-light/30"
                                 >
                                     <FileText size={20} />
-                                    <span className="text-xs font-bold">貼上圖片</span>
+                                    <span className="text-xs font-bold">{t('generator.action.pasteImage')}</span>
                                 </button>
                                 <button
                                     onClick={() => setShowGallery(true)}
                                     className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-cream-dark rounded-2xl hover:border-primary/50 hover:bg-white/60 transition-all text-bronze-light hover:text-primary gap-2 bg-cream-light/30"
                                 >
                                     <FolderHeart size={20} />
-                                    <span className="text-xs font-bold">從作品集</span>
+                                    <span className="text-xs font-bold">{t('generator.action.fromGallery')}</span>
                                 </button>
-                                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
+                                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} title={t('generator.action.uploadImage')} />
                             </div>
                         ) : (
                             <div className="relative rounded-2xl overflow-hidden border border-cream-dark bg-black/5 aspect-video flex items-center justify-center group">
                                 <img src={referenceImage} alt="Ref" className="max-w-full max-h-48 object-contain" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                                    <span className="text-white text-xs font-bold">已載入參考圖</span>
+                                    <span className="text-white text-xs font-bold">{t('generator.action.imageLoaded')}</span>
                                 </div>
                             </div>
                         )}
@@ -370,7 +369,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
 
                     {/* Aspect Ratio */}
                     <div className="space-y-3">
-                        <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">長寬比例</label>
+                        <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">{t('generator.action.aspectRatio')}</label>
                         <div className="flex flex-wrap gap-2">
                             {ASPECT_RATIOS.map((ratio: string) => (
                                 <button
@@ -395,7 +394,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                                     ? 'bg-primary text-white border-primary shadow-md'
                                     : 'bg-cream-light border-cream-dark text-bronze-light hover:bg-white hover:border-primary/30'}`}
                             >
-                                自訂
+                                {t('generator.action.custom')}
                             </button>
                         </div>
 
@@ -438,7 +437,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                         className="w-full text-lg h-16 mt-4 shadow-xl shadow-primary/20 bg-primary hover:bg-primary-hover active:scale-[0.99] transition-all rounded-2xl border-none"
                     >
                         <Wand2 size={24} className={`mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
-                        {isGenerating ? '生成中 (Generating)...' : '開始生成圖片 (Generate)'}
+                        {isGenerating ? t('generator.action.generating') : t('generator.action.generate')}
                     </Button>
 
                     {/* Error Message Display */}
@@ -449,7 +448,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                                     <X size={14} className="text-red-600" />
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="text-xs font-bold text-red-700 mb-0.5">生成失敗 (Generation Failed)</h4>
+                                    <h4 className="text-xs font-bold text-red-700 mb-0.5">{t('generator.action.failed')}</h4>
                                     <p className="text-xs text-red-600 leading-relaxed">{errorMessage}</p>
                                 </div>
                             </div>
@@ -476,7 +475,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                             </div>
 
                             <div className="text-center space-y-3">
-                                <h3 className="text-2xl font-bold text-bronze-dark tracking-wide animate-pulse">正在生成 AI 藝術...</h3>
+                                <h3 className="text-2xl font-bold text-bronze-dark tracking-wide animate-pulse">{t('generator.action.generatingArt')}</h3>
                             </div>
                         </div>
                     </div>
