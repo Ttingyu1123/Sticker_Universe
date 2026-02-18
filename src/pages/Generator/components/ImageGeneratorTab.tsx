@@ -136,7 +136,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                     {/* Hot Apps */}
                     <div className="space-y-3">
                         <h3 className="text-xs font-black text-primary uppercase tracking-widest pl-1">{t('generator.imageGen.hotApps')}</h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2">
                             {FUNCTION_BUTTONS.map((btn: any, idx: number) => (
                                 <button
                                     key={idx}
@@ -333,7 +333,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
                         </div>
 
                         {!referenceImage ? (
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-2 xl:grid-cols-3 gap-3">
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
                                     className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-cream-dark rounded-2xl hover:border-primary/50 hover:bg-white/60 transition-all text-bronze-light hover:text-primary gap-2 bg-cream-light/30"

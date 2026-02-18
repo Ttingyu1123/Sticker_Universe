@@ -379,7 +379,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                         {/* Style Selection */}
                         <div className="space-y-3">
                             <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Palette size={18} className={currentTheme.id === 'taiwanese' ? 'text-secondary' : 'text-primary'} /> {t('generator.phases.style')}</h2>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
                                 {currentTheme.styles.map((style) => (
                                     <button
                                         key={style.id}
@@ -398,7 +398,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                         {/* Phrase Selection */}
                         <div className="space-y-3">
                             <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Type size={18} className={currentTheme.id === 'taiwanese' ? 'text-primary' : 'text-orange-500'} /> {t('generator.phases.phrase')}</h2>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2">
                                 {currentTheme.phrases.map((phrase) => (
                                     <button
                                         key={phrase.text}
@@ -491,7 +491,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                         )}
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
                         {stickers.map((sticker) => (
                             <div key={sticker.id} className="bg-white/40 backdrop-blur-md border border-cream-dark p-3 rounded-3xl group hover:shadow-xl transition-all animate-in zoom-in-95 duration-300 hover:-translate-y-1">
                                 <div className="aspect-square rounded-2xl bg-cream-light/50 overflow-hidden relative border border-cream-dark/50" style={{ backgroundImage: 'radial-gradient(#d6d3d1 1px, transparent 1px)', backgroundSize: '8px 8px' }}>

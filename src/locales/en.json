@@ -1445,5 +1445,12 @@
             "title": "Gallery",
             "desc": "Manage all your creations in one place"
         }
+    },
+    "common": {
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "done": "Done",
+        "save": "Save",
+        "close": "Close"
     }
 }

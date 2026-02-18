@@ -361,7 +361,7 @@ const App: React.FC = () => {
       )}
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 max-w-5xl space-y-8">
+      <main className="container mx-auto px-4 max-w-[1400px] space-y-8">
 
         {/* Tab Navigation */}
         <div className="flex flex-col gap-3 bg-cream backdrop-blur rounded-[2rem] p-3 sm:p-4 border border-cream-dark shadow-sm">

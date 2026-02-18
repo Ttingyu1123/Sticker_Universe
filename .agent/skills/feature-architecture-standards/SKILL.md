@@ -180,6 +180,141 @@ The hook automatically detects capabilities:
 
 See `src/pages/Generator/components/HeadshotGeneratorTab.tsx` for complete implementation.
 
+## 6. API Key & Security (BYOK Architecture)
+
+To protect user keys and ensure a seamless experience, follow the "Bring Your Own Key" (BYOK) pattern.
+
+### 6.1 Centralized Logic
+
+* **Root Handler**: Only the App's root (e.g., `Generator/App.tsx`) handles `localStorage` and `sessionStorage`.
+* **Key Props**: All sub-tabs and components must receive `apiKey` as a prop.
+* **Re-Authentication**: Components should call `onNeedApiKey()` if an API call fails with a 401/403 error.
+
+### 6.2 Implementation Pattern (Google GenAI)
+
+Always initialize the client dynamically with the provided key:
+
+```typescript
+// service.ts
+import { GoogleGenAI } from "@google/genai";
+
+export async function useAiService(apiKey: string) {
+  const ai = new GoogleGenAI({ apiKey });
+  const model = ai.getGenerativeModel({ model: "gemini-3-pro-image-preview" });
+  // ...
+}
+```
+
+## 7. CreativeOS Loading & Processing UX
+
+Generation and AI processing should feel consistent and "magical":
+
+### 7.1 Full-Screen "Magic" Overlay
+
+For batch processing or long generations, use the standard full-screen overlay:
+
+* **Icon**: Spinning `Sparkles` or `Wand2`.
+* **Text**: "Generating AI Art..." (generatingArt) or "Batch Processing..." (batchProcessing).
+* **Secondary Text**: "Applying Magic..." (applyingMagic).
+* **Progress**: Include a progress bar for batch operations.
+
+### 7.2 Micro-Loading (Buttons)
+
+For quick actions, use a spinner icon inside the button and disable the button.
+
+## 8. Error Handling & Feedback Pattern
+
+### 8.1 Error Toasts
+
+* Errors should appear at the **bottom center** as a floating toast.
+* Use `red-500` background with a white "!" icon.
+
+### 8.2 Validation Errors
+
+* Perform client-side validation (e.g., checking if image is uploaded) before calling API.
+* Show a descriptive error message using the `t('generator.errors.*')` keys.
+
+## 9. Background Removal (Chroma-Key)
+
+Many apps offer background removal. Always use the standardized chroma-key logic for green/blue screens:
+
+1. **Smart Chroma Detection**: Check corners for background color.
+2. **Alpha Transparency**: Use an off-screen canvas to set alpha to 0 for detected background pixels.
+3. **Edge Smoothing**: Apply a slight expansion/feathering to the mask to avoid "green halos".
+
+## 10. Gallery & Portfolio Lifecycle Standards
+
+To ensure a persistent and multi-tab experience ("CreativeOS" feel), all Apps MUST integrate with the local Gallery (IndexedDB).
+
+### 10.1 Uploading: "From Gallery" Integration
+
+Every image upload area (Drag & Drop zone) must provide a way to pick from existing works.
+
+* **Button UI**: Use a secondary styled button with `<FolderHeart size={16} />`.
+* **Behavior**: Launch the `<GalleryPicker />` modal and handle the `onSelect(blobs)` callback.
+
+### 10.2 Success: Auto-Import to Gallery
+
+When a generation or edit is successful (e.g., AI generation finished, collage exported), the result **MUST** be automatically saved to the Gallery.
+
+* **Timing**: Save immediately upon successful creation, before the user initiates a download.
+* **Implementation**: Use `saveStickerToDB(stickerObject)` from `src/db.ts`.
+* **UX Benefit**: This ensures work is never lost if the browser refreshes and allows "assembling" a project across different apps.
+
+## 11. Mobile-Friendly Action Patterns
+
+Mobile users cannot rely on hover states. UI actions must be explicit and touch-friendly.
+
+### 11.1 Persistent Action Overlays
+
+* **No Hover-Only controls**: Actions like "Preview", "Download", "Remove BG" should be visible by default or reachable via a single tap, not just mouse hover.
+* **Large Touch Targets**: Ensure buttons have at least `44x44px` hit area (or equivalent spacing).
+
+### 11.2 Robust Download Logic
+
+Always use the Blob-based download pattern to avoid "Corrupted file" or "Lost transparency" issues on mobile browsers:
+
+```typescript
+const blob = await (await fetch(imageUrl)).blob();
+const url = URL.createObjectURL(blob);
+const link = document.createElement('a');
+link.href = url;
+link.download = 'filename.png';
+link.click();
+URL.revokeObjectURL(url);
+```
+
+## 11. Results Preview & Management
+
+Generated outputs should be easy to inspect and export in bulk.
+
+### 11.1 Standard Preview Modal
+
+* **Logic**: Click on a result thumbnail to open a high-res modal.
+* **UI**: Black semi-transparent background (`bg-black/90`), backdrop blur, and persistent action buttons (Download, Copy, Remove BG) inside the modal for mobile friendly access.
+
+### 11.2 Batch Export (ZIP)
+
+Apps that generate multiple items (like Batch Stickers) MUST provide a ZIP export option.
+
+* **Implementation**: Use `jszip` library.
+* **Naming**: Use `t('generator.action.zipName')` or a descriptive feature-based name.
+
+## 12. AI Prompting & Output Standards
+
+### 12.1 Prompt Engineering Flow
+
+For high-quality results, use a **Two-Step** process:
+
+1. **Optimize (Text)**: Use the model to convert user intent into a detailed English visual prompt.
+2. **Generate (Image)**: Feed the optimized prompt into the image generation call.
+
+### 12.2 Output Sanitization (JSON)
+
+* **MIME Type**: Always use `config: { responseMimeType: "application/json" }` for structured data.
+* **Code Block Stripping**: AI often wraps JSON in ```json blocks. Always strip these manually before `JSON.parse`.
+* **React Safety**: **NEVER** render AI-generated keys directly. Always force types: `String(data.key || "")`.
+
 ---
 **Checklist for New Features:**
 
@@ -187,4 +322,13 @@ See `src/pages/Generator/components/HeadshotGeneratorTab.tsx` for complete imple
 * [ ] Does it use `zh-TW.json` and `en.json`?
 * [ ] Does it use standard container classes?
 * [ ] Are local headers removed?
-* [ ] Does image download/share use `useImageShare` hook?
+* [ ] Does it offer "From Gallery" in the upload section?
+* [ ] Does successful output auto-save to Galllery via `saveStickerToDB`?
+* [ ] Does it use the standard `apiKey` prop pattern (NOT internal storage)?
+* [ ] Does it implement the Two-Step Prompt Optimization flow?
+* [ ] Is raw AI output sanitized and type-forced before rendering?
+* [ ] Does the loading state use the standard "Magic Overlay" or button spinner?
+* [ ] Are error messages displayed using the global `error` toast pattern?
+* [ ] Does the result gallery provide a standard zoom-in Preview Modal?
+* [ ] Does image download/share use `useImageShare` hook (for mobile)?
+* [ ] Are hover-only buttons avoided for critical mobile actions?

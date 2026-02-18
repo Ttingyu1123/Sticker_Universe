@@ -598,7 +598,7 @@ ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
                                     className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-secondary/10 hover:bg-secondary/20 text-secondary rounded-xl text-sm font-bold transition-colors"
                                 >
                                     <FolderHeart size={18} />
-                                    {t('generator.action.gallery') || "從作品集選取"}
+                                    {t('generator.action.fromGallery') || "從作品集選取"}
                                 </button>
                             </>
                         ) : (

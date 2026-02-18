@@ -1445,5 +1445,12 @@
             "title": "Gallery",
             "desc": "Manage all your creations in one place"
         }
+    },
+    "common": {
+        "cancel": "取消",
+        "confirm": "確定",
+        "done": "完成",
+        "save": "儲存",
+        "close": "關閉"
     }
 }
