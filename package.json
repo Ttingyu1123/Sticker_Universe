@@ -7,6 +7,7 @@
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview",
+        "check:boundaries": "node scripts/check-page-boundaries.mjs",
         "validate:i18n": "node scripts/validate-i18n.mjs",
         "postinstall": "node copy-imgly-assets.js"
     },

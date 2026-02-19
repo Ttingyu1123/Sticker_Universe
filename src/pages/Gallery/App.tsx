@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Trash2, Download, Image as ImageIcon, Search, FileArchive, Palette, Layers, MoreHorizontal, CheckCircle2, Circle, Upload, FileText, X, Maximize2, Share2, Copy } from 'lucide-react';
 import { getAllStickersFromDB, deleteStickerFromDB, clearAllStickersFromDB, saveStickerToDB } from '../../db';
-import { Sticker } from '../Generator/types';
+import type { Sticker } from '../../shared/types/sticker';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import ReactMarkdown from 'react-markdown';

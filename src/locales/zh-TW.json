@@ -449,7 +449,7 @@
         ]
       },
       "portraitMaster": {
-        "title": "肖像大師",
+        "title": "寫真大師",
         "desc": "工作室級攝影",
         "features": "精細修飾•場景交換"
       },
@@ -569,7 +569,7 @@
       "cinematic": "影劇海報",
       "imageGen": "AI圖片生成",
       "headshot": "形象照大師",
-      "portrait": "肖像大師"
+      "portrait": "寫真大師"
     },
     "errors": {
       "general": "生成失敗：",
@@ -879,11 +879,11 @@
             "Japanese Horror Manga Style": "日本恐怖片",
             "Korean Webtoon Style": "韓國網路漫畫",
             "Chinese Ink Wash Painting Style": "中國水墨",
-            "Realistic Cinematic Lighting Style": "實際的",
+            "Realistic Cinematic Lighting Style": "電影寫實",
             "Cyberpunk Sci-Fi Style, Neon Lights, High Tech": "賽博朋克",
             "Soft Watercolor Painting Style, Dreamy, Shoujo Manga": "水彩",
             "90s Retro Anime Style, Cel Shading, Nostalgic, Grainy": "90 年代復古",
-            "Modern Flat Illustration Style, Clean Lines, Minimalist, Vector Art": "現代公寓",
+            "Modern Flat Illustration Style, Clean Lines, Minimalist, Vector Art": "現代扁平插畫",
             "Photorealistic Style, Real Life Photography 4k, Ultra Realistic, Live Action Movie": "照片寫實主義"
           },
           "colors": {
@@ -937,11 +937,11 @@
           "Japanese Horror Manga Style": "日本恐怖片",
           "Korean Webtoon Style": "韓國網路漫畫",
           "Chinese Ink Wash Painting Style": "中國水墨",
-          "Realistic Cinematic Lighting Style": "實際的",
+          "Realistic Cinematic Lighting Style": "電影寫實",
           "Cyberpunk Sci-Fi Style, Neon Lights, High Tech": "賽博朋克",
           "Soft Watercolor Painting Style, Dreamy, Shoujo Manga": "水彩",
           "90s Retro Anime Style, Cel Shading, Nostalgic, Grainy": "90 年代復古",
-          "Modern Flat Illustration Style, Clean Lines, Minimalist, Vector Art": "現代公寓",
+          "Modern Flat Illustration Style, Clean Lines, Minimalist, Vector Art": "現代扁平插畫",
           "Photorealistic Style, Real Life Photography 4k, Ultra Realistic, Live Action Movie": "照片寫實主義"
         },
         "colors": {
@@ -978,7 +978,7 @@
       "results": "肖像結果",
       "empty_hint": "你的專屬頭像將會出現在這裡",
       "crop_title": "裁切照片",
-      "title": "肖像大師",
+      "title": "寫真大師",
       "styles": {
         "new_year": "新年佳節",
         "new_year_desc": "紅色錦緞外套，金色吉祥圖案和雪梅刺繡。",

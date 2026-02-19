@@ -5,7 +5,7 @@ import saveAs from 'file-saver';
 import { useTranslation } from 'react-i18next';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { saveStickerToDB } from '../../../db';
-import { loadImage } from '../../Packager/utils/helpers';
+import { loadImage } from '../../../features/packager-core';
 
 const blobToBase64 = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {

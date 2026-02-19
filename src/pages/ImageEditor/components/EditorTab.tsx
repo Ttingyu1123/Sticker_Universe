@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { EditorCanvas } from '../../Editor/components/EditorCanvas';
-import { Sidebar } from '../../Editor/components/Sidebar';
-import { Toolbar } from '../../Editor/components/Toolbar';
-import { Layer, LayerType, TextProperties, CanvasConfig } from '../../Editor/types';
-import { useHistory } from '../../Editor/hooks/useHistory';
-import { generateId } from '../../Editor/utils/idUtils';
-import { measureText } from '../../Editor/utils/textMeasurement';
-import { downloadCanvasAsImage, generateCanvasDataUrl } from '../../Editor/utils/exportUtils';
+import {
+    EditorCanvas,
+    Sidebar,
+    Toolbar,
+    BubblePicker,
+    useHistory,
+    generateId,
+    measureText,
+    downloadCanvasAsImage,
+    generateCanvasDataUrl,
+} from '../../../features/editor-core';
+import type { Layer, LayerType, TextProperties, CanvasConfig } from '../../../features/editor-core';
 import { Plus, Minus, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -15,7 +19,6 @@ import { useLocation } from 'react-router-dom';
 import { saveStickerToDB } from '../../../db';
 
 import { LinePreviewModal } from '../../../components/LinePreviewModal';
-import { BubblePicker } from '../../Editor/components/BubblePicker';
 
 const EditorTab: React.FC = () => {
     const { t } = useTranslation();

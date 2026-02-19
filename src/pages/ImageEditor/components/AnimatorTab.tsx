@@ -1,17 +1,16 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, Image as ImageIcon, Video, Upload, Type, Layers, ChevronUp, ChevronDown, Settings, ZoomIn, ZoomOut, Smartphone, Loader2, MessageCircle, Info, ExternalLink } from 'lucide-react';
-import '../../Animator/animations.css';
+import '../../../features/animator-core/animations.css';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { LinePreviewModal } from '../../../components/LinePreviewModal';
-import { BubblePicker } from '../../Editor/components/BubblePicker';
+import { BubblePicker } from '../../../features/editor-core';
 // @ts-ignore
 import UPNG from 'upng-js';
 import GIF from 'gif.js';
 import { toPng } from 'html-to-image';
-import { Layer, AnimationType } from '../../Animator/types';
-import { LayerCanvas } from '../../Animator/components/LayerCanvas';
-import { LayerProperties } from '../../Animator/components/LayerProperties';
+import { LayerCanvas, LayerProperties } from '../../../features/animator-core';
+import type { Layer, AnimationType } from '../../../features/animator-core';
 // import { v4 as uuidv4 } from 'uuid'; 
 
 const AnimatorTab = () => {

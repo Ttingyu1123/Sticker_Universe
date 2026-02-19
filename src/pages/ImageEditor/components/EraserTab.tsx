@@ -3,9 +3,8 @@ import {
     Home
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import ImageUploader from '../../Eraser/components/ImageUploader';
-import CanvasEditor from '../../Eraser/components/CanvasEditor';
-import Toolbar, { ToolMode } from '../../Eraser/components/Toolbar';
+import { CanvasEditor, ImageUploader, Toolbar } from '../../../features/eraser-core';
+import type { ToolMode } from '../../../features/eraser-core';
 
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { useLocation } from 'react-router-dom';

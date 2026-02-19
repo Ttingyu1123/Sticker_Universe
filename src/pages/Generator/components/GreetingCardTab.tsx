@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { CardLayoutId } from '../types';
-import { processImage } from '../../Packager/services/ai/backgroundRemoval';
+import { processImage } from '../../../features/packager-core';
 
 // --- Modular Components ---
 import { FESTIVALS, CARD_STYLES, HistoryItem, FONTS } from './GreetingCard/Constants';

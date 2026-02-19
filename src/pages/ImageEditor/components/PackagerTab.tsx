@@ -1,11 +1,10 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { AlertCircle, Check, CheckCircle2, ChevronRight, Coins, Crop, Download, Eraser, FileArchive, FileDown, Grip, Image as ImageIcon, Layers, LayoutGrid, Maximize, Maximize2, Minus, Move, Palette, Plus, RefreshCcw, RefreshCw, RotateCcw, Ruler, Save, Settings, Settings2, Share2, ShieldCheck, Sparkles, Star, Sun, Trash2, Type, Undo2, Upload, Redo2, Wand2, X, Zap, ZoomIn, ZoomOut } from 'lucide-react';
-import { processImage } from '../../Packager/services/ai/backgroundRemoval';
-import { loadImage } from '../../Packager/utils/helpers';
+import { processImage, loadImage } from '../../../features/packager-core';
 import JSZip from 'jszip';
 import saveAs from 'file-saver';
 import { useTranslation } from 'react-i18next';
-import { ProcessingStatus, SplitConfig } from '../../Packager/types';
+import type { ProcessingStatus, SplitConfig } from '../../../features/packager-core';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { saveStickerToDB } from '../../../db';
 import { useLocation } from 'react-router-dom';

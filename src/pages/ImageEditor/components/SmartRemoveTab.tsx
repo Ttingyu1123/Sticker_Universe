@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload, Eraser, Brush, Download, Image as ImageIcon, Loader2, Undo, Redo, Save, Palette, Sun, Sparkles, Trash2, Settings } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { MaskCanvas } from '../../LayerLab/components/MaskCanvas';
-import { generateMaskFromAI, processMask, AISettings } from '../../LayerLab/utils/maskUtils';
+import { MaskCanvas, generateMaskFromAI, processMask } from '../../../features/mask-core';
+import type { AISettings } from '../../../features/mask-core';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { saveStickerToDB } from '../../../db';
 

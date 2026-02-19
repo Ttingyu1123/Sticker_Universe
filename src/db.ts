@@ -1,5 +1,5 @@
 import { openDB, DBSchema } from 'idb';
-import { Sticker } from './pages/Generator/types';
+import type { Sticker } from './shared/types/sticker';
 
 interface StickerDB extends DBSchema {
     stickers: {

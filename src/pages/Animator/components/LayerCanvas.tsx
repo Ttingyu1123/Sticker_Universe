@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Layer } from '../types';
-import { SelectionOverlay } from '../../Editor/components/SelectionOverlay';
+import { SelectionOverlay } from '../../../features/editor-core';
 
 interface LayerCanvasProps {
     layers: Layer[];

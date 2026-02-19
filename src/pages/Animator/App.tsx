@@ -4,7 +4,7 @@ import { Download, Image as ImageIcon, Video, Upload, Type, Layers, ChevronUp, C
 import './animations.css';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { LinePreviewModal } from '../../components/LinePreviewModal';
-import { BubblePicker } from '../Editor/components/BubblePicker';
+import { BubblePicker } from '../../features/editor-core';
 // @ts-ignore
 import UPNG from 'upng-js';
 import GIF from 'gif.js';

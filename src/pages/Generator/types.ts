@@ -1,11 +1,6 @@
 
-export interface Sticker {
-  id: string;
-  imageUrl: string;
-  phrase: string;
-  timestamp: number;
-  description?: string;
-}
+import type { Sticker } from '../../shared/types/sticker';
+export type { Sticker };
 
 
 
