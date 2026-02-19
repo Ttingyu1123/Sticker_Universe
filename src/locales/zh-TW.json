@@ -13,15 +13,34 @@
         "cinematic": "影劇海報大師",
         "editor": "編輯器",
         "packager": "裁切工具",
+        "beautify": "美化加工",
         "eraser": "橡皮擦",
         "gallery": "作品集",
         "generate": "生成",
-        "smartEraser": "智慧去背",
         "svgConverter": "SVG 魔法",
         "printSheet": "排版與列印",
         "captioning": "AI 智慧配文",
         "animator": "動態貼圖",
+        "smartEraser": "智慧去背",
         "processing": "Processing..."
+    },
+    "manual": {
+        "title": "使用說明書",
+        "subtitle": "完整的貼圖製作工具介紹",
+        "tip": "提示：選擇您需要的工具即可開始創作，所有處理都在本地瀏覽器完成，保護您的隱私安全！"
+    },
+    "common": {
+        "reset": "重置",
+        "cancel": "取消",
+        "confirm": "確認",
+        "download": "下載圖片",
+        "or": "或",
+        "loading": "Loading...",
+        "zoomIn": "Zoom In",
+        "zoomOut": "Zoom Out",
+        "resetZoom": "Reset Zoom",
+        "undo": "Undo",
+        "redo": "Redo"
     },
     "linePreview": {
         "title": "LINE 預覽 (Preview)",
@@ -67,71 +86,29 @@
         "deleteLayer": "刪除圖層",
         "linePreview": "LINE 預覽 (APNG)",
         "guidelines": {
-            "title": "LINE 動態貼圖製作準則",
-            "size": "圖片大小必須在寬320px × 高270px以內；寬或高其中一邊必須是270px以上",
-            "duration": "最長播放時間為4秒。時間單位為1、2、3、4秒，無法以小數（1.5秒）單位設定。",
-            "frames": "每個APNG檔的PNG畫格數：插圖為最少5個畫格，最多20個畫格。",
-            "loop": "調整畫格排序，將該貼圖所要傳達情緒的插圖，設定在以靜態圖片顯示的第一張畫格。",
-            "link": "動態貼圖製作準則"
-        }
-    },
-    "manual": {
-        "title": "使用說明書",
-        "subtitle": "完整的貼圖製作指南與工具介紹",
-        "generator": {
-            "desc": "輸入文字提示，讓 AI 自動為您生成獨特的貼圖。支援多種藝術風格與自動去背。",
-            "step1": "輸入想要生成的貼圖描述，或選擇預設台詞。",
-            "step2": "選擇喜歡的藝術風格 (如：賽璐璐、水彩、像素風)。",
-            "step3": "點擊生成，AI 將產生四張貼圖。",
-            "step4": "點擊喜歡的貼圖即可儲存至作品集。"
-        },
-        "packager": {
-            "desc": "批次處理您的貼圖，進行統一的裁切、去背與打包，符合 LINE/Telegram 規格。",
-            "step1": "上傳多張圖片或從作品集選取。",
-            "step2": "AI 自動偵測主體邊界並進行裁切。",
-            "step3": "調整白邊、陰影等統一風格並下載 ZIP。"
-        },
-        "smartEraser": {
-            "desc": "強大的背景移除工具，適合單張圖片精修。",
-            "step1": "上傳圖片，使用魔術棒或 AI 自動去背。",
-            "step2": "使用修復筆刷微調邊緣，匯出透明 PNG。"
-        },
-        "eraser": {
-            "desc": "傳統橡皮擦工具，可手動擦除不需要的區域，適合細部修整。"
-        },
-        "editor": {
-            "desc": "強大的圖層編輯器，可組合多張貼圖、加入文字與特效。",
-            "step1": "從作品集匯入貼圖或新增文字圖層。",
-            "step2": "調整圖層順序、套用濾鏡與陰影效果，完成獨一無二的貼圖。"
-        },
-        "animator": {
-            "desc": "將多張靜態貼圖組合成 APNG 動態貼圖。設定幀率與播放順序，讓貼圖動起來！"
-        },
-        "svgConverter": {
-            "desc": "將點陣圖 (JPG/PNG) 轉換為向量圖 (SVG)，無限放大不失真，適合印刷與設計使用。"
-        },
-        "printSheet": {
-            "desc": "將多張貼圖排版至 A4 畫布，方便直接列印成實體貼紙。"
-        },
-        "gallery": {
-            "desc": "統一管理您生成的所有貼圖作品。可在此預覽、刪除或批次下載。"
+            "title": "LINE Animated Sticker Guidelines",
+            "size": "Image size: W320px × H270px max; one side ≥ 270px.",
+            "duration": "Max 4 seconds. (1, 2, 3, 4s only, no decimals).",
+            "frames": "Frames per APNG: Min 5, Max 20.",
+            "loop": "First frame is the static preview; ensure it conveys the emotion.",
+            "link": "Creation Guidelines"
         }
     },
     "printSheet": {
-        "title": "Layout & Print",
         "tabs": {
             "printStudio": "貼紙列印",
             "idPrint": "證件照列印"
         },
+        "addStickers": "添加貼紙",
+        "upload": "上傳圖片",
+        "fromGallery": "從作品集選取",
+        "tips": "提示",
+        "tipDrag": "拖曳移動貼紙",
+        "tipWheel": "滾輪調整大小",
+        "tipDelete": "點擊 X 刪除",
+        "grid": "顯示網格",
+        "background": "背景色彩",
         "idPrint": {
-            "workspace": {
-                "cropTitle": "裁切照片",
-                "cropSubtitle": "調整裁切區域",
-                "previewTitle": "列印預覽",
-                "emptyTitle": "開始上傳照片",
-                "emptyDescription": "點擊上方按鈕上傳照片，或直接拖曳到這裡",
-                "dropHere": "釋放以上傳照片"
-            },
             "sidebar": {
                 "title": "證件照排版",
                 "subtitle": "上傳照片並裁切為證件照尺寸",
@@ -150,20 +127,28 @@
             "settings": {
                 "photoSize": "照片尺寸",
                 "paperSize": "紙張尺寸",
+                "paperOrientation": "紙張方向",
+                "portrait": "直式",
+                "landscape": "橫式",
                 "margin": "邊界 (mm)",
                 "gap": "間距 (mm)",
                 "showCutLines": "裁切線",
                 "enableMirror": "鏡像",
-                "paperOrientation": "紙張方向",
-                "portrait": "直式",
-                "landscape": "橫式",
                 "outputFormat": "輸出格式"
+            },
+            "workspace": {
+                "dropHere": "釋放以上傳照片",
+                "cropTitle": "裁切照片",
+                "cropSubtitle": "調整裁切區域",
+                "emptyTitle": "開始上傳照片",
+                "emptyDescription": "點擊上方按鈕上傳照片，或直接拖曳到這裡",
+                "previewTitle": "列印預覽"
             },
             "cropper": {
                 "cancel": "取消",
-                "done": "完成",
+                "dragHint": "拖曳調整裁切區域",
                 "processing": "處理中...",
-                "dragHint": "拖曳調整裁切區域"
+                "done": "完成"
             },
             "preview": {
                 "updating": "更新中...",
@@ -172,23 +157,12 @@
                 "totalPhotos": "總照片數",
                 "format": "格式",
                 "download": "下載",
-                "zoom": "縮放",
-                "saveToGallery": "儲存至作品集"
+                "saveToGallery": "儲存至作品集",
+                "zoom": "縮放"
             }
         },
-        "description": "Arrange your stickers on an A4 canvas and export as PDF.",
-        "addStickers": "添加貼紙",
-        "upload": "上傳圖片",
-        "fromGallery": "從作品集選取",
-        "grid": "顯示網格",
-        "background": "背景色彩",
-        "exportPDF": "Export PDF",
-        "exporting": "Exporting...",
-        "tips": "提示",
-        "tipDrag": "拖曳移動貼紙",
-        "tipWheel": "滾輪調整大小",
-        "tipDelete": "點擊 X 刪除",
-        "exportFailed": "Export failed, please try again."
+        "exportFailed": "Export failed, please try again.",
+        "exporting": "Exporting..."
     },
     "svgConverterPage": {
         "title": "SVG 魔法",
@@ -213,9 +187,10 @@
     },
     "gallery": {
         "title": "作品集",
-        "subtitle": "Your Creative Works",
+        "subtitle": "您的創意收藏",
         "empty": "尚無儲存的貼圖",
         "emptyDesc": "前往生成器創造一些魔法吧！",
+        "upload": "上傳圖片",
         "download": "下載",
         "delete": "刪除",
         "clearAll": "全部清除",
@@ -231,361 +206,315 @@
         "downloadSelected": "下載 ({{count}})",
         "deleteSelected": "刪除 ({{count}})",
         "shareSelected": "分享 ({{count}})",
-        "shareError": "Sharing failed",
+        "shareError": "分享失敗",
         "shareNotSupported": "此裝置不支援檔案分享功能",
         "addSelected": "添加選取項目",
-        "items": "Items",
-        "saved": "Saved to Gallery!",
+        "items": "項目",
         "share": "Share",
-        "upload": "上傳圖片"
+        "saved": "Saved to Gallery!"
     },
     "landing": {
-        "tagline": "AI 創意工具箱",
-        "heroTitle": "用 AI 開放你的無限創意",
-        "heroDesc": "全方位 AI 創作套件：從貼圖生成、專業去背到向量轉換，一站式搞定所有創意需求。",
-        "startCreating": "立即開始",
+        "tagline": "AI 創作工具",
+        "heroTitle": "專業 AI 貼圖創作平台",
+        "heroDesc": "從文字到圖片，從構思到實現，一站式解決你所有的創意需求",
+        "startCreating": "開始創作",
         "exploreTools": "探索工具",
+        "footer": "© 2024 CreativeOS - 讓創意無限可能",
         "stats": {
             "tools": "專業工具",
             "categories": "功能分類",
             "aiPowered": "AI 驅動"
         },
+        "cta": {
+            "launch": "立即使用"
+        },
         "categories": {
             "aiGeneration": {
                 "title": "AI 智慧生成",
-                "desc": "利用頂尖 AI 技術，從文字瞬間變成精美圖片與貼圖。"
+                "desc": "運用 AI 技術，快速生成各種風格的圖片和貼圖"
             },
             "imageProcessing": {
-                "title": "影像處理專區",
-                "desc": "各類專業修圖工具：批次裁切、去背、標籤化，應有盡有。"
+                "title": "專業圖片編輯",
+                "desc": "強大的圖片處理功能，從裁切到去背一應俱全"
             },
             "creative": {
                 "title": "創意排版",
-                "desc": "讓照片不再單調，用多樣的創意版型寫出你的故事。"
+                "desc": "多張照片創意拼貼，製作獨特視覺效果"
             },
             "printing": {
-                "title": "列印與輸出",
-                "desc": "專業的貼紙與證件照排版工具，在家也能印出專業級成果。"
+                "title": "印刷與輸出",
+                "desc": "專業排版工具，輕鬆製作實體貼圖和證件照"
             },
             "management": {
                 "title": "作品管理",
-                "desc": "集中管理你所有的創意結晶。"
+                "desc": "統一管理所有創作，隨時查看和下載"
             }
         },
         "tabs": {
             "styleSticker": {
                 "title": "風格貼圖",
-                "desc": "多樣化藝術風格",
-                "features": "AI 生成 • 多種選擇"
+                "desc": "輸入文字，AI 自動生成台灣動漫風格貼圖",
+                "features": [
+                    "多種風格選擇",
+                    "一鍵生成",
+                    "高品質輸出"
+                ]
             },
             "holidaySticker": {
                 "title": "節慶貼圖",
-                "desc": "節日氛圍滿點",
-                "features": "過節必備 • 自動設計"
+                "desc": "為各種節日快速製作應景貼圖",
+                "features": [
+                    "節日主題模板",
+                    "自動排版",
+                    "批次生成"
+                ]
             },
             "greetingCard": {
                 "title": "賀卡大師",
-                "desc": "溫馨祝福傳遞",
-                "features": "個人化文字 • 精美排版"
+                "desc": "AI 協助設計精美節日賀卡",
+                "features": [
+                    "智能配文",
+                    "精美模板",
+                    "多種節日"
+                ]
             },
             "mangaMaster": {
                 "title": "漫畫大師",
-                "desc": "AI 繪製漫畫分鏡",
-                "features": "分鏡優化 • 自動上色"
+                "desc": "將照片轉換為漫畫風格圖片",
+                "features": [
+                    "多種漫畫風格",
+                    "高度還原",
+                    "專業效果"
+                ]
             },
             "cinematicPoster": {
                 "title": "影劇海報",
-                "desc": "電影質感大片",
-                "features": "電影級濾鏡 • 氛圍渲染"
+                "desc": "製作電影海報風格的創意圖片",
+                "features": [
+                    "電影級質感",
+                    "多種風格",
+                    "專業排版"
+                ]
             },
             "imageGenerator": {
                 "title": "AI 圖片生成",
-                "desc": "你的創意畫筆",
-                "features": "高畫質輸出 • 無限可能"
+                "desc": "通用 AI 圖片生成工具，創造無限可能",
+                "features": [
+                    "自由創作",
+                    "高解析度",
+                    "快速生成"
+                ]
             },
             "headshotMaster": {
                 "title": "形象照大師",
-                "desc": "專業職人感",
-                "features": "商務優化 • AI 燈光"
-            },
-            "portraitMaster": {
-                "title": "寫真大師",
-                "desc": "攝影棚等級寫真",
-                "features": "精緻修飾 • 場景切換"
+                "desc": "AI 生成專業形象照和大頭貼",
+                "features": [
+                    "專業質感",
+                    "多種風格",
+                    "快速處理"
+                ]
             },
             "batchCrop": {
-                "title": "批次裁切",
-                "desc": "大量圖片快速處理",
-                "features": "智慧縮放 • 統一尺寸"
+                "title": "批量裁切",
+                "desc": "一次處理多張圖片的裁切、調整和優化",
+                "features": [
+                    "批次處理",
+                    "自動對齊",
+                    "一鍵輸出"
+                ]
             },
             "smartRemoveBg": {
                 "title": "智慧去背",
-                "desc": "一鍵移除背景",
-                "features": "魔術邊緣 • 完美透視"
+                "desc": "AI 自動識別並移除圖片背景",
+                "features": [
+                    "AI 精準識別",
+                    "快速處理",
+                    "完美邊緣"
+                ]
             },
             "animator": {
                 "title": "動態貼圖",
-                "desc": "讓貼圖動起來",
-                "features": "每秒 24 幀 • APNG 匯出"
+                "desc": "製作多圖層動畫貼圖",
+                "features": [
+                    "多圖層編輯",
+                    "時間軸控制",
+                    "導出 APNG"
+                ]
             },
             "layerEditor": {
-                "title": "圖層編輯器",
-                "desc": "專業級合成工具",
-                "features": "多圖層管理 • 豐富濾鏡"
+                "title": "圖層編輯",
+                "desc": "專業的圖層編輯與裁切工具",
+                "features": [
+                    "多圖層管理",
+                    "精確裁切",
+                    "濾鏡效果"
+                ]
             },
             "imageResizer": {
-                "title": "圖片縮放",
-                "desc": "精準控制解析度",
-                "features": "不失真技術 • 靈活調整"
+                "title": "調整尺寸",
+                "desc": "智能調整圖片尺寸，支持多種縮放模式",
+                "features": [
+                    "AI 超取樣",
+                    "多種模式",
+                    "保持品質"
+                ]
             },
             "svgConverter": {
                 "title": "SVG 魔法",
-                "desc": "點陣轉向量",
-                "features": "無限放大 • 向量曲線"
-            },
-            "layerLab": {
-                "title": "圖層實驗室",
-                "desc": "探索創意無限",
-                "features": "社群模板 • 自由創作"
+                "desc": "將圖片轉換為可編輯的 SVG 向量圖",
+                "features": [
+                    "向量轉換",
+                    "可編輯",
+                    "無損縮放"
+                ]
             },
             "photoCollage": {
                 "title": "照片拼貼",
-                "desc": "多圖組合新玩法",
-                "features": "幾何排版 • 自動對齊"
+                "desc": "多張照片創意拼貼，豐富布局選擇",
+                "features": [
+                    "多種布局",
+                    "自由排版",
+                    "一鍵生成"
+                ]
             },
             "stickerPrint": {
                 "title": "貼紙列印",
-                "desc": "我的專屬貼紙簿",
-                "features": "A4 排版 • 裁切線自動生成"
+                "desc": "專業貼紙排版工具，支持多種尺寸",
+                "features": [
+                    "自動排版",
+                    "多種尺寸",
+                    "列印預覽"
+                ]
             },
             "idPhotoPrint": {
                 "title": "證件照列印",
-                "desc": "標準證件規格",
-                "features": "規格精準 • 打印預覽"
+                "desc": "快速製作各國證件照規格",
+                "features": [
+                    "多國規格",
+                    "自動裁切",
+                    "背景替換"
+                ]
             },
             "gallery": {
                 "title": "作品集",
-                "desc": "管理創意產出",
-                "features": "批次下載 • 快速預覽"
+                "desc": "統一管理所有創作，隨時查看和下載",
+                "features": [
+                    "集中管理",
+                    "快速搜尋",
+                    "批量下載"
+                ]
             }
-        },
-        "cta": {
-            "launch": "立即開始"
-        },
-        "footer": "© 2024 CreativeOS - 讓創意無限可能"
+        }
     },
     "generator": {
         "title": "AI貼圖工作室",
         "subtitle": "AI 貼圖創作",
+        "apiKey": {
+            "title": "輸入您的 Gemini API Key",
+            "desc": "我們需要您的 Google Gemini API Key 來生成貼圖。它將直接存儲在您的瀏覽器中。",
+            "placeholder": "在此輸入您的 API Key...",
+            "save": "儲存金鑰",
+            "clear": "清除金鑰",
+            "get": "獲取 API Key",
+            "change": "變更金鑰",
+            "invalid": "請輸入有效的 API Key",
+            "expired": "API Key 無效或已過期，請重新輸入。",
+            "notFound": "找不到 API Key 或無效。",
+            "clearConfirm": "Are you sure you want to clear your API Key?",
+            "securityTitle": "Security Notice",
+            "securityLocalStorage": "Local Storage - Your key is only stored in your browser (LocalStorage) and never uploaded to our servers.",
+            "securityDirect": "Direct Transmission - Requests are sent from your browser directly to Google API via HTTPS encryption.",
+            "settings": "Settings Complete",
+            "rememberKey": "Remember Key",
+            "rememberKeyDesc": "When checked, the key will be saved for future sessions."
+        },
+        "mode": {
+            "textToSticker": "文字轉貼圖",
+            "aiCaptioning": "AI 智慧配文"
+        },
+        "caption": {
+            "title": "AI 靈感配文",
+            "suggested": "AI 推薦台詞",
+            "uploadTitle": "點擊或拖放圖片至此",
+            "uploadDesc": "上傳照片，讓 AI 幫你想梗",
+            "placeholder": "上傳圖片以獲取推薦台詞！",
+            "useThis": "選用",
+            "analyzing": "正在分析圖片...",
+            "thinking": "正在構思有趣的梗..."
+        },
+        "phases": {
+            "upload": "第一步：上傳",
+            "style": "第二步：風格",
+            "phrase": "第三步：台詞",
+            "settings": "第四步：設定"
+        },
+        "upload": {
+            "dragDrop": "點擊或拖放照片至此",
+            "support": "支援 JPG, PNG, WebP",
+            "remove": "移除",
+            "errorNoImage": "請先上傳照片！"
+        },
+        "phrase": {
+            "custom": "自訂台詞",
+            "customPlaceholder": "或輸入自訂台詞...",
+            "errorNoPhrase": "請選擇或輸入一個台詞！"
+        },
+        "settings": {
+            "batchSize": "生成張數",
+            "includeText": "包含文字",
+            "textOverlay": "文字疊加",
+            "showText": "顯示文字",
+            "noText": "不顯示",
+            "postProcessing": "後製處理",
+            "smartRemoveBg": "智慧去背",
+            "whiteBorder": "產生白邊",
+            "batchBatchWarning": "Batch size is fixed to 1 when using a phrase."
+        },
+        "action": {
+            "generate": "生成貼圖",
+            "generating": "正在施展魔法...",
+            "downloadZip": "下載 ZIP",
+            "zoom": "放大預覽",
+            "close": "關閉",
+            "cancel": "取消",
+            "copyPrompt": "複製提示詞",
+            "downloadPrompt": "下載提示詞",
+            "results": "生成結果",
+            "batchProcessing": "批次處理中",
+            "generatingArt": "正在生成 AI 藝術...",
+            "applyingMagic": "正在進行綠幕去背...",
+            "manga": {
+                "title": "漫畫大師",
+                "story": "故事劇本",
+                "style": "繪畫風格",
+                "layout": "分鏡佈局",
+                "characters": "角色設定"
+            },
+            "download": "Download",
+            "removeBg": "Remove Background",
+            "autoOptimize": "AI Auto-Optimize",
+            "luckyPrompt": "Lucky Prompt",
+            "referenceImage": "Reference Image",
+            "clear": "Clear",
+            "uploadImage": "Upload Image",
+            "pasteImage": "Paste Image",
+            "fromGallery": "From Gallery",
+            "imageLoaded": "Image Loaded",
+            "aspectRatio": "Aspect Ratio",
+            "custom": "Custom",
+            "failed": "Generation Failed",
+            "zipName": "stickers",
+            "preview": "Preview"
+        },
         "tabs": {
             "style": "風格貼圖",
             "holiday": "節慶貼圖",
             "greeting": "賀卡大師",
             "manga": "漫畫大師",
             "cinematic": "影劇海報",
-            "imageGen": "AI 圖片生成",
+            "imageGen": "AI圖片生成",
             "headshot": "形象照大師",
-            "portrait": "寫真大師"
-        },
-        "manga": {
-            "sections": {
-                "characters": "角色設定",
-                "style": "繪畫風格",
-                "layout": "分鏡佈局",
-                "story": "故事劇本",
-                "advanced": "進階設定"
-            },
-            "actions": {
-                "optimize": "AI 分鏡優化",
-                "optimizing": "AI 優化中...",
-                "generate": "開始生成漫畫",
-                "generating": "繪製漫畫中...",
-                "restart": "重新開始",
-                "download": "下載作品",
-                "addCharacter": "新增角色"
-            },
-            "options": {
-                "layouts": {
-                    "Single Panel Full Page": "1格:滿版",
-                    "2 Panels Vertical Stack": "2格:垂直分鏡(縱)",
-                    "3 Panels Vertical Stack": "3格:垂直分鏡(縱)",
-                    "3 Panels: 1 Top, 2 Bottom Split": "3格:上1下2分鏡",
-                    "4 Panels Vertical Stack": "4格:垂直分鏡(縱)",
-                    "4 Panels Grid (2x2)": "4格:田字格分鏡",
-                    "5 Panels Dynamic Layout": "5格:動態佈局(混)",
-                    "6 Panels Grid (2 columns x 3 rows)": "6格:分鏡網格",
-                    "8 Panels Grid (2 columns x 4 rows)": "8格:分鏡網格"
-                },
-                "styles": {
-                    "Cute Manga/Chibi Style": "可愛 Q 版漫畫風",
-                    "American Comic Book Style": "美式英雄漫畫風",
-                    "Japanese Anime Style": "日系動漫風格",
-                    "Japanese Horror Manga Style": "日系恐怖漫畫風",
-                    "Korean Webtoon Style": "韓系 Webtoon 風",
-                    "Chinese Ink Wash Painting Style": "中式水墨繪畫",
-                    "Realistic Cinematic Lighting Style": "寫實電影燈光",
-                    "Cyberpunk Sci-Fi Style, Neon Lights, High Tech": "賽博龐克科技風",
-                    "Soft Watercolor Painting Style, Dreamy, Shoujo Manga": "柔美水彩少女風",
-                    "90s Retro Anime Style, Cel Shading, Nostalgic, Grainy": "90年代復古動漫",
-                    "Modern Flat Illustration Style, Clean Lines, Minimalist, Vector Art": "現代極簡扁平插畫",
-                    "Photorealistic Style, Real Life Photography 4k, Ultra Realistic, Live Action Movie": "超寫實寫真攝影"
-                },
-                "colors": {
-                    "Vibrant Full Color": "鮮豔全彩",
-                    "Black and White, Manga Screen Tones, High Contrast": "經典黑白/網點",
-                    "8-Bit Pixel Art Color Palette, Retro Game Style": "8-Bit 像素懷舊色調"
-                },
-                "resolutions": {
-                    "Standard Detail (1K)": "標準解析度 (1K)",
-                    "High Resolution (2K) with detailed textures": "高解析度 (2K)",
-                    "Ultra High Resolution (4K), incredibly detailed, sharp focus": "超高解析度 (4K)"
-                }
-            },
-            "labels": {
-                "show": "顯示",
-                "hide": "隱藏",
-                "dialogBubbles": "生成對話框",
-                "outputQuality": "輸出畫質",
-                "negativePrompt": "負面提示詞 (排除)",
-                "characterName": "角色名稱",
-                "appearance": "外觀描述 (藍色頭髮、校服...)",
-                "readyTitle": "準備好開始了嗎？",
-                "readyDesc": "在左側設定你的故事腳本、風格與角色，\nAI 將為你繪製精彩的漫畫頁面。",
-                "sketching": "正在繪製漫畫...",
-                "sketchingDesc": "AI 漫畫家正在構圖分鏡中",
-                "options": {
-                    "layouts": {
-                        "Single Panel Full Page": "1格:滿版",
-                        "2 Panels Vertical Stack": "2格:垂直分鏡(縱)",
-                        "3 Panels Vertical Stack": "3格:垂直分鏡(縱)",
-                        "3 Panels: 1 Top, 2 Bottom Split": "3格:上1下2分鏡",
-                        "4 Panels Vertical Stack": "4格:垂直分鏡(縱)",
-                        "4 Panels Grid (2x2)": "4格:田字格分鏡",
-                        "5 Panels Dynamic Layout": "5格:動態佈局(混)",
-                        "6 Panels Grid (2 columns x 3 rows)": "6格:分鏡網格",
-                        "8 Panels Grid (2 columns x 4 rows)": "8格:分鏡網格"
-                    },
-                    "styles": {
-                        "Cute Manga/Chibi Style": "可愛 Q 版漫畫風",
-                        "American Comic Book Style": "美式英雄漫畫風",
-                        "Japanese Anime Style": "日系動漫風格",
-                        "Japanese Horror Manga Style": "日系恐怖漫畫風",
-                        "Korean Webtoon Style": "韓系 Webtoon 風",
-                        "Chinese Ink Wash Painting Style": "中式水墨繪畫",
-                        "Realistic Cinematic Lighting Style": "寫實電影燈光",
-                        "Cyberpunk Sci-Fi Style, Neon Lights, High Tech": "賽博龐克科技風",
-                        "Soft Watercolor Painting Style, Dreamy, Shoujo Manga": "柔美水彩少女風",
-                        "90s Retro Anime Style, Cel Shading, Nostalgic, Grainy": "90年代復古動漫",
-                        "Modern Flat Illustration Style, Clean Lines, Minimalist, Vector Art": "現代極簡扁平插畫",
-                        "Photorealistic Style, Real Life Photography 4k, Ultra Realistic, Live Action Movie": "超寫實寫真攝影"
-                    },
-                    "colors": {
-                        "Vibrant Full Color": "鮮豔全彩",
-                        "Black and White, Manga Screen Tones, High Contrast": "經典黑白/網點",
-                        "8-Bit Pixel Art Color Palette, Retro Game Style": "8-Bit 像素懷舊色調"
-                    },
-                    "resolutions": {
-                        "Standard Detail (1K)": "標準解析度 (1K)",
-                        "High Resolution (2K) with detailed textures": "高解析度 (2K)",
-                        "Ultra High Resolution (4K), incredibly detailed, sharp focus": "超高解析度 (4K)"
-                    }
-                }
-            },
-            "placeholders": {
-                "story": "Describe your manga scene: A cyberpunk detective walking in rain...",
-                "negative": "low quality, bad anatomy, text, watermark..."
-            }
-        },
-        "apiKey": {
-            "title": "輸入 Gemini API 金鑰",
-            "desc": "生成貼圖需要您的 Google Gemini API Key，這會安全地儲存於您的瀏覽器本地。",
-            "placeholder": "在此輸入 API Key...",
-            "save": "儲存金鑰",
-            "clear": "清除金鑰",
-            "get": "獲取 API Key",
-            "change": "變更金鑰",
-            "invalid": "請輸入有效的 API Key",
-            "expired": "API 金鑰無效或已過期，請重新輸入。",
-            "notFound": "找不到或無效的 API 金鑰。",
-            "securityTitle": "安全聲明 (Security Notice)",
-            "securityLocalStorage": "本地儲存 - 金鑰僅存於瀏覽器 (LocalStorage)，絕不上傳至本站伺服器。",
-            "securityDirect": "直接傳輸 - 請求由瀏覽器直接發送至 Google API，全程 HTTPS 加密。",
-            "rememberKey": "記住金鑰 (Remember Key)",
-            "rememberKeyDesc": "勾選後將儲存在 LocalStorage，下次開啟瀏覽器時會自動載入。",
-            "settings": "已設定完畢",
-            "clearConfirm": "確定要清除 API Key 嗎？"
-        },
-        "mode": {
-            "textToSticker": "Text to Sticker",
-            "aiCaptioning": "AI Captioning"
-        },
-        "caption": {
-            "title": "AI Captioning",
-            "suggested": "AI Suggested Captions",
-            "uploadTitle": "點擊或拖放圖片至此",
-            "uploadDesc": "上傳照片，讓 AI 幫你想梗",
-            "placeholder": "Upload an image to see suggestions!",
-            "useThis": "Use this",
-            "analyzing": "正在分析圖片...",
-            "thinking": "正在構思有趣的梗..."
-        },
-        "phases": {
-            "upload": "階段 1: 上傳照片",
-            "style": "階段 2: 選擇風格",
-            "phrase": "階段 3: 輸入文字",
-            "settings": "階段 4: 參數設定"
-        },
-        "upload": {
-            "dragDrop": "點擊或拖放照片至此",
-            "support": "JPG, PNG, WebP Supported",
-            "remove": "移除照片",
-            "errorNoImage": "Please upload a photo first!"
-        },
-        "phrase": {
-            "customPlaceholder": "或輸入自訂台詞...",
-            "errorNoPhrase": "請選擇或輸入一個台詞！",
-            "custom": "自訂台詞"
-        },
-        "settings": {
-            "batchSize": "批次數量 (Batch)",
-            "textOverlay": "Text Overlay",
-            "showText": "Show Text",
-            "noText": "No Text",
-            "postProcessing": "Post-Processing",
-            "smartRemoveBg": "智慧 AI 去背",
-            "whiteBorder": "Generate White Border",
-            "batchBatchWarning": "選擇慣用語時，批次張數固定為 1 張",
-            "includeText": "包含文字"
-        },
-        "action": {
-            "generate": "開始生成圖片",
-            "generating": "生成中...",
-            "downloadZip": "下載全部 ZIP",
-            "zoom": "放大預覽",
-            "close": "關閉",
-            "copyPrompt": "複製提示詞",
-            "downloadPrompt": "下載提示詞",
-            "results": "生成結果",
-            "batchProcessing": "批次處理中",
-            "generatingArt": "正在生成 AI 藝術...",
-            "applyingMagic": "正在進行魔法優化...",
-            "styleInspiration": "風格與靈感",
-            "autoOptimize": "AI 自動優化",
-            "luckyPrompt": "手氣不錯",
-            "referenceImage": "參考圖片",
-            "clear": "清除",
-            "uploadImage": "上傳圖片",
-            "pasteImage": "貼上圖片",
-            "fromGallery": "從作品集選取",
-            "imageLoaded": "圖片已載入",
-            "aspectRatio": "圖片比例",
-            "custom": "自訂",
-            "failed": "生成失敗",
-            "zipName": "stickers",
-            "preview": "預覽",
-            "download": "下載",
-            "removeBg": "背景移除",
-            "cancel": "取消"
+            "portrait": "Portrait Master"
         },
         "errors": {
             "general": "生成失敗：",
@@ -823,240 +752,107 @@
                 }
             }
         },
+        "common": {
+            "reset": "重置",
+            "cancel": "取消",
+            "confirm": "確認"
+        },
         "greeting": {
-            "title": "Greeting Card Master",
+            "title": "賀卡大師",
             "settings": {
-                "title": "Card Settings",
-                "festival": "Festival Theme",
-                "style": "Art Style",
-                "name": "Your Name/Nickname",
-                "namePlaceholder": "e.g., Alice, Bob...",
-                "message": "Your Message (AI will refine it)",
-                "messagePlaceholder": "e.g., Happy Birthday! Have a great day!"
+                "title": "賀卡設定",
+                "festival": "節日主題",
+                "style": "繪圖風格",
+                "name": "你的名字/暱稱",
+                "namePlaceholder": "例如：小明、Alice...",
+                "message": "想要說的祝福語 (AI 會幫你潤飾)",
+                "messagePlaceholder": "例如：祝你生日快樂，天天開心！"
             },
             "action": {
-                "generate": "Generate Card",
-                "regenerate": "Regenerating...",
-                "download": "Download Card",
-                "upload": "Click to Upload Photo (Main Subject)",
-                "uploadHint": "(Clear portrait recommended)",
-                "gallery": "Select from Gallery"
+                "generate": "生成專屬賀卡",
+                "regenerate": "重新繪製中...",
+                "download": "下載賀卡",
+                "upload": "點擊上傳照片 (主角)",
+                "uploadHint": "(建議清晰的人像照)",
+                "gallery": "從作品集選取"
             },
             "result": {
                 "to": "To: You | From:",
-                "defaultTitle": "Your masterpiece will appear here"
+                "defaultTitle": "你的專屬賀卡將會出現在這裡"
+            }
+        },
+        "imageGen": {
+            "styleInspiration": "Style & Inspiration",
+            "hotApps": "Hot Apps",
+            "twelveGrid": "Sticker Twelve Grid",
+            "top100": "TOP 100 Styles",
+            "artStyles": "Art Style Library",
+            "modGuide": "Modification Guide",
+            "settings": "Settings",
+            "prompt": "Prompt",
+            "promptPlaceholder": "Enter prompt..."
+        },
+        "manga": {
+            "labels": {
+                "characterName": "Character Name",
+                "appearance": "Appearance (Blue hair, school uniform...)",
+                "hide": "Hide",
+                "show": "Show",
+                "dialogBubbles": "Dialog Bubbles",
+                "outputQuality": "Output Quality",
+                "negativePrompt": "Negative Prompt",
+                "readyTitle": "Ready to Start?",
+                "readyDesc": "Set your story script, style, and characters on the left,\nAI will draw amazing comic pages for you.",
+                "sketching": "Sketching Comic...",
+                "sketchingDesc": "AI Manga artist is sketching panels..."
+            },
+            "actions": {
+                "addCharacter": "Add Character",
+                "optimize": "AI Story Optimization",
+                "optimizing": "Optimizing...",
+                "generating": "Generating...",
+                "generate": "Generate Comic",
+                "restart": "Start Over",
+                "download": "Download"
+            },
+            "sections": {
+                "characters": "Characters",
+                "style": "Art Style",
+                "layout": "Layout Selector",
+                "story": "Story Script",
+                "advanced": "Advanced Settings"
+            },
+            "placeholders": {
+                "story": "Describe your manga scene: A cyberpunk detective walking in rain...",
+                "negative": "low quality, bad anatomy, text, watermark..."
             }
         },
         "portrait": {
-            "title": "寫真大師",
             "steps": {
-                "upload": "上傳照片",
-                "style": "選擇風格"
+                "upload": "Upload Photo",
+                "style": "Choose Style"
             },
-            "styles": {
-                "new_year": "新春賀歲",
-                "new_year_desc": "大紅錦緞襖裙，吉祥紋樣與雪白狐毛披風。手持福字，背景為大氣書法，充滿春節喜氣。",
-                "hanfu_studio": "古風漢服",
-                "hanfu_studio_desc": "優雅傳統漢服，飄逸質感。背景為典雅中式攝影棚，如詩如畫。",
-                "cyberpunk": "賽博龐克",
-                "cyberpunk_desc": "未來科技感工裝，霓虹燈光雨夜背景。高對比、前衛視覺。",
-                "nature": "日系清新",
-                "nature_desc": "自然光線，森林草地背景。清新淡雅，展現最自然的你。",
-                "wedding_dress": "夢幻婚紗",
-                "wedding_dress_desc": "華美純白婚紗，細膩蕾絲細節，浪漫逆光營造頂級婚紗質感。",
-                "ethnic_style": "民族風情",
-                "ethnic_style_desc": "精緻傳統民族服飾，豐富銀飾與文化圖騰，呈現深厚人文氣息。",
-                "pure_desire": "純欲美學",
-                "pure_desire_desc": "通透自然光感，強調氛圍感的柔焦美學，清新動人。",
-                "business_elite": "商務精英",
-                "business_elite_desc": "專業職場形象照，自信、俐落、專業感十足。",
-                "retro_hk": "復古港風",
-                "retro_hk_desc": "90年代香港電影質感，膠片噪點與濃郁色彩，展現懷舊故事感。",
-                "magazine_cover": "雜誌封面",
-                "magazine_cover_desc": "高端時尚雜誌時尚大片風格，專業棚拍燈光與精緻質感。",
-                "winter_snow": "冬日雪景",
-                "winter_snow_desc": "溫暖冬季時尚穿搭，置身唯美漫天雪景，浪漫迷人。",
-                "fantasy_animal": "幻獸奇緣",
-                "fantasy_animal_desc": "史詩級奇幻冒險，身旁伴隨絕美的神話靈獸守護者。",
-                "christmas": "聖誕狂歡",
-                "christmas_desc": "溫暖歡愉的聖誕氣氛，點綴繽紛裝飾與金燦奪目的燈火。",
-                "handsome_god": "男神降臨",
-                "handsome_god_desc": "充滿魅力且深邃的男性肖像，運用戲劇化光影雕琢硬朗輪廓。"
-            },
-            "sub_styles": {
-                "ny_classic": "經典新春",
-                "ny_cheongsam": "現代旗袍",
-                "ny_calligraphy": "書畫藝術",
-                "ny_lion_dance": "舞獅慶典",
-                "ny_opera": "梨園戲夢",
-                "ny_traditional_red": "正紅主題",
-                "ny_golden_fortune": "金玉滿堂",
-                "ny_lantern_festival": "元宵燈會",
-                "ny_ink_wash": "中式水墨",
-                "ny_floral_blossom": "花開富貴",
-                "hanfu_tang": "盛世唐風",
-                "hanfu_song": "雅緻宋韻",
-                "hanfu_ming": "端莊明式",
-                "hanfu_dunhuang": "敦煌飛天",
-                "hanfu_scholar": "竹林雅士",
-                "hanfu_fairy": "仙蹤靈境",
-                "hanfu_martial": "快意江湖",
-                "hanfu_court": "宮廷貴胄",
-                "hanfu_simple": "古拙日常",
-                "hanfu_ceremony": "合巹良緣",
-                "cyber_neon": "霓虹後巷",
-                "cyber_lab": "高科技實驗室",
-                "cyber_wasteland": "廢土龐克",
-                "cyber_hacker": "駭客空間",
-                "cyber_underground": "霓虹舞池",
-                "cyber_rooftop": "天際屋頂",
-                "cyber_market": "賽博市集",
-                "cyber_glitch": "故障藝術",
-                "cyber_android": "仿生身分",
-                "cyber_virtual": "虛擬矩陣",
-                "nature_forest": "迷霧森林",
-                "nature_meadow": "陽光草地",
-                "nature_sea": "靜謐海灘",
-                "nature_mountain": "雲海山嶺",
-                "nature_autumn": "楓林小径",
-                "nature_spring": "落櫻繽紛",
-                "nature_desert": "大漠餘暉",
-                "nature_lake": "鏡面之湖",
-                "nature_garden": "英式花園",
-                "nature_greenhouse": "熱帶溫室",
-                "wedding_classic": "聖潔教堂",
-                "wedding_forest": "森系浪漫",
-                "wedding_chinese": "中西合璧",
-                "wedding_beach": "夕陽海島",
-                "wedding_castle": "皇室古堡",
-                "wedding_vintage": "復古名媛",
-                "wedding_underwater": "水下幻境",
-                "wedding_night": "繁星花園",
-                "wedding_minimal": "棚內極簡",
-                "wedding_urban": "都會天際",
-                "ethnic_tibetan": "藏地芳華",
-                "ethnic_mongolian": "草原雄風",
-                "ethnic_miao": "苗族銀裝",
-                "ethnic_dai": "傣鄉風情",
-                "ethnic_uyghur": "西域舞姬",
-                "ethnic_yi": "彝家火把",
-                "ethnic_zhuang": "壯鄉山歌",
-                "ethnic_bai": "大理蒼洱",
-                "ethnic_kazakh": "獵鷹少年",
-                "ethnic_korean": "韓服秋意",
-                "pure_white_shirt": "清晨白襯衫",
-                "pure_knitwear": "軟糯針織",
-                "pure_floral": "夏日碎花",
-                "pure_bathrobe": "慵懶浴袍",
-                "pure_ribbon": "靈動絲帶",
-                "pure_wet_hair": "沐浴水汽",
-                "pure_sun_shadow": "光影切割",
-                "pure_glass": "朦朧之鏡",
-                "pure_feather": "漫天白羽",
-                "pure_milk_bath": "玫瑰牛奶浴",
-                "business_executive": "霸道總裁",
-                "business_tech": "科技新貴",
-                "business_creative": "創意總監",
-                "business_lawyer": "律政先鋒",
-                "business_medical": "仁醫形象",
-                "business_architect": "建築大師",
-                "business_journalist": "前線記者",
-                "business_pilot": "英勇飛行員",
-                "business_diplomat": "外交公使",
-                "business_trader": "金融巨頭",
-                "hk_street": "霓虹街頭",
-                "hk_studio": "紅絲絨棚拍",
-                "hk_cafe": "老式茶餐廳",
-                "hk_detective": "重慶森林",
-                "hk_underworld": "古惑江湖",
-                "hk_classic_bar": "午夜酒吧",
-                "hk_rooftop": "九龍天台",
-                "hk_vintage_shop": "黑膠唱片行",
-                "hk_taxi": "紅色計程車",
-                "hk_cinema": "舊式戲院",
-                "magazine_cover_story": "雜誌封面人物",
-                "magazine_editorial": "前衛內頁",
-                "magazine_street_look": "街拍時尚",
-                "magazine_bw_classic": "經典黑白",
-                "magazine_pop_art": "波普藝術",
-                "magazine_vintage_glam": "好萊塢名伶",
-                "magazine_sport_illustrated": "運動潮人",
-                "magazine_minimalist": "極致簡潔",
-                "magazine_traveler": "環球探險家",
-                "magazine_cyber_vibe": "科技潮流",
-                "winter_ice_palace": "冰雪宮殿",
-                "winter_snowy_forest": "迷蹤雪林",
-                "winter_cozy_cabin": "壁爐木屋",
-                "winter_frozen_lake": "鏡面冰湖",
-                "winter_aurora_night": "極光之夜",
-                "winter_ski_resort": "滑雪度假村",
-                "winter_crystal_cave": "水晶冰洞",
-                "winter_reindeer_sleigh": "童話雪橇",
-                "winter_white_christmas": "銀色聖誕",
-                "winter_ice_sculpture": "冰雕藝術",
-                "fantasy_phoenix": "涅槃鳳凰",
-                "fantasy_dragon_tamer": "馭龍大師",
-                "fantasy_forest_elf": "森林精靈",
-                "fantasy_pegasus": "飛馬神跡",
-                "fantasy_mermaid_reef": "人魚之境",
-                "fantasy_wizard_tower": "奧術密室",
-                "fantasy_kitsune": "九尾狐仙",
-                "fantasy_steampunk": "蒸氣甲板",
-                "fantasy_floating_island": "天空之島",
-                "fantasy_dark_abyss": "深淵堡壘",
-                "christmas_workshop": "精靈工坊",
-                "christmas_sparkling_tree": "閃耀聖誕樹",
-                "christmas_vintage_red": "經典復古紅",
-                "christmas_snowy_market": "歐洲市集",
-                "christmas_fireplace": "壁爐暖意",
-                "christmas_gingerbread": "糖果世界",
-                "christmas_carol": "維多利亞頌歌",
-                "christmas_reindeer_park": "馴鹿樂園",
-                "christmas_starry_night": "伯利恆之星",
-                "christmas_modern_minimal": "現代銀白",
-                "handsome_dark_knight": "暗夜騎士",
-                "handsome_gentle_prince": "優雅王子",
-                "handsome_ancient_warrior": "古戰場英雄",
-                "handsome_scifi_commander": "星際指揮官",
-                "handsome_noir_detective": "黑色偵探",
-                "handsome_cyber_vanguard": "極速先鋒",
-                "handsome_tribal_chief": "荒野之王",
-                "handsome_olymphic_god": "奧林帕斯神",
-                "handsome_wasteland_wanderer": "孤獨漫遊者",
-                "handsome_modern_rockstar": "摩登搖滾"
-            },
+            "upload_hint": "Upload Photo (Half or Full body recommended)",
             "settings": {
-                "ratio": "圖片比例",
-                "custom": "自訂物品/場景 (選填)",
-                "custom_placeholder": "例如：拿著相機、身後有櫻花樹...",
-                "sub_style": "子風格",
-                "prompt_preview": "提示詞預覽",
-                "prompt_reset": "重置提示詞",
-                "prompt_manual_hint": "也可以手動編輯提示詞..."
+                "sub_style": "Sub Style",
+                "ratio": "Image Ratio",
+                "custom": "Custom Props/Scene (Optional)",
+                "custom_placeholder": "e.g., holding a camera, cherry blossom background...",
+                "prompt_preview": "Prompt Preview",
+                "prompt_reset": "Reset Prompt",
+                "prompt_manual_hint": "Or edit the prompt manually..."
             },
             "action": {
-                "generate": "生成寫真",
-                "generating": "AI 攝影師拍攝中..."
+                "generating": "AI Photographer is taking shots...",
+                "generate": "Generate Portrait"
             },
-            "upload_hint": "上傳照片 (建議半身或全身照)",
-            "crop_title": "裁切照片",
-            "results": "寫真成品",
-            "empty_hint": "您的專屬寫真將顯示於此"
-        },
-        "imageGen": {
-            "styleInspiration": "風格與靈感",
-            "hotApps": "熱門應用",
-            "twelveGrid": "貼圖十二宮格",
-            "top100": "TOP 100 風格重繪",
-            "artStyles": "藝術風格庫",
-            "modGuide": "各種改圖指南",
-            "settings": "生成設定",
-            "prompt": "提示詞",
-            "promptPlaceholder": "請輸入提示詞，或選擇左側風格..."
+            "results": "Portrait Results",
+            "empty_hint": "Your exclusive portrait will appear here",
+            "crop_title": "Crop Photo"
         },
         "result": {
-            "emptyTitle": "準備好開始了嗎？",
-            "emptyDesc": "上傳照片並選擇風格即可開始製作。"
+            "emptyTitle": "Ready to create?",
+            "emptyDesc": "Upload a photo and select a style to start."
         }
     },
     "packager": {
@@ -1100,8 +896,8 @@
             "protectClosed": "保護封閉區",
             "enhanceText": "增強文字",
             "runCore": "執行核心處理",
-            "resetGrid": "重置網格",
-            "editFrame": "編輯裁切外框"
+            "editFrame": "編輯裁切外框",
+            "resetGrid": "重置網格"
         },
         "phase2": {
             "title": "美化加工與輸出",
@@ -1113,6 +909,9 @@
             "stroke": "物件描邊",
             "strokeSize": "描邊粗細",
             "strokeColor": "描邊顏色",
+            "doubleStroke": "雙重描邊",
+            "secondStrokeSize": "外層粗細",
+            "secondStrokeColor": "外層顏色",
             "shadow": "物件陰影",
             "feather": "邊緣羽化",
             "format": "輸出格式",
@@ -1120,36 +919,24 @@
             "apply": "套用並預覽",
             "saveToGallery": "儲存至作品集",
             "downloadZip": "下載全部成果 ZIP",
-            "doubleStroke": "雙重描邊",
-            "export": "匯出設定",
-            "secondStrokeColor": "外層顏色",
-            "secondStrokeSize": "外層粗細"
+            "export": "匯出設定"
         },
         "actions": {
             "restore": "Restore"
         }
     },
     "eraser": {
-        "title": "Smart Eraser",
-        "subtitle": "Background Removal Tool",
+        "title": "橡皮擦",
+        "subtitle": "魔術去背工具",
         "history": "紀錄",
-        "zoom": "Zoom",
+        "zoom": "縮放",
         "upload": {
             "title": "上傳圖片開始製作",
-            "dragDrop": "Drag and drop image here, or click to select (JPG, PNG)",
+            "dragDrop": "拖放圖片至此，或點擊選擇 (JPG, PNG)",
             "smart": "智慧去背",
             "manual": "手動擦除",
             "repair": "邊緣修復",
             "gallery": "從作品集選擇"
-        },
-        "tabs": {
-            "cropEdit": "Layer Edit",
-            "smartRemove": "AI Remove BG",
-            "eraser": "Eraser",
-            "packager": "Batch Crop",
-            "animator": "Animator",
-            "resize": "Resize Image",
-            "svg": "SVG Magic"
         },
         "toolbar": {
             "tools": "工具",
@@ -1157,25 +944,25 @@
             "restore": "還原筆刷",
             "magic": "魔術棒",
             "move": "移動",
-            "reset": "重置",
+            "tolerance": "容差值",
+            "size": "筆刷大小",
             "hardness": "筆刷硬度",
-            "enableStroke": "啟用物件描邊",
-            "enableShadow": "啟用物件陰影",
+            "zoom": "畫布縮放",
+            "background": "背景顏色",
+            "undo": "復原",
+            "redo": "重做",
+            "resetImage": "重置圖片",
+            "reset": "重置",
+            "saveToGallery": "儲存至作品集",
+            "export": "匯出 PNG",
             "advancedSettings": "進階 AI 設定",
             "edgeTolerance": "邊緣容差",
             "shrink": "內縮",
             "grow": "外擴",
             "protectClosed": "保護封閉區 (補洞)",
             "enhanceText": "增強文字細節",
-            "tolerance": "容差值",
-            "size": "筆刷大小",
-            "zoom": "畫布縮放",
-            "background": "背景顏色",
-            "undo": "復原",
-            "redo": "重做",
-            "resetImage": "重置圖片",
-            "saveToGallery": "儲存至作品集",
-            "export": "匯出 PNG"
+            "enableStroke": "啟用物件描邊",
+            "enableShadow": "啟用物件陰影"
         },
         "magic": {
             "fill": "連通填充",
@@ -1185,20 +972,33 @@
     "editor": {
         "title": "圖片編輯器",
         "subtitle": "設計工作室",
-        "layers": {
-            "text": "文字圖層",
-            "image": "圖片圖層",
-            "defaultText": "文字",
-            "copy": "(副本)"
-        },
         "tabs": {
             "cropEdit": "圖層編輯",
             "smartRemove": "智慧去背",
             "eraser": "橡皮擦",
             "packager": "批量裁切",
+            "beautify": "美化加工",
             "animator": "動態貼圖",
             "svg": "SVG 魔法",
             "resize": "調整尺寸"
+        },
+        "resize": {
+            "title": "調整圖片尺寸",
+            "subtitle": "輕鬆調整、縮放與優化您的圖片尺寸",
+            "uploadPrompt": "點擊上傳圖片",
+            "uploadHint": "支援 JPG, PNG, WEBP",
+            "originalSize": "原始尺寸",
+            "reduceSection": "縮小與縮圖",
+            "width": "寬度",
+            "height": "高度",
+            "applyResize": "套用調整大小",
+            "upscaleNote": "使用本地瀏覽器處理，速度快且完全離線",
+            "qualityWarning": "放大圖片（超過100%）可能導致畫質下降或像素化。縮小圖片通常適合製作縮圖。",
+            "loadingModel": "載入模型中...",
+            "downloadingModel": "下載模型中 (~20MB)... 僅需一次",
+            "downloading": "下載模型中",
+            "modelReady": "模型已就緒！開始放大...",
+            "processing": "處理中..."
         },
         "bubblePicker": {
             "chooseStyle": "選擇氣泡樣式",
@@ -1206,6 +1006,12 @@
             "thought": "思考",
             "shout": "大喊",
             "oval": "圓形"
+        },
+        "layers": {
+            "text": "文字圖層",
+            "image": "圖片圖層",
+            "defaultText": "文字",
+            "copy": "(副本)"
         },
         "controls": {
             "zoomIn": "放大",
@@ -1305,70 +1111,58 @@
         },
         "aiRemoval": {
             "error": "AI removal failed. Please try again."
-        },
-        "resize": {
-            "title": "調整圖片尺寸",
-            "subtitle": "輕鬆調整、縮放與優化您的圖片尺寸",
-            "uploadPrompt": "點擊上傳圖片",
-            "uploadHint": "支援 JPG, PNG, WEBP",
-            "reduceSection": "縮小與縮圖",
-            "width": "寬度",
-            "height": "高度",
-            "applyResize": "套用調整大小",
-            "upscaleNote": "使用本地瀏覽器處理，速度快且完全離線",
-            "qualityWarning": "放大圖片（超過100%）可能導致畫質下降或像素化。縮小圖片通常適合製作縮圖。"
         }
     },
     "collage": {
+        "setHero": "設為主圖",
+        "removeHero": "取消主圖",
+        "maxHeroLimit": "最多只能設定 2 張主圖",
+        "heroPhoto": "主圖",
         "title": "照片拼貼",
         "create": "建立拼貼",
-        "dragDrop": "拖放照片至此，或從裝置上傳。",
+        "dragDrop": "將照片拖放到這裡，或點擊上傳。",
         "upload": "上傳",
         "gallery": "作品集",
-        "reset": "重置",
+        "reset": "重設",
         "photos": "照片",
-        "addFromGallery": "從作品集新增",
+        "addFromGallery": "從作品集加入",
         "addPhoto": "新增照片",
-        "clearAll": "清除全部",
+        "clearAll": "全部清除",
         "editImage": "編輯圖片",
         "remove": "移除",
-        "copyright": "AutoCollage AI © 2026",
         "layout": {
-            "title": "版面配置",
+            "title": "版面",
             "grid": "網格",
-            "cols": "直欄",
-            "rows": "橫列",
-            "focus": "焦點",
+            "cols": "欄式",
+            "rows": "列式",
             "masonry": "瀑布流",
-            "center": "置中",
-            "scatter": "散落",
+            "center": "中心焦點",
+            "scatter": "散佈",
             "shuffle": "隨機",
-            "randomize": "隨機排列",
-            "diagonal": "Diagonal",
-            "lLeft": "L型(左)",
-            "lRight": "L型(右)",
-            "tShape": "T型",
-            "crossFocus": "十字聚焦",
-            "ySplit": "Y型"
+            "randomize": "隨機重排",
+            "lLeft": "L 左",
+            "lRight": "L 右",
+            "tShape": "T 形",
+            "crossFocus": "十字焦點"
         },
         "frameStyle": {
-            "title": "邊框風格",
-            "normal": "標準",
+            "title": "邊框樣式",
+            "normal": "一般",
             "film": "底片",
             "polaroid": "拍立得"
         },
         "ratio": {
             "title": "比例",
             "custom": "自訂",
-            "width": "寬度",
-            "height": "高度"
+            "width": "寬",
+            "height": "高"
         },
         "style": {
             "title": "樣式",
             "seamless": "無縫",
-            "seamlessHint": "移除間距、邊距與圓角",
+            "seamlessHint": "移除間距與圓角",
             "gap": "間距",
-            "padding": "邊距",
+            "padding": "內距",
             "roundness": "圓角",
             "shadow": "陰影"
         },
@@ -1380,12 +1174,8 @@
         "image": {
             "rotation": "旋轉",
             "scale": "縮放",
-            "effect": "特效強度"
-        },
-        "setHero": "設為主角",
-        "removeHero": "取消主角",
-        "maxHeroLimit": "最多只能設置 2 張主角照片",
-        "heroPhoto": "主角照片"
+            "effect": "效果強度"
+        }
     },
     "headshot": {
         "step1_upload": "第一步：上傳照片",
@@ -1495,8 +1285,7 @@
             "smile_bright": "露齒燦爛微笑（熱情活潑）",
             "confident": "自信堅定（眼神專注，微縮嘴）",
             "relaxed": "放鬆柔和（陽角微提，無攻擊性）",
-            "laugh": "開懷大笑（極具感染力，休閒感）",
-            "": "Natural"
+            "laugh": "開懷大笑（極具感染力，休閒感）"
         },
         "styles": {
             "white_id": "白底證件（標準純白，適合正式用途）",
@@ -1552,21 +1341,5 @@
             "sitting_side": "坐姿側拍（椅子）",
             "lying_side": "躺姿側拍半身"
         }
-    },
-    "common": {
-        "cancel": "取消",
-        "confirm": "確定",
-        "done": "完成",
-        "save": "儲存",
-        "close": "關閉",
-        "download": "下載圖片",
-        "loading": "Loading...",
-        "or": "或",
-        "redo": "Redo",
-        "reset": "重置",
-        "resetZoom": "Reset Zoom",
-        "undo": "Undo",
-        "zoomIn": "Zoom In",
-        "zoomOut": "Zoom Out"
     }
 }
