@@ -1,6 +1,6 @@
-﻿import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, FolderOpen, Loader2, RefreshCw, Upload } from 'lucide-react';
+import { Download, Eraser, FolderOpen, Loader2, RefreshCw, SquareDashed, Upload, Wand2 } from 'lucide-react';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { loadGeminiApiKey } from '../../../shared/geminiApiKey';
 import { generateImage } from '../../Generator/services/geminiService';
@@ -27,6 +27,24 @@ const gcd = (a: number, b: number): number => {
 
 type FixedMode = 'width' | 'height';
 type Quality = '1K' | '2K' | '4K';
+type EditTool = 'select' | 'protect';
+
+type Rect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+const normalizeRect = (rect: Rect): Rect => {
+  const x = rect.width < 0 ? rect.x + rect.width : rect.x;
+  const y = rect.height < 0 ? rect.y + rect.height : rect.y;
+  const width = Math.abs(rect.width);
+  const height = Math.abs(rect.height);
+  return { x, y, width, height };
+};
 
 const OutpaintTab: React.FC = () => {
   const { t } = useTranslation();
@@ -40,6 +58,15 @@ const OutpaintTab: React.FC = () => {
     startY: number;
     startScale: number;
   } | null>(null);
+  const localInteractionRef = useRef<{
+    mode: EditTool;
+    startX: number;
+    startY: number;
+    lastX: number;
+    lastY: number;
+  } | null>(null);
+  const maskCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const maskPreviewRef = useRef<HTMLCanvasElement>(null);
 
   const [showGallery, setShowGallery] = useState(false);
   const [sourceImage, setSourceImage] = useState<string | null>(null);
@@ -58,7 +85,12 @@ const OutpaintTab: React.FC = () => {
   const [resultSize, setResultSize] = useState<{ width: number; height: number } | null>(null);
   const [modelRawSize, setModelRawSize] = useState<{ width: number; height: number } | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isLocalGenerating, setIsLocalGenerating] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [editTool, setEditTool] = useState<EditTool>('select');
+  const [selectionRect, setSelectionRect] = useState<Rect | null>(null);
+  const [localPrompt, setLocalPrompt] = useState('');
+  const [protectBrushSize, setProtectBrushSize] = useState(28);
 
   const outputSize = useMemo(
     () => ({
@@ -77,7 +109,56 @@ const OutpaintTab: React.FC = () => {
     setResultImage(null);
     setResultSize(null);
     setModelRawSize(null);
+    setSelectionRect(null);
+    clearProtectMask();
   };
+
+  const redrawMaskPreview = () => {
+    const preview = maskPreviewRef.current;
+    const mask = maskCanvasRef.current;
+    if (!preview || !mask) return;
+    const pctx = preview.getContext('2d');
+    if (!pctx) return;
+
+    pctx.clearRect(0, 0, preview.width, preview.height);
+    pctx.globalAlpha = 0.38;
+    pctx.drawImage(mask, 0, 0, preview.width, preview.height);
+    pctx.globalCompositeOperation = 'source-in';
+    pctx.fillStyle = '#ef4444';
+    pctx.fillRect(0, 0, preview.width, preview.height);
+    pctx.globalCompositeOperation = 'source-over';
+    pctx.globalAlpha = 1;
+  };
+
+  const clearProtectMask = () => {
+    const mask = maskCanvasRef.current;
+    if (!mask) return;
+    const maskCtx = mask.getContext('2d');
+    if (maskCtx) {
+      maskCtx.clearRect(0, 0, mask.width, mask.height);
+    }
+    redrawMaskPreview();
+  };
+
+  useEffect(() => {
+    const mask = document.createElement('canvas');
+    mask.width = outputSize.width;
+    mask.height = outputSize.height;
+    maskCanvasRef.current = mask;
+
+    const preview = maskPreviewRef.current;
+    if (preview) {
+      preview.width = outputSize.width;
+      preview.height = outputSize.height;
+    }
+    redrawMaskPreview();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [outputSize.width, outputSize.height]);
+
+  useEffect(() => {
+    redrawMaskPreview();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultImage]);
 
   const clampScale = (value: number) => Math.max(30, Math.min(160, value));
 
@@ -108,6 +189,18 @@ const OutpaintTab: React.FC = () => {
     const rect = stage.getBoundingClientRect();
     if (!rect.width) return 1;
     return outputSize.width / rect.width;
+  };
+
+  const eventToCanvasPoint = (clientX: number, clientY: number) => {
+    const stage = stageRef.current;
+    if (!stage) return null;
+    const rect = stage.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+
+    return {
+      x: clamp(Math.round(((clientX - rect.left) / rect.width) * outputSize.width), 0, outputSize.width),
+      y: clamp(Math.round(((clientY - rect.top) / rect.height) * outputSize.height), 0, outputSize.height)
+    };
   };
 
   const loadSourceDataUrl = (dataUrl: string) => {
@@ -233,6 +326,8 @@ const OutpaintTab: React.FC = () => {
       setModelRawSize(rawSize);
       setResultSize(finalSize);
       setResultImage(normalized);
+      setSelectionRect(null);
+      clearProtectMask();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Generate failed';
       setErrorMessage(message);
@@ -258,6 +353,133 @@ const OutpaintTab: React.FC = () => {
     link.href = resultImage;
     link.download = `outpaint_${Date.now()}.png`;
     link.click();
+  };
+
+  const drawMaskStroke = (from: { x: number; y: number }, to: { x: number; y: number }) => {
+    const mask = maskCanvasRef.current;
+    if (!mask) return;
+    const ctx = mask.getContext('2d');
+    if (!ctx) return;
+    ctx.strokeStyle = 'rgba(255,255,255,1)';
+    ctx.lineWidth = protectBrushSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+  };
+
+  const mergeSelectedRegion = async (baseImage: string, generatedImage: string, rect: Rect): Promise<string> => {
+    const baseImg = new Image();
+    const genImg = new Image();
+    baseImg.src = baseImage;
+    genImg.src = generatedImage;
+    await Promise.all([
+      new Promise((resolve, reject) => {
+        baseImg.onload = resolve;
+        baseImg.onerror = reject;
+      }),
+      new Promise((resolve, reject) => {
+        genImg.onload = resolve;
+        genImg.onerror = reject;
+      })
+    ]);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = outputSize.width;
+    canvas.height = outputSize.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return baseImage;
+    ctx.drawImage(baseImg, 0, 0, outputSize.width, outputSize.height);
+    const baseData = ctx.getImageData(0, 0, outputSize.width, outputSize.height);
+
+    const genCanvas = document.createElement('canvas');
+    genCanvas.width = outputSize.width;
+    genCanvas.height = outputSize.height;
+    const genCtx = genCanvas.getContext('2d');
+    if (!genCtx) return baseImage;
+    genCtx.drawImage(genImg, 0, 0, outputSize.width, outputSize.height);
+    const genData = genCtx.getImageData(0, 0, outputSize.width, outputSize.height);
+
+    const mask = maskCanvasRef.current;
+    let maskData: ImageData | null = null;
+    if (mask) {
+      const mctx = mask.getContext('2d');
+      if (mctx) {
+        maskData = mctx.getImageData(0, 0, outputSize.width, outputSize.height);
+      }
+    }
+
+    const safe = normalizeRect(rect);
+    const startX = clamp(Math.round(safe.x), 0, outputSize.width);
+    const startY = clamp(Math.round(safe.y), 0, outputSize.height);
+    const endX = clamp(Math.round(safe.x + safe.width), 0, outputSize.width);
+    const endY = clamp(Math.round(safe.y + safe.height), 0, outputSize.height);
+
+    for (let py = startY; py < endY; py += 1) {
+      for (let px = startX; px < endX; px += 1) {
+        const idx = (py * outputSize.width + px) * 4;
+        const protectedAlpha = maskData ? maskData.data[idx + 3] : 0;
+        if (protectedAlpha > 0) continue;
+        baseData.data[idx] = genData.data[idx];
+        baseData.data[idx + 1] = genData.data[idx + 1];
+        baseData.data[idx + 2] = genData.data[idx + 2];
+        baseData.data[idx + 3] = genData.data[idx + 3];
+      }
+    }
+
+    ctx.putImageData(baseData, 0, 0);
+    return canvas.toDataURL('image/png');
+  };
+
+  const handleLocalRegenerate = async () => {
+    if (!resultImage) return;
+    const apiKeyState = loadGeminiApiKey();
+    if (!apiKeyState?.key) {
+      setErrorMessage(t('generator.apiKey.invalid', { defaultValue: '請先設定 API Key' }));
+      return;
+    }
+    if (!selectionRect || Math.abs(selectionRect.width) < 8 || Math.abs(selectionRect.height) < 8) {
+      setErrorMessage(t('editor.outpaint.localNeedSelection', { defaultValue: '請先框選要局部重生成的區域。' }));
+      return;
+    }
+
+    setIsLocalGenerating(true);
+    setErrorMessage('');
+    const safe = normalizeRect(selectionRect);
+    const rectInfo = `Selected region: x=${Math.round(safe.x)}, y=${Math.round(safe.y)}, w=${Math.round(safe.width)}, h=${Math.round(safe.height)}.`;
+
+    try {
+      const instruction = [
+        'You are editing an existing image.',
+        'Change ONLY the selected region while preserving the rest of the image.',
+        'Blend naturally with surrounding pixels.',
+        'No text, no watermark.',
+        rectInfo,
+        localPrompt?.trim() ? `Edit request: ${localPrompt.trim()}` : 'Edit request: improve visual details in this selected region.'
+      ].join('\n');
+
+      const generated = await generateImage(
+        apiKeyState.key,
+        instruction,
+        resultImage,
+        aspectRatio,
+        'gemini-3-pro-image-preview',
+        quality
+      );
+
+      const normalized = await normalizeToOutputSize(generated);
+      const merged = await mergeSelectedRegion(resultImage, normalized, safe);
+      const finalSize = await getImageDimensions(merged);
+      setResultImage(merged);
+      setResultSize(finalSize);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Local regenerate failed';
+      setErrorMessage(message);
+    } finally {
+      setIsLocalGenerating(false);
+    }
   };
 
   const handlePointerDownDrag = (e: React.PointerEvent<HTMLImageElement>) => {
@@ -314,12 +536,62 @@ const OutpaintTab: React.FC = () => {
     interactionRef.current = null;
   };
 
+  const handleResultPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!resultImage) return;
+    const point = eventToCanvasPoint(e.clientX, e.clientY);
+    if (!point) return;
+
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    localInteractionRef.current = {
+      mode: editTool,
+      startX: point.x,
+      startY: point.y,
+      lastX: point.x,
+      lastY: point.y
+    };
+
+    if (editTool === 'select') {
+      setSelectionRect({ x: point.x, y: point.y, width: 0, height: 0 });
+    } else {
+      drawMaskStroke(point, point);
+      redrawMaskPreview();
+    }
+  };
+
+  const handleResultPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const current = localInteractionRef.current;
+    if (!current) return;
+    const point = eventToCanvasPoint(e.clientX, e.clientY);
+    if (!point) return;
+
+    if (current.mode === 'select') {
+      setSelectionRect({
+        x: current.startX,
+        y: current.startY,
+        width: point.x - current.startX,
+        height: point.y - current.startY
+      });
+      return;
+    }
+
+    drawMaskStroke({ x: current.lastX, y: current.lastY }, point);
+    current.lastX = point.x;
+    current.lastY = point.y;
+    redrawMaskPreview();
+  };
+
+  const handleResultPointerUp = () => {
+    localInteractionRef.current = null;
+  };
+
   const drawWidth = (sourceSize.width * scale) / 100;
   const drawHeight = (sourceSize.height * scale) / 100;
+  const safeSelection = selectionRect ? normalizeRect(selectionRect) : null;
 
   return (
-    <div className="h-full grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 md:p-6">
-      <div className="lg:col-span-1 rounded-2xl border border-cream-dark bg-white p-4 md:p-5 space-y-4 overflow-y-auto">
+    <div className="h-full min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 md:p-6 overflow-hidden">
+      <div className="lg:col-span-1 min-h-0 rounded-2xl border border-cream-dark bg-white p-4 md:p-5 space-y-4 overflow-y-auto">
         <h3 className="text-lg font-black text-bronze-text">{t('editor.outpaint.title', { defaultValue: 'AI 擴張圖片' })}</h3>
 
         {!sourceImage && (
@@ -508,21 +780,86 @@ const OutpaintTab: React.FC = () => {
               {resultSize ? <><br />{t('editor.outpaint.finalSize', { defaultValue: '最終輸出尺寸' })}: {resultSize.width} x {resultSize.height} px</> : null}
             </div>
 
-            <label className="text-xs block">
-              <div className="mb-1 text-bronze-light">{t('editor.outpaint.scale', { defaultValue: '主圖縮放' })}: {scale}%</div>
-              <input type="range" min={30} max={160} value={scale} onChange={(e) => { setScale(Number(e.target.value)); clearGenerated(); }} className="w-full" />
-            </label>
+            {!resultImage && (
+              <>
+                <label className="text-xs block">
+                  <div className="mb-1 text-bronze-light">{t('editor.outpaint.scale', { defaultValue: '主圖縮放' })}: {scale}%</div>
+                  <input type="range" min={30} max={160} value={scale} onChange={(e) => { setScale(Number(e.target.value)); clearGenerated(); }} className="w-full" />
+                </label>
 
-            <label className="text-xs block">
-              <div className="mb-1 text-bronze-light">{t('editor.outpaint.prompt', { defaultValue: '補景提示詞（可選）' })}</div>
-              <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={3} className="w-full rounded-lg border border-cream-dark px-3 py-2 text-sm" placeholder={t('editor.outpaint.promptHint', { defaultValue: '例如：延伸成古風庭院、柔和自然光' })} />
-            </label>
+                <label className="text-xs block">
+                  <div className="mb-1 text-bronze-light">{t('editor.outpaint.prompt', { defaultValue: '補景提示詞（可選）' })}</div>
+                  <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={3} className="w-full rounded-lg border border-cream-dark px-3 py-2 text-sm" placeholder={t('editor.outpaint.promptHint', { defaultValue: '例如：延伸成古風庭院、柔和自然光' })} />
+                </label>
+              </>
+            )}
+
+            {sourceImage && (
+              <div className="space-y-2 rounded-xl border border-cream-dark bg-cream-light p-3">
+                <label className="text-xs font-bold text-bronze-light uppercase">{t('editor.outpaint.localEdit', { defaultValue: '局部改圖' })}</label>
+                {!resultImage && (
+                  <p className="text-[11px] text-bronze-light">
+                    {t('editor.outpaint.localEditNeedResult', { defaultValue: '先完成一次生成後，即可使用保護筆刷與框選局部重生成。' })}
+                  </p>
+                )}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditTool('select')}
+                    disabled={!resultImage}
+                    className={`rounded-lg border px-3 py-2 text-xs font-bold flex items-center justify-center gap-1 disabled:opacity-50 ${editTool === 'select' ? 'bg-primary text-white border-primary' : 'bg-white text-bronze-text border-cream-dark'}`}
+                  >
+                    <SquareDashed size={14} />
+                    {t('editor.outpaint.selectArea', { defaultValue: '框選區域' })}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditTool('protect')}
+                    disabled={!resultImage}
+                    className={`rounded-lg border px-3 py-2 text-xs font-bold flex items-center justify-center gap-1 disabled:opacity-50 ${editTool === 'protect' ? 'bg-primary text-white border-primary' : 'bg-white text-bronze-text border-cream-dark'}`}
+                  >
+                    <Eraser size={14} />
+                    {t('editor.outpaint.protectBrush', { defaultValue: '保護筆刷' })}
+                  </button>
+                </div>
+
+                {editTool === 'protect' && (
+                  <label className="text-xs block">
+                    <div className="mb-1 text-bronze-light">{t('editor.outpaint.brushSize', { defaultValue: '筆刷大小' })}: {protectBrushSize}px</div>
+                    <input type="range" min={8} max={96} value={protectBrushSize} onChange={(e) => setProtectBrushSize(Number(e.target.value))} className="w-full" />
+                  </label>
+                )}
+
+                <label className="text-xs block">
+                  <div className="mb-1 text-bronze-light">{t('editor.outpaint.localPrompt', { defaultValue: '局部重生成提示詞' })}</div>
+                  <textarea value={localPrompt} onChange={(e) => setLocalPrompt(e.target.value)} rows={2} className="w-full rounded-lg border border-cream-dark px-3 py-2 text-sm" placeholder={t('editor.outpaint.localPromptHint', { defaultValue: '例如：把此區改為夕陽雲彩、保留人物主體' })} />
+                </label>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button type="button" onClick={() => setSelectionRect(null)} disabled={!resultImage} className="rounded-lg border border-cream-dark bg-white hover:bg-cream-light px-3 py-2 text-xs font-bold text-bronze-text disabled:opacity-50">
+                    {t('editor.outpaint.clearSelection', { defaultValue: '清除框選' })}
+                  </button>
+                  <button type="button" onClick={clearProtectMask} disabled={!resultImage} className="rounded-lg border border-cream-dark bg-white hover:bg-cream-light px-3 py-2 text-xs font-bold text-bronze-text disabled:opacity-50">
+                    {t('editor.outpaint.clearMask', { defaultValue: '清除保護' })}
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 gap-2">
-              <button onClick={handleGenerate} disabled={isGenerating} className="w-full rounded-xl bg-primary hover:bg-primary-hover text-white font-bold px-4 py-2.5 flex items-center justify-center gap-2 disabled:opacity-60">
-                {isGenerating ? <Loader2 size={16} className="animate-spin" /> : null}
-                {isGenerating ? t('generator.action.generating', { defaultValue: '生成中...' }) : t('generator.action.generate', { defaultValue: '生成' })}
-              </button>
+              {!resultImage && (
+                <button onClick={handleGenerate} disabled={isGenerating} className="w-full rounded-xl bg-primary hover:bg-primary-hover text-white font-bold px-4 py-2.5 flex items-center justify-center gap-2 disabled:opacity-60">
+                  {isGenerating ? <Loader2 size={16} className="animate-spin" /> : null}
+                  {isGenerating ? t('generator.action.generating', { defaultValue: '生成中...' }) : t('generator.action.generate', { defaultValue: '生成' })}
+                </button>
+              )}
+
+              {resultImage && (
+                <button onClick={handleLocalRegenerate} disabled={isLocalGenerating} className="w-full rounded-xl bg-primary hover:bg-primary-hover text-white font-bold px-4 py-2.5 flex items-center justify-center gap-2 disabled:opacity-60">
+                  {isLocalGenerating ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
+                  {isLocalGenerating ? t('generator.action.generating', { defaultValue: '生成中...' }) : t('editor.outpaint.localRegenerate', { defaultValue: '局部重生成' })}
+                </button>
+              )}
 
               {resultImage && (
                 <button onClick={handleDownload} className="w-full rounded-xl bg-secondary/15 hover:bg-secondary/25 text-secondary font-bold px-4 py-2.5 flex items-center justify-center gap-2">
@@ -539,10 +876,8 @@ const OutpaintTab: React.FC = () => {
         <input ref={fileInputRef} className="hidden" type="file" accept="image/*" onChange={handleFileChange} />
       </div>
 
-      <div className="lg:col-span-2 rounded-2xl border border-cream-dark bg-slate-100/50 p-4 md:p-5 flex items-center justify-center">
+      <div className="lg:col-span-2 min-h-0 overflow-auto rounded-2xl border border-cream-dark bg-slate-100/50 p-4 md:p-5 flex items-center justify-center">
         {!resultImage && !sourceImage && <div className="text-sm text-slate-500">{t('editor.outpaint.empty', { defaultValue: '請先上傳圖片，或從作品集選取' })}</div>}
-
-        {!!resultImage && <img src={resultImage} alt="outpaint-result" className="max-h-[70vh] w-auto rounded-lg shadow-lg object-contain" />}
 
         {!resultImage && !!sourceImage && (
           <div
@@ -579,6 +914,38 @@ const OutpaintTab: React.FC = () => {
               onPointerDown={handlePointerDownResize}
               title={t('editor.outpaint.scale', { defaultValue: '縮放' })}
             />
+          </div>
+        )}
+
+        {!!resultImage && (
+          <div
+            ref={stageRef}
+            className="relative w-full max-w-[920px] max-h-[70vh] rounded-lg shadow-lg overflow-hidden border border-slate-300 bg-white touch-none select-none"
+            style={{ aspectRatio: `${outputSize.width} / ${outputSize.height}` }}
+            onPointerDown={handleResultPointerDown}
+            onPointerMove={handleResultPointerMove}
+            onPointerUp={handleResultPointerUp}
+            onPointerCancel={handleResultPointerUp}
+            onPointerLeave={handleResultPointerUp}
+          >
+            <img src={resultImage} alt="outpaint-result" className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute left-2 top-2 px-2 py-1 rounded bg-black/45 text-white text-[11px] pointer-events-none">
+              {editTool === 'protect'
+                ? t('editor.outpaint.protecting', { defaultValue: '保護筆刷模式：塗紅區將不被覆蓋' })
+                : t('editor.outpaint.selecting', { defaultValue: '框選模式：拖拉畫布選範圍' })}
+            </div>
+            <canvas ref={maskPreviewRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+            {safeSelection && safeSelection.width > 0 && safeSelection.height > 0 && (
+              <div
+                className="absolute border-2 border-primary bg-primary/10 pointer-events-none"
+                style={{
+                  left: `${(safeSelection.x / outputSize.width) * 100}%`,
+                  top: `${(safeSelection.y / outputSize.height) * 100}%`,
+                  width: `${(safeSelection.width / outputSize.width) * 100}%`,
+                  height: `${(safeSelection.height / outputSize.height) * 100}%`
+                }}
+              />
+            )}
           </div>
         )}
       </div>
