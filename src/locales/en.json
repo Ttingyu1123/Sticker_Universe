@@ -595,7 +595,8 @@
       "preview": "Preview",
       "download": "Download",
       "removeBg": "Remove Background",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "applyIdPreset": "Apply ID-friendly defaults"
     },
     "errors": {
       "general": "Generation failed: ",

@@ -143,6 +143,18 @@ const HeadshotGeneratorTab: React.FC<HeadshotGeneratorTabProps> = ({ apiKey, onS
         }
     }, [selectedPresetId]);
 
+    const applyIdPresetProfile = () => {
+        setIsStrictMode(true);
+        setSelectedStyle('white_id');
+        setSelectedPose('front_upper');
+        setSelectedExpression('natural');
+        setOutfitType('keep_original');
+        setCustomOutfit('');
+        setEffectType('none');
+        setCustomEffect('');
+        setQuality('high');
+    };
+
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -516,6 +528,13 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                                     return sizeText + (noteText && noteText !== preset.noteKey ? ` • ${noteText}` : '');
                                 })()}
                             </p>
+                            <button
+                                type="button"
+                                onClick={applyIdPresetProfile}
+                                className="mt-2 w-full px-3 py-2 bg-primary/10 hover:bg-primary/20 text-bronze-text rounded-xl text-xs font-bold transition-colors"
+                            >
+                                {t('headshot.action.applyIdPreset', { defaultValue: '套用證件照推薦設定' })}
+                            </button>
                         </div>
 
                         {/* Strict Mode Toggle */}

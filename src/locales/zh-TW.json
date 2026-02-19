@@ -546,6 +546,7 @@
       "batchProcessing": "批次處理中",
       "generatingArt": "正在生成 AI 藝術...",
       "applyingMagic": "正在進行綠幕去背...",
+      "applyIdPreset": "\u5957\u7528\u8B49\u4EF6\u7167\u63A8\u85A6\u8A2D\u5B9A",
       "manga": {
         "title": "漫畫大師",
         "story": "故事劇本",
