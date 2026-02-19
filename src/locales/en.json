@@ -347,6 +347,15 @@
         "desc": "Precise Resolution Control",
         "features": "Lossless Scaling • Flexible"
       },
+      "outpaint": {
+        "title": "AI Outpaint",
+        "desc": "Expand image canvas with AI",
+        "features": [
+          "Background extension",
+          "Local regenerate",
+          "Protect brush"
+        ]
+      },
       "svgConverter": {
         "title": "SVG Magic",
         "desc": "Raster to Vector",

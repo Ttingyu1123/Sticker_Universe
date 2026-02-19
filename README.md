@@ -106,7 +106,7 @@
 For every new feature, follow the one-page checklist:
 
 - `docs/feature-checklist.md`
-- `docs/creativeos_guide.md` (app tab inventory, includes `character-create`)
+- `docs/creativeos_guide.md` (app tab inventory, includes `character-create` and `outpaint`)
 
 Recommended prompt when starting work with Codex:
 

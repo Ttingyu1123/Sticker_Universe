@@ -412,6 +412,15 @@
           "保持品質"
         ]
       },
+      "outpaint": {
+        "title": "AI 擴張圖片",
+        "desc": "使用 AI 延展畫布並補齊背景",
+        "features": [
+          "背景延伸",
+          "局部重生成",
+          "保護筆刷"
+        ]
+      },
       "svgConverter": {
         "title": "SVG 魔法",
         "desc": "將圖片轉換為可編輯的 SVG 向量圖",

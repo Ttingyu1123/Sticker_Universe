@@ -15,11 +15,15 @@
 - `portrait` - Portrait Master
 
 ## Other Core Areas
-- `image-editor` - Batch Crop / Smart Remove / Animator / Editor / Resizer / SVG Converter
+- `image-editor` - Batch Crop / Smart Remove / Animator / Editor / Resizer / Outpaint / SVG Converter
 - `layer-lab` - Layer composition workspace
 - `photo-collage` - Photo collage creation
 - `print-sheet` - Sticker print + ID print
 - `gallery` - Unified generated/processed outputs
+
+## Landing Summary (from `src/config/landingTabs.ts`)
+- Total categories: `5`
+- Total tools: `20`
 
 ## Maintenance Rules
 - When adding/removing a user-facing tab:

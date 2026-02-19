@@ -164,6 +164,15 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
                 featuresKey: 'landing.tabs.imageResizer.features'
             },
             {
+                id: 'outpaint',
+                icon: 'Scan',
+                path: '/image-editor',
+                tab: 'outpaint',
+                titleKey: 'landing.tabs.outpaint.title',
+                descKey: 'landing.tabs.outpaint.desc',
+                featuresKey: 'landing.tabs.outpaint.features'
+            },
+            {
                 id: 'svg-converter',
                 icon: 'FileCode',
                 path: '/image-editor',
@@ -171,14 +180,6 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
                 titleKey: 'landing.tabs.svgConverter.title',
                 descKey: 'landing.tabs.svgConverter.desc',
                 featuresKey: 'landing.tabs.svgConverter.features'
-            },
-            {
-                id: 'layer-lab',
-                icon: 'Library',
-                path: '/layer-lab',
-                titleKey: 'landing.tabs.layerLab.title',
-                descKey: 'landing.tabs.layerLab.desc',
-                featuresKey: 'landing.tabs.layerLab.features'
             }
         ]
     },
