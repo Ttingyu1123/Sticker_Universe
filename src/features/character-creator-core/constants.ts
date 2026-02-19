@@ -565,7 +565,67 @@ const CATEGORY_FILLERS: Record<CharacterCategoryKey, CharacterTag[]> = {
   ],
 };
 
-const WORLD_CHARACTER_PRIORITY_FILLERS: Partial<Record<CharacterWorldMode, CharacterTag[]>> = {
+const WORLD_CHARACTER_VARIATION_FILLERS: Record<CharacterWorldMode, CharacterTag[]> = {
+  fantasy: [
+    { zh: '月光德魯伊', en: 'moonlight druid' },
+    { zh: '秘銀鐵匠', en: 'mythril blacksmith' },
+    { zh: '龍語先知', en: 'dragon-tongue oracle' },
+    { zh: '森林守望者', en: 'forest sentinel ranger' },
+    { zh: '深海女巫', en: 'abyssal sea witch' },
+    { zh: '風暴召雷者', en: 'stormcaller mage' },
+    { zh: '聖域守門人', en: 'sanctum gatekeeper' },
+    { zh: '秘境探險者', en: 'relic dungeon explorer' },
+    { zh: '鳳羽祭司', en: 'phoenix-feather priestess' },
+    { zh: '星界吟遊詩人', en: 'astral bard' },
+  ],
+  modern: [
+    { zh: '新創創辦人', en: 'startup founder' },
+    { zh: '街舞舞者', en: 'street dance performer' },
+    { zh: '潮流買手', en: 'fashion concept buyer' },
+    { zh: '旅行 Vlogger', en: 'travel vlogger' },
+    { zh: '咖啡烘豆師', en: 'specialty coffee roaster' },
+    { zh: '刺青藝術家', en: 'tattoo artist' },
+    { zh: '獨立導演', en: 'indie film director' },
+    { zh: '電競選手', en: 'esports pro gamer' },
+    { zh: '產品設計師', en: 'product designer' },
+    { zh: '潮牌主理人', en: 'streetwear label founder' },
+  ],
+  scifi: [
+    { zh: '時間航行員', en: 'time-jump navigator' },
+    { zh: '機械醫官', en: 'cyber medic officer' },
+    { zh: '星門維修師', en: 'stargate maintenance engineer' },
+    { zh: '神經網路術士', en: 'neural-net sorcerer' },
+    { zh: '軌道傭兵', en: 'orbital mercenary' },
+    { zh: '反抗軍情報員', en: 'resistance intelligence agent' },
+    { zh: '量子潛行者', en: 'quantum infiltrator' },
+    { zh: '外星語譯員', en: 'xeno linguist' },
+    { zh: '無人機牧者', en: 'drone swarm shepherd' },
+    { zh: '時空巡查官', en: 'chrono patrol officer' },
+  ],
+  historical: [
+    { zh: '王室御廚', en: 'royal court chef' },
+    { zh: '絲路商旅', en: 'silk road merchant' },
+    { zh: '宮廷畫師', en: 'court portrait painter' },
+    { zh: '帝國書記官', en: 'imperial scribe' },
+    { zh: '馬車信使', en: 'carriage courier' },
+    { zh: '城邦外交官', en: 'city-state diplomat' },
+    { zh: '古典舞者', en: 'classical stage dancer' },
+    { zh: '港口領航員', en: 'harbor navigator' },
+    { zh: '神殿守衛', en: 'temple guardian guard' },
+    { zh: '鑄幣工匠', en: 'mint coin artisan' },
+  ],
+  horror: [
+    { zh: '夢魘行者', en: 'nightmare walker' },
+    { zh: '停電夜守', en: 'blackout night watchman' },
+    { zh: '失語修道者', en: 'mute cloister acolyte' },
+    { zh: '深井召喚者', en: 'well-depth summoner' },
+    { zh: '無聲追跡者', en: 'silent pursuit stalker' },
+    { zh: '裂口信徒', en: 'rift-mouth cultist' },
+    { zh: '紙偶降靈師', en: 'paper effigy medium' },
+    { zh: '陰影擺渡人', en: 'shadow ferryman' },
+    { zh: '夜霧獵犬使', en: 'night-fog hound handler' },
+    { zh: '舊鐘塔看守', en: 'old bell tower keeper' },
+  ],
   oriental: [
     { zh: '傣族少女', en: 'dai ethnicity girl' },
     { zh: '藏族少女', en: 'tibetan girl' },
@@ -577,6 +637,11 @@ const WORLD_CHARACTER_PRIORITY_FILLERS: Partial<Record<CharacterWorldMode, Chara
     { zh: '白族少女', en: 'bai ethnicity girl' },
     { zh: '彝族首領', en: 'yi chieftain' },
     { zh: '哈薩克獵鷹手', en: 'kazakh eagle hunter' },
+    { zh: '敦煌壁畫仕女', en: 'dunhuang mural maiden' },
+    { zh: '昆曲旦角', en: 'kunqu opera dan role' },
+    { zh: '苗疆蠱師', en: 'miao shaman alchemist' },
+    { zh: '唐風女將', en: 'tang dynasty shield maiden' },
+    { zh: '古琴雅士', en: 'guqin literati musician' },
   ],
 };
 
@@ -616,11 +681,16 @@ for (const key of Object.keys(CHARACTER_COMMON_TAGS) as Array<keyof typeof CHARA
 for (const mode of Object.keys(CHARACTER_WORLD_DATA) as Array<keyof CharacterWorldData>) {
   for (const category of Object.keys(CHARACTER_WORLD_DATA[mode]) as Array<keyof CharacterWorldData[typeof mode]>) {
     let list = CHARACTER_WORLD_DATA[mode][category];
-    if (category === 'character' && WORLD_CHARACTER_PRIORITY_FILLERS[mode]) {
-      list = mergeUniqueTags(list, WORLD_CHARACTER_PRIORITY_FILLERS[mode] || []);
+    if (category === 'character') {
+      list = mergeUniqueTags(list, WORLD_CHARACTER_VARIATION_FILLERS[mode]);
     }
     if (list.length < MIN_OPTIONS_PER_CATEGORY) {
-      list = mergeUniqueTags(list, CATEGORY_FILLERS[category as CharacterCategoryKey]);
+      // Keep character options world-specific first; only use generic fallback if still short.
+      if (category === 'character') {
+        list = mergeUniqueTags(list, CATEGORY_FILLERS.character);
+      } else {
+        list = mergeUniqueTags(list, CATEGORY_FILLERS[category as CharacterCategoryKey]);
+      }
     }
     CHARACTER_WORLD_DATA[mode][category] = list.slice(0, Math.max(MIN_OPTIONS_PER_CATEGORY, list.length));
   }

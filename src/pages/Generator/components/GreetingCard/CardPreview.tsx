@@ -94,20 +94,21 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
 
                 {/* --- Magazine Layout --- */}
                 {cardLayout === 'magazine' && (
-                    <div className="relative w-full h-full min-h-[500px] flex items-end rounded-xl overflow-hidden shadow-2xl group">
+                    <div className="relative w-full h-full min-h-[500px] rounded-xl overflow-hidden shadow-2xl group flex flex-col md:flex-row md:items-end">
                         <img src={generatedResult.imageUrl} className="absolute inset-0 w-full h-full object-cover" alt="Generated Card" />
-                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-                        <div className="absolute bottom-6 left-6 right-6 bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-xl flex flex-col items-start text-left z-10 transition-transform group-hover:scale-[1.02]">
-                            <h3 className="text-3xl md:text-4xl font-black text-white font-sans uppercase leading-tight drop-shadow-lg mb-3">
+                        <div className="hidden md:block absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 md:hidden pointer-events-none" />
+                        <div className="relative mt-auto md:absolute md:bottom-6 md:left-6 md:right-6 bg-white/95 md:bg-black/40 md:backdrop-blur-md rounded-2xl p-4 md:p-6 border border-cream-dark md:border-white/10 shadow-xl flex flex-col items-start text-left z-10 transition-transform group-hover:scale-[1.02] m-4 md:m-0">
+                            <h3 className="text-2xl md:text-4xl font-black text-bronze-text md:text-white font-sans uppercase leading-tight md:drop-shadow-lg mb-3">
                                 {generatedResult.title || "Greeting"}
                             </h3>
-                            <div className="text-xs font-mono text-white/80 mb-4 bg-white/20 px-2 py-1 rounded backdrop-blur-md tracking-wider">
+                            <div className="text-xs font-mono text-bronze-text md:text-white/80 mb-4 bg-cream-light md:bg-white/20 px-2 py-1 rounded md:backdrop-blur-md tracking-wider">
                                 TO {recipientName?.toUpperCase() || "YOU"} • FROM {userName?.toUpperCase() || "ME"}
                             </div>
                             {showTextOnCard && generatedResult.message && (
                                 <p
-                                    className={`text-base text-white/95 leading-relaxed drop-shadow-md border-t border-white/20 pt-3 w-full ${activeFont?.className || ''}`}
-                                    style={{ fontFamily: activeFont?.family }}
+                                    className={`text-sm md:text-base text-bronze-text md:text-white/95 leading-relaxed md:drop-shadow-md border-t border-cream-dark/50 md:border-white/20 pt-3 w-full ${activeFont?.className || ''}`}
+                                    style={{ color: textColor, fontFamily: activeFont?.family }}
                                 >
                                     {generatedResult.message}
                                 </p>

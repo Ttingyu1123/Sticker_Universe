@@ -371,6 +371,7 @@ const App: React.FC = () => {
     const mimeType = config.outputFormat === 'webp' ? 'image/webp' : 'image/png';
     const extension = config.outputFormat === 'webp' ? 'webp' : 'png';
     const newProcessedTiles: TileInfo[] = [];
+    let autoSavedCount = 0;
 
     try {
       for (let fIdx = 0; fIdx < fileQueue.length; fIdx++) {
@@ -415,6 +416,18 @@ const App: React.FC = () => {
             const folder = fileQueue.length > 1 ? `${item.file.name.split('.')[0]}/` : '';
             const name = `${config.filenamePrefix}_${Math.floor(i / (config.colLines.length - 1)) + 1}_${(i % (config.colLines.length - 1)) + 1}.${extension}`;
             zip.file(`${folder}${name}`, finalBlob);
+            try {
+              const base64 = await blobToBase64(finalBlob);
+              await saveStickerToDB({
+                id: `pkg_auto_${Date.now()}_${fIdx}_${i}`,
+                imageUrl: base64,
+                phrase: `${config.filenamePrefix} #${Math.floor(i / (config.colLines.length - 1)) + 1}-${(i % (config.colLines.length - 1)) + 1}`,
+                timestamp: Date.now()
+              });
+              autoSavedCount++;
+            } catch (saveErr) {
+              console.error('Auto-save failed for processed tile', saveErr);
+            }
             if (item.id === activeFileId) newProcessedTiles.push({ url: URL.createObjectURL(finalBlob), width: finalW, height: finalH });
           }
         }
@@ -422,7 +435,7 @@ const App: React.FC = () => {
       setZipBlob(await zip.generateAsync({ type: 'blob' })); setProcessedTiles(newProcessedTiles);
       setZipBlob(await zip.generateAsync({ type: 'blob' })); setProcessedTiles(newProcessedTiles);
       setStatus('success'); setElapsedTime(((Date.now() - startTime) / 1000).toFixed(1));
-      setStatusMsg(`${t('packager.status.complete')}`); setViewMode('result');
+      setStatusMsg(`${t('packager.status.complete')} (Auto-saved ${autoSavedCount})`); setViewMode('result');
     } catch (e: any) { setStatus('error'); setStatusMsg(`${t('packager.status.failed')}${e.message}`); }
   };
 

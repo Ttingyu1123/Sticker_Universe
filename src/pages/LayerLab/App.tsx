@@ -208,9 +208,19 @@ export const LayerLabApp = () => {
         return canvas ? canvas.toDataURL('image/png') : null;
     };
 
-    const handleExport = () => {
+    const handleExport = async () => {
         const url = getExportUrl();
         if (url) {
+            try {
+                await saveStickerToDB({
+                    id: `layerlab_auto_${Date.now()}`,
+                    imageUrl: url,
+                    timestamp: Date.now(),
+                    phrase: 'Smart Eraser Edit'
+                });
+            } catch (error) {
+                console.error('Auto-save on export failed', error);
+            }
             const a = document.createElement('a');
             a.href = url;
             a.download = 'smart-eraser-export.png';

@@ -237,7 +237,20 @@ const App: React.FC = () => {
     setSelectedLayerId(newLayer.id);
   }, [selectedLayerId, layers, commitHistory]);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
+    try {
+      const dataUrl = await generateCanvasDataUrl(layers, canvasConfig);
+      if (dataUrl) {
+        await saveStickerToDB({
+          id: `editor_auto_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+          imageUrl: dataUrl,
+          phrase: 'Editor Composition',
+          timestamp: Date.now()
+        });
+      }
+    } catch (err) {
+      console.error('Auto-save on download failed', err);
+    }
     downloadCanvasAsImage(layers, canvasConfig);
   };
 

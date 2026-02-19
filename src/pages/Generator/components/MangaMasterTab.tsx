@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Wand2, RefreshCw, Sparkles, Image as ImageIcon, Download, Settings2, MessageSquare, MessageSquareOff, Palette } from 'lucide-react';
+import { Wand2, RefreshCw, Sparkles, Image as ImageIcon, Download, Settings2, MessageSquare, MessageSquareOff, Palette, Lightbulb } from 'lucide-react';
 import { LayoutSelector } from './Manga/LayoutSelector';
 import { CharacterCreator } from './Manga/CharacterCreator';
 import { ComicConfig, ComicLayout, ComicStyle, ColorMode, Resolution } from './Manga/types';
@@ -14,6 +14,57 @@ interface Props {
     onSuccess: (imageUrl: string, prompt: string) => void;
     onError: (msg: string) => void;
 }
+
+const STORY_INSPIRATIONS_BY_STYLE: Record<ComicStyle, string[]> = {
+    [ComicStyle.Cute]: [
+        '實習魔女與會說話的貓在小鎮開甜點店，每天用甜點解決客人的心事。',
+        '三個性格不同的室友一起經營手作貼圖工作室，意外變成網路爆紅團隊。',
+    ],
+    [ComicStyle.American]: [
+        '失敗記者獲得讀心能力，被迫揭發城市英雄聯盟背後的黑幕。',
+        '退休特工重返街頭，只為找回被竊取的超能核心。',
+    ],
+    [ComicStyle.Anime]: [
+        '轉學生其實來自未來，他必須阻止校園裡即將發生的時間災難。',
+        '少年在社團倉庫發現封印古劍，從此與神祕少女共同戰鬥。',
+    ],
+    [ComicStyle.Horror]: [
+        '社群爆紅的靈異直播主，真的拍到了不該出現的影子。',
+        '小鎮每逢滿月就會重啟同一天，主角必須找出破局方式。',
+    ],
+    [ComicStyle.Webtoon]: [
+        '人氣美食外送員白天送餐、晚上追查失蹤案件，意外捲入財團陰謀。',
+        '看似普通的便利商店，半夜會接待來自不同世界的客人。',
+    ],
+    [ComicStyle.Ink]: [
+        '落魄書生在古寺借宿，與畫中仙共同尋找失傳畫卷。',
+        '江湖女俠為查滅門真相，與神祕琴師同行踏上千里路。',
+    ],
+    [ComicStyle.Realistic]: [
+        '考古團隊在古城地下發現會改寫記憶的壁畫。',
+        '颱風夜停電的大樓裡，三位陌生人被迫合作找出失蹤小孩。',
+    ],
+    [ComicStyle.Cyberpunk]: [
+        '地下駭客偷走企業AI主腦備份，整座城市開始出現人格錯亂。',
+        '改造人警探在霓虹雨夜追查器官黑市，卻發現自己也是目標。',
+    ],
+    [ComicStyle.Watercolor]: [
+        '旅行畫家在海邊小鎮重逢童年好友，兩人一起完成未竟畫展。',
+        '遺忘記憶的女孩透過一本舊日記，拼回自己的家族故事。',
+    ],
+    [ComicStyle.Vintage]: [
+        '1990年代錄影帶店店員，意外在禁播錄影帶裡看見未來犯罪線索。',
+        '老派搖滾樂團最後一場巡演，揭開成員塵封多年的秘密。',
+    ],
+    [ComicStyle.Flat]: [
+        '新創團隊為了拯救快倒閉的APP，展開一場72小時極限改版。',
+        '城市裡的匿名志工社群，在一次大型停電中完成不可能任務。',
+    ],
+    [ComicStyle.Photorealism]: [
+        '刑警與法醫搭檔追查連環縱火案，真相指向一場被掩蓋的實驗。',
+        '戰地攝影師回到故鄉後，發現照片中的陌生人竟與自己高度相似。',
+    ],
+};
 
 const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onError }) => {
     const { t } = useTranslation();
@@ -35,6 +86,12 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
         characters: []
     });
     const [isOptimizing, setIsOptimizing] = useState(false);
+
+    const applyInspiration = () => {
+        const pool = STORY_INSPIRATIONS_BY_STYLE[config.style] || STORY_INSPIRATIONS_BY_STYLE[ComicStyle.Anime];
+        const pick = pool[Math.floor(Math.random() * pool.length)];
+        setConfig(prev => ({ ...prev, theme: pick }));
+    };
 
     const handleOptimizeTheme = async () => {
         if (!apiKey) {
@@ -64,7 +121,10 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
         }
         setIsLoading(true);
         setGeneratedImage(null);
-        window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top to see preview area usually
+        const resultSection = document.getElementById('result-section');
+        if (resultSection) {
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
 
         try {
             const imageUrl = await generateComicImage(apiKey, config);
@@ -236,6 +296,14 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
                             <span>{isOptimizing ? t('generator.manga.actions.optimizing') : t('generator.manga.actions.optimize')}</span>
                         </button>
                     </div>
+                    <button
+                        onClick={applyInspiration}
+                        className="mb-3 text-xs flex items-center gap-1 bg-white hover:bg-cream-light text-secondary border border-secondary/30 px-3 py-1.5 rounded-lg transition-colors font-bold"
+                        title="沒有靈感？幫我抽一個故事"
+                    >
+                        <Lightbulb className="w-3 h-3" />
+                        靈感一下
+                    </button>
                     <textarea
                         value={config.theme}
                         onChange={(e) => setConfig({ ...config, theme: e.target.value })}
@@ -347,10 +415,11 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
 
             {/* RIGHT COLUMN: Preview & Results */}
             <div id="result-section" className="lg:col-span-7 lg:sticky lg:top-24 min-h-[500px] flex flex-col">
-                <div className={`
-          relative flex - 1 bg - white border border - cream - dark rounded - [3rem] overflow - hidden shadow - xl transition - all duration - 500 min - h - [600px]
-          ${!generatedImage && !isLoading ? 'border-dashed border-cream-dark bg-cream-light/30' : 'border-primary/30'}
-        `}>
+                <div
+                    className={`relative flex-1 bg-white border border-cream-dark rounded-[3rem] overflow-hidden shadow-xl transition-all duration-500 min-h-[600px] ${
+                        !generatedImage && !isLoading ? 'border-dashed border-cream-dark bg-cream-light/30' : 'border-primary/30'
+                    }`}
+                >
 
                     {/* Empty State */}
                     {!generatedImage && !isLoading && (

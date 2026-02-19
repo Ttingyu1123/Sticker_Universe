@@ -47,7 +47,19 @@ const LayoutPreview: React.FC<LayoutPreviewProps> = ({ assets, config }) => {
     };
   }, [assets, config]);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
+    if (previewUrl && photoCount > 0) {
+      try {
+        await saveStickerToDB({
+          id: `id-print_auto_${Date.now()}`,
+          imageUrl: previewUrl,
+          phrase: `ID Print (${config.photoSize})`,
+          timestamp: Date.now()
+        });
+      } catch (e) {
+        console.error('Auto-save on download failed', e);
+      }
+    }
     if (config.outputFormat === 'application/pdf') {
       handleDownloadPDF();
     } else {

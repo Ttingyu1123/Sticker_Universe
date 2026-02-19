@@ -112,9 +112,19 @@ const App: React.FC = () => {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (historyIndex >= 0) {
       const dataUrl = history[historyIndex];
+      try {
+        await saveStickerToDB({
+          id: `eraser_auto_${Date.now()}`,
+          imageUrl: dataUrl,
+          phrase: 'Eraser Edit',
+          timestamp: Date.now()
+        });
+      } catch (e) {
+        console.error('Auto-save on download failed', e);
+      }
       // Convert DataURL to Blob to handle large files and mobile download better
       try {
         const byteString = atob(dataUrl.split(',')[1]);

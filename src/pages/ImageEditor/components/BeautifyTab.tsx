@@ -219,6 +219,7 @@ const BeautifyTab: React.FC = () => {
         const mimeType = config.outputFormat === 'webp' ? 'image/webp' : 'image/png';
         const extension = config.outputFormat === 'webp' ? 'webp' : 'png';
         const newQueue = [...fileQueue];
+        let autoSavedCount = 0;
 
         try {
             const presetSize = { none: null, line: { w: 370, h: 320 }, telegram: { w: 512, h: 512 } }[config.preset];
@@ -276,6 +277,18 @@ const BeautifyTab: React.FC = () => {
                 if (finalBlob) {
                     const name = `${config.filenamePrefix}_${i + 1}.${extension}`;
                     zip.file(name, finalBlob);
+                    try {
+                        const base64 = await blobToBase64(finalBlob);
+                        await saveStickerToDB({
+                            id: `bty_auto_${Date.now()}_${i}`,
+                            imageUrl: base64,
+                            phrase: `${config.filenamePrefix} #${i + 1}`,
+                            timestamp: Date.now()
+                        });
+                        autoSavedCount++;
+                    } catch (saveErr) {
+                        console.error('Auto-save failed for beautified image', saveErr);
+                    }
                     const newUrl = URL.createObjectURL(finalBlob);
                     if (item.processedUrl) URL.revokeObjectURL(item.processedUrl);
                     item.processedUrl = newUrl;
@@ -286,7 +299,7 @@ const BeautifyTab: React.FC = () => {
             setZipBlob(await zip.generateAsync({ type: 'blob' }));
             setStatus('success');
             setElapsedTime(((Date.now() - startTime) / 1000).toFixed(1));
-            setStatusMsg(t('packager.status.complete') || 'Done!');
+            setStatusMsg(`${t('packager.status.complete') || 'Done!'} (Auto-saved ${autoSavedCount})`);
         } catch (e: any) {
             setStatus('error');
             setStatusMsg(`${t('packager.status.failed') || 'Failed:'} ${e.message}`);

@@ -222,6 +222,17 @@ export const AutoCollageTab: React.FC = () => {
         if (canvasRef.current) {
             try {
                 const dataUrl = await canvasRef.current.exportImage('png', 2); // 2x High Res
+                try {
+                    await saveStickerToDB({
+                        id: crypto.randomUUID(),
+                        imageUrl: dataUrl,
+                        phrase: `Collage ${new Date().toLocaleString()}`,
+                        timestamp: Date.now(),
+                        description: 'Created with Photo Collage'
+                    });
+                } catch (saveErr) {
+                    console.error('Auto-save on download failed', saveErr);
+                }
                 const link = document.createElement('a');
                 link.download = `collage-${Date.now()}.png`;
                 link.href = dataUrl;

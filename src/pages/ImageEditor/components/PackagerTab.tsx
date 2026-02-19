@@ -488,6 +488,7 @@ const PackagerTab: React.FC = () => {
         const mimeType = config.outputFormat === 'webp' ? 'image/webp' : 'image/png';
         const extension = config.outputFormat === 'webp' ? 'webp' : 'png';
         const newProcessedTiles: TileInfo[] = [];
+        let autoSavedCount = 0;
 
         try {
             const presetSize = { none: null, line: { w: 370, h: 320 }, telegram: { w: 512, h: 512 } }[config.preset];
@@ -577,6 +578,20 @@ const PackagerTab: React.FC = () => {
                         const name = `${config.filenamePrefix}_${Math.floor(i / (config.colLines.length - 1)) + 1}_${(i % (config.colLines.length - 1)) + 1}.${extension}`;
                         zip.file(`${folder}${name}`, finalBlob);
                         const newUrl = URL.createObjectURL(finalBlob);
+                        if (!silent) {
+                            try {
+                                const base64 = await blobToBase64(finalBlob);
+                                await saveStickerToDB({
+                                    id: `pkg_auto_${Date.now()}_${fIdx}_${i}`,
+                                    imageUrl: base64,
+                                    phrase: `${config.filenamePrefix} #${Math.floor(i / (config.colLines.length - 1)) + 1}-${(i % (config.colLines.length - 1)) + 1}`,
+                                    timestamp: Date.now()
+                                });
+                                autoSavedCount++;
+                            } catch (saveErr) {
+                                console.error('Auto-save failed for processed tile', saveErr);
+                            }
+                        }
 
                         if (item.id === activeFileId) {
                             newProcessedTiles.push({ ...tile, url: newUrl, width: finalW, height: finalH });
@@ -590,7 +605,7 @@ const PackagerTab: React.FC = () => {
 
             setStatus('success');
             setElapsedTime(((Date.now() - startTime) / 1000).toFixed(1));
-            if (!silent) setStatusMsg(t('packager.status.complete') || 'Done!');
+            if (!silent) setStatusMsg(`${t('packager.status.complete') || 'Done!'} (Auto-saved ${autoSavedCount})`);
             setViewMode('result');
 
         } catch (e: any) {
