@@ -172,14 +172,15 @@ export async function generateImage(
   prompt: string,
   base64Image: string | null,
   aspectRatio: string = "1:1",
-  model: string = "gemini-3-pro-image-preview"
+  model: string = "gemini-3-pro-image-preview",
+  imageSize: "1K" | "2K" | "4K" = "1K"
 ): Promise<string> {
   const ai = new GoogleGenAI({ apiKey });
 
   const config: any = {
     imageConfig: {
       aspectRatio: aspectRatio,
-      imageSize: "1K"
+      imageSize
     }
   };
 
