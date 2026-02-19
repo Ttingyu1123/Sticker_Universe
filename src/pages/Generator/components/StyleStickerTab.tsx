@@ -8,7 +8,7 @@ import {
 import JSZip from 'jszip';
 import { saveStickerToDB } from '../../../db';
 import { Sticker, StickerTheme, THEMES } from '../types';
-import { generateSticker } from '../services/geminiService';
+import { generateSticker, suggestStickerPhrases } from '../services/geminiService';
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { useImageShare } from '../../../hooks/useImageShare';
@@ -39,6 +39,7 @@ type PromptOption = {
 };
 
 type PriorityMode = 'style' | 'semantic';
+type BatchPhraseMode = 'same' | 'theme' | 'custom';
 
 const THEME_PROMPT_OPTIONS: PromptOption[] = [
     { id: 'office', label: '社畜日常 (預設)', prompt: 'Corporate slave daily office life. tired, fake smile, coffee, deadline, overtime, salary day, want to go home.' },
@@ -114,9 +115,14 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
     const [selectedStylePromptId, setSelectedStylePromptId] = useState<string>(STYLE_PROMPT_OPTIONS[0].id);
     const [selectedFontStyleId, setSelectedFontStyleId] = useState<string>(FONT_STYLE_OPTIONS[0].id);
     const [priorityMode, setPriorityMode] = useState<PriorityMode>('style');
+    const [characterLock, setCharacterLock] = useState<boolean>(true);
+    const [variationStrength, setVariationStrength] = useState<number>(3);
     const [includeText, setIncludeText] = useState<boolean>(false);
     const [autoRemoveBg, setAutoRemoveBg] = useState<boolean>(true);
     const [batchSize, setBatchSize] = useState<number>(1);
+    const [batchPhrasesText, setBatchPhrasesText] = useState<string>('');
+    const [batchPhraseMode, setBatchPhraseMode] = useState<BatchPhraseMode>('theme');
+    const [isSuggestingPhrases, setIsSuggestingPhrases] = useState<boolean>(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [progress, setProgress] = useState({ current: 0, total: 0 });
     const [stickers, setStickers] = useState<Sticker[]>([]);
@@ -169,11 +175,112 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
             ? getPhraseConflictMessage((customPhrase || selectedPhrase).trim(), selectedThemePromptId)
             : null;
 
+    const parsePhraseList = (text: string) =>
+        text
+            .split(/[\n,]/)
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+    const getBatchPhrasesForCount = (count: number): string[] => {
+        const manual = parsePhraseList(batchPhrasesText);
+        const themeDefaults = currentTheme.phrases.map((p) => p.text).filter(Boolean);
+
+        if (manual.length >= count) {
+            return manual.slice(0, count);
+        }
+
+        const output: string[] = [...manual];
+        const fallbackPool = themeDefaults.filter((p) => !output.includes(p));
+        let i = 0;
+        while (output.length < count) {
+            const fallback = fallbackPool.length > 0
+                ? fallbackPool[i % fallbackPool.length]
+                : `貼圖${output.length + 1}`;
+            output.push(fallback);
+            i += 1;
+        }
+        return output;
+    };
+
+    const buildSuggestedBatchPhrases = (count: number): string[] => {
+        const themeDefaults = currentTheme.phrases.map((p) => p.text).filter(Boolean);
+        if (selectedThemePromptId !== CUSTOM_THEME_OPTION_ID) {
+            const output = [...themeDefaults];
+            let i = 0;
+            while (output.length < count) {
+                output.push(themeDefaults[i % Math.max(1, themeDefaults.length)] || `貼圖${output.length + 1}`);
+                i += 1;
+            }
+            return output.slice(0, count);
+        }
+
+        const rawTopic = customThemePrompt.trim();
+        const topic = rawTopic.length > 8 ? rawTopic.slice(0, 8) : rawTopic || '主題';
+        const templates = ['登場', '出發', '集合', '收到', '拜託', '加油', '辛苦', '太棒了', '笑一個', '好耶', '安排', '確認', '馬上', '我來', '交給我', '完成'];
+        return templates.slice(0, count).map((suffix) => `${topic}${suffix}`);
+    };
+
+    const handleAutoFillBatchPhrases = () => {
+        if (batchSize <= 1) return;
+        const suggested = buildSuggestedBatchPhrases(batchSize);
+        setBatchPhrasesText(suggested.join('\n'));
+        setBatchPhraseMode('custom');
+    };
+
+    const getThemePromptText = () =>
+        selectedThemePromptId === CUSTOM_THEME_OPTION_ID
+            ? customThemePrompt.trim()
+            : (THEME_PROMPT_OPTIONS.find(item => item.id === selectedThemePromptId)?.prompt || '');
+
+    const getThemeDefaultPhrases = (count: number): string[] => {
+        const defaults = currentTheme.phrases.map((p) => p.text).filter(Boolean);
+        const output: string[] = [];
+        for (let i = 0; i < count; i++) {
+            output.push(defaults[i % Math.max(1, defaults.length)] || `貼圖${i + 1}`);
+        }
+        return output;
+    };
+
+    const buildBatchPhrasesByMode = (count: number, singlePhrase: string): string[] => {
+        if (batchPhraseMode === 'same') {
+            return Array.from({ length: count }, () => singlePhrase);
+        }
+        if (batchPhraseMode === 'theme') {
+            return getThemeDefaultPhrases(count);
+        }
+        return getBatchPhrasesForCount(count);
+    };
+
+    const handleAiSuggestBatchPhrases = async () => {
+        if (!apiKey) {
+            onNeedApiKey();
+            return;
+        }
+        if (batchSize <= 1) return;
+
+        try {
+            setIsSuggestingPhrases(true);
+            const phrases = await suggestStickerPhrases(apiKey, getThemePromptText(), batchSize);
+            setBatchPhrasesText(phrases.join('\n'));
+            setBatchPhraseMode('custom');
+        } catch (err: any) {
+            if (err.message === "KEY_NOT_FOUND" || err.message?.includes("403") || err.message?.includes("401")) {
+                onNeedApiKey();
+                return;
+            }
+            setErrorMessage(`AI 產生台詞失敗：${err.message || '未知錯誤'}`);
+        } finally {
+            setIsSuggestingPhrases(false);
+        }
+    };
+
     // Update selected style when theme changes
     useEffect(() => {
         setSelectedStyleId(currentTheme.styles[0].id);
         setSelectedPhrase('');
         setCustomPhrase('');
+        setBatchPhrasesText('');
+        setBatchPhraseMode('theme');
     }, [currentTheme]);
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -298,6 +405,10 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
         }
 
         const singlePhrase = (customPhrase || selectedPhrase).trim();
+        if (batchSize > 1 && batchPhraseMode === 'same' && !singlePhrase) {
+            setErrorMessage('同一句模式需要先輸入台詞');
+            return;
+        }
         const conflictMessage =
             batchSize === 1 && selectedThemePromptId !== CUSTOM_THEME_OPTION_ID
                 ? getPhraseConflictMessage(singlePhrase, selectedThemePromptId)
@@ -312,12 +423,11 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
         setProgress({ current: 0, total: batchSize });
 
         const style = currentTheme.styles.find(s => s.id === selectedStyleId) || currentTheme.styles[0];
-        const themePrompt = selectedThemePromptId === CUSTOM_THEME_OPTION_ID
-            ? customThemePrompt.trim()
-            : (THEME_PROMPT_OPTIONS.find(item => item.id === selectedThemePromptId)?.prompt || '');
+        const themePrompt = getThemePromptText();
         const stylePrompt = STYLE_PROMPT_OPTIONS.find(item => item.id === selectedStylePromptId)?.prompt || '';
         const fontPrompt = FONT_STYLE_OPTIONS.find(item => item.id === selectedFontStyleId)?.prompt || '';
         const mergedStylePrompt = [style.promptSnippet, themePrompt, stylePrompt].filter(Boolean).join('\n');
+        const batchPhrases = batchSize > 1 ? buildBatchPhrasesByMode(batchSize, singlePhrase) : [];
 
         try {
             for (let i = 0; i < batchSize; i++) {
@@ -325,8 +435,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                 if (batchSize === 1) {
                     phraseToUse = singlePhrase;
                 } else {
-                    const phrases = currentTheme.phrases;
-                    phraseToUse = i < phrases.length ? phrases[i].text : phrases[i % phrases.length].text;
+                    phraseToUse = batchPhrases[i] || '';
                 }
 
                 const { imageUrl: resultImageUrl, prompt: usedPrompt } = await generateSticker(
@@ -337,7 +446,9 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                     mergedStylePrompt,
                     includeText,
                     fontPrompt,
-                    priorityMode
+                    priorityMode,
+                    characterLock,
+                    variationStrength
                 );
 
                 let finalImageUrl = resultImageUrl;
@@ -346,12 +457,15 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                     finalImageUrl = await smartRemoveBackground(resultImageUrl);
                 }
 
+                const qcIssues = await analyzeStickerQuality(finalImageUrl);
+
                 const semanticLabel = buildSemanticLabel(phraseToUse, i, style.id);
                 const newSticker: Sticker = {
                     id: `${Date.now()}-${i}`,
                     imageUrl: finalImageUrl,
                     phrase: phraseToUse || semanticLabel,
                     semanticLabel,
+                    qcIssues,
                     timestamp: Date.now(),
                     description: usedPrompt // Save the prompt!
                 };
@@ -394,6 +508,67 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
         }
     };
 
+    const handleRegenerateSticker = async (stickerId: string) => {
+        if (!apiKey) {
+            onNeedApiKey();
+            return;
+        }
+        if (!image) {
+            setErrorMessage('請先上傳圖片');
+            return;
+        }
+
+        const target = stickers.find((s) => s.id === stickerId);
+        if (!target) return;
+
+        setIsGenerating(true);
+        setErrorMessage(null);
+
+        try {
+            const style = currentTheme.styles.find(s => s.id === selectedStyleId) || currentTheme.styles[0];
+            const themePrompt = getThemePromptText();
+            const stylePrompt = STYLE_PROMPT_OPTIONS.find(item => item.id === selectedStylePromptId)?.prompt || '';
+            const fontPrompt = FONT_STYLE_OPTIONS.find(item => item.id === selectedFontStyleId)?.prompt || '';
+            const mergedStylePrompt = [style.promptSnippet, themePrompt, stylePrompt].filter(Boolean).join('\n');
+
+            const phraseToUse = (target.phrase || target.semanticLabel || '').trim();
+            const { imageUrl: resultImageUrl, prompt: usedPrompt } = await generateSticker(
+                apiKey,
+                image,
+                phraseToUse,
+                STICKER_MODEL,
+                mergedStylePrompt,
+                includeText,
+                fontPrompt,
+                priorityMode,
+                characterLock,
+                variationStrength
+            );
+
+            const finalImageUrl = autoRemoveBg ? await smartRemoveBackground(resultImageUrl) : resultImageUrl;
+            const qcIssues = await analyzeStickerQuality(finalImageUrl);
+
+            setStickers((prev) => prev.map((s) => {
+                if (s.id !== stickerId) return s;
+                return {
+                    ...s,
+                    imageUrl: finalImageUrl,
+                    description: usedPrompt,
+                    qcIssues,
+                    timestamp: Date.now(),
+                };
+            }));
+        } catch (err: any) {
+            if (err.message === "KEY_NOT_FOUND" || err.message?.includes("403") || err.message?.includes("401")) {
+                onNeedApiKey();
+                return;
+            }
+            setErrorMessage(`重抽失敗：${err.message || '未知錯誤'}`);
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     const handleDownloadImage = async (imageUrl: string, phrase: string, style: string, semanticLabel?: string) => {
         const nameLabel = sanitizeFilename(semanticLabel || phrase || style || 'sticker');
         await shareImage(imageUrl, {
@@ -405,6 +580,59 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
             },
             title: '風格貼圖',
             text: `${style} - ${semanticLabel || phrase}`
+        });
+    };
+
+    const analyzeStickerQuality = (base64: string): Promise<string[]> => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                if (!ctx) {
+                    resolve([]);
+                    return;
+                }
+                ctx.drawImage(img, 0, 0);
+                const data = ctx.getImageData(0, 0, img.width, img.height).data;
+
+                let alphaPixels = 0;
+                let minX = img.width;
+                let minY = img.height;
+                let maxX = -1;
+                let maxY = -1;
+
+                for (let y = 0; y < img.height; y++) {
+                    for (let x = 0; x < img.width; x++) {
+                        const idx = (y * img.width + x) * 4 + 3;
+                        if (data[idx] > 16) {
+                            alphaPixels += 1;
+                            if (x < minX) minX = x;
+                            if (y < minY) minY = y;
+                            if (x > maxX) maxX = x;
+                            if (y > maxY) maxY = y;
+                        }
+                    }
+                }
+
+                const issues: string[] = [];
+                const coverage = alphaPixels / (img.width * img.height);
+                if (coverage < 0.08) issues.push('主體偏小');
+                if (coverage > 0.92) issues.push('主體過滿');
+
+                if (maxX >= 0 && maxY >= 0) {
+                    const edgePadding = 3;
+                    if (minX <= edgePadding || minY <= edgePadding || maxX >= img.width - 1 - edgePadding || maxY >= img.height - 1 - edgePadding) {
+                        issues.push('主體貼近邊界');
+                    }
+                }
+
+                resolve(issues);
+            };
+            img.onerror = () => resolve([]);
+            img.src = base64;
         });
     };
 
@@ -590,6 +818,78 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                 <p>2. 沒填台詞 + 包含文字開啟：依貼圖主題自動產生短台詞。</p>
                                 <p>3. 自訂主題：自動台詞會配合你的自訂主題內容。</p>
                             </div>
+                            {batchSize > 1 && (
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">批次台詞模式</label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setBatchPhraseMode('same')}
+                                            className={`py-2 rounded-xl font-bold text-[10px] transition-all border ${batchPhraseMode === 'same' ? 'bg-primary text-white border-primary shadow-md' : 'bg-white/40 border-cream-dark text-bronze-light hover:bg-white'}`}
+                                        >
+                                            全部同句
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setBatchPhraseMode('theme')}
+                                            className={`py-2 rounded-xl font-bold text-[10px] transition-all border ${batchPhraseMode === 'theme' ? 'bg-primary text-white border-primary shadow-md' : 'bg-white/40 border-cream-dark text-bronze-light hover:bg-white'}`}
+                                        >
+                                            主題自動
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setBatchPhraseMode('custom')}
+                                            className={`py-2 rounded-xl font-bold text-[10px] transition-all border ${batchPhraseMode === 'custom' ? 'bg-primary text-white border-primary shadow-md' : 'bg-white/40 border-cream-dark text-bronze-light hover:bg-white'}`}
+                                        >
+                                            自訂清單
+                                        </button>
+                                    </div>
+                                    {batchPhraseMode === 'custom' && (
+                                        <>
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">批次台詞清單</label>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAutoFillBatchPhrases}
+                                                        className="px-3 py-1.5 rounded-lg bg-white border border-cream-dark text-[10px] font-bold text-bronze-text hover:bg-cream-light transition-colors"
+                                                    >
+                                                        一鍵補齊台詞
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAiSuggestBatchPhrases}
+                                                        disabled={isSuggestingPhrases}
+                                                        className="px-3 py-1.5 rounded-lg bg-white border border-cream-dark text-[10px] font-bold text-bronze-text hover:bg-cream-light transition-colors disabled:opacity-60"
+                                                    >
+                                                        {isSuggestingPhrases ? 'AI 生成中...' : 'AI 幫想台詞'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <textarea
+                                                value={batchPhrasesText}
+                                                onChange={(e) => setBatchPhrasesText(e.target.value)}
+                                                placeholder={`每行一個台詞，建議輸入 ${batchSize} 行`}
+                                                rows={Math.min(8, Math.max(4, batchSize))}
+                                                className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-xl font-bold text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light resize-y"
+                                            />
+                                        </>
+                                    )}
+                                    {batchPhraseMode === 'theme' && (
+                                        <div className="flex items-center justify-between rounded-xl border border-cream-dark bg-cream-light/60 px-3 py-2">
+                                            <span className="text-[10px] font-bold text-bronze-light">依貼圖主題自動分配台詞</span>
+                                            <button
+                                                type="button"
+                                                onClick={handleAiSuggestBatchPhrases}
+                                                disabled={isSuggestingPhrases}
+                                                className="px-3 py-1 rounded-lg bg-white border border-cream-dark text-[10px] font-bold text-bronze-text hover:bg-cream-light transition-colors disabled:opacity-60"
+                                            >
+                                                {isSuggestingPhrases ? 'AI 生成中...' : 'AI 幫想台詞'}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                             {phraseConflictMessage && (
                                 <p className="text-[10px] text-amber-700 flex items-center gap-1">
                                     <AlertTriangle size={10} /> {phraseConflictMessage}
@@ -639,15 +939,42 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                             key={size}
                                             onClick={() => { setBatchSize(size); }}
                                             className={`flex-1 py-2 rounded-xl font-bold text-xs transition-all border ${batchSize === size ? 'bg-primary text-white border-primary shadow-md' : 'bg-white/40 border-cream-dark text-bronze-light hover:bg-white'}`}
-                                            disabled={size > 1 && !!(selectedPhrase || customPhrase)}
                                         >
                                             {size}
                                         </button>
                                     ))}
                                 </div>
-                                {(selectedPhrase || customPhrase) && (
-                                    <p className="text-[10px] text-bronze-light flex items-center gap-1"><AlertTriangle size={10} /> {t('generator.settings.batchBatchWarning')}</p>
-                                )}
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">角色一致性鎖定</label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setCharacterLock(!characterLock)}
+                                        className={`w-10 h-6 rounded-full relative transition-colors ${characterLock ? 'bg-primary' : 'bg-cream-dark'}`}
+                                        aria-label="Toggle character lock"
+                                    >
+                                        <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${characterLock ? 'right-1' : 'left-1'}`} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">變化度</label>
+                                    <span className="text-xs font-bold text-bronze-text">{variationStrength}</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min={1}
+                                    max={5}
+                                    step={1}
+                                    value={variationStrength}
+                                    onChange={(e) => setVariationStrength(Number(e.target.value))}
+                                    className="w-full accent-primary"
+                                />
+                                <p className="text-[10px] text-bronze-light">1-2 穩定一致、3 平衡、4-5 變化更大。</p>
                             </div>
 
                             {/* Toggles */}
@@ -705,13 +1032,27 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                             <div key={sticker.id} className="bg-white/40 backdrop-blur-md border border-cream-dark p-3 rounded-3xl group hover:shadow-xl transition-all animate-in zoom-in-95 duration-300 hover:-translate-y-1">
                                 <div className="aspect-square rounded-2xl bg-cream-light/50 overflow-hidden relative border border-cream-dark/50" style={{ backgroundImage: 'radial-gradient(#d6d3d1 1px, transparent 1px)', backgroundSize: '8px 8px' }}>
                                     <img src={sticker.imageUrl} alt={sticker.phrase} className="w-full h-full object-contain p-2" />
+                                    {sticker.qcIssues && sticker.qcIssues.length > 0 && (
+                                        <div
+                                            className="absolute top-2 left-2 z-10 px-2 py-1 rounded-lg bg-amber-100 text-amber-700 text-[10px] font-bold border border-amber-300"
+                                            title={sticker.qcIssues.join('、')}
+                                        >
+                                            QC 警示
+                                        </div>
+                                    )}
                                     <div className="absolute inset-0 bg-bronze-text/10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 items-center justify-center backdrop-blur-[2px]">
                                         <button onClick={() => setPreviewImage(sticker.imageUrl)} className="bg-white p-2.5 rounded-full text-bronze-text shadow-lg hover:scale-110 transition-transform" title={t('generator.action.preview')}><Eye size={18} /></button>
+                                        <button onClick={() => handleRegenerateSticker(sticker.id)} className="bg-white p-2.5 rounded-full text-purple-600 shadow-lg hover:scale-110 transition-transform" title="重抽這張"><Wand2 size={18} /></button>
                                         <button onClick={() => handleDownloadImage(sticker.imageUrl, sticker.phrase, currentTheme.name, sticker.semanticLabel)} className="bg-white p-2.5 rounded-full text-primary shadow-lg hover:scale-110 transition-transform active:scale-95" title={t('generator.action.download')}><Download size={18} strokeWidth={2.5} /></button>
                                         <button onClick={() => handleIndividualBgRemoval(sticker.id)} className="bg-white p-2.5 rounded-full text-secondary shadow-lg hover:scale-110 transition-transform" title={t('generator.action.removeBg')}><Scissors size={18} /></button>
                                     </div>
                                 </div>
                                 <div className="mt-3 text-center font-black text-bronze-text tracking-wider text-xs truncate opacity-80 px-2">{sticker.semanticLabel || sticker.phrase}</div>
+                                {sticker.qcIssues && sticker.qcIssues.length > 0 && (
+                                    <div className="mt-1 text-[10px] text-amber-700 text-center truncate" title={sticker.qcIssues.join('、')}>
+                                        {sticker.qcIssues.join('、')}
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>

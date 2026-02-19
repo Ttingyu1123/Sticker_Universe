@@ -9,7 +9,9 @@ export async function generateSticker(
   styleSnippet: string,
   includeText: boolean,
   fontPrompt: string = '',
-  priorityMode: 'style' | 'semantic' = 'style'
+  priorityMode: 'style' | 'semantic' = 'style',
+  characterLock: boolean = true,
+  variationStrength: number = 3
 ): Promise<{ imageUrl: string; prompt: string }> {
   const ai = new GoogleGenAI({ apiKey });
   const normalizedPhrase = (phrase || '').trim();
@@ -22,6 +24,21 @@ export async function generateSticker(
     : `PRIORITY MODE: STYLE FIRST
        - Prioritize style fidelity, rendering quality, and visual consistency first.
        - Preserve readable expression and semantic clarity as secondary goals.`;
+
+  const characterLockInstruction = characterLock
+    ? `CHARACTER LOCK: ON
+       - Keep identity highly consistent with the reference image (face shape, eyes, nose, mouth, hairline, hair color).
+       - Avoid changing identity-defining attributes between outputs.`
+    : `CHARACTER LOCK: OFF
+       - Keep broad resemblance to the reference image, but allow looser character reinterpretation.`;
+
+  const clampedVariation = Math.max(1, Math.min(5, variationStrength));
+  const variationInstruction =
+    clampedVariation <= 2
+      ? 'VARIATION LEVEL: LOW. Keep pose, composition, and details relatively stable.'
+      : clampedVariation === 3
+        ? 'VARIATION LEVEL: MEDIUM. Balance consistency and expressive changes.'
+        : 'VARIATION LEVEL: HIGH. Allow larger pose/expression/detail variation while preserving character identity.';
 
   const textInstruction = includeText
     ? `TYPOGRAPHY:
@@ -43,6 +60,8 @@ export async function generateSticker(
     STYLE & CHARACTER:
     - ${styleSnippet}
     - ${priorityInstruction}
+    - ${characterLockInstruction}
+    - ${variationInstruction}
     - FACIAL IDENTITY: Preserve the character's facial structure and features from the original photo.
     - EXPRESSION & POSE: Exaggerate the expression to match "${phraseForPrompt}".
     
@@ -258,6 +277,63 @@ export async function generateCaptions(
 
   } catch (error) {
     console.error("Error generating captions:", error);
+    throw error;
+  }
+}
+
+export async function suggestStickerPhrases(
+  apiKey: string,
+  themePrompt: string,
+  count: number,
+  model: string = "gemini-2.0-flash"
+): Promise<string[]> {
+  const ai = new GoogleGenAI({ apiKey });
+  const safeCount = Math.max(1, Math.min(32, count));
+
+  const prompt = `
+You are helping create sticker phrases.
+Generate ${safeCount} short Traditional Chinese phrases for stickers.
+
+Theme context:
+${themePrompt || 'general daily expression stickers'}
+
+Rules:
+- Traditional Chinese only
+- 2 to 8 characters each
+- avoid duplicates
+- keep phrases practical for chat use
+- output plain lines only, one phrase per line, no numbering
+`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model,
+      contents: [{ parts: [{ text: prompt }] }],
+    });
+
+    const text = response.candidates?.[0]?.content?.parts?.map((p: any) => p.text || '').join('\n') || '';
+    const lines = text
+      .split('\n')
+      .map((line) => line.replace(/^\s*\d+[\.\)\-]\s*/, '').trim())
+      .filter(Boolean)
+      .map((line) => line.slice(0, 12));
+
+    const unique: string[] = [];
+    for (const item of lines) {
+      if (!unique.includes(item)) unique.push(item);
+      if (unique.length >= safeCount) break;
+    }
+
+    while (unique.length < safeCount) {
+      unique.push(`貼圖${unique.length + 1}`);
+    }
+
+    return unique;
+  } catch (error: any) {
+    console.error("Error suggesting sticker phrases:", error);
+    if (error.message?.includes("Requested entity was not found")) {
+      throw new Error("KEY_NOT_FOUND");
+    }
     throw error;
   }
 }
