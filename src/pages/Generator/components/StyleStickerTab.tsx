@@ -116,6 +116,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
     const [selectedFontStyleId, setSelectedFontStyleId] = useState<string>(FONT_STYLE_OPTIONS[0].id);
     const [priorityMode, setPriorityMode] = useState<PriorityMode>('style');
     const [characterLock, setCharacterLock] = useState<boolean>(true);
+    const [preserveComposition, setPreserveComposition] = useState<boolean>(false);
     const [variationStrength, setVariationStrength] = useState<number>(3);
     const [includeText, setIncludeText] = useState<boolean>(false);
     const [autoRemoveBg, setAutoRemoveBg] = useState<boolean>(true);
@@ -448,7 +449,8 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                     fontPrompt,
                     priorityMode,
                     characterLock,
-                    variationStrength
+                    variationStrength,
+                    preserveComposition
                 );
 
                 let finalImageUrl = resultImageUrl;
@@ -542,7 +544,8 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                 fontPrompt,
                 priorityMode,
                 characterLock,
-                variationStrength
+                variationStrength,
+                preserveComposition
             );
 
             const finalImageUrl = autoRemoveBg ? await smartRemoveBackground(resultImageUrl) : resultImageUrl;
@@ -958,6 +961,21 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                         <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${characterLock ? 'right-1' : 'left-1'}`} />
                                     </button>
                                 </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">保留姿勢/構圖</label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPreserveComposition(!preserveComposition)}
+                                        className={`w-10 h-6 rounded-full relative transition-colors ${preserveComposition ? 'bg-primary' : 'bg-cream-dark'}`}
+                                        aria-label="Toggle preserve composition"
+                                    >
+                                        <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${preserveComposition ? 'right-1' : 'left-1'}`} />
+                                    </button>
+                                </div>
+                                <p className="text-[10px] text-bronze-light">開啟後會盡量保留原圖姿勢與構圖，只改風格與細節。</p>
                             </div>
 
                             <div className="space-y-2">

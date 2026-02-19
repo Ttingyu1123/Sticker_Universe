@@ -18,6 +18,8 @@ const ImageResizerTab: React.FC = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [originalFileSize, setOriginalFileSize] = useState<number>(0);
     const [resizedFileSize, setResizedFileSize] = useState<number>(0);
+    const [targetFileSizeMB, setTargetFileSizeMB] = useState<string>('');
+    const [estimatedScaleHint, setEstimatedScaleHint] = useState<string>('');
 
     // Upscale State
     const [isUpscaling, setIsUpscaling] = useState(false);
@@ -44,6 +46,7 @@ const ImageResizerTab: React.FC = () => {
                     setScalePercent(100);
                     setResizedImage(null); // Reset previous result
                     setResizedFileSize(0);
+                    setEstimatedScaleHint('');
                 };
                 img.src = event.target?.result as string;
             };
@@ -67,6 +70,7 @@ const ImageResizerTab: React.FC = () => {
                     setScalePercent(100);
                     setResizedImage(null); // Reset previous result
                     setResizedFileSize(0);
+                    setEstimatedScaleHint('');
                 };
                 img.src = event.target?.result as string;
             };
@@ -84,6 +88,7 @@ const ImageResizerTab: React.FC = () => {
         setScalePercent(100);
         setOriginalFileSize(0);
         setResizedFileSize(0);
+        setEstimatedScaleHint('');
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -129,6 +134,33 @@ const ImageResizerTab: React.FC = () => {
         if (originalDimensions.height > 0) {
             setScalePercent(Math.round((h / originalDimensions.height) * 100));
         }
+    };
+
+    const handleEstimateScaleByFileSize = () => {
+        if (!originalImage || originalFileSize <= 0) {
+            setEstimatedScaleHint('請先上傳圖片');
+            return;
+        }
+
+        const targetMb = Number(targetFileSizeMB);
+        if (!Number.isFinite(targetMb) || targetMb <= 0) {
+            setEstimatedScaleHint('請輸入有效的目標檔案大小（MB）');
+            return;
+        }
+
+        const targetBytes = targetMb * 1024 * 1024;
+        const ratio = targetBytes / originalFileSize;
+
+        if (ratio >= 1) {
+            setEstimatedScaleHint('原檔已小於目標大小，不需縮小');
+            return;
+        }
+
+        const estimatedPercent = Math.max(5, Math.min(100, Math.round(Math.sqrt(ratio) * 100)));
+        handleScaleChange(estimatedPercent);
+        const estWidth = Math.round(originalDimensions.width * (estimatedPercent / 100));
+        const estHeight = Math.round(originalDimensions.height * (estimatedPercent / 100));
+        setEstimatedScaleHint(`估算縮放約 ${estimatedPercent}%（${estWidth} x ${estHeight}）`);
     };
 
     // Process Resize
@@ -507,6 +539,33 @@ const ImageResizerTab: React.FC = () => {
                                                 aria-label={t('editor.resize.height') || 'Height'}
                                             />
                                         </div>
+                                    </div>
+
+                                    <div className="space-y-2 pt-2">
+                                        <label className="text-[10px] font-bold text-bronze-light uppercase tracking-wider">目標檔案大小（MB）</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="number"
+                                                min="0.01"
+                                                step="0.01"
+                                                value={targetFileSizeMB}
+                                                onChange={(e) => setTargetFileSizeMB(e.target.value)}
+                                                placeholder="例如 1"
+                                                className="flex-1 bg-cream-light border border-cream-dark rounded-lg px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-bronze-text"
+                                                title="Target file size in MB"
+                                                aria-label="Target file size in MB"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={handleEstimateScaleByFileSize}
+                                                className="px-3 py-2 bg-white border border-cream-dark rounded-lg text-xs font-bold text-bronze-light hover:text-primary hover:bg-cream-light transition-all"
+                                            >
+                                                AI估算
+                                            </button>
+                                        </div>
+                                        {estimatedScaleHint && (
+                                            <p className="text-[10px] text-bronze-light">{estimatedScaleHint}</p>
+                                        )}
                                     </div>
 
                                     {/* Resize Mode Selection */}

@@ -11,7 +11,8 @@ export async function generateSticker(
   fontPrompt: string = '',
   priorityMode: 'style' | 'semantic' = 'style',
   characterLock: boolean = true,
-  variationStrength: number = 3
+  variationStrength: number = 3,
+  preserveComposition: boolean = false
 ): Promise<{ imageUrl: string; prompt: string }> {
   const ai = new GoogleGenAI({ apiKey });
   const normalizedPhrase = (phrase || '').trim();
@@ -40,6 +41,13 @@ export async function generateSticker(
         ? 'VARIATION LEVEL: MEDIUM. Balance consistency and expressive changes.'
         : 'VARIATION LEVEL: HIGH. Allow larger pose/expression/detail variation while preserving character identity.';
 
+  const compositionInstruction = preserveComposition
+    ? `COMPOSITION LOCK: ON
+       - Keep pose, camera angle, framing, and subject placement close to the original reference.
+       - Prefer detail/style updates over changing the overall composition.`
+    : `COMPOSITION LOCK: OFF
+       - You may freely choose pose, camera angle, framing, and subject placement based on the target style.`;
+
   const textInstruction = includeText
     ? `TYPOGRAPHY:
        - ${normalizedPhrase
@@ -62,6 +70,7 @@ export async function generateSticker(
     - ${priorityInstruction}
     - ${characterLockInstruction}
     - ${variationInstruction}
+    - ${compositionInstruction}
     - FACIAL IDENTITY: Preserve the character's facial structure and features from the original photo.
     - EXPRESSION & POSE: Exaggerate the expression to match "${phraseForPrompt}".
     
