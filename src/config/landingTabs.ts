@@ -64,6 +64,15 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
                 featuresKey: 'landing.tabs.mangaMaster.features'
             },
             {
+                id: 'character-create',
+                icon: 'Users',
+                path: '/generator',
+                tab: 'character-create',
+                titleKey: 'landing.tabs.characterCreate.title',
+                descKey: 'landing.tabs.characterCreate.desc',
+                featuresKey: 'landing.tabs.characterCreate.features'
+            },
+            {
                 id: 'cinematic-poster',
                 icon: 'Film',
                 path: '/generator',

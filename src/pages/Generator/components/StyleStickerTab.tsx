@@ -363,7 +363,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                     <h3 className="text-sm font-black text-bronze tracking-tight">{t('generator.upload.dragDrop')}</h3>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); setShowGallery(true); }}
-                                        className="mt-3 flex items-center gap-2 px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-secondary rounded-xl text-sm font-bold transition-colors"
+                                        className="mt-3 flex items-center gap-2 px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-bronze-text rounded-xl text-sm font-bold transition-colors"
                                     >
                                         <FolderHeart size={16} />
                                         {t('printSheet.fromGallery')}

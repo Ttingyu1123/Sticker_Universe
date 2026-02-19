@@ -38,6 +38,25 @@ interface PortraitMasterTabProps {
     onNeedApiKey?: () => void;
 }
 
+const VARIATION_HINT_POOL = {
+    outfit: ['layered fabrics', 'mixed material texture', 'ornamental accessories', 'alternative outfit details', 'secondary costume accents'],
+    scene: ['different background depth', 'new environmental props', 'atmospheric foreground elements', 'alternate weather mood', 'cinematic framing shift'],
+    lighting: ['soft rim light', 'dramatic side light', 'gentle haze lighting', 'warm-cool contrast light', 'high-key portrait light'],
+    camera: ['slightly different lens perspective', 'dynamic composition angle', 'editorial close framing', 'storytelling medium shot', 'cinematic depth of field'],
+    micro: ['hair styling variation', 'fabric pattern variation', 'jewelry variation', 'makeup detail variation', 'pose nuance variation'],
+};
+
+const pickRandom = (list: string[], count: number) => {
+    const copy = [...list];
+    const picks: string[] = [];
+    for (let i = 0; i < count && copy.length > 0; i += 1) {
+        const idx = Math.floor(Math.random() * copy.length);
+        picks.push(copy[idx]);
+        copy.splice(idx, 1);
+    }
+    return picks;
+};
+
 const PORTRAIT_STYLES: PortraitStyle[] = [
     {
         id: 'new_year',
@@ -399,6 +418,10 @@ const PortraitMasterTab: React.FC<PortraitMasterTabProps> = ({ apiKey, onSuccess
     const [selectedRatio, setSelectedRatio] = useState('3:4');
     const [manualPrompt, setManualPrompt] = useState<string | null>(null);
     const [isPromptManuallyEdited, setIsPromptManuallyEdited] = useState(false);
+    const [variationLevel, setVariationLevel] = useState(55);
+    const [variationSeed, setVariationSeed] = useState(Date.now());
+    const [faceRefStrength, setFaceRefStrength] = useState(72);
+    const [useFaceCropReference, setUseFaceCropReference] = useState(false);
 
     // Refs
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -431,6 +454,85 @@ Technical Requirements:
 ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
         `.trim();
     }, [selectedStyleId, selectedSubStyleId, selectedRatio, customPrompt]);
+
+    const variationHint = useMemo(() => {
+        if (variationLevel <= 0) return '';
+        const count = variationLevel >= 70 ? 4 : variationLevel >= 35 ? 3 : 2;
+        const chunks = [
+            ...pickRandom(VARIATION_HINT_POOL.outfit, 1),
+            ...pickRandom(VARIATION_HINT_POOL.scene, 1),
+            ...pickRandom(VARIATION_HINT_POOL.lighting, 1),
+            ...pickRandom(VARIATION_HINT_POOL.camera, 1),
+            ...pickRandom(VARIATION_HINT_POOL.micro, 1),
+        ].slice(0, count);
+        return `Variation level ${variationLevel}/100. Keep identity consistent, but introduce: ${chunks.join(', ')}.`;
+    }, [variationLevel, variationSeed]);
+
+    const faceReferenceHint = useMemo(() => {
+        if (faceRefStrength >= 80) {
+            return 'Keep facial identity highly consistent (eyes, nose, mouth, face shape), but adapt hairstyle and clothing to the selected style. Do not copy original outfit literally.';
+        }
+        if (faceRefStrength >= 50) {
+            return 'Keep recognizable facial identity while allowing moderate reinterpretation of hairstyle, hair texture, and makeup to match the target era/style.';
+        }
+        return 'Use the uploaded face as a loose identity reference only. Prioritize target style coherence for hairstyle, makeup, and costume. Do not transfer source hairstyle directly.';
+    }, [faceRefStrength]);
+
+    const createFaceCropReference = async (sourceDataUrl: string): Promise<string> => {
+        const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+            const el = new Image();
+            el.onload = () => resolve(el);
+            el.onerror = reject;
+            el.src = sourceDataUrl;
+        });
+
+        let crop = {
+            x: img.width * 0.2,
+            y: img.height * 0.08,
+            w: img.width * 0.6,
+            h: img.height * 0.68,
+        };
+
+        try {
+            const FaceDetectorCtor = (window as any).FaceDetector;
+            if (FaceDetectorCtor && typeof createImageBitmap === 'function') {
+                const detector = new FaceDetectorCtor({ fastMode: true, maxDetectedFaces: 1 });
+                const bitmap = await createImageBitmap(img);
+                const faces = await detector.detect(bitmap);
+                if (typeof (bitmap as any).close === 'function') {
+                    (bitmap as any).close();
+                }
+
+                if (Array.isArray(faces) && faces.length > 0) {
+                    const box = faces[0].boundingBox;
+                    const padX = box.width * 0.28;
+                    const padY = box.height * 0.4;
+                    crop = {
+                        x: box.x - padX,
+                        y: box.y - padY,
+                        w: box.width + padX * 2,
+                        h: box.height + padY * 1.9,
+                    };
+                }
+            }
+        } catch {
+            // Fallback to heuristic crop when FaceDetector is unavailable.
+        }
+
+        const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+        const x = clamp(crop.x, 0, img.width - 1);
+        const y = clamp(crop.y, 0, img.height - 1);
+        const w = clamp(crop.w, 1, img.width - x);
+        const h = clamp(crop.h, 1, img.height - y);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(w);
+        canvas.height = Math.round(h);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return sourceDataUrl;
+        ctx.drawImage(img, x, y, w, h, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL('image/jpeg', 0.95);
+    };
 
     // Handle manual prompt edits
     const handlePromptChange = (val: string) => {
@@ -515,11 +617,19 @@ ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
 
         setIsGenerating(true);
         try {
-            const finalPrompt = manualPrompt ?? autoPrompt;
+            const basePrompt = manualPrompt ?? autoPrompt;
+            const faceModeGuidance = useFaceCropReference
+                ? 'Face-crop reference mode is ON. The reference image is face-only. Rebuild hairstyle and head accessories based on target style, not source hairstyle.'
+                : 'Face-crop reference mode is OFF. You may use broader source context, but prioritize target style coherence for hairstyle and outfit.';
+            const identityGuidance = `Face reference strength: ${faceRefStrength}/100.\n${faceReferenceHint}\n${faceModeGuidance}`;
+            const finalPrompt = `${basePrompt}\n\nIdentity Guidance:\n${identityGuidance}${variationHint ? `\n\nVariation Guidance:\n${variationHint}` : ''}`;
 
             const ai = new GoogleGenAI({ apiKey });
-            const base64Data = croppedImage.split(',')[1];
-            const mimeType = croppedImage.split(';')[0].split(':')[1];
+            const referenceImage = useFaceCropReference
+                ? await createFaceCropReference(croppedImage)
+                : croppedImage;
+            const base64Data = referenceImage.split(',')[1];
+            const mimeType = referenceImage.split(';')[0].split(':')[1];
 
             const result = await ai.models.generateContent({
                 model: "gemini-3-pro-image-preview",
@@ -595,28 +705,34 @@ ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
                                 </div>
                                 <button
                                     onClick={() => setShowGallery(true)}
-                                    className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-secondary/10 hover:bg-secondary/20 text-secondary rounded-xl text-sm font-bold transition-colors"
+                                    className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-secondary/10 hover:bg-secondary/20 text-bronze-text rounded-xl text-sm font-bold transition-colors"
                                 >
                                     <FolderHeart size={18} />
                                     {t('generator.action.fromGallery') || "從作品集選取"}
                                 </button>
                             </>
                         ) : (
-                            <div className="relative group">
+                            <div className="relative group space-y-3">
                                 <div className="rounded-3xl overflow-hidden border border-cream-dark/50 shadow-md">
                                     <img src={croppedImage} alt="Source" className="w-full h-auto object-cover max-h-[300px]" />
                                 </div>
                                 <button
                                     onClick={() => { setIsCropping(true); setImage(croppedImage); }}
-                                    className="absolute top-2 right-2 p-2 bg-white text-bronze-text rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
+                                    className="absolute top-2 right-2 p-2 bg-white text-bronze-text rounded-full shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:scale-110"
                                 >
                                     <Scissors size={14} />
                                 </button>
                                 <button
                                     onClick={() => { setCroppedImage(null); setImage(null); }}
-                                    className="absolute top-2 right-12 p-2 bg-white text-red-500 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
+                                    className="absolute top-2 right-12 p-2 bg-white text-red-500 rounded-full shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:scale-110"
                                 >
                                     <Trash2 size={14} />
+                                </button>
+                                <button
+                                    onClick={() => { setCroppedImage(null); setImage(null); }}
+                                    className="w-full px-4 py-2.5 rounded-xl border border-red-200 bg-red-50 text-red-600 text-sm font-bold hover:bg-red-100 transition-colors"
+                                >
+                                    {t('common.reset')}
                                 </button>
                             </div>
                         )}
@@ -701,6 +817,63 @@ ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
                                 placeholder={t('generator.portrait.settings.custom_placeholder')}
                                 className="w-full px-4 py-2 rounded-xl border border-cream-dark bg-white/50 text-sm font-bold text-bronze-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all placeholder:text-bronze-light/50"
                             />
+                        </div>
+
+                        <div className="bg-white/60 border border-cream-dark/60 rounded-xl p-3 space-y-2">
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs font-bold text-bronze-light">{t('generator.portrait.settings.variationLevel', { defaultValue: 'Variation level' })}</label>
+                                <button
+                                    type="button"
+                                    onClick={() => setVariationSeed(Date.now())}
+                                    className="text-[11px] font-bold text-secondary hover:text-secondary/80"
+                                >
+                                    {t('generator.portrait.settings.variationReseed', { defaultValue: 'Reseed details' })}
+                                </button>
+                            </div>
+                            <input
+                                type="range"
+                                min={0}
+                                max={100}
+                                value={variationLevel}
+                                onChange={(e) => setVariationLevel(Number(e.target.value))}
+                                className="w-full accent-secondary"
+                            />
+                            <p className="text-[11px] text-bronze-light">
+                                {t('generator.portrait.settings.variationHint', { defaultValue: 'Higher value adds more outfit/scene/lighting variation while preserving identity.' })}
+                            </p>
+                        </div>
+                        <div className="bg-white/60 border border-cream-dark/60 rounded-xl p-3 space-y-2">
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs font-bold text-bronze-light">{t('generator.portrait.settings.faceCropMode', { defaultValue: 'Face-crop reference mode' })}</label>
+                                <button
+                                    type="button"
+                                    onClick={() => setUseFaceCropReference((v) => !v)}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${useFaceCropReference ? 'bg-secondary' : 'bg-cream-dark'}`}
+                                    aria-pressed={useFaceCropReference}
+                                >
+                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${useFaceCropReference ? 'translate-x-6' : 'translate-x-1'}`} />
+                                </button>
+                            </div>
+                            <p className="text-[11px] text-bronze-light">
+                                {t('generator.portrait.settings.faceCropModeHint', { defaultValue: 'When ON, only a face-focused crop is used as identity reference to reduce source hairstyle carryover.' })}
+                            </p>
+                        </div>
+                        <div className="bg-white/60 border border-cream-dark/60 rounded-xl p-3 space-y-2">
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs font-bold text-bronze-light">{t('generator.portrait.settings.faceReferenceStrength', { defaultValue: 'Face reference strength' })}</label>
+                                <span className="text-[11px] font-bold text-secondary">{faceRefStrength}</span>
+                            </div>
+                            <input
+                                type="range"
+                                min={30}
+                                max={95}
+                                value={faceRefStrength}
+                                onChange={(e) => setFaceRefStrength(Number(e.target.value))}
+                                className="w-full accent-secondary"
+                            />
+                            <p className="text-[11px] text-bronze-light">
+                                {t('generator.portrait.settings.faceReferenceHint', { defaultValue: 'Suggested 60-78. Lower values reduce hairstyle carryover; higher values keep facial identity closer.' })}
+                            </p>
                         </div>
                         {/* Prompt Preview Editor */}
                         <div className="bg-bronze-light/5 p-4 rounded-3xl border border-bronze/10 space-y-3">

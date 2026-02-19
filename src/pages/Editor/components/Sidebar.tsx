@@ -602,7 +602,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
           <button
             onClick={onAddFromGallery}
-            className="col-span-2 flex items-center justify-center gap-2 py-3 bg-secondary/10 border border-secondary/20 hover:bg-white hover:border-secondary/50 hover:text-secondary rounded-xl transition-all font-bold text-sm text-secondary shadow-sm"
+          className="col-span-2 flex items-center justify-center gap-2 py-3 bg-secondary/10 border border-secondary/20 hover:bg-white hover:border-secondary/50 hover:text-bronze rounded-xl transition-all font-bold text-sm text-bronze-text shadow-sm"
           >
             <ImageIcon size={16} />
             <span>{t('editor.sidebar.fromGallery') || 'From Gallery'}</span>

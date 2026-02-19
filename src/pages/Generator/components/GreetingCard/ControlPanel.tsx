@@ -95,7 +95,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = (props) => {
                 </div>
                 <button
                     onClick={props.onShowGallery}
-                    className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-secondary rounded-xl text-sm font-bold transition-colors"
+                    className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-bronze-text rounded-xl text-sm font-bold transition-colors"
                 >
                     <FolderHeart size={16} />
                     從作品集選取

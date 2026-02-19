@@ -331,6 +331,15 @@
           "專業效果"
         ]
       },
+      "characterCreate": {
+        "title": "角色創建",
+        "desc": "快速建立完整角色提示詞",
+        "features": [
+          "標籤庫",
+          "提示詞優化",
+          "故事靈感"
+        ]
+      },
       "cinematicPoster": {
         "title": "影劇海報",
         "desc": "製作電影海報風格的創意圖片",
@@ -970,7 +979,14 @@
         "custom_placeholder": "例如，拿著相機、櫻花背景…",
         "prompt_preview": "即時預覽",
         "prompt_reset": "重置提示",
-        "prompt_manual_hint": "或手動編輯提示..."
+        "prompt_manual_hint": "或手動編輯提示...",
+        "variationLevel": "生成變化強度",
+        "variationReseed": "重新抽樣細節",
+        "variationHint": "數值越高，同款式下的服裝、場景與光線變化越大，但仍保留臉部一致性。",
+        "faceCropMode": "臉部裁切參考模式",
+        "faceCropModeHint": "開啟後只使用臉部裁切圖作為身份參考，可降低原始髮型被直接套用的機率。",
+        "faceReferenceStrength": "臉部參考強度",
+        "faceReferenceHint": "建議 60-78。降低可減少原始髮型被套用；提高則更像原人臉。"
       },
       "action": {
         "generating": "AI攝影師正在拍攝...",
@@ -1234,6 +1250,11 @@
         "scifiVillain": "科幻反派",
         "modernStreet": "現代街頭"
       }
+    },
+    "cinematic": {
+      "secondLeadOptional": "第二主角（可選）",
+      "uploadSecondPhoto": "上傳第二張照片",
+      "removeSecondLead": "移除第二主角"
     }
   },
   "packager": {

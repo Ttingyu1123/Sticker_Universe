@@ -293,6 +293,15 @@
         "desc": "AI Manga Paneling",
         "features": "Layout Optimization • Coloring"
       },
+      "characterCreate": {
+        "title": "Character Create",
+        "desc": "Build rich character prompts faster",
+        "features": [
+          "Tag Library",
+          "Prompt Optimization",
+          "Story Inspiration"
+        ]
+      },
       "cinematicPoster": {
         "title": "Cinematic Poster",
         "desc": "Movie-quality Shutter",
@@ -1033,7 +1042,14 @@
         "sub_style": "Sub Style",
         "prompt_preview": "Prompt Preview",
         "prompt_reset": "Reset Prompt",
-        "prompt_manual_hint": "Or edit the prompt manually..."
+        "prompt_manual_hint": "Or edit the prompt manually...",
+        "variationLevel": "Variation level",
+        "variationReseed": "Reseed details",
+        "variationHint": "Higher value adds more outfit/scene/lighting variation while preserving identity.",
+        "faceCropMode": "Face-crop reference mode",
+        "faceCropModeHint": "When ON, only a face-focused crop is used as identity reference to reduce source hairstyle carryover.",
+        "faceReferenceStrength": "Face reference strength",
+        "faceReferenceHint": "Suggested 60-78. Lower values reduce hairstyle carryover; higher values keep facial identity closer."
       },
       "action": {
         "generate": "Generate Portrait",
@@ -1136,6 +1152,11 @@
         "scifiVillain": "Sci-Fi Villain",
         "modernStreet": "Modern Street"
       }
+    },
+    "cinematic": {
+      "secondLeadOptional": "Second Lead (Optional)",
+      "uploadSecondPhoto": "Upload second photo",
+      "removeSecondLead": "Remove second lead"
     }
   },
   "packager": {

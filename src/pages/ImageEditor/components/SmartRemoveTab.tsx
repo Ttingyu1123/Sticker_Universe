@@ -115,6 +115,7 @@ const SmartRemoveTab = () => {
         if (blobs.length > 0) {
             loadImage(blobs[0]);
         }
+        setShowGalleryPicker(false);
     };
 
     const handleFitView = () => {
@@ -246,9 +247,19 @@ const SmartRemoveTab = () => {
         return canvas ? canvas.toDataURL('image/png') : null;
     };
 
-    const handleExport = () => {
+    const handleExport = async () => {
         const url = getExportUrl();
         if (url) {
+            try {
+                await saveStickerToDB({
+                    id: `smartremove_auto_${Date.now()}`,
+                    imageUrl: url,
+                    timestamp: Date.now(),
+                    phrase: 'Smart Eraser Edit'
+                });
+            } catch (error) {
+                console.error('Auto-save on export failed', error);
+            }
             const a = document.createElement('a');
             a.href = url;
             a.download = 'smart-eraser-export.png';
@@ -451,6 +462,13 @@ const SmartRemoveTab = () => {
                                     className="mt-4 px-6 py-2 bg-white border border-cream-dark hover:border-primary/50 hover:text-primary rounded-lg font-bold text-sm transition-all shadow-sm"
                                 >
                                     {t('eraser.upload.title')}
+                                </button>
+                                <button
+                                    onClick={() => setShowGalleryPicker(true)}
+                                    className="mt-2 px-6 py-2 bg-white border border-secondary/20 hover:border-secondary/40 text-bronze-text rounded-lg font-bold text-sm transition-all shadow-sm inline-flex items-center gap-2"
+                                >
+                                    <ImageIcon size={16} />
+                                    {t('app.selectFromGallery') || 'From Gallery'}
                                 </button>
                             </div>
                         )

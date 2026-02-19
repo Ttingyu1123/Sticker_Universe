@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Character } from './types';
 import { useTranslation } from 'react-i18next';
-import { Plus, X, Upload, User } from 'lucide-react';
+import { Plus, X, Upload, User, FolderHeart } from 'lucide-react';
 import { MAX_CHARACTERS } from './constants';
+import { GalleryPicker } from '../../../../components/GalleryPicker';
 
 interface Props {
     characters: Character[];
@@ -10,6 +12,8 @@ interface Props {
 
 export const CharacterCreator: React.FC<Props> = ({ characters, onChange }) => {
     const { t } = useTranslation();
+    const [showGalleryPicker, setShowGalleryPicker] = useState(false);
+    const [activeCharacterId, setActiveCharacterId] = useState<string | null>(null);
     const handleAddCharacter = () => {
         if (characters.length >= MAX_CHARACTERS) return;
         const newChar: Character = {
@@ -45,6 +49,16 @@ export const CharacterCreator: React.FC<Props> = ({ characters, onChange }) => {
             }));
         };
         reader.readAsDataURL(file);
+    };
+
+    const handleGallerySelect = async (blobs: Blob[]) => {
+        if (blobs.length > 0 && activeCharacterId) {
+            const blob = blobs[0];
+            const file = new File([blob], `manga_char_${Date.now()}.png`, { type: blob.type || 'image/png' });
+            handleImageUpload(activeCharacterId, file);
+        }
+        setShowGalleryPicker(false);
+        setActiveCharacterId(null);
     };
 
     return (
@@ -101,6 +115,17 @@ export const CharacterCreator: React.FC<Props> = ({ characters, onChange }) => {
                                 className="w-full bg-cream-light border border-cream-dark rounded-md px-2 py-1.5 text-xs text-bronze-text focus:border-primary outline-none resize-none h-14 leading-tight placeholder-bronze-light/50"
                                 aria-label={t('generator.manga.labels.appearance')}
                             />
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setActiveCharacterId(char.id);
+                                    setShowGalleryPicker(true);
+                                }}
+                                className="w-full px-2 py-1.5 rounded-md border border-secondary/20 bg-secondary/5 text-bronze-text text-xs font-bold hover:bg-secondary/10 transition-colors inline-flex items-center justify-center gap-1.5"
+                            >
+                                <FolderHeart className="w-3 h-3" />
+                                {t('app.selectFromGallery') || 'From Gallery'}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -114,6 +139,16 @@ export const CharacterCreator: React.FC<Props> = ({ characters, onChange }) => {
                     <Plus className="w-4 h-4" />
                     <span>{t('generator.manga.actions.addCharacter')}</span>
                 </button>
+            )}
+
+            {showGalleryPicker && (
+                <GalleryPicker
+                    onSelect={handleGallerySelect}
+                    onClose={() => {
+                        setShowGalleryPicker(false);
+                        setActiveCharacterId(null);
+                    }}
+                />
             )}
         </div>
     );

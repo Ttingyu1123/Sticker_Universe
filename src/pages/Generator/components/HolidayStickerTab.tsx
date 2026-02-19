@@ -435,7 +435,7 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({ apiKey, onError, 
                         </div>
                         <button
                             onClick={(e) => { e.stopPropagation(); setShowGallery(true); }}
-                            className="mt-3 flex items-center gap-2 px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-secondary rounded-xl text-sm font-bold transition-colors mx-auto"
+                            className="mt-3 flex items-center gap-2 px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-bronze-text rounded-xl text-sm font-bold transition-colors mx-auto"
                         >
                             <FolderHeart size={16} />
                             從作品集選取
