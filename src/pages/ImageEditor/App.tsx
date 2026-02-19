@@ -23,12 +23,12 @@ const ImageEditorApp: React.FC = () => {
     }, [location.state]);
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex flex-col">
+        <div className="bg-background text-foreground flex flex-col pb-20">
             {/* Header */}
 
 
             <div className="flex-1 max-w-[1920px] mx-auto w-full p-4 md:p-6">
-                <Tabs className="flex flex-col h-full gap-6" selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as string)}>
+                <Tabs className="flex flex-col gap-6 md:h-full min-h-0" selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as string)}>
                     <TabList className="flex gap-1 p-1 bg-cream-medium/50 backdrop-blur-md rounded-2xl w-fit mx-auto border border-cream-dark/50 flex-wrap justify-center mb-2">
                         <Tab
                             id="packager"
@@ -136,35 +136,35 @@ const ImageEditorApp: React.FC = () => {
                         </Tab>
                     </TabList>
 
-                    <div className="flex-1 bg-white rounded-3xl shadow-xl shadow-primary/10 border border-white overflow-hidden min-h-[600px] relative">
-                        <TabPanel id="packager" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
+                    <div className="flex-1 bg-white rounded-3xl shadow-xl shadow-primary/10 border border-white min-h-0 relative flex flex-col md:overflow-hidden">
+                        <TabPanel id="packager" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 md:overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <PackagerTab />
                             </Suspense>
                         </TabPanel>
 
-                        <TabPanel id="smart-remove" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
+                        <TabPanel id="smart-remove" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 md:overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <SmartRemoveTab />
                             </Suspense>
                         </TabPanel>
 
-                        <TabPanel id="animator" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
+                        <TabPanel id="animator" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 md:overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <AnimatorTab />
                             </Suspense>
                         </TabPanel>
-                        <TabPanel id="editor" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
+                        <TabPanel id="editor" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 md:overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <EditorTab />
                             </Suspense>
                         </TabPanel>
-                        <TabPanel id="resize" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
+                        <TabPanel id="resize" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 md:overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <ImageResizerTab />
                             </Suspense>
                         </TabPanel>
-                        <TabPanel id="svg" className="h-full w-full outline-none animate-in fade-in zoom-in-95 duration-300">
+                        <TabPanel id="svg" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 md:overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <SvgConverterTab />
                             </Suspense>

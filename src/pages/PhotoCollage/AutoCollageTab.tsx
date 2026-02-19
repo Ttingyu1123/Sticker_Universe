@@ -304,7 +304,7 @@ export const AutoCollageTab: React.FC = () => {
     const selectedImage = images.find(i => i.id === selectedImageId);
 
     return (
-        <div className="flex h-[calc(100vh-140px)] w-full flex-col md:flex-row overflow-hidden bg-cream-light relative">
+        <div className="flex flex-col md:flex-row w-full bg-cream-light relative px-4 md:px-0 md:h-full min-h-0 md:overflow-hidden">
 
             {/* Gallery Picker Modal */}
             {showGalleryPicker && (
@@ -316,7 +316,7 @@ export const AutoCollageTab: React.FC = () => {
 
 
             {/* Main Content (Canvas) - LEFT SIDE */}
-            <main className="flex-1 flex flex-col h-full relative overflow-hidden">
+            <main className="w-full md:flex-1 flex flex-col relative border-b md:border-b-0 border-cream-dark mb-8 md:mb-0 min-h-0">
 
                 {/* Toolbar (Zoom & Actions) */}
                 <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-start pointer-events-none">
@@ -340,39 +340,39 @@ export const AutoCollageTab: React.FC = () => {
                         <button
                             onClick={handleSaveToGallery}
                             disabled={isSaving}
-                            className="bg-cream/90 backdrop-blur shadow-sm text-secondary px-4 py-2 rounded-xl border border-secondary/20 flex items-center gap-2 font-black hover:bg-secondary/5 transition-colors disabled:opacity-50"
+                            className="bg-cream/90 backdrop-blur shadow-sm text-secondary px-3 md:px-4 py-2 rounded-xl border border-secondary/20 flex items-center gap-2 font-black hover:bg-secondary/5 transition-colors disabled:opacity-50"
                             title={t('editor.toolbar.saveToGallery')}
                         >
                             <Save size={16} />
-                            {isSaving ? t('gallery.loading') : t('editor.toolbar.saveToGallery')}
+                            <span className="hidden xs:inline">{isSaving ? t('gallery.loading') : t('editor.toolbar.saveToGallery')}</span>
                         </button>
                         <button
                             onClick={handleDownload}
-                            className="bg-primary text-white px-4 py-2 rounded-xl shadow-lg shadow-primary/20 flex items-center gap-2 font-black hover:bg-primary-hover transition-colors"
+                            className="bg-primary text-white px-3 md:px-4 py-2 rounded-xl shadow-lg shadow-primary/20 flex items-center gap-2 font-black hover:bg-primary-hover transition-colors"
                             title={t('gallery.download')}
                         >
                             <Download size={16} />
-                            {t('gallery.download')}
+                            <span className="hidden xs:inline">{t('gallery.download')}</span>
                         </button>
                     </div>
                 </div>
 
                 {/* Canvas Area */}
                 <div
-                    className="flex-1 bg-cream-light flex items-center justify-center overflow-hidden p-8"
+                    className="bg-cream-light flex items-center justify-center overflow-hidden p-4 md:p-8 min-h-[50vh] md:h-full"
                     onDragOver={handleCanvasDragOver}
                     onDrop={handleCanvasDrop}
                 >
                     {images.length === 0 ? (
-                        <div className="text-center p-10 border-4 border-dashed border-cream-dark rounded-3xl bg-cream/60 backdrop-blur-sm max-w-md">
-                            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
-                                <ImageIcon size={40} />
+                        <div className="text-center p-6 md:p-10 border-4 border-dashed border-cream-dark rounded-3xl bg-cream/60 backdrop-blur-sm max-w-md mx-4">
+                            <div className="w-16 h-16 md:w-20 md:h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
+                                <ImageIcon size={32} />
                             </div>
-                            <h2 className="text-xl font-black text-bronze mb-2">{t('collage.create')}</h2>
-                            <p className="text-bronze-light mb-6">{t('collage.dragDrop')}</p>
+                            <h2 className="text-lg md:text-xl font-black text-bronze mb-2">{t('collage.create')}</h2>
+                            <p className="text-xs md:text-sm text-bronze-light mb-6">{t('collage.dragDrop')}</p>
                             <div className="flex gap-3 justify-center">
-                                <button onClick={() => fileInputRef.current?.click()} className="px-6 py-2.5 bg-white border border-cream-dark shadow-sm rounded-xl font-bold text-bronze-text hover:bg-cream-light transition-colors">{t('collage.upload')}</button>
-                                <button onClick={() => setShowGalleryPicker(true)} className="px-6 py-2.5 bg-white border border-secondary/20 text-secondary shadow-sm rounded-xl font-bold hover:bg-secondary/5 flex items-center gap-2 transition-colors">
+                                <button onClick={() => fileInputRef.current?.click()} className="px-4 md:px-6 py-2.5 bg-white border border-cream-dark shadow-sm rounded-xl font-bold text-xs md:text-sm text-bronze-text hover:bg-cream-light transition-colors">{t('collage.upload')}</button>
+                                <button onClick={() => setShowGalleryPicker(true)} className="px-4 md:px-6 py-2.5 bg-white border border-secondary/20 text-secondary shadow-sm rounded-xl font-bold text-xs md:text-sm hover:bg-secondary/5 flex items-center gap-2 transition-colors">
                                     <FolderHeart size={18} /> {t('collage.gallery')}
                                 </button>
                             </div>
@@ -394,10 +394,10 @@ export const AutoCollageTab: React.FC = () => {
             </main>
 
             {/* Sidebar Controls - RIGHT SIDE */}
-            <aside className="w-full md:w-80 bg-cream/90 backdrop-blur-md border-l border-cream-dark h-full overflow-y-auto flex flex-col z-20 shadow-xl shadow-bronze/5">
+            <aside className="w-full md:w-80 bg-cream/90 backdrop-blur-md border-l border-cream-dark flex flex-col md:h-full md:overflow-y-auto min-h-0 shadow-xl shadow-bronze/5 rounded-t-3xl md:rounded-none custom-scrollbar">
                 <div className="p-4 border-b border-cream-dark/50">
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="font-black text-bronze">{t('collage.photos')} ({images.length}/12)</h2>
+                        <h2 className="font-black text-bronze text-sm md:text-base">{t('collage.photos')} ({images.length}/12)</h2>
                         <div className="flex gap-1">
                             <button onClick={() => setShowGalleryPicker(true)} className="p-2 hover:bg-secondary/10 rounded-lg text-secondary" title={t('collage.addFromGallery')}><FolderHeart size={18} /></button>
                             <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-primary/10 rounded-lg text-primary" title={t('collage.addPhoto')}><Plus size={18} /></button>
@@ -406,42 +406,43 @@ export const AutoCollageTab: React.FC = () => {
                     </div>
                     <input type="file" ref={fileInputRef} onChange={handleFiles} className="hidden" multiple accept="image/*" />
 
-                    {/* Thumbnail Grid */}
-                    <div className="grid grid-cols-4 gap-2">
-                        {images.map((img) => (
-                            <div
-                                key={img.id}
-                                onClick={() => setSelectedImageId(img.id)}
-                                draggable
-                                onDragStart={(e) => e.dataTransfer.setData('text/plain', img.id)}
-                                className={`relative aspect-square rounded-lg overflow-hidden border cursor-pointer ${img.isHero
-                                    ? 'ring-2 ring-yellow-500 border-yellow-500'
-                                    : selectedImageId === img.id
-                                        ? 'ring-2 ring-primary border-transparent'
-                                        : 'border-gray-200 hover:border-primary/50'
-                                    }`}
-                            >
-                                <img src={img.url} alt="Thumbnail" className="w-full h-full object-cover" />
-
-                                {/* Hero Star Badge */}
-                                {img.isHero && (
-                                    <div className="absolute top-1 left-1 bg-yellow-500 text-white rounded-full p-1">
-                                        <Star size={12} fill="white" />
-                                    </div>
-                                )}
-
-                                {/* Hero Toggle Button */}
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); toggleHero(img.id); }}
-                                    className="absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors"
-                                    title={img.isHero ? t('collage.removeHero') : t('collage.setHero')}
+                    <div className="p-4">
+                        <div className="grid grid-cols-3 gap-2">
+                            {images.map((img) => (
+                                <div
+                                    key={img.id}
+                                    onClick={() => setSelectedImageId(img.id)}
+                                    draggable
+                                    onDragStart={(e) => e.dataTransfer.setData('text/plain', img.id)}
+                                    className={`relative aspect-square rounded-lg overflow-hidden border cursor-pointer ${img.isHero
+                                        ? 'ring-2 ring-yellow-500 border-yellow-500'
+                                        : selectedImageId === img.id
+                                            ? 'ring-2 ring-primary border-transparent'
+                                            : 'border-gray-200 hover:border-primary/50'
+                                        }`}
                                 >
-                                    <Star size={12} fill={img.isHero ? '#fbbf24' : 'none'} stroke={img.isHero ? '#fbbf24' : 'white'} />
-                                </button>
+                                    <img src={img.url} alt="Thumbnail" className="w-full h-full object-cover" />
 
-                                {selectedImageId === img.id && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><Check size={16} className="text-white drop-shadow-md" /></div>}
-                            </div>
-                        ))}
+                                    {/* Hero Star Badge */}
+                                    {img.isHero && (
+                                        <div className="absolute top-1 left-1 bg-yellow-500 text-white rounded-full p-1">
+                                            <Star size={12} fill="white" />
+                                        </div>
+                                    )}
+
+                                    {/* Hero Toggle Button */}
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); toggleHero(img.id); }}
+                                        className="absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors"
+                                        title={img.isHero ? t('collage.removeHero') : t('collage.setHero')}
+                                    >
+                                        <Star size={12} fill={img.isHero ? '#fbbf24' : 'none'} stroke={img.isHero ? '#fbbf24' : 'white'} />
+                                    </button>
+
+                                    {selectedImageId === img.id && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><Check size={16} className="text-white drop-shadow-md" /></div>}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
@@ -476,7 +477,7 @@ export const AutoCollageTab: React.FC = () => {
                     </div>
                 )}
 
-                <div className="p-4 flex-1 overflow-y-auto">
+                <div className="p-4">
                     <Controls
                         settings={settings}
                         onUpdate={(s) => {

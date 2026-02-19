@@ -392,7 +392,7 @@ const EditorTab: React.FC = () => {
     }, [handleAutoFit]);
 
     return (
-        <div className="flex h-[calc(100vh-140px)] w-full flex-col overflow-hidden bg-background text-bronze-text">
+        <div className="flex w-full flex-col bg-background text-bronze-text min-h-[70vh] md:h-[calc(100dvh-140px)] md:overflow-hidden">
 
             {showGallery && (
                 <GalleryPicker
@@ -450,7 +450,7 @@ const EditorTab: React.FC = () => {
                 />
             )}
 
-            <div className={`flex flex-1 overflow-hidden transition-opacity duration-700 ${isReady ? 'opacity-100' : 'opacity-0'}`}>
+            <div className={`flex flex-1 md:overflow-hidden transition-opacity duration-700 ${isReady ? 'opacity-100' : 'opacity-0'}`}>
                 {/* Canvas Area */}
                 <div
                     id="canvas-container"

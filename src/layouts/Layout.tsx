@@ -46,12 +46,19 @@ export const Layout = () => {
         return t('app.title');
     };
 
+    // Check if current page is an "App" (fixed viewport type)
+    // Exclude Generator and PrintSheet as they need standard scrolling
+    // Exclude Generator and PrintSheet as they need standard scrolling
+
+    // On mobile app pages, force fixed height to prevent scrolling body
     return (
-        <div className="flex min-h-screen bg-cream-light font-sans text-bronze-text selection:bg-primary-light selection:text-bronze-text">
+        <div className={clsx(
+            "flex min-h-screen bg-cream-light font-sans text-bronze-text selection:bg-primary-light selection:text-bronze-text"
+        )}>
             {/* Desktop Sidebar - Always visible on Desktop */}
-            <aside className="w-64 fixed inset-y-0 left-0 z-50 bg-white/80 backdrop-blur-xl border-r border-cream-dark p-4 hidden lg:flex flex-col gap-2">
+            < aside className="w-64 fixed inset-y-0 left-0 z-50 bg-white/80 backdrop-blur-xl border-r border-cream-dark p-4 hidden lg:flex flex-col gap-2" >
                 {/* Header */}
-                <div className="px-4 py-6 mb-2">
+                < div className="px-4 py-6 mb-2" >
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-primary via-primary-hover to-secondary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
                             <Sparkles size={18} fill="currentColor" className="text-white/90" />
@@ -62,10 +69,10 @@ export const Layout = () => {
                             </h1>
                         </div>
                     </div>
-                </div>
+                </div >
 
                 {/* Navigation */}
-                <nav className="flex-1 space-y-1">
+                < nav className="flex-1 space-y-1" >
                     <div className="px-4 pb-2 flex items-center justify-between">
                         <p className="text-[10px] font-black text-bronze-light uppercase tracking-widest">{t('app.apps')}</p>
                     </div>
@@ -75,10 +82,10 @@ export const Layout = () => {
 
                     <NavItem to="/print-sheet" icon={Printer} label={t('app.printSheet')} />
                     <NavItem to="/gallery" icon={FolderHeart} label={t('app.gallery')} />
-                </nav>
+                </nav >
 
                 {/* Footer / User */}
-                <div className="mt-auto pt-4 border-t border-cream-dark space-y-1">
+                < div className="mt-auto pt-4 border-t border-cream-dark space-y-1" >
                     <div className="px-4 pb-2 flex items-center justify-between">
                         <p className="text-[10px] font-black text-bronze-light uppercase tracking-widest">{t('app.system')}</p>
                         <LanguageSwitcher />
@@ -106,8 +113,8 @@ export const Layout = () => {
                             </a>
                         </div>
                     </div>
-                </div>
-            </aside>
+                </div >
+            </aside >
 
             {/* Mobile Bottom Navigation - Hidden on LayerLab if desired, or kept for consistency */}
             {/* Keeping it consistent: It shows on LG-hidden, so mobile/tablet still sees bottom nav. */}
@@ -129,8 +136,14 @@ export const Layout = () => {
                             </>
                         )}
                     </NavLink>
-
-
+                    <NavLink to="/photo-collage" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-primary bg-primary/10" : "text-bronze-light")}>
+                        {({ isActive }) => (
+                            <>
+                                <Grid size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[10px] font-bold">{t('collage.title') || 'Collage'}</span>
+                            </>
+                        )}
+                    </NavLink>
                     <NavLink to="/print-sheet" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-primary bg-primary/10" : "text-bronze-light")}>
                         {({ isActive }) => (
                             <>
@@ -151,7 +164,11 @@ export const Layout = () => {
             </div>
 
             {/* Main Content */}
-            <main className="flex-1 min-w-0 pb-20 lg:pb-0 lg:ml-64 transition-all duration-300">
+            <main className={clsx(
+                "flex-1 min-w-0 lg:ml-64 flex flex-col transition-all duration-300",
+                // We add pb-[80px] to ensure content isn't hidden behind the fixed bottom nav
+                "pb-24 lg:pb-0"
+            )}>
                 {/* Unified Global Header - Visible on Mobile and Desktop */}
                 {location.pathname !== '/' && (
                     <div className="flex items-center justify-between py-5 px-8 bg-white/80 backdrop-blur-xl border-b border-cream-dark/50 sticky top-0 z-40 transition-all duration-300">
@@ -180,12 +197,12 @@ export const Layout = () => {
                 <Outlet />
 
                 {/* Mobile Footer - Visible only on mobile/tablet */}
-                <div className="lg:hidden mt-auto py-8 text-center pb-24 opacity-50 hover:opacity-100 transition-opacity">
+                <div className="lg:hidden mt-auto py-8 text-center opacity-50 hover:opacity-100 transition-opacity">
                     <a href="https://tingyusdeco.com" target="_blank" rel="noopener noreferrer" className="text-[10px] text-bronze-light font-bold uppercase tracking-widest">
                         Made by tingyusdeco.com
                     </a>
                 </div>
             </main>
-        </div>
+        </div >
     );
 };

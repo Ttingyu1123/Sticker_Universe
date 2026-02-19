@@ -260,8 +260,9 @@ const HeadshotGeneratorTab: React.FC<HeadshotGeneratorTabProps> = ({ apiKey, onS
             `;
             }
 
-            const expressionInstr = selectedExpression !== 'natural'
-                ? `8. Modify expression to "${t('headshot.expressions.' + selectedExpression)}", but PRESERVE IDENTITY.`
+            const expressionKey = selectedExpression || 'natural';
+            const expressionInstr = expressionKey !== 'natural'
+                ? `8. Modify expression to "${t(`headshot.expressions.${expressionKey}`)}", but PRESERVE IDENTITY.`
                 : `8. Keep natural expression, PRESERVE IDENTITY.`;
 
             // Pose instructions

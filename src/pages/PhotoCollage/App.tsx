@@ -7,10 +7,10 @@ export const PhotoCollageApp = () => {
     const { t } = useTranslation();
 
     return (
-        <div className="min-h-screen pb-20 select-none font-sans text-bronze-text bg-background">
+        <div className="pb-20 select-none font-sans text-bronze-text bg-background">
             {/* Main Content */}
             <main className="container mx-auto px-4 max-w-[1920px]">
-                <div className="h-[calc(100vh-100px)] w-full bg-cream-light rounded-3xl shadow-xl overflow-hidden border border-cream-dark">
+                <div className="min-h-[calc(100dvh-120px)] md:h-[calc(100dvh-120px)] w-full bg-cream-light rounded-3xl shadow-xl md:overflow-hidden border border-cream-dark">
                     <AutoCollageTab />
                 </div>
             </main>

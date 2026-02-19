@@ -64,4 +64,24 @@
         display: none;
         /* Chrome, Safari and Opera */
     }
+
+    /* Custom Scrollbar for internal scrolling areas */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 3px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(161, 134, 180, 0.3);
+        border-radius: 3px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(161, 134, 180, 0.5);
+    }
 }

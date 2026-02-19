@@ -20,7 +20,8 @@
         "svgConverter": "SVG 魔法",
         "printSheet": "排版與列印",
         "captioning": "AI 智慧配文",
-        "animator": "動態貼圖"
+        "animator": "動態貼圖",
+        "processing": "Processing..."
     },
     "linePreview": {
         "title": "LINE 預覽 (Preview)",
@@ -152,7 +153,11 @@
                 "margin": "邊界 (mm)",
                 "gap": "間距 (mm)",
                 "showCutLines": "裁切線",
-                "enableMirror": "鏡像"
+                "enableMirror": "鏡像",
+                "paperOrientation": "紙張方向",
+                "portrait": "直式",
+                "landscape": "橫式",
+                "outputFormat": "輸出格式"
             },
             "cropper": {
                 "cancel": "取消",
@@ -166,7 +171,9 @@
                 "noFitHint": "請調整紙張大小或減少照片數量",
                 "totalPhotos": "總照片數",
                 "format": "格式",
-                "download": "下載"
+                "download": "下載",
+                "zoom": "縮放",
+                "saveToGallery": "儲存至作品集"
             }
         },
         "description": "Arrange your stickers on an A4 canvas and export as PDF.",
@@ -205,84 +212,165 @@
         }
     },
     "gallery": {
-        "title": "Collection",
+        "title": "作品集",
         "subtitle": "Your Creative Works",
-        "empty": "No saved stickers yet.",
-        "emptyDesc": "Go to Generator to create some magic!",
-        "download": "Download",
-        "delete": "Delete",
-        "clearAll": "Clear All",
-        "clearConfirm": "Are you sure you want to delete all stickers?",
-        "deleteConfirm": "Delete this sticker?",
-        "selected": "Selected",
-        "downloadZip": "Download ZIP",
-        "loading": "Loading Gallery...",
-        "selectionMode": "Select Multiple",
-        "selectAll": "Select All",
-        "deselectAll": "Deselect All",
-        "cancelSelection": "Done",
-        "downloadSelected": "Download ({{count}})",
-        "deleteSelected": "Delete ({{count}})",
-        "shareSelected": "Share ({{count}})",
+        "empty": "尚無儲存的貼圖",
+        "emptyDesc": "前往生成器創造一些魔法吧！",
+        "download": "下載",
+        "delete": "刪除",
+        "clearAll": "全部清除",
+        "clearConfirm": "確定要刪除所有貼圖嗎？",
+        "deleteConfirm": "刪除此貼圖？",
+        "selected": "已選擇",
+        "downloadZip": "下載 ZIP",
+        "loading": "載入中...",
+        "selectionMode": "選取多張",
+        "selectAll": "全選",
+        "deselectAll": "取消全選",
+        "cancelSelection": "完成",
+        "downloadSelected": "下載 ({{count}})",
+        "deleteSelected": "刪除 ({{count}})",
+        "shareSelected": "分享 ({{count}})",
         "shareError": "Sharing failed",
-        "shareNotSupported": "Sharing files is not supported on this device",
-        "addSelected": "Add Selected",
-        "items": "Items"
+        "shareNotSupported": "此裝置不支援檔案分享功能",
+        "addSelected": "添加選取項目",
+        "items": "Items",
+        "saved": "Saved to Gallery!",
+        "share": "Share",
+        "upload": "上傳圖片"
     },
     "landing": {
-        "tagline": "AI 創作工具",
-        "heroTitle": "專業 AI 貼圖創作平台",
-        "heroDesc": "從文字到圖片，從構思到實現，一站式解決你所有的創意需求",
-        "startCreating": "開始創作",
+        "tagline": "AI 創意工具箱",
+        "heroTitle": "用 AI 開放你的無限創意",
+        "heroDesc": "全方位 AI 創作套件：從貼圖生成、專業去背到向量轉換，一站式搞定所有創意需求。",
+        "startCreating": "立即開始",
         "exploreTools": "探索工具",
-        "launchApp": "Launch App",
-        "features": {
-            "generatorTitle": "AI Sticker Studio",
-            "generatorDesc": "Turn text prompts into stunning sticker packs using Google's Gemini AI. No design skills needed.",
-            "editorTitle": "Editor",
-            "editorDesc": "Powerful layer-based editor. Compose images, add text, adjust layouts, and fine-tune your designs.",
-            "eraserTitle": "Eraser",
-            "eraserDesc": "Smart background removal. Clean up your images instantly and export transparent PNGs.",
-            "packagerTitle": "Packager",
-            "packagerDesc": "Batch crop, remove background, and outline for Line/Telegram stickers.",
-            "svgTitle": "SVG Magic",
-            "svgDesc": "Convert raster images to infinite scalable vectors.",
-            "animatorTitle": "Animator",
-            "animatorDesc": "Create dynamic stickers with multi-layer animations and export as APNG or GIF."
+        "stats": {
+            "tools": "專業工具",
+            "categories": "功能分類",
+            "aiPowered": "AI 驅動"
         },
-        "featureDetails": {
-            "generator": {
-                "title": "AI Sticker Studio",
-                "desc": "Generate high-quality stickers from text prompts. Supports various art styles (Anime, Watercolor, Pixel, etc.) with auto-transparency."
+        "categories": {
+            "aiGeneration": {
+                "title": "AI 智慧生成",
+                "desc": "利用頂尖 AI 技術，從文字瞬間變成精美圖片與貼圖。"
             },
-            "editor": {
-                "title": "All-in-One Image Editor",
-                "desc": "Professional layer-based editor. Combine photos, text, and stickers with rich filters and effects."
+            "imageProcessing": {
+                "title": "影像處理專區",
+                "desc": "各類專業修圖工具：批次裁切、去背、標籤化，應有盡有。"
             },
-            "eraser": {
-                "title": "Magic Eraser",
-                "desc": "Powerful background removal tool. Supports AI auto-detection and manual refinement for perfect transparent assets."
+            "creative": {
+                "title": "創意排版",
+                "desc": "讓照片不再單調，用多樣的創意版型寫出你的故事。"
             },
-            "packager": {
-                "title": "Sticker Packager",
-                "desc": "Batch processing tool designed for LINE & Telegram. Auto-resize, add borders, and export strictly compliant formats."
+            "printing": {
+                "title": "列印與輸出",
+                "desc": "專業的貼紙與證件照排版工具，在家也能印出專業級成果。"
             },
-            "collage": {
-                "title": "Creative Collage",
-                "desc": "Offers various layouts including Grid, Masonry, and geometric shapes. Smart layout for perfect photo presentation."
+            "management": {
+                "title": "作品管理",
+                "desc": "集中管理你所有的創意結晶。"
+            }
+        },
+        "tabs": {
+            "styleSticker": {
+                "title": "風格貼圖",
+                "desc": "多樣化藝術風格",
+                "features": "AI 生成 • 多種選擇"
+            },
+            "holidaySticker": {
+                "title": "節慶貼圖",
+                "desc": "節日氛圍滿點",
+                "features": "過節必備 • 自動設計"
+            },
+            "greetingCard": {
+                "title": "賀卡大師",
+                "desc": "溫馨祝福傳遞",
+                "features": "個人化文字 • 精美排版"
+            },
+            "mangaMaster": {
+                "title": "漫畫大師",
+                "desc": "AI 繪製漫畫分鏡",
+                "features": "分鏡優化 • 自動上色"
+            },
+            "cinematicPoster": {
+                "title": "影劇海報",
+                "desc": "電影質感大片",
+                "features": "電影級濾鏡 • 氛圍渲染"
+            },
+            "imageGenerator": {
+                "title": "AI 圖片生成",
+                "desc": "你的創意畫筆",
+                "features": "高畫質輸出 • 無限可能"
+            },
+            "headshotMaster": {
+                "title": "形象照大師",
+                "desc": "專業職人感",
+                "features": "商務優化 • AI 燈光"
+            },
+            "portraitMaster": {
+                "title": "寫真大師",
+                "desc": "攝影棚等級寫真",
+                "features": "精緻修飾 • 場景切換"
+            },
+            "batchCrop": {
+                "title": "批次裁切",
+                "desc": "大量圖片快速處理",
+                "features": "智慧縮放 • 統一尺寸"
+            },
+            "smartRemoveBg": {
+                "title": "智慧去背",
+                "desc": "一鍵移除背景",
+                "features": "魔術邊緣 • 完美透視"
             },
             "animator": {
-                "title": "Animator",
-                "desc": "Transform static images into lively APNG/GIF animations. Supports keyframe settings and real-time preview."
+                "title": "動態貼圖",
+                "desc": "讓貼圖動起來",
+                "features": "每秒 24 幀 • APNG 匯出"
             },
-            "svg": {
-                "title": "Raster to Vector",
-                "desc": "Convert JPG/PNG images into infinitely scalable SVG vectors, perfect for printing and large-scale output."
+            "layerEditor": {
+                "title": "圖層編輯器",
+                "desc": "專業級合成工具",
+                "features": "多圖層管理 • 豐富濾鏡"
             },
-            "printSheet": {
-                "title": "Layout & Print",
-                "desc": "Supports ID photos and A4 sticker layout. key Customize print sizes and margins to print professional results at home."
+            "imageResizer": {
+                "title": "圖片縮放",
+                "desc": "精準控制解析度",
+                "features": "不失真技術 • 靈活調整"
+            },
+            "svgConverter": {
+                "title": "SVG 魔法",
+                "desc": "點陣轉向量",
+                "features": "無限放大 • 向量曲線"
+            },
+            "layerLab": {
+                "title": "圖層實驗室",
+                "desc": "探索創意無限",
+                "features": "社群模板 • 自由創作"
+            },
+            "photoCollage": {
+                "title": "照片拼貼",
+                "desc": "多圖組合新玩法",
+                "features": "幾何排版 • 自動對齊"
+            },
+            "stickerPrint": {
+                "title": "貼紙列印",
+                "desc": "我的專屬貼紙簿",
+                "features": "A4 排版 • 裁切線自動生成"
+            },
+            "idPhotoPrint": {
+                "title": "證件照列印",
+                "desc": "標準證件規格",
+                "features": "規格精準 • 打印預覽"
+            },
+            "gallery": {
+                "title": "作品集",
+                "desc": "管理創意產出",
+                "features": "批次下載 • 快速預覽"
             }
+        },
+        "cta": {
+            "launch": "立即開始"
         },
         "footer": "© 2024 CreativeOS - 讓創意無限可能"
     },
@@ -409,16 +497,23 @@
             }
         },
         "apiKey": {
-            "title": "Enter Your Gemini API Key",
-            "desc": "We need your Google Gemini API Key to generate stickers. It's stored locally in your browser.",
-            "placeholder": "Enter your API Key here...",
-            "save": "Save Key",
-            "clear": "Clear Key",
-            "get": "Get your API Key",
-            "change": "Change Key",
-            "invalid": "Please enter a valid API Key",
-            "expired": "API Key invalid or expired, please re-enter.",
-            "notFound": "API Key not found or invalid."
+            "title": "輸入 Gemini API 金鑰",
+            "desc": "生成貼圖需要您的 Google Gemini API Key，這會安全地儲存於您的瀏覽器本地。",
+            "placeholder": "在此輸入 API Key...",
+            "save": "儲存金鑰",
+            "clear": "清除金鑰",
+            "get": "獲取 API Key",
+            "change": "變更金鑰",
+            "invalid": "請輸入有效的 API Key",
+            "expired": "API 金鑰無效或已過期，請重新輸入。",
+            "notFound": "找不到或無效的 API 金鑰。",
+            "securityTitle": "安全聲明 (Security Notice)",
+            "securityLocalStorage": "本地儲存 - 金鑰僅存於瀏覽器 (LocalStorage)，絕不上傳至本站伺服器。",
+            "securityDirect": "直接傳輸 - 請求由瀏覽器直接發送至 Google API，全程 HTTPS 加密。",
+            "rememberKey": "記住金鑰 (Remember Key)",
+            "rememberKeyDesc": "勾選後將儲存在 LocalStorage，下次開啟瀏覽器時會自動載入。",
+            "settings": "已設定完畢",
+            "clearConfirm": "確定要清除 API Key 嗎？"
         },
         "mode": {
             "textToSticker": "Text to Sticker",
@@ -427,12 +522,12 @@
         "caption": {
             "title": "AI Captioning",
             "suggested": "AI Suggested Captions",
-            "uploadTitle": "Click or Drop Image Here",
-            "uploadDesc": "Upload a photo to let AI generate captions",
+            "uploadTitle": "點擊或拖放圖片至此",
+            "uploadDesc": "上傳照片，讓 AI 幫你想梗",
             "placeholder": "Upload an image to see suggestions!",
             "useThis": "Use this",
-            "analyzing": "Analyzing Image...",
-            "thinking": "Thinking of funny memes..."
+            "analyzing": "正在分析圖片...",
+            "thinking": "正在構思有趣的梗..."
         },
         "phases": {
             "upload": "階段 1: 上傳照片",
@@ -489,7 +584,8 @@
             "zipName": "stickers",
             "preview": "預覽",
             "download": "下載",
-            "removeBg": "背景移除"
+            "removeBg": "背景移除",
+            "cancel": "取消"
         },
         "errors": {
             "general": "生成失敗：",
@@ -987,7 +1083,8 @@
             "processingFail": "處理失敗：",
             "applying": "正在套用美化效果...",
             "complete": "處理完成！",
-            "failed": "處理失敗："
+            "failed": "處理失敗：",
+            "savedToCollection": "Saved to Collection"
         },
         "phase1": {
             "title": "裁切與去背",
@@ -1003,7 +1100,8 @@
             "protectClosed": "保護封閉區",
             "enhanceText": "增強文字",
             "runCore": "執行核心處理",
-            "resetGrid": "重置網格"
+            "resetGrid": "重置網格",
+            "editFrame": "編輯裁切外框"
         },
         "phase2": {
             "title": "美化加工與輸出",
@@ -1021,28 +1119,36 @@
             "prefix": "檔名前綴",
             "apply": "套用並預覽",
             "saveToGallery": "儲存至作品集",
-            "downloadZip": "下載全部成果 ZIP"
+            "downloadZip": "下載全部成果 ZIP",
+            "doubleStroke": "雙重描邊",
+            "export": "匯出設定",
+            "secondStrokeColor": "外層顏色",
+            "secondStrokeSize": "外層粗細"
+        },
+        "actions": {
+            "restore": "Restore"
         }
     },
     "eraser": {
-        "title": "橡皮擦",
-        "subtitle": "魔術去背工具",
+        "title": "Smart Eraser",
+        "subtitle": "Background Removal Tool",
         "history": "紀錄",
-        "zoom": "縮放",
+        "zoom": "Zoom",
         "upload": {
             "title": "上傳圖片開始製作",
-            "dragDrop": "拖放圖片至此，或點擊選擇 (JPG, PNG)",
+            "dragDrop": "Drag and drop image here, or click to select (JPG, PNG)",
             "smart": "智慧去背",
             "manual": "手動擦除",
             "repair": "邊緣修復",
             "gallery": "從作品集選擇"
         },
         "tabs": {
-            "cropEdit": "Crop & Edit",
+            "cropEdit": "Layer Edit",
             "smartRemove": "AI Remove BG",
-            "eraser": "Magic Eraser",
-            "packager": "Batch Tools",
+            "eraser": "Eraser",
+            "packager": "Batch Crop",
             "animator": "Animator",
+            "resize": "Resize Image",
             "svg": "SVG Magic"
         },
         "toolbar": {
@@ -1051,6 +1157,16 @@
             "restore": "還原筆刷",
             "magic": "魔術棒",
             "move": "移動",
+            "reset": "重置",
+            "hardness": "筆刷硬度",
+            "enableStroke": "啟用物件描邊",
+            "enableShadow": "啟用物件陰影",
+            "advancedSettings": "進階 AI 設定",
+            "edgeTolerance": "邊緣容差",
+            "shrink": "內縮",
+            "grow": "外擴",
+            "protectClosed": "保護封閉區 (補洞)",
+            "enhanceText": "增強文字細節",
             "tolerance": "容差值",
             "size": "筆刷大小",
             "zoom": "畫布縮放",
@@ -1060,6 +1176,10 @@
             "resetImage": "重置圖片",
             "saveToGallery": "儲存至作品集",
             "export": "匯出 PNG"
+        },
+        "magic": {
+            "fill": "連通填充",
+            "brush": "魔術筆刷"
         }
     },
     "editor": {
@@ -1077,7 +1197,8 @@
             "eraser": "橡皮擦",
             "packager": "批量裁切",
             "animator": "動態貼圖",
-            "svg": "SVG 魔法"
+            "svg": "SVG 魔法",
+            "resize": "調整尺寸"
         },
         "bubblePicker": {
             "chooseStyle": "選擇氣泡樣式",
@@ -1181,6 +1302,21 @@
             "deleteConfirm": "刪除此貼圖？",
             "selected": "已選擇",
             "downloadZip": "下載 ZIP"
+        },
+        "aiRemoval": {
+            "error": "AI removal failed. Please try again."
+        },
+        "resize": {
+            "title": "調整圖片尺寸",
+            "subtitle": "輕鬆調整、縮放與優化您的圖片尺寸",
+            "uploadPrompt": "點擊上傳圖片",
+            "uploadHint": "支援 JPG, PNG, WEBP",
+            "reduceSection": "縮小與縮圖",
+            "width": "寬度",
+            "height": "高度",
+            "applyResize": "套用調整大小",
+            "upscaleNote": "使用本地瀏覽器處理，速度快且完全離線",
+            "qualityWarning": "放大圖片（超過100%）可能導致畫質下降或像素化。縮小圖片通常適合製作縮圖。"
         }
     },
     "collage": {
@@ -1296,7 +1432,7 @@
         },
         "variations_hint": "生成 {{count}} 個變化版本",
         "action": {
-            "generate": "Generate Headshot"
+            "generate": "生成專業形象照"
         },
         "errors": {
             "noImage": "請先上傳照片",
@@ -1359,7 +1495,8 @@
             "smile_bright": "露齒燦爛微笑（熱情活潑）",
             "confident": "自信堅定（眼神專注，微縮嘴）",
             "relaxed": "放鬆柔和（陽角微提，無攻擊性）",
-            "laugh": "開懷大笑（極具感染力，休閒感）"
+            "laugh": "開懷大笑（極具感染力，休閒感）",
+            "": "Natural"
         },
         "styles": {
             "white_id": "白底證件（標準純白，適合正式用途）",
@@ -1416,41 +1553,20 @@
             "lying_side": "躺姿側拍半身"
         }
     },
-    "stats": {
-        "tools": "Professional Tools",
-        "categories": "Categories",
-        "aiPowered": "AI Powered"
-    },
-    "cta": {
-        "launch": "Launch"
-    },
-    "categories": {
-        "aiGeneration": {
-            "title": "AI Generation",
-            "desc": "Create stunning images and stickers with AI technology"
-        },
-        "imageProcessing": {
-            "title": "Image Processing",
-            "desc": "Professional image editing tools from cropping to background removal"
-        },
-        "creative": {
-            "title": "Creative Layouts",
-            "desc": "Create unique photo collages with creative layouts"
-        },
-        "printing": {
-            "title": "Print & Output",
-            "desc": "Professional layout tools for stickers and ID photos"
-        },
-        "management": {
-            "title": "Gallery",
-            "desc": "Manage all your creations in one place"
-        }
-    },
     "common": {
         "cancel": "取消",
         "confirm": "確定",
         "done": "完成",
         "save": "儲存",
-        "close": "關閉"
+        "close": "關閉",
+        "download": "下載圖片",
+        "loading": "Loading...",
+        "or": "或",
+        "redo": "Redo",
+        "reset": "重置",
+        "resetZoom": "Reset Zoom",
+        "undo": "Undo",
+        "zoomIn": "Zoom In",
+        "zoomOut": "Zoom Out"
     }
 }

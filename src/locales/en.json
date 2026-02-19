@@ -20,7 +20,8 @@
         "svgConverter": "SVG Magic",
         "printSheet": "Layout & Print",
         "captioning": "AI Captioning",
-        "animator": "Animator"
+        "animator": "Animator",
+        "processing": "Processing..."
     },
     "linePreview": {
         "title": "LINE Preview",
@@ -152,7 +153,11 @@
                 "margin": "Margin (mm)",
                 "gap": "Gap (mm)",
                 "showCutLines": "Cut Lines",
-                "enableMirror": "Mirror"
+                "enableMirror": "Mirror",
+                "paperOrientation": "Paper Orientation",
+                "portrait": "Portrait",
+                "landscape": "Landscape",
+                "outputFormat": "Output Format"
             },
             "cropper": {
                 "cancel": "Cancel",
@@ -166,7 +171,9 @@
                 "noFitHint": "Try reducing margins/gaps or\nchoosing a larger paper size.",
                 "totalPhotos": "Total Photos",
                 "format": "Format",
-                "download": "Download Sheet"
+                "download": "Download Sheet",
+                "zoom": "Zoom",
+                "saveToGallery": "Save to Gallery"
             }
         },
         "description": "Arrange your stickers on an A4 canvas and export as PDF.",
@@ -227,64 +234,145 @@
         "shareError": "Sharing failed",
         "shareNotSupported": "Sharing files is not supported on this device",
         "addSelected": "Add Selected",
-        "items": "Items"
+        "items": "Items",
+        "saved": "Saved to Gallery!",
+        "share": "Share",
+        "upload": "Upload"
     },
     "landing": {
         "tagline": "The Ultimate Creative Suite",
         "heroTitle": "Create Magical Stickers with AI",
-        "heroDesc": "A unified suite of powerful tools to generating, editing, removing backgrounds, and packaging stickers for LINE & Telegram.",
+        "heroDesc": "A unified suite of powerful tools for generating, editing, removing backgrounds, and packaging stickers for LINE & Telegram.",
         "startCreating": "Start Creating",
         "exploreTools": "Explore Tools",
-        "launchApp": "Launch App",
-        "features": {
-            "generatorTitle": "AI Sticker Studio",
-            "generatorDesc": "Turn text prompts into stunning sticker packs using Google's Gemini AI. No design skills needed.",
-            "editorTitle": "Editor",
-            "editorDesc": "Powerful layer-based editor. Compose images, add text, adjust layouts, and fine-tune your designs.",
-            "eraserTitle": "Eraser",
-            "eraserDesc": "Smart background removal. Clean up your images instantly and export transparent PNGs.",
-            "packagerTitle": "Packager",
-            "packagerDesc": "Batch crop, remove background, and outline for Line/Telegram stickers.",
-            "svgTitle": "SVG Magic",
-            "svgDesc": "Convert raster images to infinite scalable vectors.",
-            "animatorTitle": "Animator",
-            "animatorDesc": "Create dynamic stickers with multi-layer animations and export as APNG or GIF."
+        "stats": {
+            "tools": "Professional Tools",
+            "categories": "Functional Categories",
+            "aiPowered": "AI Powered"
         },
-        "featureDetails": {
-            "generator": {
-                "title": "AI Sticker Studio",
-                "desc": "Generate high-quality stickers from text prompts. Supports various art styles (Anime, Watercolor, Pixel, etc.) with auto-transparency."
+        "categories": {
+            "aiGeneration": {
+                "title": "AI Generation",
+                "desc": "Create stunning images and stickers with AI technology"
             },
-            "editor": {
-                "title": "All-in-One Image Editor",
-                "desc": "Professional layer-based editor. Combine photos, text, and stickers with rich filters and effects."
+            "imageProcessing": {
+                "title": "Image Processing",
+                "desc": "Professional image editing tools from cropping to background removal"
             },
-            "eraser": {
-                "title": "Magic Eraser",
-                "desc": "Powerful background removal tool. Supports AI auto-detection and manual refinement for perfect transparent assets."
+            "creative": {
+                "title": "Creative Layouts",
+                "desc": "Create unique photo collages with creative layouts"
             },
-            "packager": {
-                "title": "Sticker Packager",
-                "desc": "Batch processing tool designed for LINE & Telegram. Auto-resize, add borders, and export strictly compliant formats."
+            "printing": {
+                "title": "Print & Output",
+                "desc": "Professional layout tools for stickers and ID photos"
             },
-            "collage": {
-                "title": "Creative Collage",
-                "desc": "Offers various layouts including Grid, Masonry, and geometric shapes. Smart layout for perfect photo presentation."
+            "management": {
+                "title": "Galleries & Metadata",
+                "desc": "Manage all your creations and metadata in one place"
+            }
+        },
+        "tabs": {
+            "styleSticker": {
+                "title": "Style Sticker",
+                "desc": "Diverse Art Styles",
+                "features": "AI Generated • Multiple Options"
+            },
+            "holidaySticker": {
+                "title": "Holiday Sticker",
+                "desc": "Festive Atmosphere",
+                "features": "Essential for Holidays"
+            },
+            "greetingCard": {
+                "title": "Greeting Card",
+                "desc": "Warm Wishes",
+                "features": "Personalized Text • Layouts"
+            },
+            "mangaMaster": {
+                "title": "Manga Master",
+                "desc": "AI Manga Paneling",
+                "features": "Layout Optimization • Coloring"
+            },
+            "cinematicPoster": {
+                "title": "Cinematic Poster",
+                "desc": "Movie-quality Shutter",
+                "features": "Cinematic Filters • Lighting"
+            },
+            "imageGenerator": {
+                "title": "AI Image Gen",
+                "desc": "Your Creative Brush",
+                "features": "High Quality • Infinite Possibilities"
+            },
+            "headshotMaster": {
+                "title": "Headshot Pro",
+                "desc": "Professional Image",
+                "features": "Business Optimization • Lighting"
+            },
+            "portraitMaster": {
+                "title": "Portrait Master",
+                "desc": "Studio-level Photography",
+                "features": "Fine Retouching • Scene Swap"
+            },
+            "batchCrop": {
+                "title": "Batch Crop",
+                "desc": "Fast Bulk Processing",
+                "features": "Smart Resize • Unified Format"
+            },
+            "smartRemoveBg": {
+                "title": "Smart Remove BG",
+                "desc": "One-click Background Removal",
+                "features": "Magic Edges • Perfect Transparency"
             },
             "animator": {
                 "title": "Animator",
-                "desc": "Transform static images into lively APNG/GIF animations. Supports keyframe settings and real-time preview."
+                "desc": "Bring Stickers to Life",
+                "features": "24 FPS Animation • APNG Export"
             },
-            "svg": {
-                "title": "Raster to Vector",
-                "desc": "Convert JPG/PNG images into infinitely scalable SVG vectors, perfect for printing and large-scale output."
+            "layerEditor": {
+                "title": "Image Editor",
+                "desc": "Professional Composition",
+                "features": "Multi-layer Support • Filters"
             },
-            "printSheet": {
-                "title": "Layout & Print",
-                "desc": "Supports ID photos and A4 sticker layout. key Customize print sizes and margins to print professional results at home."
+            "imageResizer": {
+                "title": "Image Resizer",
+                "desc": "Precise Resolution Control",
+                "features": "Lossless Scaling • Flexible"
+            },
+            "svgConverter": {
+                "title": "SVG Magic",
+                "desc": "Raster to Vector",
+                "features": "Infinite Scalable • Curves"
+            },
+            "layerLab": {
+                "title": "Layer Lab",
+                "desc": "Explore Infinite Creativity",
+                "features": "Templates • Free Composition"
+            },
+            "photoCollage": {
+                "title": "Photo Collage",
+                "desc": "New Way to Combine Photos",
+                "features": "Geometric Layouts • Alignment"
+            },
+            "stickerPrint": {
+                "title": "Sticker Print",
+                "desc": "My Personal Sticker Book",
+                "features": "A4 Layout • Auto Edge Detection"
+            },
+            "idPhotoPrint": {
+                "title": "ID Photo Print",
+                "desc": "Standard ID Specifications",
+                "features": "Precise Sizing • Print Preview"
+            },
+            "gallery": {
+                "title": "Gallery",
+                "desc": "Manage Creative Output",
+                "features": "Bulk Download • Fast Preview"
             }
         },
-        "footer": "Powered by Google Gemini Pro • Requires API Key used directly in browser"
+        "cta": {
+            "launch": "Launch App"
+        },
+        "footer": "© 2024 CreativeOS - All creative possibilities"
     },
     "generator": {
         "title": "AI Sticker Studio",
@@ -418,7 +506,14 @@
             "change": "Change Key",
             "invalid": "Please enter a valid API Key",
             "expired": "API Key invalid or expired, please re-enter.",
-            "notFound": "API Key not found or invalid."
+            "notFound": "API Key not found or invalid.",
+            "securityTitle": "Security Notice",
+            "securityLocalStorage": "Local Storage - Your key is only stored in your browser (LocalStorage) and never uploaded to our servers.",
+            "securityDirect": "Direct Transmission - Requests are sent from your browser directly to Google API via HTTPS encryption.",
+            "rememberKey": "Remember Key",
+            "rememberKeyDesc": "When checked, the key will be saved for future sessions.",
+            "settings": "Settings Complete",
+            "clearConfirm": "Are you sure you want to clear your API Key?"
         },
         "mode": {
             "textToSticker": "Text to Sticker",
@@ -489,7 +584,8 @@
             "zipName": "stickers",
             "preview": "Preview",
             "download": "Download",
-            "removeBg": "Remove Background"
+            "removeBg": "Remove Background",
+            "cancel": "Cancel"
         },
         "errors": {
             "general": "Generation failed: ",
@@ -987,7 +1083,8 @@
             "processingFail": "Processing failed: ",
             "applying": "Applying beautification...",
             "complete": "Processing Complete!",
-            "failed": "Processing Failed: "
+            "failed": "Processing Failed: ",
+            "savedToCollection": "Saved to Collection"
         },
         "phase1": {
             "title": "Phase 1: Crop & Remove BG",
@@ -1003,7 +1100,8 @@
             "protectClosed": "Protect Closed Areas",
             "enhanceText": "Enhance Text",
             "runCore": "Run Core Process",
-            "resetGrid": "Reset Grid"
+            "resetGrid": "Reset Grid",
+            "editFrame": "Edit Frame"
         },
         "phase2": {
             "title": "Phase 2: Beautify & Export",
@@ -1021,7 +1119,14 @@
             "prefix": "Prefix",
             "apply": "Apply & Preview",
             "saveToGallery": "Save to Gallery",
-            "downloadZip": "Download ZIP"
+            "downloadZip": "Download ZIP",
+            "doubleStroke": "Double Stroke",
+            "export": "Export",
+            "secondStrokeColor": "Second Stroke Color",
+            "secondStrokeSize": "Second Stroke Size"
+        },
+        "actions": {
+            "restore": "Restore"
         }
     },
     "eraser": {
@@ -1051,6 +1156,16 @@
             "restore": "Restore",
             "magic": "Magic",
             "move": "Move",
+            "reset": "Reset",
+            "hardness": "Hardness",
+            "enableStroke": "Enable Stroke",
+            "enableShadow": "Enable Shadow",
+            "advancedSettings": "Advanced AI Settings",
+            "edgeTolerance": "Edge Tolerance",
+            "shrink": "Shrink",
+            "grow": "Grow",
+            "protectClosed": "Protect Closed Areas",
+            "enhanceText": "Enhance Text",
             "tolerance": "Tolerance",
             "size": "Size",
             "zoom": "Zoom",
@@ -1060,6 +1175,10 @@
             "resetImage": "Reset Image",
             "saveToGallery": "Save to Gallery",
             "export": "Export PNG"
+        },
+        "magic": {
+            "fill": "Flood Fill",
+            "brush": "Magic Brush"
         }
     },
     "editor": {
@@ -1077,6 +1196,7 @@
             "eraser": "Eraser",
             "packager": "Batch Crop",
             "animator": "Animator",
+            "resize": "Resize Image",
             "svg": "SVG Magic"
         },
         "bubblePicker": {
@@ -1181,6 +1301,21 @@
             "deleteConfirm": "Delete this sticker?",
             "selected": "Selected",
             "downloadZip": "Download ZIP"
+        },
+        "aiRemoval": {
+            "error": "AI removal failed. Please try again."
+        },
+        "resize": {
+            "title": "Resize Image",
+            "subtitle": "Easily resize and optimize image dimensions.",
+            "uploadPrompt": "Upload Image",
+            "uploadHint": "Supports JPG, PNG, WEBP",
+            "reduceSection": "Resize / Scale",
+            "width": "Width",
+            "height": "Height",
+            "applyResize": "Apply Resize",
+            "upscaleNote": "Runs locally in your browser.",
+            "qualityWarning": "Upscaling over 100% may reduce quality."
         }
     },
     "collage": {
@@ -1359,7 +1494,8 @@
             "smile_bright": "Bright Smile (Showing teeth, lively)",
             "confident": "Confident (Focused eyes, subtle lips)",
             "relaxed": "Relaxed (Lifted cheeks, approachable)",
-            "laugh": "Laughing (Infectious, casual)"
+            "laugh": "Laughing (Infectious, casual)",
+            "": "Natural"
         },
         "styles": {
             "white_id": "White ID (Standard White, Official)",
@@ -1416,41 +1552,20 @@
             "lying_side": "Lying Side (Half Body)"
         }
     },
-    "stats": {
-        "tools": "Professional Tools",
-        "categories": "Categories",
-        "aiPowered": "AI Powered"
-    },
-    "cta": {
-        "launch": "Launch"
-    },
-    "categories": {
-        "aiGeneration": {
-            "title": "AI Generation",
-            "desc": "Create stunning images and stickers with AI technology"
-        },
-        "imageProcessing": {
-            "title": "Image Processing",
-            "desc": "Professional image editing tools from cropping to background removal"
-        },
-        "creative": {
-            "title": "Creative Layouts",
-            "desc": "Create unique photo collages with creative layouts"
-        },
-        "printing": {
-            "title": "Print & Output",
-            "desc": "Professional layout tools for stickers and ID photos"
-        },
-        "management": {
-            "title": "Gallery",
-            "desc": "Manage all your creations in one place"
-        }
-    },
     "common": {
         "cancel": "Cancel",
         "confirm": "Confirm",
         "done": "Done",
         "save": "Save",
-        "close": "Close"
+        "close": "Close",
+        "download": "Download",
+        "loading": "Loading...",
+        "or": "or",
+        "redo": "Redo",
+        "reset": "Reset",
+        "resetZoom": "Reset Zoom",
+        "undo": "Undo",
+        "zoomIn": "Zoom In",
+        "zoomOut": "Zoom Out"
     }
 }
