@@ -1,7 +1,7 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
-import { Sparkles, Wand2, BookOpen, Shuffle, Lock, Unlock } from 'lucide-react';
+import { Sparkles, Wand2, BookOpen, Shuffle, Lock, Unlock, Search, Copy, Save, Trash2, X } from 'lucide-react';
 import {
   CHARACTER_COMMON_TAGS,
   CHARACTER_DEFAULT_STATE,
@@ -19,6 +19,21 @@ interface CharacterCreateTabProps {
   onError: (message: string) => void;
   onNeedApiKey: () => void;
   onSendToImageGen: (prompt: string) => void;
+}
+
+interface CharacterProfile {
+  id: string;
+  name: string;
+  worldMode: CharacterWorldMode;
+  promptState: CharacterPromptState;
+  lockedKeys: CharacterCategoryKey[];
+  createdAt: number;
+}
+
+interface StarterPreset {
+  key: string;
+  worldMode: CharacterWorldMode;
+  seed: Partial<CharacterPromptState>;
 }
 
 const CATEGORY_KEYS: CharacterCategoryKey[] = [
@@ -42,6 +57,57 @@ const WORLD_MODES: CharacterWorldMode[] = [
   'oriental',
 ];
 
+const DRAFT_STORAGE_KEY = 'character_create_draft_v1';
+const PROFILE_STORAGE_KEY = 'character_create_profiles_v1';
+
+const STARTER_PRESETS: StarterPreset[] = [
+  {
+    key: 'orientalHeroine',
+    worldMode: 'oriental',
+    seed: {
+      character: 'wuxia heroine, peking opera actress, dai ethnicity girl',
+      pose: 'flowing sleeve dance pose, turning-back glance pose',
+      outfit: 'hanfu outfit, embroidered shawl ribbons',
+      env: 'lantern-lit ancient city, classical courtyard',
+      style: 'expressive ink-wash style, cinematic realistic style',
+      light: 'moonlight, foggy volumetric beams',
+      color: 'jewel tone palette',
+      shot: 'medium shot',
+      rare: 'flying talisman paper effect',
+    },
+  },
+  {
+    key: 'scifiVillain',
+    worldMode: 'scifi',
+    seed: {
+      character: 'cyber hacker engineer, android hunter',
+      pose: 'tactical ready stance, weapon-draw turn pose',
+      outfit: 'reactive armor suit, tactical visor headset',
+      env: 'quantum core chamber, cyberpunk megacity',
+      style: 'cyberpunk style, concept art style',
+      light: 'neon lighting, edge back rim light',
+      color: 'purple-blue neon palette',
+      shot: 'over-the-shoulder shot',
+      rare: 'glitch flicker effect',
+    },
+  },
+  {
+    key: 'modernStreet',
+    worldMode: 'modern',
+    seed: {
+      character: 'street creator, urban photographer',
+      pose: 'walking candid pose, hands-in-pocket pose',
+      outfit: 'streetwear fit, bomber jacket',
+      env: 'rainy night alley, city street scene',
+      style: 'film noir visual style, cinematic realistic style',
+      light: 'night streetlamp light, neon lighting',
+      color: 'teal and orange palette',
+      shot: 'wide shot',
+      rare: 'urban rain mist effect',
+    },
+  },
+];
+
 const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
   apiKey,
   onError,
@@ -60,6 +126,54 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
   const [loadingAction, setLoadingAction] = useState<'analyze' | 'optimize' | 'story' | null>(null);
   const [optStyle, setOptStyle] = useState<'artistic' | 'photo' | 'anime'>('artistic');
   const [lockedKeys, setLockedKeys] = useState<Set<CharacterCategoryKey>>(new Set());
+  const [tagQuery, setTagQuery] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const [profiles, setProfiles] = useState<CharacterProfile[]>([]);
+  const [profileName, setProfileName] = useState('');
+  const [selectedProfileId, setSelectedProfileId] = useState('');
+  const [statusText, setStatusText] = useState('');
+  const statusTimerRef = useRef<number | null>(null);
+
+  const isBusy = loadingAction !== null;
+
+  useEffect(() => {
+    try {
+      const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed.worldMode) setWorldMode(parsed.worldMode);
+        if (parsed.promptState) setPromptState(parsed.promptState);
+        if (Array.isArray(parsed.lockedKeys)) setLockedKeys(new Set(parsed.lockedKeys));
+        if (typeof parsed.ideaInput === 'string') setIdeaInput(parsed.ideaInput);
+      }
+      const savedProfiles = localStorage.getItem(PROFILE_STORAGE_KEY);
+      if (savedProfiles) {
+        const parsed = JSON.parse(savedProfiles);
+        if (Array.isArray(parsed)) setProfiles(parsed);
+      }
+    } catch {
+      // Ignore malformed local storage and start clean
+    }
+  }, []);
+
+  useEffect(() => {
+    const payload = {
+      worldMode,
+      promptState,
+      lockedKeys: Array.from(lockedKeys),
+      ideaInput,
+    };
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(payload));
+  }, [worldMode, promptState, lockedKeys, ideaInput]);
+
+  useEffect(() => {
+    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profiles));
+  }, [profiles]);
+
+  useEffect(() => {
+    setTagQuery('');
+  }, [activeCategory, worldMode]);
 
   const categoryTags = useMemo(() => {
     if (['shot', 'style', 'light', 'color'].includes(activeCategory)) {
@@ -67,6 +181,14 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
     }
     return CHARACTER_WORLD_DATA[worldMode][activeCategory as 'character' | 'pose' | 'outfit' | 'env' | 'rare'];
   }, [activeCategory, worldMode]);
+
+  const filteredTags = useMemo(() => {
+    const q = tagQuery.trim().toLowerCase();
+    if (!q) return categoryTags;
+    return categoryTags.filter((tag) =>
+      tag.zh.toLowerCase().includes(q) || tag.en.toLowerCase().includes(q)
+    );
+  }, [categoryTags, tagQuery]);
 
   const rawPrompt = useMemo(() => {
     const core = CATEGORY_KEYS
@@ -79,6 +201,22 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
   }, [promptState]);
 
   const displayPrompt = optimizedPrompt || rawPrompt;
+
+  const setStatus = (text: string) => {
+    if (statusTimerRef.current) {
+      window.clearTimeout(statusTimerRef.current);
+    }
+    setStatusText(text);
+    statusTimerRef.current = window.setTimeout(() => setStatusText(''), 1800);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (statusTimerRef.current) {
+        window.clearTimeout(statusTimerRef.current);
+      }
+    };
+  }, []);
 
   const upsertTag = (tagEn: string) => {
     setPromptState((prev) => {
@@ -96,6 +234,7 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
   };
 
   const randomize = () => {
+    if (isBusy) return;
     const next = { ...promptState };
     for (const key of CATEGORY_KEYS) {
       if (lockedKeys.has(key)) continue;
@@ -117,6 +256,7 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
   };
 
   const analyzeIdea = async () => {
+    if (isBusy) return;
     if (!ideaInput.trim()) {
       onError(t('generator.characterCreate.messages.needIdea'));
       return;
@@ -146,6 +286,7 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
   };
 
   const optimize = async () => {
+    if (isBusy) return;
     if (!rawPrompt.trim()) {
       onError(t('generator.characterCreate.messages.needPrompt'));
       return;
@@ -164,6 +305,7 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
   };
 
   const generateStory = async () => {
+    if (isBusy) return;
     const source = displayPrompt.trim();
     if (!source) {
       onError(t('generator.characterCreate.messages.needPrompt'));
@@ -182,7 +324,23 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
     }
   };
 
+  const copyPrompt = async () => {
+    const source = displayPrompt.trim();
+    if (!source) {
+      onError(t('generator.characterCreate.messages.needPrompt'));
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(source);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      onError(t('generator.characterCreate.messages.copyFailed'));
+    }
+  };
+
   const sendToImageGen = () => {
+    if (isBusy) return;
     const source = displayPrompt.trim();
     if (!source) {
       onError(t('generator.characterCreate.messages.needPrompt'));
@@ -192,6 +350,7 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
   };
 
   const toggleLock = (key: CharacterCategoryKey) => {
+    if (isBusy) return;
     setLockedKeys((prev) => {
       const next = new Set(prev);
       if (next.has(key)) next.delete(key);
@@ -209,6 +368,64 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
     );
   }, [activeCategory, promptState]);
 
+  const saveProfile = () => {
+    const name = profileName.trim();
+    if (!name) {
+      onError(t('generator.characterCreate.messages.needProfileName'));
+      return;
+    }
+    const now = Date.now();
+    const existing = profiles.find((p) => p.name.toLowerCase() === name.toLowerCase());
+    const profile: CharacterProfile = {
+      id: existing?.id || `cc_${now}`,
+      name,
+      worldMode,
+      promptState,
+      lockedKeys: Array.from(lockedKeys),
+      createdAt: existing?.createdAt || now,
+    };
+    const next = existing
+      ? profiles.map((p) => (p.id === existing.id ? profile : p))
+      : [profile, ...profiles];
+    setProfiles(next);
+    setSelectedProfileId(profile.id);
+    setStatus(t('generator.characterCreate.messages.profileSaved'));
+  };
+
+  const loadProfile = (id: string) => {
+    setSelectedProfileId(id);
+    const profile = profiles.find((p) => p.id === id);
+    if (!profile) return;
+    setWorldMode(profile.worldMode);
+    setPromptState(profile.promptState);
+    setLockedKeys(new Set(profile.lockedKeys));
+    setOptimizedPrompt('');
+    setStatus(t('generator.characterCreate.messages.profileLoaded'));
+  };
+
+  const deleteProfile = () => {
+    if (!selectedProfileId) return;
+    const next = profiles.filter((p) => p.id !== selectedProfileId);
+    setProfiles(next);
+    setSelectedProfileId('');
+    setStatus(t('generator.characterCreate.messages.profileDeleted'));
+  };
+
+  const applyStarter = (preset: StarterPreset) => {
+    if (isBusy) return;
+    setWorldMode(preset.worldMode);
+    setPromptState((prev) => {
+      const next = { ...prev };
+      for (const [key, value] of Object.entries(preset.seed)) {
+        const k = key as CharacterCategoryKey;
+        if (lockedKeys.has(k)) continue;
+        next[k] = value || '';
+      }
+      return next;
+    });
+    setOptimizedPrompt('');
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
@@ -220,11 +437,30 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
             </h2>
             <button
               onClick={randomize}
-              className="px-3 py-2 text-xs font-bold rounded-xl border border-primary/30 text-primary hover:bg-primary hover:text-white transition-colors inline-flex items-center gap-2"
+              disabled={isBusy}
+              className="px-3 py-2 text-xs font-bold rounded-xl border border-primary/30 text-primary hover:bg-primary hover:text-white transition-colors inline-flex items-center gap-2 disabled:opacity-60"
             >
               <Shuffle size={14} />
               {t('generator.characterCreate.random')}
             </button>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-bronze-light pl-1">
+              {t('generator.characterCreate.starterTitle')}
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {STARTER_PRESETS.map((preset) => (
+                <button
+                  key={preset.key}
+                  onClick={() => applyStarter(preset)}
+                  disabled={isBusy}
+                  className="px-3 py-2 text-xs font-bold rounded-xl border border-cream-dark bg-white text-bronze-light hover:border-primary/30 hover:text-primary transition-colors disabled:opacity-60"
+                >
+                  {t(`generator.characterCreate.starters.${preset.key}`)}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -232,11 +468,12 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
               <button
                 key={mode}
                 onClick={() => setWorldMode(mode)}
+                disabled={isBusy}
                 className={`px-3 py-2 text-xs font-bold rounded-xl border transition-colors ${
                   worldMode === mode
                     ? 'bg-primary text-white border-primary'
                     : 'bg-white border-cream-dark text-bronze-light hover:border-primary/30 hover:text-primary'
-                }`}
+                } disabled:opacity-60`}
               >
                 {t(`generator.characterCreate.modes.${mode}`)}
               </button>
@@ -248,11 +485,12 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
               <button
                 key={key}
                 onClick={() => setActiveCategory(key)}
+                disabled={isBusy}
                 className={`px-3 py-2 text-xs font-bold rounded-xl border transition-colors inline-flex items-center gap-2 ${
                   activeCategory === key
                     ? 'bg-primary text-white border-primary'
                     : 'bg-white border-cream-dark text-bronze-light hover:border-primary/30 hover:text-primary'
-                }`}
+                } disabled:opacity-60`}
               >
                 {t(`generator.characterCreate.categories.${key}`)}
                 {lockedKeys.has(key)
@@ -262,8 +500,27 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
             ))}
           </div>
 
+          <div className="relative">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-bronze-light" />
+            <input
+              value={tagQuery}
+              onChange={(e) => setTagQuery(e.target.value)}
+              placeholder={t('generator.characterCreate.searchPlaceholder')}
+              className="w-full pl-9 pr-3 py-2 rounded-xl border border-cream-dark bg-white text-xs text-bronze-text outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary"
+            />
+            {tagQuery && (
+              <button
+                onClick={() => setTagQuery('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-bronze-light hover:text-primary"
+                title={t('generator.characterCreate.actions.clearSearch')}
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 max-h-[520px] overflow-y-auto pr-1 custom-scrollbar">
-            {categoryTags.map((tag, idx) => {
+            {filteredTags.map((tag, idx) => {
               const isSelected = selectedSet.has(tag.en.toLowerCase());
               return (
                 <button
@@ -283,6 +540,11 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
               );
             })}
           </div>
+          {filteredTags.length === 0 && (
+            <p className="text-xs text-bronze-light italic px-1">
+              {t('generator.characterCreate.noTagsFound')}
+            </p>
+          )}
         </section>
 
         <section className="bg-cream border border-cream-dark rounded-[2rem] p-6 space-y-4">
@@ -303,7 +565,7 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
             />
             <button
               onClick={analyzeIdea}
-              disabled={loadingAction === 'analyze'}
+              disabled={loadingAction !== null}
               className="w-full py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary-hover transition-colors disabled:opacity-60"
             >
               {loadingAction === 'analyze'
@@ -312,7 +574,7 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
             </button>
           </div>
 
-          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+          <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1 custom-scrollbar">
             {CATEGORY_KEYS.map((key) => (
               <div key={key} className="space-y-1">
                 <div className="flex items-center justify-between px-1">
@@ -366,7 +628,7 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
               <label className="text-xs font-black uppercase tracking-widest text-bronze-light pl-1">
                 {t('generator.characterCreate.outputPrompt')}
               </label>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap justify-end">
                 <select
                   value={optStyle}
                   onChange={(e) => setOptStyle(e.target.value as 'artistic' | 'photo' | 'anime')}
@@ -379,7 +641,7 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
                 </select>
                 <button
                   onClick={optimize}
-                  disabled={loadingAction === 'optimize'}
+                  disabled={loadingAction !== null}
                   className="px-3 py-1.5 text-xs rounded-lg border border-primary/30 text-primary font-bold hover:bg-primary hover:text-white transition-colors disabled:opacity-60"
                 >
                   {loadingAction === 'optimize'
@@ -387,8 +649,19 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
                     : t('generator.characterCreate.actions.optimize')}
                 </button>
                 <button
+                  onClick={copyPrompt}
+                  disabled={isBusy}
+                  className={`px-3 py-1.5 text-xs rounded-lg border font-bold transition-colors inline-flex items-center gap-1 ${copied ? 'border-green-300 text-green-600' : 'border-primary/30 text-primary hover:bg-primary hover:text-white'}`}
+                >
+                  <Copy size={12} />
+                  {copied
+                    ? t('generator.characterCreate.actions.copied')
+                    : t('generator.characterCreate.actions.copyPrompt')}
+                </button>
+                <button
                   onClick={sendToImageGen}
-                  className="px-3 py-1.5 text-xs rounded-lg border border-primary/30 text-primary font-bold hover:bg-primary hover:text-white transition-colors"
+                  disabled={loadingAction !== null}
+                  className="px-3 py-1.5 text-xs rounded-lg border border-primary/30 text-primary font-bold hover:bg-primary hover:text-white transition-colors disabled:opacity-60"
                 >
                   {t('generator.characterCreate.actions.toImageGen')}
                 </button>
@@ -399,6 +672,51 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
               readOnly
               className="w-full h-28 p-3 rounded-xl border border-cream-dark bg-white text-xs text-bronze-text"
             />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-black uppercase tracking-widest text-bronze-light pl-1">
+              {t('generator.characterCreate.profilesTitle')}
+            </label>
+            <div className="flex gap-2">
+              <input
+                value={profileName}
+                onChange={(e) => setProfileName(e.target.value)}
+                placeholder={t('generator.characterCreate.profileNamePlaceholder')}
+                className="flex-1 px-3 py-2 rounded-xl border border-cream-dark bg-white text-xs text-bronze-text outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary"
+              />
+              <button
+                onClick={saveProfile}
+                disabled={isBusy}
+                className="px-3 py-2 rounded-xl border border-primary/30 text-primary hover:bg-primary hover:text-white transition-colors"
+                title={t('generator.characterCreate.actions.saveProfile')}
+              >
+                <Save size={14} />
+              </button>
+            </div>
+            <div className="flex gap-2">
+              <select
+                value={selectedProfileId}
+                onChange={(e) => loadProfile(e.target.value)}
+                disabled={isBusy}
+                className="flex-1 px-3 py-2 rounded-xl border border-cream-dark bg-white text-xs text-bronze-text outline-none"
+                title={t('generator.characterCreate.actions.loadProfile')}
+              >
+                <option value="">{t('generator.characterCreate.noProfiles')}</option>
+                {profiles.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+              <button
+                onClick={deleteProfile}
+                disabled={!selectedProfileId || isBusy}
+                className="px-3 py-2 rounded-xl border border-red-300 text-red-500 hover:bg-red-500 hover:text-white transition-colors disabled:opacity-50"
+                title={t('generator.characterCreate.actions.deleteProfile')}
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+            {statusText && <p className="text-[11px] text-primary font-bold pl-1">{statusText}</p>}
           </div>
         </section>
       </div>
@@ -411,7 +729,7 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
           </h3>
           <button
             onClick={generateStory}
-            disabled={loadingAction === 'story'}
+            disabled={loadingAction !== null}
             className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary-hover transition-colors disabled:opacity-60"
           >
             {loadingAction === 'story'

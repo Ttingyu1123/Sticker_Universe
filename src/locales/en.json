@@ -1080,7 +1080,13 @@
         "optimizing": "Optimizing...",
         "storyGenerate": "Generate Story",
         "storyGenerating": "Writing Story...",
-        "toImageGen": "Use in AI Image Gen"
+        "toImageGen": "Use in AI Image Gen",
+        "copyPrompt": "Copy Prompt",
+        "copied": "Copied",
+        "saveProfile": "Save Profile",
+        "loadProfile": "Load Profile",
+        "deleteProfile": "Delete Profile",
+        "clearSearch": "Clear search"
       },
       "messages": {
         "needApiKey": "Please set your API key first.",
@@ -1088,7 +1094,12 @@
         "needPrompt": "Please build a prompt first.",
         "analyzeFailed": "AI analysis failed.",
         "optimizeFailed": "Prompt optimization failed.",
-        "storyFailed": "Story generation failed."
+        "storyFailed": "Story generation failed.",
+        "copyFailed": "Copy failed. Please copy manually.",
+        "needProfileName": "Please enter a profile name.",
+        "profileSaved": "Profile saved.",
+        "profileLoaded": "Profile loaded.",
+        "profileDeleted": "Profile deleted."
       },
       "styles": {
         "artistic": "Artistic",
@@ -1113,6 +1124,17 @@
         "style": "Style",
         "light": "Lighting",
         "rare": "Feature"
+      },
+      "starterTitle": "Starter Presets",
+      "searchPlaceholder": "Search tags (zh/en)...",
+      "profilesTitle": "Profiles",
+      "profileNamePlaceholder": "Profile name",
+      "noProfiles": "No saved profile",
+      "noTagsFound": "No matching tags.",
+      "starters": {
+        "orientalHeroine": "Oriental Heroine",
+        "scifiVillain": "Sci-Fi Villain",
+        "modernStreet": "Modern Street"
       }
     }
   },

@@ -1178,7 +1178,13 @@
         "optimizing": "優化中...",
         "storyGenerate": "生成故事",
         "storyGenerating": "撰寫中...",
-        "toImageGen": "帶入 AI 圖片生成"
+        "toImageGen": "帶入 AI 圖片生成",
+        "copyPrompt": "複製提示詞",
+        "copied": "已複製",
+        "saveProfile": "儲存設定檔",
+        "loadProfile": "載入設定檔",
+        "deleteProfile": "刪除設定檔",
+        "clearSearch": "清除搜尋"
       },
       "messages": {
         "needApiKey": "請先設定 API Key。",
@@ -1186,7 +1192,12 @@
         "needPrompt": "請先建立提示詞。",
         "analyzeFailed": "AI 解析失敗。",
         "optimizeFailed": "提示詞優化失敗。",
-        "storyFailed": "故事生成失敗。"
+        "storyFailed": "故事生成失敗。",
+        "copyFailed": "複製失敗，請手動複製。",
+        "needProfileName": "請輸入設定檔名稱。",
+        "profileSaved": "設定檔已儲存。",
+        "profileLoaded": "設定檔已載入。",
+        "profileDeleted": "設定檔已刪除。"
       },
       "styles": {
         "artistic": "藝術",
@@ -1211,6 +1222,17 @@
         "style": "風格",
         "light": "光線",
         "rare": "特徵"
+      },
+      "starterTitle": "快速套版",
+      "searchPlaceholder": "搜尋標籤（中/英）...",
+      "profilesTitle": "角色設定檔",
+      "profileNamePlaceholder": "輸入設定檔名稱",
+      "noProfiles": "尚無已儲存設定檔",
+      "noTagsFound": "找不到符合的標籤。",
+      "starters": {
+        "orientalHeroine": "東方女俠",
+        "scifiVillain": "科幻反派",
+        "modernStreet": "現代街頭"
       }
     }
   },
