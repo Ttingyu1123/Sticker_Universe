@@ -1079,7 +1079,8 @@
         "optimize": "Optimize",
         "optimizing": "Optimizing...",
         "storyGenerate": "Generate Story",
-        "storyGenerating": "Writing Story..."
+        "storyGenerating": "Writing Story...",
+        "toImageGen": "Use in AI Image Gen"
       },
       "messages": {
         "needApiKey": "Please set your API key first.",

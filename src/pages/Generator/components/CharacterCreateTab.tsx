@@ -18,6 +18,7 @@ interface CharacterCreateTabProps {
   apiKey: string;
   onError: (message: string) => void;
   onNeedApiKey: () => void;
+  onSendToImageGen: (prompt: string) => void;
 }
 
 const CATEGORY_KEYS: CharacterCategoryKey[] = [
@@ -41,7 +42,12 @@ const WORLD_MODES: CharacterWorldMode[] = [
   'oriental',
 ];
 
-const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({ apiKey, onError, onNeedApiKey }) => {
+const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
+  apiKey,
+  onError,
+  onNeedApiKey,
+  onSendToImageGen,
+}) => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language === 'zh-TW' ? 'zh-TW' : 'en';
 
@@ -174,6 +180,15 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({ apiKey, onError
     } finally {
       setLoadingAction(null);
     }
+  };
+
+  const sendToImageGen = () => {
+    const source = displayPrompt.trim();
+    if (!source) {
+      onError(t('generator.characterCreate.messages.needPrompt'));
+      return;
+    }
+    onSendToImageGen(source);
   };
 
   const toggleLock = (key: CharacterCategoryKey) => {
@@ -370,6 +385,12 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({ apiKey, onError
                   {loadingAction === 'optimize'
                     ? t('generator.characterCreate.actions.optimizing')
                     : t('generator.characterCreate.actions.optimize')}
+                </button>
+                <button
+                  onClick={sendToImageGen}
+                  className="px-3 py-1.5 text-xs rounded-lg border border-primary/30 text-primary font-bold hover:bg-primary hover:text-white transition-colors"
+                >
+                  {t('generator.characterCreate.actions.toImageGen')}
                 </button>
               </div>
             </div>

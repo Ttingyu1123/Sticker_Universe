@@ -31,6 +31,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isZipping, setIsZipping] = useState(false);
   const [previewSticker, setPreviewSticker] = useState<Sticker | null>(null);
+  const [imageGenSeed, setImageGenSeed] = useState<{ prompt: string; token: number }>({ prompt: '', token: 0 });
 
   // Initialize API Key
   useEffect(() => {
@@ -492,12 +493,18 @@ const App: React.FC = () => {
                 apiKey={apiKey}
                 onError={(msg) => setError(msg)}
                 onNeedApiKey={handleOpenKeyModal}
+                onSendToImageGen={(prompt) => {
+                  setImageGenSeed({ prompt, token: Date.now() });
+                  setActiveTab('image-gen');
+                }}
               />
             ) : (
               <ImageGeneratorTab
                 apiKey={apiKey}
                 onSuccess={handleImageGenSuccess}
                 onError={(msg) => setError(msg)}
+                externalPrompt={imageGenSeed.prompt}
+                externalPromptToken={imageGenSeed.token}
               />
             )}
           </motion.div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload, FileText, Wand2, Sparkles, ChevronDown, X, FolderHeart } from 'lucide-react';
 import { ART_STYLES_CATEGORIES, ASPECT_RATIOS, EDITING_EXAMPLES, EXAMPLE_PROMPTS, FUNCTION_BUTTONS, TWELVE_GRID_CATEGORIES, TOP_100_STYLES_CATEGORIZED } from '../constants/generatorConstants';
@@ -10,9 +10,17 @@ interface ImageGeneratorTabProps {
     apiKey: string;
     onSuccess: (imageUrl: string, prompt: string) => void;
     onError: (error: string) => void;
+    externalPrompt?: string;
+    externalPromptToken?: number;
 }
 
-const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess, onError }) => {
+const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
+    apiKey,
+    onSuccess,
+    onError,
+    externalPrompt,
+    externalPromptToken,
+}) => {
     const { t } = useTranslation();
     const [prompt, setPrompt] = useState('');
     const [aspectRatio, setAspectRatio] = useState<string>('1:1');
@@ -28,6 +36,11 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ apiKey, onSuccess
     const [isCustomRatio, setIsCustomRatio] = useState(false);
     const [showGallery, setShowGallery] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (!externalPrompt || !externalPrompt.trim()) return;
+        setPrompt(externalPrompt);
+    }, [externalPrompt, externalPromptToken]);
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

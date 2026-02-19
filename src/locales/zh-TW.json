@@ -1177,7 +1177,8 @@
         "optimize": "優化",
         "optimizing": "優化中...",
         "storyGenerate": "生成故事",
-        "storyGenerating": "撰寫中..."
+        "storyGenerating": "撰寫中...",
+        "toImageGen": "帶入 AI 圖片生成"
       },
       "messages": {
         "needApiKey": "請先設定 API Key。",

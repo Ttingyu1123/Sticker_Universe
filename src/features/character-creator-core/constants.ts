@@ -259,6 +259,373 @@ export const CHARACTER_WORLD_DATA: CharacterWorldData = {
   },
 };
 
+const CHARACTER_COMMON_TAGS_EXTRA: Record<
+  'shot' | 'style' | 'light' | 'color',
+  CharacterTag[]
+> = {
+  shot: [
+    { zh: '俯角', en: 'high angle' },
+    { zh: '鳥瞰', en: 'bird-eye view' },
+    { zh: '背影', en: 'back view' },
+    { zh: '超近特寫', en: 'extreme close-up' },
+    { zh: '對稱構圖', en: 'symmetrical composition' },
+  ],
+  style: [
+    { zh: '賽博龐克', en: 'cyberpunk style' },
+    { zh: '概念藝術', en: 'concept art style' },
+    { zh: '油畫厚塗', en: 'oil painting impasto style' },
+    { zh: '像素風', en: 'pixel art style' },
+    { zh: '復古 90 年代動畫', en: 'retro 90s anime style' },
+  ],
+  light: [
+    { zh: '輪廓光', en: 'rim lighting' },
+    { zh: '體積光', en: 'volumetric lighting' },
+    { zh: '燭光', en: 'candlelight' },
+    { zh: '月光', en: 'moonlight' },
+    { zh: '聚光燈', en: 'spotlight lighting' },
+  ],
+  color: [
+    { zh: '復古暖色', en: 'vintage warm palette' },
+    { zh: '冷色調', en: 'cool tone palette' },
+    { zh: '大地色', en: 'earth tone palette' },
+    { zh: '糖果色', en: 'candy palette' },
+    { zh: '金黑配色', en: 'gold and black palette' },
+  ],
+};
+
+const CHARACTER_WORLD_DATA_EXTRA: CharacterWorldData = {
+  fantasy: {
+    character: [
+      { zh: '黑暗騎士', en: 'dark knight' },
+      { zh: '女武神', en: 'valkyrie' },
+      { zh: '召喚師', en: 'summoner' },
+    ],
+    pose: [
+      { zh: '拔劍衝刺', en: 'sword dash pose' },
+      { zh: '召喚法陣', en: 'summoning circle pose' },
+      { zh: '踏在浮石上', en: 'standing on floating rocks' },
+    ],
+    outfit: [
+      { zh: '龍鱗鎧甲', en: 'dragon-scale armor' },
+      { zh: '長羽披肩', en: 'feather mantle' },
+      { zh: '古代符文腰帶', en: 'ancient rune belt' },
+    ],
+    env: [
+      { zh: '天空之塔', en: 'tower above the clouds' },
+      { zh: '龍骨荒原', en: 'dragonbone wasteland' },
+      { zh: '魔法圖書館', en: 'arcane library hall' },
+    ],
+    rare: [
+      { zh: '雙色瞳', en: 'heterochromia eyes' },
+      { zh: '漂浮符文書', en: 'floating rune tome' },
+      { zh: '元素光環', en: 'elemental aura effect' },
+    ],
+  },
+  modern: {
+    character: [
+      { zh: 'K-pop 偶像', en: 'k-pop idol' },
+      { zh: '滑板少年', en: 'skater youth' },
+      { zh: '調酒師', en: 'bartender' },
+    ],
+    pose: [
+      { zh: '手插口袋', en: 'hands-in-pocket pose' },
+      { zh: '跑步動態', en: 'running motion pose' },
+      { zh: '回頭微笑', en: 'turn-back smile pose' },
+    ],
+    outfit: [
+      { zh: '連帽外套', en: 'hoodie outfit' },
+      { zh: '皮衣', en: 'leather jacket outfit' },
+      { zh: '運動套裝', en: 'tracksuit outfit' },
+    ],
+    env: [
+      { zh: '地鐵月台', en: 'subway platform' },
+      { zh: '便利商店', en: 'convenience store' },
+      { zh: '演唱會舞台', en: 'concert stage' },
+    ],
+    rare: [
+      { zh: '城市雨霧', en: 'urban rain mist effect' },
+      { zh: '鏡面倒影', en: 'mirror reflection effect' },
+      { zh: '街燈光束', en: 'streetlight beam effect' },
+    ],
+  },
+  scifi: {
+    character: [
+      { zh: '星艦艦長', en: 'starship captain' },
+      { zh: '機器獵人', en: 'android hunter' },
+      { zh: '駭客工程師', en: 'cyber hacker engineer' },
+    ],
+    pose: [
+      { zh: '駭入系統', en: 'hacking interface pose' },
+      { zh: '拔出能量槍', en: 'drawing plasma pistol pose' },
+      { zh: '躍遷前準備', en: 'pre-jump ready pose' },
+    ],
+    outfit: [
+      { zh: '反應裝甲', en: 'reactive armor suit' },
+      { zh: '全息披風', en: 'holographic cloak' },
+      { zh: '戰術頭戴裝置', en: 'tactical visor headset' },
+    ],
+    env: [
+      { zh: '軌道空間站', en: 'orbital station' },
+      { zh: '量子核心艙', en: 'quantum core chamber' },
+      { zh: '火星殖民地', en: 'mars colony district' },
+    ],
+    rare: [
+      { zh: '電路紋身', en: 'circuit tattoo effect' },
+      { zh: '故障閃爍', en: 'glitch flicker effect' },
+      { zh: '奈米粒子流', en: 'nanoparticle stream effect' },
+    ],
+  },
+  historical: {
+    character: [
+      { zh: '文藝復興畫師', en: 'renaissance painter' },
+      { zh: '帝國將軍', en: 'imperial general' },
+      { zh: '宮廷樂師', en: 'court musician' },
+    ],
+    pose: [
+      { zh: '揮旗指揮', en: 'banner-command pose' },
+      { zh: '抄寫卷軸', en: 'manuscript writing pose' },
+      { zh: '舞會旋轉', en: 'ballroom spin pose' },
+    ],
+    outfit: [
+      { zh: '金線禮袍', en: 'gold-thread ceremonial robe' },
+      { zh: '軍官披風', en: 'officer cape uniform' },
+      { zh: '蕾絲領口', en: 'lace ruff collar outfit' },
+    ],
+    env: [
+      { zh: '鏡廳舞會', en: 'hall of mirrors ballroom' },
+      { zh: '石板市集', en: 'cobblestone market street' },
+      { zh: '宮廷花園', en: 'royal palace garden' },
+    ],
+    rare: [
+      { zh: '羊皮紙紋理', en: 'parchment texture effect' },
+      { zh: '古典暗角', en: 'vintage vignette effect' },
+      { zh: '金箔細節', en: 'gold leaf detailing' },
+    ],
+  },
+  horror: {
+    character: [
+      { zh: '無面旅人', en: 'faceless wanderer' },
+      { zh: '夜行修女', en: 'night nun apparition' },
+      { zh: '深淵低語者', en: 'abyss whisperer' },
+    ],
+    pose: [
+      { zh: '拖行前進', en: 'dragging walk pose' },
+      { zh: '直視鏡頭', en: 'deadpan stare pose' },
+      { zh: '扭曲站姿', en: 'twisted posture pose' },
+    ],
+    outfit: [
+      { zh: '破碎婚紗', en: 'torn wedding gown' },
+      { zh: '舊醫護服', en: 'aged nurse uniform' },
+      { zh: '黑袍兜帽', en: 'black hooded robe' },
+    ],
+    env: [
+      { zh: '廢棄遊樂園', en: 'abandoned amusement park' },
+      { zh: '血色浴室', en: 'blood-stained bathroom' },
+      { zh: '地下停屍間', en: 'underground morgue room' },
+    ],
+    rare: [
+      { zh: '牆面血痕', en: 'blood smear wall effect' },
+      { zh: '詭異笑容', en: 'eerie smile effect' },
+      { zh: '黑霧纏繞', en: 'black fog wrapping effect' },
+    ],
+  },
+  oriental: {
+    character: [
+      { zh: '白蛇妖', en: 'white snake spirit' },
+      { zh: '敦煌飛天', en: 'dunhuang apsara' },
+      { zh: '古風琴師', en: 'ancient guqin musician' },
+    ],
+    pose: [
+      { zh: '舞袖', en: 'flowing sleeve dance pose' },
+      { zh: '拈花微笑', en: 'holding flower smile pose' },
+      { zh: '執卷吟詩', en: 'poetry recitation pose' },
+    ],
+    outfit: [
+      { zh: '唐風錦衣', en: 'tang-style brocade outfit' },
+      { zh: '道袍', en: 'taoist robe' },
+      { zh: '織錦披帛', en: 'embroidered shawl ribbons' },
+    ],
+    env: [
+      { zh: '亭台樓閣', en: 'classical pavilion complex' },
+      { zh: '月下長安', en: 'night changan street' },
+      { zh: '洞天福地', en: 'mythic grotto-heaven' },
+    ],
+    rare: [
+      { zh: '符紙飄散', en: 'flying talisman paper effect' },
+      { zh: '祥龍虛影', en: 'ethereal dragon silhouette' },
+      { zh: '流光墨痕', en: 'flowing ink light trails' },
+    ],
+  },
+};
+
+const MIN_OPTIONS_PER_CATEGORY = 15;
+
+const CATEGORY_FILLERS: Record<CharacterCategoryKey, CharacterTag[]> = {
+  character: [
+    { zh: '神秘旅人', en: 'mysterious wanderer' },
+    { zh: '學院優等生', en: 'academy honor student' },
+    { zh: '天才發明家', en: 'genius inventor' },
+    { zh: '守護者', en: 'vigilant guardian' },
+    { zh: '流浪詩人', en: 'wandering poet' },
+    { zh: '傭兵隊長', en: 'mercenary captain' },
+    { zh: '刺客', en: 'assassin operative' },
+    { zh: '占卜師', en: 'oracle seer' },
+    { zh: '鍊金術師', en: 'alchemist' },
+    { zh: '舞者', en: 'performance dancer' },
+    { zh: '槍手', en: 'precision gunslinger' },
+    { zh: '樂團主唱', en: 'band lead vocalist' },
+  ],
+  pose: [
+    { zh: '回頭注視', en: 'turning-back glance pose' },
+    { zh: '單手叉腰', en: 'one-hand-on-hip pose' },
+    { zh: '向前衝刺', en: 'forward sprint pose' },
+    { zh: '蹲姿戒備', en: 'crouched guard pose' },
+    { zh: '雙手展開', en: 'arms-wide-open pose' },
+    { zh: '抬頭仰望', en: 'looking-upward pose' },
+    { zh: '坐姿沉思', en: 'seated contemplation pose' },
+    { zh: '躍起動作', en: 'jumping action pose' },
+    { zh: '轉身拔武器', en: 'weapon-draw turn pose' },
+    { zh: '手勢施法', en: 'gesture spellcast pose' },
+  ],
+  outfit: [
+    { zh: '戰術背心', en: 'tactical vest outfit' },
+    { zh: '長版風衣', en: 'long trench coat outfit' },
+    { zh: '輕量盔甲', en: 'lightweight armor set' },
+    { zh: '學院制服', en: 'academy uniform outfit' },
+    { zh: '儀式服', en: 'ceremonial outfit' },
+    { zh: '機能工裝', en: 'utility workwear outfit' },
+    { zh: '皮革束腰', en: 'leather corset outfit' },
+    { zh: '披肩斗篷', en: 'cape and mantle outfit' },
+    { zh: '街頭夾克', en: 'street bomber jacket' },
+    { zh: '寬袖長袍', en: 'wide-sleeve robe outfit' },
+  ],
+  env: [
+    { zh: '霧中街道', en: 'misty city street' },
+    { zh: '高塔頂端', en: 'tower rooftop scene' },
+    { zh: '地下實驗室', en: 'underground laboratory' },
+    { zh: '雨夜巷弄', en: 'rainy night alley' },
+    { zh: '荒原廢墟', en: 'wasteland ruins' },
+    { zh: '港口碼頭', en: 'harbor dock scene' },
+    { zh: '雪山山徑', en: 'snow mountain trail' },
+    { zh: '古神殿廣場', en: 'ancient temple plaza' },
+    { zh: '森林湖畔', en: 'forest lakeside' },
+    { zh: '都會高樓群', en: 'metropolitan skyline' },
+  ],
+  color: [
+    { zh: '高對比黑白', en: 'high-contrast monochrome palette' },
+    { zh: '紫藍霓虹', en: 'purple-blue neon palette' },
+    { zh: '暮色橘紫', en: 'sunset orange-violet palette' },
+    { zh: '低飽和灰調', en: 'desaturated gray palette' },
+    { zh: '寶石色系', en: 'jewel tone palette' },
+    { zh: '柔霧奶油色', en: 'soft creamy pastel palette' },
+    { zh: '深海藍綠', en: 'deep sea teal-blue palette' },
+    { zh: '赤紅黑曜', en: 'crimson obsidian palette' },
+  ],
+  shot: [
+    { zh: '中景', en: 'medium shot' },
+    { zh: '遠景', en: 'wide shot' },
+    { zh: 'POV 視角', en: 'pov camera shot' },
+    { zh: '肩後鏡位', en: 'over-the-shoulder shot' },
+    { zh: '中央構圖', en: 'center composition shot' },
+    { zh: '電影運鏡感', en: 'cinematic tracking shot' },
+    { zh: '魚眼鏡頭', en: 'fisheye lens shot' },
+    { zh: '三分法構圖', en: 'rule-of-thirds composition shot' },
+  ],
+  style: [
+    { zh: '超寫實 3D', en: 'hyper-realistic 3d render style' },
+    { zh: '蒸氣龐克', en: 'steampunk illustration style' },
+    { zh: '吉卜力系', en: 'ghibli-inspired illustration style' },
+    { zh: '新海誠光影', en: 'makoto-shinkai lighting style' },
+    { zh: '黑色電影風', en: 'film noir visual style' },
+    { zh: '浮世繪', en: 'ukiyo-e art style' },
+    { zh: '寫意水墨', en: 'expressive ink-wash style' },
+    { zh: '黏土動畫風', en: 'claymation style' },
+  ],
+  light: [
+    { zh: '邊緣逆光', en: 'edge back rim light' },
+    { zh: '柔和漫反射', en: 'soft diffused lighting' },
+    { zh: '高反差硬光', en: 'high-contrast hard light' },
+    { zh: '舞台頂光', en: 'stage top light' },
+    { zh: '街燈夜光', en: 'night streetlamp light' },
+    { zh: '冷白日光', en: 'cool daylight tone' },
+    { zh: '暖黃室內光', en: 'warm indoor tungsten light' },
+    { zh: '霧中體積光', en: 'foggy volumetric beams' },
+  ],
+  rare: [
+    { zh: '流體粒子', en: 'fluid particle effect' },
+    { zh: '能量裂痕', en: 'energy fracture effect' },
+    { zh: '漂浮符號', en: 'floating sigil symbols' },
+    { zh: '裂鏡反射', en: 'shattered mirror reflection' },
+    { zh: '煙霧尾跡', en: 'smoke trail effect' },
+    { zh: '發光刻紋', en: 'luminous engravings' },
+    { zh: '電弧特效', en: 'electric arc effects' },
+    { zh: '幻影殘像', en: 'afterimage ghosting effect' },
+    { zh: '飄雪粒子', en: 'snow particle effect' },
+    { zh: '金屬磨損細節', en: 'metal wear detailing' },
+  ],
+};
+
+const WORLD_CHARACTER_PRIORITY_FILLERS: Partial<Record<CharacterWorldMode, CharacterTag[]>> = {
+  oriental: [
+    { zh: '傣族少女', en: 'dai ethnicity girl' },
+    { zh: '藏族少女', en: 'tibetan girl' },
+    { zh: '京劇花旦', en: 'peking opera actress' },
+    { zh: '苗族銀飾少女', en: 'miao silver-ornament girl' },
+    { zh: '維吾爾舞者', en: 'uyghur dancer' },
+    { zh: '蒙古騎手', en: 'mongolian rider' },
+    { zh: '壯族歌者', en: 'zhuang folk singer' },
+    { zh: '白族少女', en: 'bai ethnicity girl' },
+    { zh: '彝族首領', en: 'yi chieftain' },
+    { zh: '哈薩克獵鷹手', en: 'kazakh eagle hunter' },
+  ],
+};
+
+function mergeUniqueTags(base: CharacterTag[], extra: CharacterTag[]): CharacterTag[] {
+  const map = new Map<string, CharacterTag>();
+  for (const item of [...base, ...extra]) {
+    const key = item.en.trim().toLowerCase();
+    if (!map.has(key)) map.set(key, item);
+  }
+  return Array.from(map.values());
+}
+
+for (const key of Object.keys(CHARACTER_COMMON_TAGS_EXTRA) as Array<keyof typeof CHARACTER_COMMON_TAGS>) {
+  CHARACTER_COMMON_TAGS[key] = mergeUniqueTags(
+    CHARACTER_COMMON_TAGS[key],
+    CHARACTER_COMMON_TAGS_EXTRA[key]
+  );
+}
+
+for (const mode of Object.keys(CHARACTER_WORLD_DATA_EXTRA) as Array<keyof CharacterWorldData>) {
+  for (const category of Object.keys(CHARACTER_WORLD_DATA_EXTRA[mode]) as Array<keyof CharacterWorldData[typeof mode]>) {
+    CHARACTER_WORLD_DATA[mode][category] = mergeUniqueTags(
+      CHARACTER_WORLD_DATA[mode][category],
+      CHARACTER_WORLD_DATA_EXTRA[mode][category]
+    );
+  }
+}
+
+for (const key of Object.keys(CHARACTER_COMMON_TAGS) as Array<keyof typeof CHARACTER_COMMON_TAGS>) {
+  let list = CHARACTER_COMMON_TAGS[key];
+  if (list.length < MIN_OPTIONS_PER_CATEGORY) {
+    list = mergeUniqueTags(list, CATEGORY_FILLERS[key as CharacterCategoryKey]);
+  }
+  CHARACTER_COMMON_TAGS[key] = list.slice(0, Math.max(MIN_OPTIONS_PER_CATEGORY, list.length));
+}
+
+for (const mode of Object.keys(CHARACTER_WORLD_DATA) as Array<keyof CharacterWorldData>) {
+  for (const category of Object.keys(CHARACTER_WORLD_DATA[mode]) as Array<keyof CharacterWorldData[typeof mode]>) {
+    let list = CHARACTER_WORLD_DATA[mode][category];
+    if (category === 'character' && WORLD_CHARACTER_PRIORITY_FILLERS[mode]) {
+      list = mergeUniqueTags(list, WORLD_CHARACTER_PRIORITY_FILLERS[mode] || []);
+    }
+    if (list.length < MIN_OPTIONS_PER_CATEGORY) {
+      list = mergeUniqueTags(list, CATEGORY_FILLERS[category as CharacterCategoryKey]);
+    }
+    CHARACTER_WORLD_DATA[mode][category] = list.slice(0, Math.max(MIN_OPTIONS_PER_CATEGORY, list.length));
+  }
+}
+
 export const CHARACTER_DEFAULT_STATE = {
   character: '',
   pose: '',
