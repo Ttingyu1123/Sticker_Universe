@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Upload, Wand2, Download, Sparkles, Type, Palette,
@@ -32,6 +32,75 @@ interface StyleStickerTabProps {
     onNeedApiKey: () => void;
 }
 
+type PromptOption = {
+    id: string;
+    label: string;
+    prompt: string;
+};
+
+type PriorityMode = 'style' | 'semantic';
+
+const THEME_PROMPT_OPTIONS: PromptOption[] = [
+    { id: 'office', label: '社畜日常 (預設)', prompt: 'Corporate slave daily office life. tired, fake smile, coffee, deadline, overtime, salary day, want to go home.' },
+    { id: 'daily', label: '日常生活', prompt: 'Daily life interactions, greeting stickers, sleeping, eating, commuting, checking phone, tiny daily struggles.' },
+    { id: 'emotion', label: '喜怒哀樂', prompt: 'Exaggerated emotional expressions: happy, angry, sad, joyful, crying, laughing, shocked, eye-roll.' },
+    { id: 'japan', label: '日本旅遊', prompt: 'Japan travel vibe: ramen, hot spring, kimono, shopping, taking photos, airport and luggage.' },
+    { id: 'couple', label: '情侶放閃', prompt: 'Romantic couple gestures: hugging, kissing, missing you, heart eyes, sweet date moments.' },
+    { id: 'lazy', label: '耍廢人生', prompt: 'Lazy life: lying in bed, couch potato, sleepy face, messy hair, snack mode, do-not-disturb.' },
+    { id: 'foodie', label: '美食吃貨', prompt: 'Foodie life: drooling, huge meals, bubble tea, hungry mode, satisfied mode, midnight snack.' },
+    { id: 'fitness', label: '運動健身', prompt: 'Workout and fitness: gym, running, yoga, sweat, muscles, protein shake, motivation.' },
+    { id: 'cat', label: '貓奴日常', prompt: 'Cat lover life: feeding cat, litter cleaning, ignored by cat, meow, cat ears, cute paws.' },
+    { id: 'dog', label: '狗派生活', prompt: 'Dog lover life: walk dog, fetch game, tail wagging, puppy eyes, loyal companion, woof.' },
+    { id: 'parents', label: '新手爸媽', prompt: 'New parents life: feeding baby, changing diapers, tired eyes, baby crying, happy family.' },
+    { id: 'school', label: '校園生活', prompt: 'School life: exam stress, homework, classmate interaction, graduation, teacher scolding.' },
+    { id: 'festival', label: '節日慶祝', prompt: 'Festival celebration: birthday, new year, christmas, red envelope, cake, fireworks, congrats.' },
+    { id: 'slang', label: '網路用語', prompt: 'Internet slang expression set: LOL, OMG, facepalm, +1, keyboard-warrior vibe.' },
+    { id: 'meme', label: '迷因梗圖', prompt: 'Trending meme energy: funny pose, ironic humor, viral expression, playful sarcasm.' },
+    { id: 'positive', label: '正能量語錄', prompt: 'Positive vibe sticker set: fighting, you can do it, good morning, thumbs up, cheer up.' },
+    { id: 'negative', label: '負能量釋放', prompt: 'Negative energy release: social battery dead, soul leaving body, burnout, giving up.' }
+];
+
+const CUSTOM_THEME_OPTION_ID = 'custom';
+
+const STYLE_PROMPT_OPTIONS: PromptOption[] = [
+    { id: 'original', label: '原版風格', prompt: 'Keep the original style of the input character and keep design consistency.' },
+    { id: 'realistic-lighting', label: '寫實光影', prompt: 'Photorealistic lighting, highly detailed textures, realistic shadows, depth of field.' },
+    { id: 'japanese-anime', label: '日式漫畫', prompt: 'Japanese anime illustration, vibrant cel shading, bloom, rim light, polished finish.' },
+    { id: 'american-comic', label: '美式漫畫', prompt: 'American comic style, bold outlines, heavy inking, high contrast, halftone dots.' },
+    { id: 'korean-webtoon', label: '韓式漫畫', prompt: 'Korean webtoon style, smooth coloring, clean lineart, pastel volumetric lighting.' },
+    { id: 'ink-painting', label: '中式水墨畫', prompt: 'Traditional Chinese ink wash painting with expressive brush strokes and negative space.' },
+    { id: 'chibi', label: '可愛Q版漫畫', prompt: 'Chibi super-deformed, big head small body, soft pastel, cute sticker-ready emotion.' },
+    { id: 'disney', label: '迪士尼風格動畫', prompt: 'Stylized Disney/Pixar-like animation render, appealing shape language, warm cinematic color.' },
+    { id: 'pixel', label: '像素風格', prompt: '8-bit/16-bit pixel art, visible grid, limited palette, retro game sprite aesthetic.' },
+    { id: 'cgi-3d', label: '3D渲染風格', prompt: 'CGI 3D render with PBR textures, volumetric light, high detail and clean render pass.' }
+];
+
+const FONT_STYLE_OPTIONS: PromptOption[] = [
+    { id: 'heiti', label: '黑體 (預設)', prompt: 'Bold sans-serif, modern and clean, high legibility sticker typography.' },
+    { id: 'rounded', label: '圓體 (可愛柔和)', prompt: 'Rounded sans-serif, soft edge, cute and friendly kawaii typography.' },
+    { id: 'handwrite', label: '手寫體 (隨性塗鴉)', prompt: 'Handwritten marker style, casual doodle texture, personal and playful.' },
+    { id: 'calligraphy', label: '書法體 (氣勢磅礡)', prompt: 'Chinese calligraphy brush style, energetic strokes and strong traditional rhythm.' },
+    { id: 'pop', label: 'POP體 (活潑海報)', prompt: 'POP style bubble letters, heavy outline, vivid and bouncy poster feeling.' },
+    { id: 'pixel-font', label: '像素體 (復古遊戲)', prompt: 'Pixel font, retro game-like block text with jagged digital edge.' },
+    { id: 'variety', label: '綜藝體 (誇張醒目)', prompt: 'Variety-show subtitle style, extra bold, exaggerated and attention-grabbing.' },
+    { id: 'kids', label: '娃娃體 (童趣可愛)', prompt: 'Childlike crayon typography, playful irregular size, naive and cute.' }
+];
+
+const THEME_CONFLICT_KEYWORDS: Record<string, string[]> = {
+    office: ['上班', '開會', '加班', '薪水', '社畜', 'deadline', 'office', 'overtime'],
+    japan: ['日本', '旅遊', '拉麵', '溫泉', '和服', 'japan', 'ramen', 'kimono'],
+    couple: ['愛你', '想你', '抱抱', '親親', '戀愛', '約會', 'love', 'kiss', 'hug'],
+    foodie: ['好餓', '吃飯', '美食', '奶茶', '宵夜', 'food', 'hungry', 'boba'],
+    fitness: ['運動', '健身', '跑步', '重訓', '流汗', 'gym', 'workout', 'running'],
+    cat: ['貓', '喵', '貓咪', 'cat', 'meow'],
+    dog: ['狗', '汪', '狗狗', '遛狗', 'dog', 'woof'],
+    school: ['考試', '作業', '上課', '老師', 'school', 'exam', 'homework'],
+    festival: ['生日', '新年', '聖誕', '恭喜', '紅包', 'birthday', 'christmas', 'congrats'],
+    meme: ['迷因', '梗圖', 'meme', 'lol'],
+    positive: ['加油', '早安', '讚', 'you can do it', 'thumbs up'],
+    negative: ['好累', '厭世', '崩潰', '社交電量', 'burnout', 'dead inside'],
+};
+
 const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNeedApiKey }) => {
     const { shareImage } = useImageShare();
     const { t } = useTranslation();
@@ -40,6 +109,11 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
     const [selectedPhrase, setSelectedPhrase] = useState<string>('');
     const [customPhrase, setCustomPhrase] = useState<string>('');
     const [selectedStyleId, setSelectedStyleId] = useState<string>(THEMES[0].styles[0].id);
+    const [selectedThemePromptId, setSelectedThemePromptId] = useState<string>(THEME_PROMPT_OPTIONS[0].id);
+    const [customThemePrompt, setCustomThemePrompt] = useState<string>('');
+    const [selectedStylePromptId, setSelectedStylePromptId] = useState<string>(STYLE_PROMPT_OPTIONS[0].id);
+    const [selectedFontStyleId, setSelectedFontStyleId] = useState<string>(FONT_STYLE_OPTIONS[0].id);
+    const [priorityMode, setPriorityMode] = useState<PriorityMode>('style');
     const [includeText, setIncludeText] = useState<boolean>(false);
     const [autoRemoveBg, setAutoRemoveBg] = useState<boolean>(true);
     const [batchSize, setBatchSize] = useState<number>(1);
@@ -54,6 +128,46 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const STICKER_MODEL = 'gemini-3-pro-image-preview';
+
+    const sanitizeFilename = (value: string) =>
+        (value || 'sticker')
+            .toLowerCase()
+            .replace(/[^\w\u4e00-\u9fff-]+/g, '_')
+            .replace(/_+/g, '_')
+            .replace(/^_+|_+$/g, '')
+            .slice(0, 48) || 'sticker';
+
+    const buildSemanticLabel = (phrase: string, index: number, styleId: string) => {
+        const cleanPhrase = (phrase || '').trim();
+        if (cleanPhrase) return cleanPhrase;
+        return `free-${currentTheme.id}-${styleId}-${index + 1}`;
+    };
+
+    const getThemeOptionLabel = (id: string) => THEME_PROMPT_OPTIONS.find(opt => opt.id === id)?.label || id;
+
+    const getPhraseConflictMessage = (phrase: string, selectedThemeId: string): string | null => {
+        const normalized = phrase.trim().toLowerCase();
+        if (!normalized) return null;
+
+        const selectedKeywords = THEME_CONFLICT_KEYWORDS[selectedThemeId] || [];
+        if (selectedKeywords.some((kw) => normalized.includes(kw.toLowerCase()))) {
+            return null;
+        }
+
+        for (const [themeId, keywords] of Object.entries(THEME_CONFLICT_KEYWORDS)) {
+            if (themeId === selectedThemeId) continue;
+            if (keywords.some((kw) => normalized.includes(kw.toLowerCase()))) {
+                return `台詞看起來比較像「${getThemeOptionLabel(themeId)}」，與目前主題「${getThemeOptionLabel(selectedThemeId)}」可能衝突。`;
+            }
+        }
+
+        return null;
+    };
+
+    const phraseConflictMessage =
+        batchSize === 1 && selectedThemePromptId !== CUSTOM_THEME_OPTION_ID
+            ? getPhraseConflictMessage((customPhrase || selectedPhrase).trim(), selectedThemePromptId)
+            : null;
 
     // Update selected style when theme changes
     useEffect(() => {
@@ -179,13 +293,17 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
             return;
         }
         if (!image) {
-            setErrorMessage("請先上傳照片！");
+            setErrorMessage('請先上傳圖片');
             return;
         }
 
-        const singlePhrase = customPhrase || selectedPhrase;
-        if (batchSize === 1 && !singlePhrase) {
-            setErrorMessage("請選擇或輸入一個慣用語！");
+        const singlePhrase = (customPhrase || selectedPhrase).trim();
+        const conflictMessage =
+            batchSize === 1 && selectedThemePromptId !== CUSTOM_THEME_OPTION_ID
+                ? getPhraseConflictMessage(singlePhrase, selectedThemePromptId)
+                : null;
+        if (conflictMessage) {
+            setErrorMessage(`主題衝突保護：${conflictMessage}`);
             return;
         }
 
@@ -194,6 +312,12 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
         setProgress({ current: 0, total: batchSize });
 
         const style = currentTheme.styles.find(s => s.id === selectedStyleId) || currentTheme.styles[0];
+        const themePrompt = selectedThemePromptId === CUSTOM_THEME_OPTION_ID
+            ? customThemePrompt.trim()
+            : (THEME_PROMPT_OPTIONS.find(item => item.id === selectedThemePromptId)?.prompt || '');
+        const stylePrompt = STYLE_PROMPT_OPTIONS.find(item => item.id === selectedStylePromptId)?.prompt || '';
+        const fontPrompt = FONT_STYLE_OPTIONS.find(item => item.id === selectedFontStyleId)?.prompt || '';
+        const mergedStylePrompt = [style.promptSnippet, themePrompt, stylePrompt].filter(Boolean).join('\n');
 
         try {
             for (let i = 0; i < batchSize; i++) {
@@ -210,8 +334,10 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                     image,
                     phraseToUse,
                     STICKER_MODEL,
-                    style.promptSnippet,
-                    includeText
+                    mergedStylePrompt,
+                    includeText,
+                    fontPrompt,
+                    priorityMode
                 );
 
                 let finalImageUrl = resultImageUrl;
@@ -220,10 +346,12 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                     finalImageUrl = await smartRemoveBackground(resultImageUrl);
                 }
 
+                const semanticLabel = buildSemanticLabel(phraseToUse, i, style.id);
                 const newSticker: Sticker = {
                     id: `${Date.now()}-${i}`,
                     imageUrl: finalImageUrl,
-                    phrase: phraseToUse,
+                    phrase: phraseToUse || semanticLabel,
+                    semanticLabel,
                     timestamp: Date.now(),
                     description: usedPrompt // Save the prompt!
                 };
@@ -239,7 +367,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
             if (err.message === "KEY_NOT_FOUND" || err.message?.includes("403") || err.message?.includes("401")) {
                 onNeedApiKey();
             } else {
-                setErrorMessage(`生成失敗，錯誤訊息: ${err.message || '未知錯誤'}`);
+                setErrorMessage(`生成失敗：${err.message || '未知錯誤'}`);
             }
         } finally {
             setIsGenerating(false);
@@ -260,22 +388,23 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
             saveStickerToDB(updatedSticker).catch(err => console.error("Failed to update sticker in DB:", err));
         } catch (err: any) {
             console.error("Failed to remove background:", err);
-            setErrorMessage(`背景移除失敗: ${err.message || '未知錯誤'}`);
+            setErrorMessage(`背景移除失敗：${err.message || '未知錯誤'}`);
         } finally {
             setIsGenerating(false);
         }
     };
 
-    const handleDownloadImage = async (imageUrl: string, phrase: string, style: string) => {
+    const handleDownloadImage = async (imageUrl: string, phrase: string, style: string, semanticLabel?: string) => {
+        const nameLabel = sanitizeFilename(semanticLabel || phrase || style || 'sticker');
         await shareImage(imageUrl, {
-            filename: 'sticker',
+            filename: `sticker_${nameLabel}`,
             metadata: {
                 type: 'sticker',
                 style: style,
-                phrase: phrase
+                phrase: semanticLabel || phrase
             },
             title: '風格貼圖',
-            text: `${style} - ${phrase}`
+            text: `${style} - ${semanticLabel || phrase}`
         });
     };
 
@@ -290,7 +419,8 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
             try {
                 const response = await fetch(sticker.imageUrl);
                 const blob = await response.blob();
-                folder?.file(`${sticker.phrase.replace(/\\s/g, '_')}_${sticker.id}.png`, blob);
+                const semanticName = sanitizeFilename(sticker.semanticLabel || sticker.phrase || `sticker_${sticker.id}`);
+                folder?.file(`${semanticName}_${sticker.id}.png`, blob);
             } catch (error) {
                 console.error(`Failed to add sticker ${sticker.id} to zip: `, error);
             }
@@ -307,7 +437,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
             })
             .catch(err => {
                 console.error("Failed to generate zip:", err);
-                setErrorMessage("壓縮檔案失敗。");
+                setErrorMessage('ZIP 打包失敗，請稍後再試');
             })
             .finally(() => {
                 setIsZipping(false);
@@ -395,6 +525,43 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                             </div>
                         </div>
 
+                        <div className="grid grid-cols-1 gap-3">
+                            <div>
+                                <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Sparkles size={18} className="text-primary" /> 貼圖主題</h2>
+                                <select
+                                    value={selectedThemePromptId}
+                                    onChange={(e) => setSelectedThemePromptId(e.target.value)}
+                                    className="mt-2 w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary text-bronze-text"
+                                >
+                                    {THEME_PROMPT_OPTIONS.map((opt) => (
+                                        <option key={opt.id} value={opt.id}>{opt.label}</option>
+                                    ))}
+                                    <option value={CUSTOM_THEME_OPTION_ID}>自訂</option>
+                                </select>
+                                {selectedThemePromptId === CUSTOM_THEME_OPTION_ID && (
+                                    <input
+                                        type="text"
+                                        value={customThemePrompt}
+                                        onChange={(e) => setCustomThemePrompt(e.target.value)}
+                                        placeholder="輸入自訂貼圖主題（例如：東方民族角色、傣族、藏族、京劇）"
+                                        className="mt-2 w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-xl font-bold text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light"
+                                    />
+                                )}
+                            </div>
+                            <div>
+                                <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Wand2 size={18} className="text-primary" /> 參考風格增強</h2>
+                                <select
+                                    value={selectedStylePromptId}
+                                    onChange={(e) => setSelectedStylePromptId(e.target.value)}
+                                    className="mt-2 w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary text-bronze-text"
+                                >
+                                    {STYLE_PROMPT_OPTIONS.map((opt) => (
+                                        <option key={opt.id} value={opt.id}>{opt.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
                         {/* Phrase Selection */}
                         <div className="space-y-3">
                             <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest"><Type size={18} className={currentTheme.id === 'taiwanese' ? 'text-primary' : 'text-orange-500'} /> {t('generator.phases.phrase')}</h2>
@@ -417,15 +584,57 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                 placeholder={t('generator.phrase.customPlaceholder')}
                                 className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-xl font-bold text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light"
                             />
+                            <div className="text-[10px] text-bronze-light space-y-1">
+                                <p>台詞可留白，生成邏輯如下：</p>
+                                <p>1. 有填台詞：優先使用你輸入的台詞。</p>
+                                <p>2. 沒填台詞 + 包含文字開啟：依貼圖主題自動產生短台詞。</p>
+                                <p>3. 自訂主題：自動台詞會配合你的自訂主題內容。</p>
+                            </div>
+                            {phraseConflictMessage && (
+                                <p className="text-[10px] text-amber-700 flex items-center gap-1">
+                                    <AlertTriangle size={10} /> {phraseConflictMessage}
+                                </p>
+                            )}
                         </div>
 
                         {/* Settings */}
                         <div className="space-y-4 pt-4 border-t border-cream-dark/50">
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">文字字體風格</label>
+                                <select
+                                    value={selectedFontStyleId}
+                                    onChange={(e) => setSelectedFontStyleId(e.target.value)}
+                                    className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary text-bronze-text"
+                                >
+                                    {FONT_STYLE_OPTIONS.map((opt) => (
+                                        <option key={opt.id} value={opt.id}>{opt.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">優先權</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        onClick={() => setPriorityMode('style')}
+                                        className={`py-2 rounded-xl font-bold text-xs transition-all border ${priorityMode === 'style' ? 'bg-primary text-white border-primary shadow-md' : 'bg-white/40 border-cream-dark text-bronze-light hover:bg-white'}`}
+                                    >
+                                        風格優先
+                                    </button>
+                                    <button
+                                        onClick={() => setPriorityMode('semantic')}
+                                        className={`py-2 rounded-xl font-bold text-xs transition-all border ${priorityMode === 'semantic' ? 'bg-primary text-white border-primary shadow-md' : 'bg-white/40 border-cream-dark text-bronze-light hover:bg-white'}`}
+                                    >
+                                        語義優先
+                                    </button>
+                                </div>
+                            </div>
+
                             {/* Batch Size */}
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">{t('generator.settings.batchSize')}</label>
                                 <div className="flex gap-2">
-                                    {[1, 4, 8].map((size) => (
+                                    {[1, 4, 8, 12, 16].map((size) => (
                                         <button
                                             key={size}
                                             onClick={() => { setBatchSize(size); }}
@@ -469,7 +678,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                         {/* Generate Button */}
                         <Button
                             onClick={handleGenerate}
-                            disabled={!image || (batchSize === 1 && !selectedPhrase && !customPhrase) || isGenerating}
+                            disabled={!image || isGenerating}
                             className="w-full text-lg h-14 shadow-xl shadow-primary/20 bg-primary hover:bg-primary-hover active:scale-[0.99] transition-all rounded-2xl border-none"
                         >
                             <Wand2 size={24} className={`mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
@@ -498,11 +707,11 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                                     <img src={sticker.imageUrl} alt={sticker.phrase} className="w-full h-full object-contain p-2" />
                                     <div className="absolute inset-0 bg-bronze-text/10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 items-center justify-center backdrop-blur-[2px]">
                                         <button onClick={() => setPreviewImage(sticker.imageUrl)} className="bg-white p-2.5 rounded-full text-bronze-text shadow-lg hover:scale-110 transition-transform" title={t('generator.action.preview')}><Eye size={18} /></button>
-                                        <button onClick={() => handleDownloadImage(sticker.imageUrl, sticker.phrase, currentTheme.name)} className="bg-white p-2.5 rounded-full text-primary shadow-lg hover:scale-110 transition-transform active:scale-95" title={t('generator.action.download')}><Download size={18} strokeWidth={2.5} /></button>
+                                        <button onClick={() => handleDownloadImage(sticker.imageUrl, sticker.phrase, currentTheme.name, sticker.semanticLabel)} className="bg-white p-2.5 rounded-full text-primary shadow-lg hover:scale-110 transition-transform active:scale-95" title={t('generator.action.download')}><Download size={18} strokeWidth={2.5} /></button>
                                         <button onClick={() => handleIndividualBgRemoval(sticker.id)} className="bg-white p-2.5 rounded-full text-secondary shadow-lg hover:scale-110 transition-transform" title={t('generator.action.removeBg')}><Scissors size={18} /></button>
                                     </div>
                                 </div>
-                                <div className="mt-3 text-center font-black text-bronze-text tracking-wider text-xs truncate opacity-80 px-2">{sticker.phrase}</div>
+                                <div className="mt-3 text-center font-black text-bronze-text tracking-wider text-xs truncate opacity-80 px-2">{sticker.semanticLabel || sticker.phrase}</div>
                             </div>
                         ))}
                     </div>
@@ -567,7 +776,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                             onClick={() => setPreviewImage(null)}
                         >
                             <Trash2 className="hidden" /> {/* Dummy to keep import used if needed, or use X */}
-                            <span className="text-xl font-bold">✕ {t('generator.action.close')}</span>
+                            <span className="text-xl font-bold">X {t('generator.action.close')}</span>
                         </button>
                     </div>
                 </div>
@@ -585,3 +794,6 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
 };
 
 export default StyleStickerTab;
+
+
+

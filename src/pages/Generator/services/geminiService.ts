@@ -7,17 +7,32 @@ export async function generateSticker(
   phrase: string,
   model: string,
   styleSnippet: string,
-  includeText: boolean
+  includeText: boolean,
+  fontPrompt: string = '',
+  priorityMode: 'style' | 'semantic' = 'style'
 ): Promise<{ imageUrl: string; prompt: string }> {
   const ai = new GoogleGenAI({ apiKey });
+  const normalizedPhrase = (phrase || '').trim();
+  const phraseForPrompt = normalizedPhrase || 'a context-appropriate sticker meaning chosen by the model';
+
+  const priorityInstruction = priorityMode === 'semantic'
+    ? `PRIORITY MODE: MEANING FIRST
+       - Prioritize clear semantic meaning and expression readability over decorative style details.
+       - Style should support readability, not overpower it.`
+    : `PRIORITY MODE: STYLE FIRST
+       - Prioritize style fidelity, rendering quality, and visual consistency first.
+       - Preserve readable expression and semantic clarity as secondary goals.`;
 
   const textInstruction = includeText
     ? `TYPOGRAPHY:
-       - Overlay the Traditional Chinese text "${phrase}" in a large, bold, playful font.
-       - The text should be clear and well-integrated into the composition.`
+       - ${normalizedPhrase
+        ? `Overlay the Traditional Chinese text "${normalizedPhrase}" in a large, bold, playful font.`
+        : 'Generate a short Traditional Chinese sticker caption (2-6 chars) that matches the expression.'}
+       - The text should be clear and well-integrated into the composition.
+       - Font direction: ${fontPrompt || 'Bold sans-serif with clear readability for sticker usage.'}`
     : `STRICT RULE - NO TEXT:
        - DO NOT include any text, letters, symbols, or characters in the image. 
-       - Focus 100% on the character's expression and dynamic pose to convey the meaning of "${phrase}".`;
+       - Focus 100% on the character's expression and dynamic pose to convey "${phraseForPrompt}".`;
 
   // Determine if this style is the one that actually needs a border
   const isStickerWithBorder = styleSnippet.includes("OFFSET BORDER");
@@ -27,8 +42,9 @@ export async function generateSticker(
     
     STYLE & CHARACTER:
     - ${styleSnippet}
+    - ${priorityInstruction}
     - FACIAL IDENTITY: Preserve the character's facial structure and features from the original photo.
-    - EXPRESSION & POSE: Exaggerate the expression to match the energy of the Taiwanese phrase "${phrase}".
+    - EXPRESSION & POSE: Exaggerate the expression to match "${phraseForPrompt}".
     
     BORDER & EDGES (CRITICAL):
     ${isStickerWithBorder
@@ -113,13 +129,7 @@ export async function generateSticker(
       throw new Error(`Model returned text instead of image: "${textContent.slice(0, 100)}..." (Reason: ${candidate.finishReason})`);
     }
 
-    return imageUrl;
-
-    if (!imageUrl) {
-      throw new Error('Failed to extract image from response');
-    }
-
-    return imageUrl;
+    return { imageUrl, prompt };
   } catch (error: any) {
     console.error("Error generating sticker:", error);
     if (error.message?.includes("Requested entity was not found")) {
