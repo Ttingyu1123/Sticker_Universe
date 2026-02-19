@@ -7,6 +7,7 @@ import { generateImage } from './geminiService';
 import { useTranslation } from 'react-i18next';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { saveStickerToDB } from '../../db';
+import { loadGeminiApiKey, saveGeminiApiKey, clearGeminiApiKey } from '../../shared/geminiApiKey';
 
 export const AutoCollageTab: React.FC = () => {
     const { t } = useTranslation();
@@ -122,20 +123,21 @@ export const AutoCollageTab: React.FC = () => {
 
     // API Key Loading
     useEffect(() => {
-        const storedKey = localStorage.getItem('gemini_api_key');
-        if (storedKey) setApiKey(storedKey);
+        const stored = loadGeminiApiKey();
+        if (stored) setApiKey(stored.key);
     }, []);
 
     const handleSaveKey = () => {
         if (!tempKey.trim()) return;
-        setApiKey(tempKey.trim());
-        localStorage.setItem('gemini_api_key', tempKey.trim());
+        const key = tempKey.trim();
+        setApiKey(key);
+        saveGeminiApiKey(key, true);
         setShowKeyModal(false);
     };
 
     const handleClearKey = () => {
         setApiKey('');
-        localStorage.removeItem('gemini_api_key');
+        clearGeminiApiKey();
         setTempKey('');
         setShowKeyModal(true);
     };

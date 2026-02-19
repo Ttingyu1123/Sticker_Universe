@@ -136,35 +136,35 @@ const ImageEditorApp: React.FC = () => {
                         </Tab>
                     </TabList>
 
-                    <div className="flex-1 bg-white rounded-3xl shadow-xl shadow-primary/10 border border-white min-h-0 relative flex flex-col md:overflow-hidden">
-                        <TabPanel id="packager" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 md:overflow-y-auto custom-scrollbar">
+                    <div className="flex-1 bg-white rounded-3xl shadow-xl shadow-primary/10 border border-white min-h-0 relative flex flex-col">
+                        <TabPanel id="packager" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <PackagerTab />
                             </Suspense>
                         </TabPanel>
 
-                        <TabPanel id="smart-remove" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 md:overflow-y-auto custom-scrollbar">
+                        <TabPanel id="smart-remove" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <SmartRemoveTab />
                             </Suspense>
                         </TabPanel>
 
-                        <TabPanel id="animator" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 md:overflow-y-auto custom-scrollbar">
+                        <TabPanel id="animator" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <AnimatorTab />
                             </Suspense>
                         </TabPanel>
-                        <TabPanel id="editor" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 md:overflow-y-auto custom-scrollbar">
+                        <TabPanel id="editor" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <EditorTab />
                             </Suspense>
                         </TabPanel>
-                        <TabPanel id="resize" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 md:overflow-y-auto custom-scrollbar">
+                        <TabPanel id="resize" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <ImageResizerTab />
                             </Suspense>
                         </TabPanel>
-                        <TabPanel id="svg" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 md:overflow-y-auto custom-scrollbar">
+                        <TabPanel id="svg" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <SvgConverterTab />
                             </Suspense>

@@ -8,6 +8,7 @@ import { saveStickerToDB } from '../../db';
 import { Sticker } from './types';
 import { Button } from '../../components/ui/Button';
 import { AnimatePresence, motion } from 'framer-motion';
+import { loadGeminiApiKey, saveGeminiApiKey, clearGeminiApiKey } from '../../shared/geminiApiKey';
 
 import ImageGeneratorTab from './components/ImageGeneratorTab';
 import HolidayStickerTab from './components/HolidayStickerTab';
@@ -32,17 +33,10 @@ const App: React.FC = () => {
 
   // Initialize API Key
   useEffect(() => {
-    // Check LocalStorage (Persistent)
-    const localKey = localStorage.getItem('gemini_api_key');
-    // Check SessionStorage (Temp)
-    const sessionKey = sessionStorage.getItem('gemini_api_key');
-
-    if (localKey) {
-      setApiKey(localKey);
-      setRememberKey(true);
-    } else if (sessionKey) {
-      setApiKey(sessionKey);
-      setRememberKey(false);
+    const stored = loadGeminiApiKey();
+    if (stored) {
+      setApiKey(stored.key);
+      setRememberKey(stored.remember);
     } else {
       setShowKeyModal(true);
     }
@@ -79,16 +73,7 @@ const App: React.FC = () => {
     }
     const key = tempKey.trim();
     setApiKey(key);
-
-    if (rememberKey) {
-      // User opted for persistent storage
-      localStorage.setItem('gemini_api_key', key);
-      sessionStorage.removeItem('gemini_api_key'); // Clean up session
-    } else {
-      // User opted for session-only storage
-      sessionStorage.setItem('gemini_api_key', key);
-      localStorage.removeItem('gemini_api_key'); // Clean up local
-    }
+    saveGeminiApiKey(key, rememberKey);
 
     setShowKeyModal(false);
     setError(null);
@@ -98,8 +83,7 @@ const App: React.FC = () => {
     if (confirm(t('generator.apiKey.clearConfirm') || "Are you sure you want to remove your API Key?")) {
       setApiKey('');
       setTempKey('');
-      localStorage.removeItem('gemini_api_key');
-      sessionStorage.removeItem('gemini_api_key');
+      clearGeminiApiKey();
       setShowKeyModal(true);
     }
   };
