@@ -18,10 +18,11 @@ import HeadshotGeneratorTab from './components/HeadshotGeneratorTab';
 import GreetingCardTab from './components/GreetingCardTab';
 import MangaMasterTab from './components/MangaMasterTab';
 import PortraitMasterTab from './components/PortraitMasterTab';
+import CharacterCreateTab from './components/CharacterCreateTab';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'sticker' | 'holiday' | 'greeting' | 'image-gen' | 'cinematic' | 'headshot' | 'manga' | 'portrait'>('sticker');
+  const [activeTab, setActiveTab] = useState<'sticker' | 'holiday' | 'greeting' | 'image-gen' | 'cinematic' | 'headshot' | 'manga' | 'portrait' | 'character-create'>('sticker');
   const [apiKey, setApiKey] = useState('');
   const [tempKey, setTempKey] = useState('');
   const [showKeyModal, setShowKeyModal] = useState(false);
@@ -350,7 +351,7 @@ const App: React.FC = () => {
         {/* Tab Navigation */}
         <div className="flex flex-col gap-3 bg-cream backdrop-blur rounded-[2rem] p-3 sm:p-4 border border-cream-dark shadow-sm">
           {/* Tabs - Grid Layout for Better Visibility */}
-          <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+          <div className="grid grid-cols-4 sm:grid-cols-9 gap-2">
             <button
               onClick={() => setActiveTab('image-gen')}
               className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'image-gen' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
@@ -407,6 +408,13 @@ const App: React.FC = () => {
             >
               <User size={18} className="sm:w-4 sm:h-4" />
               <span>{t('generator.tabs.portrait')}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('character-create')}
+              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'character-create' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
+            >
+              <BookOpen size={18} className="sm:w-4 sm:h-4" />
+              <span className="text-center leading-tight">{t('generator.tabs.characterCreate')}</span>
             </button>
           </div>
 
@@ -476,6 +484,12 @@ const App: React.FC = () => {
               <PortraitMasterTab
                 apiKey={apiKey}
                 onSuccess={handleImageGenSuccess}
+                onError={(msg) => setError(msg)}
+                onNeedApiKey={handleOpenKeyModal}
+              />
+            ) : activeTab === 'character-create' ? (
+              <CharacterCreateTab
+                apiKey={apiKey}
                 onError={(msg) => setError(msg)}
                 onNeedApiKey={handleOpenKeyModal}
               />

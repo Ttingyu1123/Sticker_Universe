@@ -1,3 +1,15 @@
+## Feature Workflow (Quick Start)
+
+Before adding a new feature, use:
+
+- `docs/feature-checklist.md`
+
+Recommended prompt for Codex:
+
+- `這次新功能請啟動 feature-delivery-playbook + feature-architecture-standards，需求是：...`
+
+---
+
 # Troubleshooting Log
 
 ## [2025-01-26] @imgly/background-removal Failure (Sticker Universe Integration)

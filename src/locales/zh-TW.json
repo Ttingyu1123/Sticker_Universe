@@ -569,7 +569,8 @@
       "cinematic": "影劇海報",
       "imageGen": "AI圖片生成",
       "headshot": "形象照大師",
-      "portrait": "寫真大師"
+      "portrait": "寫真大師",
+      "characterCreate": "角色創建"
     },
     "errors": {
       "general": "生成失敗：",
@@ -1155,6 +1156,61 @@
     "result": {
       "emptyTitle": "準備好創建了嗎？",
       "emptyDesc": "上傳照片並選擇風格即可開始。"
+    },
+    "characterCreate": {
+      "tagLibrary": "標籤庫",
+      "random": "隨機",
+      "controlPanel": "控制面板",
+      "ideaInput": "想法輸入",
+      "ideaPlaceholder": "描述你的角色構想，例如：午夜霹虹雨中的賽博忍者。",
+      "negativePrompt": "負面提示詞",
+      "negativePlaceholder": "低品質、模糊、水印、多手指...",
+      "outputPrompt": "輸出提示詞",
+      "optimizeStyle": "優化風格",
+      "storyTitle": "角色故事",
+      "storyPlaceholder": "點擊「生成故事」，建立角色設定與背景。",
+      "locked": "鎖定",
+      "unlocked": "未鎖定",
+      "actions": {
+        "analyze": "AI 解析",
+        "analyzing": "解析中...",
+        "optimize": "優化",
+        "optimizing": "優化中...",
+        "storyGenerate": "生成故事",
+        "storyGenerating": "撰寫中..."
+      },
+      "messages": {
+        "needApiKey": "請先設定 API Key。",
+        "needIdea": "請先輸入想法。",
+        "needPrompt": "請先建立提示詞。",
+        "analyzeFailed": "AI 解析失敗。",
+        "optimizeFailed": "提示詞優化失敗。",
+        "storyFailed": "故事生成失敗。"
+      },
+      "styles": {
+        "artistic": "藝術",
+        "photo": "寫真",
+        "anime": "動漫"
+      },
+      "modes": {
+        "fantasy": "奇幻",
+        "modern": "現代",
+        "scifi": "科幻",
+        "historical": "歷史",
+        "horror": "驚悚",
+        "oriental": "東方"
+      },
+      "categories": {
+        "character": "角色",
+        "pose": "姿勢",
+        "outfit": "服裝",
+        "env": "環境",
+        "color": "色彩",
+        "shot": "鏡位",
+        "style": "風格",
+        "light": "光線",
+        "rare": "特徵"
+      }
     }
   },
   "packager": {

@@ -1,4 +1,4 @@
-# ✨ Sticker Universe (CreativeOS)
+﻿# ??Sticker Universe (CreativeOS)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
@@ -8,134 +8,146 @@
 
 > **Sticker Universe (CreativeOS)** is a unified creative suite for designing, generating, and packaging digital content. It consolidates AI generation, image processing, background removal, and creative layouts into a single powerful web application.
 >
-> **Sticker Universe (CreativeOS)** 是一個專為創作者打造的綜合創意套件。它將 AI 生成、圖片編輯、自動去背、拼貼排版等功能整合在一個強大的網頁應用中。
+> **Sticker Universe (CreativeOS)** ?臭????箏雿???蝬??菜?憟辣??撠?AI ?????楊頛胯??鞎潭?????游??其??撥憭抒?蝬脤??銝准?
 
 ---
 
-## 📑 Table of Contents / 目錄
+## ?? Table of Contents / ?桅?
 
-- [✨ 功能分類 / Features](#-功能分類--features)
-- [🛠️ 安裝說明 / Installation](#️-安裝說明--installation)
-- [📖 使用指南 / Usage Guide](#-使用指南--usage-guide)
-- [🔧 技術棧 / Tech Stack](#-技術棧--技術棧)
-- [📝 授權 / License](#-授權--license)
-
----
-
-## ✨ 功能分類 / Features
-
-### 1. AI 智慧生成 (AI Generation)
-
-運用 Google Gemini AI 技術，將文字創意瞬間轉化為視覺成品。
-
-- **風格貼圖**：輸入文字，AI 自動生成台灣風格、動漫風等多樣化貼圖。
-- **節慶貼圖**：為各種節日（如春節、中秋）快速製作應景的貼圖包。
-- **賀卡大師**：AI 協助設計精美節日賀卡，並提供智能配文潤飾。
-- **漫畫大師 (Manga Master)**：專業級多格分鏡漫畫生成器，支援自定義角色一致性控制。
-  - **分鏡佈局選擇器**：提供從單格到八格的多樣化漫畫分鏡佈局。
-  - **AI 故事劇本優化**：智慧分析您的創意需求，自動規劃分鏡描述。
-  - **角色控制系統**：自定義角色外觀與參考圖，確保跨分鏡的角色一致性。
-- **影劇海報**：製作具有電影規格質感的創意海報與專業排版。
-- **AI 圖片生成**：通用型 AI 繪圖工具，支援高解析度與自由創意描述。
-- **形象照大師**：生成專業質感的商務形象照、學士照或社群大頭貼。
-- **寫真大師**：生成具備專業光影與場景質感的藝術寫真照。
-
-### 2. 專業圖片編輯 (Image Processing)
-
-強大的離線圖片處理功能，滿足您對細節的極致追求。
-
-- **批量裁切**：一次處理多張圖片的裁切、自動對齊與尺寸優化。
-- **智慧去背**：AI 自動精準識別主體並移除背景，邊緣處理完美無瑕。
-- **動態貼圖 (Animator)**：製作多圖層動畫，支援時間軸控制與 APNG 導出。
-- **圖層編輯 (Editor)**：專業級圖層管理、濾鏡效果、文字堆疊與素材組合。
-- **調整尺寸**：智慧縮放模式，採用 AI 超取樣技術保持圖片清晰度。
-- **SVG 魔法**：將點陣圖 (JPG/PNG) 轉換為無限縮放的向量圖形。
-- **圖層實驗室 (Lab)**：進階遮罩編輯與邊緣修復工具，掌握最底層的像素控制。
-
-### 3. 創意排版 (Creative)
-
-- **照片拼貼**：提供網格、瀑布流、幾何圖形等數十種佈局，支援智慧拼貼。
-
-### 4. 印刷與輸出 (Printing)
-
-- **貼紙列印**：將作品排列在 A4 畫布上，自訂間距，方便列印成實體貼紙。
-- **證件照列印**：符合各國證件照規範，自動排列最省紙的列印佈版。
-
-### 5. 作品管理 (Management)
-
-- **作品集 (Gallery)**：統一管理、預覽及批量下載您生成的所有創意作品。
+- [????? / Features](#-???--features)
+- [??儭?摰?隤芣? / Installation](#儭?摰?隤芣?--installation)
+- [?? 雿輻?? / Usage Guide](#-雿輻??--usage-guide)
+- [? ?銵ㄖ / Tech Stack](#-?銵ㄖ--?銵ㄖ)
+- [?? ?? / License](#-??--license)
 
 ---
 
-## 🛠️ Installation / 安裝說明
+## ????? / Features
 
-### Prerequisites / 前置需求
+### 1. AI ?箸?? (AI Generation)
+
+? Google Gemini AI ?銵?撠?摮????閬死????
+
+- **憸冽鞎澆?**嚗撓?交?摮?AI ?芸????啁憸冽??瞍恍◢蝑?璅??鞎澆???
+- **蝭?嗉票??*嚗?車蝭?伐?憒蝭?葉蝘?敹恍ˊ雿??舐?鞎澆???
+- **鞈?∪之撣?*嚗I ?閮剛?蝎曄?蝭?亥??∴?銝行?靘?賡??膜憌整?
+- **瞍怎憭批葦 (Manga Master)**嚗?璆剔?憭?瞍怎???剁??舀?芸?蝢抵??脖??湔扳?嗚?
+  - **?雿??豢???*嚗?靘??格?啣?潛?憭見?憤?怠??∩?撅??
+  - **AI ????芸?**嚗?批?????瘙??芸?閬???膩??
+  - **閫?批蝟餌絞**嚗摰儔閫憭?????嚗Ⅱ靽楊????脖??湔扼?
+- **敶勗?瘚瑕**嚗ˊ雿?敶梯??潸釭???菜?瘚瑕??璆剜???
+- **AI ????**嚗??AI 蝜芸?撌亙嚗?湧?閫??摨西??芰?菜??膩??
+- **敶Ｚ情?批之撣?*嚗???璆剛釭????敶Ｚ情?扼飛憯怎?冗蝢文之?剛票??
+- **撖怎?憭批葦**嚗????璆剖?敶梯??湔鞈芣???銵神???
+
+### 2. 撠平??蝺刻摩 (Image Processing)
+
+撘瑕之?蝺??????踝?皛輯雲?典?蝝啁??扔?渲蕭瘙?
+
+- **?寥?鋆?**嚗?甈∟???撘萄???鋆????朣?撠箏站?芸???
+- **?箸?餉?**嚗I ?芸?蝎暹?霅銝駁?銝衣宏?方??荔??楠??摰??∠???
+- **??鞎澆? (Animator)**嚗ˊ雿??惜?嚗?湔??遘?批??APNG 撠??
+- **?惜蝺刻摩 (Editor)**嚗?璆剔??惜蝞∠??蕪?⊥???摮???蝝?蝯???
+- **隤踵撠箏站**嚗?抒葬?暹芋撘??∠ AI 頞?璅??銵??????啣漲??
+- **SVG 擳?**嚗?暺??(JPG/PNG) 頧??箇?葬?曄????耦??
+- **?惜撖阡?摰?(Lab)**嚗脤??桃蔗蝺刻摩??蝺?耨敺拙極?瘀???摨惜??蝝?嗚?
+
+### 3. ?菜??? (Creative)
+
+- **?抒??潸票**嚗?靘雯?潦?瘚嗾雿?敶Ｙ??詨?蝔桐?撅嚗?湔?扳鞎潦?
+
+### 4. ?啣?撓??(Printing)
+
+- **鞎潛??**嚗?雿?????A4 ?怠?銝??芾???嚗靘踹??唳?撖阡?鞎潛???
+- **霅辣?批???*嚗泵????隞嗥閬?嚗?????????唬???
+
+### 5. 雿?蝞∠? (Management)
+
+- **雿???(Gallery)**嚗絞銝蝞∠???閬賢??寥?銝??函?????????
+
+---
+
+## ??儭?Installation / 摰?隤芣?
+
+### Prerequisites / ?蔭?瘙?
 
 - **Node.js** (v18 or higher recommended)
 - **Git**
 
-### Steps / 步驟
+### Steps / 甇仿?
 
-1. **Clone the repository / 下載專案**
+1. **Clone the repository / 銝?撠?**
 
     ```bash
     git clone https://github.com/Ttingyu1123/Sticker_Universe.git
     cd Sticker_Universe
     ```
 
-2. **Install Dependencies / 安裝依賴**
+2. **Install Dependencies / 摰?靘陷**
 
     ```bash
     npm install
     # This project uses modern Vite + Tailwind CSS v4, ensure a clean install if updating.
     ```
 
-3. **Start Development Server / 啟動開發伺服器**
+3. **Start Development Server / ???隡箸???*
 
     ```bash
     npm run dev
     ```
 
-4. **Open Browser / 開啟瀏覽器**
+4. **Open Browser / ???汗??*
     Visit `http://localhost:5173` to start using the app.
 
 ---
 
-## 📖 使用指南 / Usage Guide
+## Feature Workflow
 
-### 第一步：設定 AI 金鑰 (API Key)
+For every new feature, follow the one-page checklist:
 
-為了啟動智慧生成功能，您需要設定 **Google Gemini API Key**：
+- `docs/feature-checklist.md`
 
-1. 進入 [AI 貼圖工作室] 或任何帶有「AI」標籤的工具。
-2. 點擊頂部的 **"Set API Key"** 按鈕。
-3. 貼上金鑰並勾選「記住金鑰」以便下次自動載入。
+Recommended prompt when starting work with Codex:
 
-> [!TIP]
-> 可至 [Google AI Studio](https://aistudio.google.com/app/apikey) 免費申請金鑰。
-
-### 第二步：標準創作流程 (Workflow)
-
-```mermaid
-graph TD
-    A[1.靈感生成] -->|Generator| B(生成原始素材)
-    B -->|存入作品集| C[2.素材中心]
-    C -->|Editor/Lab| D(加工/去背/修正)
-    D -->|Refinery| E[3.規範加工]
-    E -->|批量處理| F(符合 LINE 規格)
-    F -->|PrintSheet| G[4.實體輸出]
-    G -->|PDF 導出| H(列印貼紙/照片)
-```
-
-### 🌟 創作小秘訣
-
-- **善用作品集 (Gallery)**：它是所有模組間的「橋樑」，生成的圖片先存入作品集，再到編輯器加工，最後用裁切工具打包。
-- **圖層實驗室的威力**：若 AI 去背不夠完美，使用圖層實驗室手動修正遮罩，再套用編輯器特效，能達到商用級別的精度。
-- **精準描述**：在描述詞中加入「高品質」、「精緻細節」能顯著提升 AI 生成品質。
+- `這次新功能請啟動 feature-delivery-playbook + feature-architecture-standards，需求是：...`
 
 ---
 
-## 🔧 Tech Stack / 技術棧
+## ?? 雿輻?? / Usage Guide
+
+### 蝚砌?甇伐?閮剖? AI ? (API Key)
+
+?箔????箸???嚗?閬身摰?**Google Gemini API Key**嚗?
+
+1. ?脣 [AI 鞎澆?撌乩?摰也 ?遙雿葆?I??蝐斤?撌亙??
+2. 暺????**"Set API Key"** ????
+3. 鞎潔??銝血?詻?雿??啜誑靘蹂?甈∟???乓?
+
+> [!TIP]
+> ?航 [Google AI Studio](https://aistudio.google.com/app/apikey) ?祥?唾????
+
+### 蝚砌?甇伐?璅??萎?瘚? (Workflow)
+
+```mermaid
+graph TD
+    A[1.????] -->|Generator| B(????蝝?)
+    B -->|摮雿?? C[2.蝝?銝剖?]
+    C -->|Editor/Lab| D(?極/?餉?/靽格迤)
+    D -->|Refinery| E[3.閬??極]
+    E -->|?寥???| F(蝚血? LINE 閬)
+    F -->|PrintSheet| G[4.撖阡?頛詨]
+    G -->|PDF 撠| H(?鞎潛?/?抒?)
+```
+
+### ?? ?萎?撠?閮?
+
+- **?雿???(Gallery)**嚗??舀??芋蝯???璅???????摮雿????蝺刻摩?典?撌伐??敺鋆?撌亙????
+- **?惜撖阡?摰斤?憡?**嚗 AI ?餉?銝?摰?嚗蝙?典?撅文祕撽恕??靽格迤?桃蔗嚗?憟蝺刻摩?函???賡??啣??函??亦?蝎曉漲??
+- **蝎暹??膩**嚗?膩閰葉????釭?移蝺餌敦蝭?憿航??? AI ???釭??
+
+---
+
+## ? Tech Stack / ?銵ㄖ
 
 **Core Framework**
 
@@ -157,10 +169,11 @@ graph TD
 
 ---
 
-## 📝 License / 授權
+## ?? License / ??
 
 This project is open-source and available under the **MIT License**.
 See the [LICENSE](LICENSE) file for more information.
 
 ---
-*Created with ❤️ by Antigravity*
+*Created with ?歹? by Antigravity*
+

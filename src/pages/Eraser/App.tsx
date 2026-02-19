@@ -260,7 +260,7 @@ const App: React.FC = () => {
 
             {/* Desktop Back Home */}
             <div className="hidden md:block pt-4 border-t border-cream-dark">
-              <button onClick={() => window.location.href = '/'} className="w-full py-2 flex items-center justify-center gap-2 text-bronze-light hover:text-bronze-text transition-colors text-sm font-medium">
+              <button onClick={() => window.open('https://tingyusdeco.com/tools-experiments/', '_blank', 'noopener,noreferrer')} className="w-full py-2 flex items-center justify-center gap-2 text-bronze-light hover:text-bronze-text transition-colors text-sm font-medium">
                 <Home size={16} /> {t('app.backHome')}
               </button>
             </div>

@@ -101,7 +101,7 @@ export const Layout = () => {
                         <BookOpen size={20} />
                         <span className="text-sm font-bold">{t('app.manual')}</span>
                     </NavLink>
-                    <a href="https://tingyusdeco.com/" target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-bronze hover:bg-white hover:text-bronze-text hover:shadow-sm">
+                    <a href="https://tingyusdeco.com/tools-experiments/" target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-bronze hover:bg-white hover:text-bronze-text hover:shadow-sm">
                         <Home size={20} />
                         <span className="text-sm font-bold">{t('app.backHome')}</span>
                     </a>
