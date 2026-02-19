@@ -456,7 +456,7 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                                     className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-secondary/10 hover:bg-secondary/20 text-bronze-text rounded-xl text-sm font-bold transition-colors"
                                 >
                                     <FolderHeart size={18} />
-                                    從作品集選取
+                                    {t('app.selectFromGallery') || 'From Gallery'}
                                 </button>
                             </>
                         ) : (
@@ -746,10 +746,11 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                                                         </button>
                                                         <button
                                                             onClick={() => handleSendToPrint(img.src)}
-                                                            className="p-2.5 bg-secondary/20 text-secondary rounded-full hover:bg-secondary/30 transition-colors active:scale-95"
-                                                            title="傳送至列印室"
+                                                            className="px-3 py-2 bg-secondary/10 text-bronze-text rounded-xl hover:bg-secondary/20 transition-colors active:scale-95 inline-flex items-center gap-1.5 text-xs font-bold"
+                                                            title={t('printSheet.tabs.idPrint') || 'To ID Print'}
                                                         >
-                                                            <Printer size={18} strokeWidth={2.5} />
+                                                            <Printer size={16} strokeWidth={2.5} />
+                                                            <span>{t('printSheet.tabs.idPrint') || 'To ID Print'}</span>
                                                         </button>
                                                     </div>
                                                 </div>
@@ -772,7 +773,7 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                                 <h3 className="text-lg font-black text-bronze-text flex items-center gap-2">
                                     <Scissors size={20} className="text-primary" /> {t('headshot.cropping.title')}
                                 </h3>
-                                <button onClick={cancelCrop} className="text-bronze-light hover:text-bronze-text font-bold">✕</button>
+                                <button onClick={cancelCrop} className="text-bronze-light hover:text-bronze-text font-bold">{t('common.close') || 'Close'}</button>
                             </div>
 
                             <div className="flex-1 bg-neutral-100 rounded-2xl overflow-hidden relative min-h-[400px]">
