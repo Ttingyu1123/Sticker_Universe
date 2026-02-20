@@ -7,6 +7,8 @@
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview",
+        "e2e": "playwright test",
+        "e2e:gallery-mobile": "playwright test tests/e2e/gallery.mobile.spec.ts --project=mobile-chromium",
         "check:boundaries": "node scripts/check-page-boundaries.mjs",
         "validate:i18n": "node scripts/validate-i18n.mjs",
         "postinstall": "node copy-imgly-assets.js"
@@ -44,6 +46,7 @@
         "upng-js": "^2.1.0"
     },
     "devDependencies": {
+        "@playwright/test": "^1.58.2",
         "@types/cropperjs": "^1.1.5",
         "@types/file-saver": "^2.0.7",
         "@types/node": "^22.14.0",

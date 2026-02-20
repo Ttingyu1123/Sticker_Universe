@@ -245,6 +245,11 @@ const App = () => {
 
     const handleShare = async (sticker: Sticker) => {
         try {
+            if (!window.isSecureContext) {
+                alert('Share requires HTTPS on iPhone Safari. Please use your Vercel URL (https://...) for sharing tests.');
+                return;
+            }
+
             let file: File;
             // Safe filename: truncate to 50 chars, remove special chars
             const safePhrase = sticker.phrase.slice(0, 50).replace(/[^\w\s\u4e00-\u9fa5]/gi, '_');
@@ -263,8 +268,6 @@ const App = () => {
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
-                    // Minimal metadata to encourage "Save Image" vs "Share Note" behavior on iOS
-                    // title: sticker.phrase, 
                 });
             } else {
                 // Fallback to clipboard
@@ -274,7 +277,9 @@ const App = () => {
             }
         } catch (error) {
             console.error("Share failed:", error);
-            // It might fail if user cancels, just ignore
+            if (!(error instanceof DOMException && error.name === 'AbortError')) {
+                alert('Share failed on this browser context. Try HTTPS (Vercel) and Safari.');
+            }
         }
     };
 
@@ -318,6 +323,7 @@ const App = () => {
         saveAs(content, "my_stickers.zip");
     };
 
+
     const toggleSelectionMode = () => {
         setIsSelectionMode(!isSelectionMode);
         setSelectedIds(new Set());
@@ -341,51 +347,17 @@ const App = () => {
         }
     };
 
-    const handleBatchDelete = async () => {
-        if (!window.confirm(t('gallery.deleteConfirm'))) return;
-
-        for (const id of Array.from(selectedIds)) {
-            await deleteStickerFromDB(id);
-        }
-
-        setStickers(prev => prev.filter(s => !selectedIds.has(s.id)));
-        setSelectedIds(new Set());
-        setIsSelectionMode(false);
-    };
-
-    const handleBatchDownload = () => {
-        const selectedStickers = stickers.filter(s => selectedIds.has(s.id));
-        handleDownloadZip(selectedStickers);
-        setSelectedIds(new Set());
-        setSelectedIds(new Set());
-        setIsSelectionMode(false);
-    };
-
-    const handleBatchShare = async () => {
+    const handleBatchDownload = async () => {
         const selectedStickers = stickers.filter(s => selectedIds.has(s.id));
         if (selectedStickers.length === 0) return;
 
         try {
-            const files: File[] = [];
-            for (const sticker of selectedStickers) {
-                const response = await fetch(sticker.imageUrl);
-                const blob = await response.blob();
-                const file = new File([blob], `${sticker.phrase}.png`, { type: 'image/png' });
-                files.push(file);
-            }
-
-            if (navigator.canShare && navigator.canShare({ files })) {
-                await navigator.share({
-                    files: files,
-                    title: 'Sticker Collection',
-                    text: `Check out these ${selectedStickers.length} stickers!`
-                });
-            } else {
-                alert(t('gallery.shareNotSupported'));
-            }
+            await handleDownloadZip(selectedStickers);
+            setSelectedIds(new Set());
+            setIsSelectionMode(false);
         } catch (error) {
-            console.error("Batch share failed:", error);
-            // Don't alert on error as it might be user cancellation
+            console.error("Batch download failed:", error);
+            alert(t('gallery.download') + " failed");
         }
     };
 
@@ -483,6 +455,7 @@ const App = () => {
                                     <>
                                         <button
                                             onClick={toggleSelectionMode}
+                                            data-testid="gallery-selection-mode"
                                             className="p-2 bg-white border border-cream-dark rounded-xl text-bronze-light hover:text-primary hover:border-primary/50 transition-all shadow-sm"
                                             title={t('gallery.selectionMode')}
                                         >
@@ -564,27 +537,12 @@ const App = () => {
                             <span className="text-xs font-bold bg-white/20 px-2 py-1 rounded-md">{selectedIds.size}</span>
                             <div className="h-6 w-px bg-white/20"></div>
                             <button
-                                onClick={handleBatchShare}
-                                className="flex items-center gap-2 text-sm font-bold hover:text-pink-300 transition-colors"
-                            >
-                                <Share2 size={18} />
-                                {t('gallery.shareSelected', { count: selectedIds.size })}
-                            </button>
-                            <div className="h-6 w-px bg-white/20"></div>
-                            <button
                                 onClick={handleBatchDownload}
+                                data-testid="gallery-batch-download"
                                 className="flex items-center gap-2 text-sm font-bold hover:text-secondary-light transition-colors"
                             >
                                 <Download size={18} />
-                                {t('gallery.downloadSelected', { count: selectedIds.size })}
-                            </button>
-                            <div className="h-6 w-px bg-white/20"></div>
-                            <button
-                                onClick={handleBatchDelete}
-                                className="flex items-center gap-2 text-sm font-bold hover:text-red-300 transition-colors"
-                            >
-                                <Trash2 size={18} />
-                                {t('gallery.deleteSelected', { count: selectedIds.size })}
+                                {t('gallery.downloadZip')}
                             </button>
                         </div>
                     </div>
