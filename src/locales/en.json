@@ -1733,7 +1733,26 @@
       "airbrush": "Airbrush",
       "eraser": "Eraser"
     },
-    "activeLayer": "Active"
+    "activeLayer": "Active",
+    "fromGallery": "From Gallery",
+    "saveToGallery": "Save to Gallery",
+    "downloadPng": "Download PNG",
+    "drawMode": "Draw",
+    "transformMode": "Transform",
+    "fitCanvasToImport": "Match canvas to imported image",
+    "removeWhiteOnImport": "JPG white to transparent",
+    "whiteThreshold": "White threshold",
+    "imageScale": "Image scale",
+    "transformHint": "Transform mode: drag image to move, drag bottom-right square to resize.",
+    "selectMode": "Select",
+    "clearSelection": "Clear Selection",
+    "vectorBrush": "Vector Brush",
+    "stabilizer": "Stabilizer",
+    "maskPaintMode": "Mask Paint Mode",
+    "maskToggle": "Toggle mask",
+    "importProject": "Import Project",
+    "exportProject": "Export Project",
+    "projectLoadFailed": "Failed to load project file."
   },
   "common": {
     "cancel": "Cancel",

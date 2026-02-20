@@ -1838,6 +1838,25 @@
       "airbrush": "噴槍",
       "eraser": "橡皮擦"
     },
-    "activeLayer": "目前"
+    "activeLayer": "目前",
+    "fromGallery": "\u5f9e\u4f5c\u54c1\u96c6\u9078\u53d6",
+    "saveToGallery": "\u5132\u5b58\u81f3\u4f5c\u54c1\u96c6",
+    "downloadPng": "\u4e0b\u8f09 PNG",
+    "drawMode": "\u7e6a\u88fd",
+    "transformMode": "\u8b8a\u5f62",
+    "fitCanvasToImport": "\u5339\u914d\u532f\u5165\u5716\u7247\u5c3a\u5bf8",
+    "removeWhiteOnImport": "JPG \u767d\u5e95\u8f49\u900f\u660e",
+    "whiteThreshold": "\u767d\u8272\u95be\u503c",
+    "imageScale": "\u5716\u7247\u7e2e\u653e",
+    "transformHint": "\u8b8a\u5f62\u6a21\u5f0f\uff1a\u62d6\u66f3\u5716\u7247\u79fb\u52d5\uff0c\u62d6\u66f3\u53f3\u4e0b\u89d2\u65b9\u584a\u7e2e\u653e\u3002",
+    "selectMode": "\u9078\u53d6",
+    "clearSelection": "\u6e05\u9664\u9078\u53d6",
+    "vectorBrush": "\u5411\u91cf\u7b46\u5237",
+    "stabilizer": "\u7a69\u5b9a\u5668",
+    "maskPaintMode": "\u906e\u8272\u7247\u7e6a\u88fd",
+    "maskToggle": "\u5207\u63db\u906e\u8272\u7247",
+    "importProject": "\u532f\u5165\u5c08\u6848",
+    "exportProject": "\u532f\u51fa\u5c08\u6848",
+    "projectLoadFailed": "\u8f09\u5165\u5c08\u6848\u6a94\u5931\u6557\u3002"
   }
 }
