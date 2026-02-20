@@ -311,10 +311,33 @@ const App = () => {
     const handleDownloadZip = async (subset: Sticker[] = filteredStickers) => {
         const zip = new JSZip();
         const folder = zip.folder("stickers");
+        const docsFolder = zip.folder("docs");
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
         if (subset.length === 0) return;
+
+        const sanitizeFileBase = (input: string) => {
+            const cleaned = (input || 'sticker')
+                .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
+                .replace(/\s+/g, '_')
+                .replace(/_+/g, '_')
+                .replace(/^_+|_+$/g, '');
+            return cleaned.slice(0, 60) || 'sticker';
+        };
+
+        const mimeToExt = (mime: string) => {
+            const table: Record<string, string> = {
+                'image/png': 'png',
+                'image/jpeg': 'jpg',
+                'image/webp': 'webp',
+                'image/gif': 'gif',
+                'image/svg+xml': 'svg',
+                'text/plain': 'txt',
+                'application/pdf': 'pdf',
+            };
+            return table[mime] || 'bin';
+        };
 
         let addedCount = 0;
         const failedIds: string[] = [];
@@ -331,7 +354,15 @@ const App = () => {
                     }
                     blob = await response.blob();
                 }
-                folder?.file(`${sticker.phrase.replace(/\s/g, '_')}_${sticker.id}.png`, blob);
+                const safeBase = sanitizeFileBase(sticker.phrase);
+                const ext = mimeToExt(blob.type || 'image/png');
+                folder?.file(`${safeBase}_${sticker.id}.${ext}`, blob);
+
+                // Include associated text document when available.
+                if (sticker.description && sticker.description.trim().length > 0) {
+                    const docText = `${sticker.phrase}\n\n${sticker.description}`;
+                    docsFolder?.file(`${safeBase}_${sticker.id}.txt`, docText);
+                }
                 addedCount += 1;
             } catch (error) {
                 console.error('Failed to add image to zip:', sticker.id, error);
