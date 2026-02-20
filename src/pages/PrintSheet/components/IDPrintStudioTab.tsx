@@ -377,7 +377,7 @@ const IDPrintStudioTab: React.FC = () => {
 
     return (
         <div
-            className="flex flex-col lg:flex-row h-full bg-cream-light text-bronze-text font-sans overflow-hidden"
+            className="flex flex-col lg:flex-row h-full bg-cream-light text-bronze-text font-sans overflow-y-auto lg:overflow-hidden"
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -680,7 +680,7 @@ const IDPrintStudioTab: React.FC = () => {
             </aside>
 
             {/* Main Content / Workspace */}
-            <main className="flex-1 bg-cream-light relative overflow-hidden flex flex-col">
+            <main className="flex-1 bg-cream-light relative overflow-y-auto lg:overflow-hidden flex flex-col min-h-0">
                 {/* State: Cropping */}
                 {cropSession ? (
                     <div className="flex-1 p-2 md:p-8 flex flex-col h-full bg-cream-light">
@@ -715,7 +715,7 @@ const IDPrintStudioTab: React.FC = () => {
                                 </div>
                             </div>
                         ) : (
-                            <div className="flex-1 p-2 md:p-8 flex flex-col min-h-[50vh] lg:min-h-0">
+                            <div className="flex-1 p-2 md:p-8 flex flex-col min-h-[50vh] lg:min-h-0 overflow-y-auto lg:overflow-hidden">
                                 <header className="flex justify-between items-center mb-2 md:mb-4 flex-shrink-0">
                                     <div>
                                         <h2 className="text-lg md:text-2xl font-bold text-bronze">{t('printSheet.idPrint.workspace.previewTitle')}</h2>
@@ -725,7 +725,7 @@ const IDPrintStudioTab: React.FC = () => {
                                     </div>
                                 </header>
                                 <div className="flex-1 min-h-0 bg-white/50 rounded-lg md:rounded-xl border border-cream-dark/20 flex flex-col relative overflow-hidden shadow-sm">
-                                    <div className="absolute inset-0 overflow-auto p-2 md:p-4 flex items-center justify-center">
+                                    <div className="flex-1 min-h-0 overflow-auto p-2 md:p-4 flex items-start md:items-center justify-center">
                                         <LayoutPreview assets={assets} config={config} />
                                     </div>
                                 </div>

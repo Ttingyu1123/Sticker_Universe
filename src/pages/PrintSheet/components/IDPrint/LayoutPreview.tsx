@@ -116,8 +116,8 @@ const LayoutPreview: React.FC<LayoutPreviewProps> = ({ assets, config }) => {
   const displayH = isPortrait ? paperSpec.height : paperSpec.width;
 
   return (
-    <div className="flex flex-col gap-4 md:gap-6 w-full min-h-[400px]">
-      <div className="relative flex-1 bg-slate-100 border border-cream-dark/20 rounded-lg overflow-hidden flex items-center justify-center p-2 md:p-4 shadow-inner min-h-[250px]">
+    <div className="flex flex-col gap-4 md:gap-6 w-full min-h-[460px] md:min-h-[400px]">
+      <div className="relative flex-1 bg-slate-100 border border-cream-dark/20 rounded-lg overflow-auto p-2 md:p-4 shadow-inner min-h-[320px] md:min-h-[250px]">
         {isGenerating && (
           <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex flex-col items-center justify-center text-bronze-text font-medium">
             <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
@@ -135,15 +135,17 @@ const LayoutPreview: React.FC<LayoutPreviewProps> = ({ assets, config }) => {
           </div>
         ) : (
           previewUrl && (
-            <img
-              src={previewUrl}
-              alt="Layout Preview"
-              style={{
-                transform: `scale(${previewZoom})`,
-                transition: 'transform 0.2s ease-out'
-              }}
-              className="max-w-full max-h-[35vh] md:max-h-[50vh] object-contain shadow-2xl bg-white ring-1 ring-slate-900/5"
-            />
+            <div className="w-full min-h-full flex items-start justify-center">
+              <img
+                src={previewUrl}
+                alt="Layout Preview"
+                style={{
+                  width: `${previewZoom * 100}%`,
+                  transition: 'width 0.2s ease-out'
+                }}
+                className="h-auto max-w-none object-contain shadow-2xl bg-white ring-1 ring-slate-900/5"
+              />
+            </div>
           )
         )}
 

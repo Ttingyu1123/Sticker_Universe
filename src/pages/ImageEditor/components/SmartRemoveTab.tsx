@@ -170,7 +170,7 @@ const SmartRemoveTab = () => {
             const errorMsg = e instanceof Error ? e.message : String(e);
             alert(
                 t('editor.aiRemoval.error') ||
-                `AI background removal failed.\n\nDetails: ${errorMsg}`
+                `AI 去背失敗。\n\n錯誤詳情：${errorMsg}`
             );
         } finally {
             setIsProcessing(false);
@@ -251,7 +251,7 @@ const SmartRemoveTab = () => {
                     id: `smartremove_auto_${Date.now()}`,
                     imageUrl: url,
                     timestamp: Date.now(),
-                    phrase: 'Smart Eraser Edit'
+                    phrase: '智慧去背編輯'
                 });
             } catch (error) {
                 console.error('Auto-save on export failed', error);
@@ -310,12 +310,12 @@ const SmartRemoveTab = () => {
                 id: crypto.randomUUID(),
                 imageUrl: url,
                 timestamp: Date.now(),
-                phrase: 'Smart Eraser Edit'
+                phrase: '智慧去背編輯'
             });
-            alert(t('packager.status.complete') || 'Saved to Gallery!');
+            alert(t('packager.status.complete') || '已儲存到作品集！');
         } catch (error) {
             console.error(error);
-            alert('Failed to save');
+            alert('儲存失敗');
         } finally {
             setIsSaving(false);
         }
@@ -324,15 +324,15 @@ const SmartRemoveTab = () => {
     const getToolShortLabel = (value: typeof tool) => {
         switch (value) {
             case 'erase':
-                return 'Eraser';
+                return '橡皮擦';
             case 'restore':
-                return 'Restore';
+                return '還原筆刷';
             case 'magic-wand':
-                return 'Magic';
+                return '魔術棒';
             case 'move':
-                return 'Move';
+                return '移動';
             case 'crop':
-                return 'Crop';
+                return '裁切';
             default:
                 return '';
         }
@@ -348,10 +348,10 @@ const SmartRemoveTab = () => {
                     <button
                         onClick={() => fileInputRef.current?.click()}
                         className="p-2 md:px-4 md:py-2 bg-cream-light hover:bg-cream-medium text-bronze-text border border-cream-dark hover:border-bronze-light rounded-xl font-bold text-sm transition-colors flex items-center gap-2"
-                        title={t('eraser.upload.title') || 'Load Image'}
+                        title={t('eraser.upload.title') || '\u8f09\u5165\u5716\u7247'}
                     >
                         <Upload size={18} />
-                        <span className="hidden md:inline">{t('eraser.upload.title') || 'Load Image'}</span>
+                        <span className="hidden md:inline">{t('eraser.upload.title') || '\u8f09\u5165\u5716\u7247'}</span>
                     </button>
                     <button
                         onClick={() => setShowGalleryPicker(true)}
@@ -359,7 +359,7 @@ const SmartRemoveTab = () => {
                         title={t('app.selectFromGallery')}
                     >
                         <ImageIcon size={18} />
-                        <span className="hidden md:inline">{t('app.selectFromGallery') || 'From Gallery'}</span>
+                        <span className="hidden md:inline">{t('app.selectFromGallery') || '\u5f9e\u4f5c\u54c1\u96c6\u9078\u53d6'}</span>
                     </button>
                     <button
                         onClick={handleSaveToGallery}
@@ -368,7 +368,7 @@ const SmartRemoveTab = () => {
                         title={t('eraser.toolbar.saveToGallery')}
                     >
                         {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                        <span className="hidden md:inline">{t('eraser.toolbar.saveToGallery') || 'Save to Gallery'}</span>
+                        <span className="hidden md:inline">{t('eraser.toolbar.saveToGallery') || '\u5132\u5b58\u5230\u4f5c\u54c1\u96c6'}</span>
                     </button>
                     <button
                         onClick={handleExport}
@@ -377,7 +377,7 @@ const SmartRemoveTab = () => {
                         title={t('eraser.toolbar.export')}
                     >
                         <Download size={18} />
-                        <span className="hidden md:inline">{t('eraser.toolbar.export') || 'Export PNG'}</span>
+                        <span className="hidden md:inline">{t('eraser.toolbar.export') || '?? PNG'}</span>
                     </button>
                 </div>
             </div>
@@ -445,7 +445,7 @@ const SmartRemoveTab = () => {
                                     >
                                         <img
                                             src={originalImage.src}
-                                            alt="Original"
+                                            alt="原圖"
                                             className="w-full h-full object-contain block"
                                             draggable={false}
                                         />
@@ -458,7 +458,7 @@ const SmartRemoveTab = () => {
                                     <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-20">
                                         <div className="flex flex-col items-center">
                                             <Loader2 size={40} className="text-primary animate-spin mb-2" />
-                                            <span className="font-bold text-primary-dark">Processing AI...</span>
+                                            <span className="font-bold text-primary-dark">AI 處理中...</span>
                                         </div>
                                     </div>
                                 )}
@@ -481,7 +481,7 @@ const SmartRemoveTab = () => {
                                     className="mt-2 px-6 py-2 bg-white border border-secondary/20 hover:border-secondary/40 text-bronze-text rounded-lg font-bold text-sm transition-all shadow-sm inline-flex items-center gap-2"
                                 >
                                     <ImageIcon size={16} />
-                                    {t('app.selectFromGallery') || 'From Gallery'}
+                                    {t('app.selectFromGallery') || '\u5f9e\u4f5c\u54c1\u96c6\u9078\u53d6'}
                                 </button>
                             </div>
                         )
@@ -491,14 +491,14 @@ const SmartRemoveTab = () => {
                     {originalImage && (
                         <div className="lg:hidden absolute left-3 right-3 bottom-3 z-10 rounded-2xl border border-cream-dark bg-white/95 backdrop-blur-sm shadow-xl p-2 space-y-2">
                             <div className="flex items-center justify-between px-1">
-                                <span className="text-[11px] font-bold text-bronze-light">Tool: <span className="text-bronze-text">{getToolShortLabel(tool)}</span></span>
+                                <span className="text-[11px] font-bold text-bronze-light">目前工具：<span className="text-bronze-text">{getToolShortLabel(tool)}</span></span>
                                 <button
                                     onClick={() => setShowMobileMoreTools(true)}
                                     className="px-2 py-1 rounded-md bg-cream-light border border-cream-dark text-[11px] font-bold text-bronze-text inline-flex items-center gap-1"
-                                    title="More Tools"
+                                    title="更多工具"
                                 >
                                     <Settings size={12} />
-                                    More Tools
+                                    更多工具
                                 </button>
                             </div>
                             <div className="grid grid-cols-4 gap-1">
@@ -506,37 +506,37 @@ const SmartRemoveTab = () => {
                                     onClick={() => setTool('erase')}
                                     className={`h-12 rounded-lg border flex flex-col items-center justify-center gap-0.5 ${tool === 'erase' ? 'border-primary bg-primary/10 text-primary' : 'border-cream-dark bg-cream-light text-bronze-text'}`}
                                     title={t('eraser.toolbar.eraser')}
-                                    aria-label={t('eraser.toolbar.eraser') || 'Eraser'}
+                                    aria-label={t('eraser.toolbar.eraser') || '\u6a61\u76ae\u64e6'}
                                 >
                                     <Eraser size={16} />
-                                    <span className="text-[10px] font-bold leading-none">Eraser</span>
+                                    <span className="text-[10px] font-bold leading-none">橡皮擦</span>
                                 </button>
                                 <button
                                     onClick={() => setTool('restore')}
                                     className={`h-12 rounded-lg border flex flex-col items-center justify-center gap-0.5 ${tool === 'restore' ? 'border-secondary bg-secondary/10 text-secondary' : 'border-cream-dark bg-cream-light text-bronze-text'}`}
                                     title={t('eraser.toolbar.restore')}
-                                    aria-label={t('eraser.toolbar.restore') || 'Restore'}
+                                    aria-label={t('eraser.toolbar.restore') || '\u9084\u539f\u7b46\u5237'}
                                 >
                                     <Brush size={16} />
-                                    <span className="text-[10px] font-bold leading-none">Restore</span>
+                                    <span className="text-[10px] font-bold leading-none">還原筆刷</span>
                                 </button>
                                 <button
                                     onClick={() => setTool('magic-wand')}
                                     className={`h-12 rounded-lg border flex flex-col items-center justify-center gap-0.5 ${tool === 'magic-wand' ? 'border-primary bg-primary/10 text-primary' : 'border-cream-dark bg-cream-light text-bronze-text'}`}
                                     title={t('eraser.toolbar.magic')}
-                                    aria-label={t('eraser.toolbar.magic') || 'Magic Wand'}
+                                    aria-label={t('eraser.toolbar.magic') || '\u9b54\u8853\u68d2'}
                                 >
                                     <Sparkles size={16} />
-                                    <span className="text-[10px] font-bold leading-none">Magic</span>
+                                    <span className="text-[10px] font-bold leading-none">魔術棒</span>
                                 </button>
                                 <button
                                     onClick={() => setTool('move')}
                                     className={`h-12 rounded-lg border flex flex-col items-center justify-center gap-0.5 ${tool === 'move' ? 'border-bronze-text bg-bronze-light/10 text-bronze-text' : 'border-cream-dark bg-cream-light text-bronze-text'}`}
                                     title={t('eraser.toolbar.move')}
-                                    aria-label={t('eraser.toolbar.move') || 'Move'}
+                                    aria-label={t('eraser.toolbar.move') || '??'}
                                 >
                                     <Hand size={16} />
-                                    <span className="text-[10px] font-bold leading-none">Move</span>
+                                    <span className="text-[10px] font-bold leading-none">移動</span>
                                 </button>
                             </div>
                             <div className="grid grid-cols-2 gap-1">
@@ -544,19 +544,19 @@ const SmartRemoveTab = () => {
                                     onClick={handleUndo}
                                     disabled={historyIndex <= 0}
                                     className="h-9 rounded-lg border border-cream-dark bg-cream-light text-bronze-text flex items-center justify-center gap-1 disabled:opacity-50"
-                                    title={t('eraser.toolbar.undo') || 'Undo'}
+                                    title={t('eraser.toolbar.undo') || '??'}
                                 >
                                     <Undo size={14} />
-                                    <span className="text-[11px] font-bold">Undo</span>
+                                    <span className="text-[11px] font-bold">復原</span>
                                 </button>
                                 <button
                                     onClick={handleRedo}
                                     disabled={historyIndex >= history.length - 1}
                                     className="h-9 rounded-lg border border-cream-dark bg-cream-light text-bronze-text flex items-center justify-center gap-1 disabled:opacity-50"
-                                    title={t('eraser.toolbar.redo') || 'Redo'}
+                                    title={t('eraser.toolbar.redo') || '??'}
                                 >
                                     <Redo size={14} />
-                                    <span className="text-[11px] font-bold">Redo</span>
+                                    <span className="text-[11px] font-bold">重做</span>
                                 </button>
                             </div>
                             <div className="flex items-center gap-2">
@@ -599,7 +599,7 @@ const SmartRemoveTab = () => {
                             className="w-full py-3 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isProcessing ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-                            {t('packager.phase1.aiRemoveBg') || 'AI Auto Remove'}
+                            {t('packager.phase1.aiRemoveBg') || 'AI \u81ea\u52d5\u53bb\u80cc'}
                         </button>
 
                         {/* Advanced Settings */}
@@ -608,13 +608,13 @@ const SmartRemoveTab = () => {
                                 <div className="space-y-3 bg-cream-light p-3 rounded-xl border border-cream-dark">
                                     <div className="flex items-center gap-2 text-xs font-bold text-bronze-light mb-2">
                                         <Settings size={14} />
-                                        <span>{t('eraser.toolbar.advancedSettings') || 'Advanced AI Settings'}</span>
+                                        <span>{t('eraser.toolbar.advancedSettings') || 'AI \u9032\u968e\u8a2d\u5b9a'}</span>
                                     </div>
 
                                     {/* Edge Tolerance */}
                                     <div className="space-y-1">
                                         <div className="flex justify-between text-[10px] font-bold text-bronze-light uppercase">
-                                            <span>{t('eraser.toolbar.edgeTolerance') || 'Edge Tolerance'}</span>
+                                            <span>{t('eraser.toolbar.edgeTolerance') || '\u908a\u7de3\u5bb9\u5dee'}</span>
                                             <span>{aiSettings.edgeTolerance}</span>
                                         </div>
                                         <input
@@ -625,15 +625,15 @@ const SmartRemoveTab = () => {
                                             className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
                                         />
                                         <div className="flex justify-between text-[10px] text-bronze-light/70">
-                                            <span>{t('eraser.toolbar.shrink') || 'Shrink'}</span>
-                                            <span>{t('eraser.toolbar.grow') || 'Grow'}</span>
+                                            <span>{t('eraser.toolbar.shrink') || '??'}</span>
+                                            <span>{t('eraser.toolbar.grow') || '??'}</span>
                                         </div>
                                     </div>
 
                                     {/* Toggles */}
                                     <div className="flex flex-col gap-2">
                                         <label className="flex items-center justify-between cursor-pointer">
-                                            <span className="text-xs font-medium text-bronze-text">{t('eraser.toolbar.protectClosed') || 'Protect Closed Areas'}</span>
+                                            <span className="text-xs font-medium text-bronze-text">{t('eraser.toolbar.protectClosed') || '\u4fdd\u8b77\u5c01\u9589\u5340\u57df'}</span>
                                             <input
                                                 type="checkbox"
                                                 checked={aiSettings.protectHoles}
@@ -642,7 +642,7 @@ const SmartRemoveTab = () => {
                                             />
                                         </label>
                                         <label className="flex items-center justify-between cursor-pointer">
-                                            <span className="text-xs font-medium text-bronze-text">{t('eraser.toolbar.enhanceText') || 'Enhance Text'}</span>
+                                            <span className="text-xs font-medium text-bronze-text">{t('eraser.toolbar.enhanceText') || '\u6587\u5b57\u5f37\u5316'}</span>
                                             <input
                                                 type="checkbox"
                                                 checked={aiSettings.enhanceText}
@@ -666,7 +666,7 @@ const SmartRemoveTab = () => {
                             className="w-full py-2 bg-cream-light hover:bg-cream-medium text-bronze-text rounded-lg font-bold text-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             <Trash2 size={16} />
-                            {t('eraser.toolbar.reset') || 'Reset'}
+                            {t('eraser.toolbar.reset') || '??'}
                         </button>
                     </div>
 
@@ -717,13 +717,13 @@ const SmartRemoveTab = () => {
                                             className={`flex-1 py-1 text-[10px] font-bold rounded-md transition-all ${magicToolMode === 'fill' ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}
                                             onClick={() => setMagicToolMode('fill')}
                                         >
-                                            {t('eraser.magic.fill') || 'Flood Fill'}
+                                            {t('eraser.magic.fill') || '\u5340\u57df\u586b\u6eff'}
                                         </button>
                                         <button
                                             className={`flex-1 py-1 text-[10px] font-bold rounded-md transition-all ${magicToolMode === 'brush' ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}
                                             onClick={() => setMagicToolMode('brush')}
                                         >
-                                            {t('eraser.magic.brush') || 'Magic Brush'}
+                                            {t('eraser.magic.brush') || '\u9b54\u8853\u7b46\u5237'}
                                         </button>
                                     </div>
 
@@ -775,7 +775,7 @@ const SmartRemoveTab = () => {
 
                                     <div className="space-y-2">
                                         <div className="flex justify-between text-xs font-bold text-bronze-text">
-                                            <span>{t('eraser.toolbar.hardness') || 'Hardness'}</span>
+                                            <span>{t('eraser.toolbar.hardness') || '??'}</span>
                                             <span>{Math.round(brushHardness * 100)}%</span>
                                         </div>
                                         <input
@@ -788,7 +788,7 @@ const SmartRemoveTab = () => {
                                     </div>
                                 </>
                             ) : (
-                                <div className="text-xs text-bronze-light italic">No settings for this tool</div>
+                                <div className="text-xs text-bronze-light italic">此工具目前沒有額外設定</div>
                             )
                         }
                     </div>
@@ -801,7 +801,7 @@ const SmartRemoveTab = () => {
                                 onClick={handleUndo}
                                 disabled={historyIndex <= 0}
                                 className="flex-1 py-2 bg-cream-light hover:bg-cream-medium text-bronze-text rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
-                                title={t('eraser.toolbar.undo') || "Undo"}
+                                title={t('eraser.toolbar.undo') || "??"}
                             >
                                 <Undo size={18} />
                             </button>
@@ -809,7 +809,7 @@ const SmartRemoveTab = () => {
                                 onClick={handleRedo}
                                 disabled={historyIndex >= history.length - 1}
                                 className="flex-1 py-2 bg-cream-light hover:bg-cream-medium text-bronze-text rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
-                                title={t('eraser.toolbar.redo') || "Redo"}
+                                title={t('eraser.toolbar.redo') || "??"}
                             >
                                 <Redo size={18} />
                             </button>
@@ -818,13 +818,13 @@ const SmartRemoveTab = () => {
 
                     {/* Effects Controls */}
                     <div className="space-y-4 pt-4 border-t border-cream-light">
-                        <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('packager.phase2.stroke') || 'Stroke'}</label>
+                        <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('packager.phase2.stroke') || '??'}</label>
 
                         {/* Stroke Toggle */}
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Palette size={18} className={strokeConfig.enabled ? 'text-primary' : 'text-bronze-light'} />
-                                <span className="text-xs font-bold text-bronze-text">{t('eraser.toolbar.enableStroke') || 'Enable Stroke'}</span>
+                                <span className="text-xs font-bold text-bronze-text">{t('eraser.toolbar.enableStroke') || '\u555f\u7528\u63cf\u908a'}</span>
                             </div>
                             <div
                                 onClick={() => setStrokeConfig(prev => ({ ...prev, enabled: !prev.enabled }))}
@@ -873,11 +873,11 @@ const SmartRemoveTab = () => {
                         }
 
                         {/* Shadow Toggle */}
-                        <label className="text-xs font-bold text-bronze-light uppercase tracking-wider mt-4 block">{t('packager.phase2.shadow') || 'Shadow'}</label>
+                        <label className="text-xs font-bold text-bronze-light uppercase tracking-wider mt-4 block">{t('packager.phase2.shadow') || '??'}</label>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Sun size={18} className={shadowConfig.enabled ? 'text-secondary' : 'text-bronze-light'} />
-                                <span className="text-xs font-bold text-bronze-text">{t('eraser.toolbar.enableShadow') || 'Enable Shadow'}</span>
+                                <span className="text-xs font-bold text-bronze-text">{t('eraser.toolbar.enableShadow') || '\u555f\u7528\u9670\u5f71'}</span>
                             </div>
                             <div
                                 onClick={() => setShadowConfig(prev => ({ ...prev, enabled: !prev.enabled }))}
@@ -891,7 +891,7 @@ const SmartRemoveTab = () => {
 
                     {/* View Controls */}
                     <div className="hidden lg:block space-y-4 pt-4 border-t border-cream-light">
-                        <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('eraser.zoom') || 'View'}</label>
+                        <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('eraser.zoom') || '??'}</label>
 
                         {/* Zoom */}
                         <div className="flex items-center gap-2">
@@ -924,11 +924,11 @@ const SmartRemoveTab = () => {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="mb-3 flex items-center justify-between">
-                            <h3 className="text-sm font-bold text-bronze-text">More Tools</h3>
+                            <h3 className="text-sm font-bold text-bronze-text">更多工具</h3>
                             <button
                                 onClick={() => setShowMobileMoreTools(false)}
                                 className="h-8 w-8 rounded-lg border border-cream-dark bg-cream-light text-bronze-text flex items-center justify-center"
-                                title="Close"
+                                title="關閉"
                             >
                                 <X size={16} />
                             </button>
@@ -941,19 +941,19 @@ const SmartRemoveTab = () => {
                                 className="w-full py-3 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isProcessing ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-                                {t('packager.phase1.aiRemoveBg') || 'AI Auto Remove'}
+                                {t('packager.phase1.aiRemoveBg') || 'AI \u81ea\u52d5\u53bb\u80cc'}
                             </button>
 
                             {originalImage && (
                                 <div className="space-y-3 bg-cream-light p-3 rounded-xl border border-cream-dark">
                                     <div className="flex items-center gap-2 text-xs font-bold text-bronze-light mb-2">
                                         <Settings size={14} />
-                                        <span>{t('eraser.toolbar.advancedSettings') || 'Advanced AI Settings'}</span>
+                                        <span>{t('eraser.toolbar.advancedSettings') || 'AI \u9032\u968e\u8a2d\u5b9a'}</span>
                                     </div>
 
                                     <div className="space-y-1">
                                         <div className="flex justify-between text-[10px] font-bold text-bronze-light uppercase">
-                                            <span>{t('eraser.toolbar.edgeTolerance') || 'Edge Tolerance'}</span>
+                                            <span>{t('eraser.toolbar.edgeTolerance') || '\u908a\u7de3\u5bb9\u5dee'}</span>
                                             <span>{aiSettings.edgeTolerance}</span>
                                         </div>
                                         <input
@@ -964,14 +964,14 @@ const SmartRemoveTab = () => {
                                             className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
                                         />
                                         <div className="flex justify-between text-[10px] text-bronze-light/70">
-                                            <span>{t('eraser.toolbar.shrink') || 'Shrink'}</span>
-                                            <span>{t('eraser.toolbar.grow') || 'Grow'}</span>
+                                            <span>{t('eraser.toolbar.shrink') || '??'}</span>
+                                            <span>{t('eraser.toolbar.grow') || '??'}</span>
                                         </div>
                                     </div>
 
                                     <div className="flex flex-col gap-2">
                                         <label className="flex items-center justify-between cursor-pointer">
-                                            <span className="text-xs font-medium text-bronze-text">{t('eraser.toolbar.protectClosed') || 'Protect Closed Areas'}</span>
+                                            <span className="text-xs font-medium text-bronze-text">{t('eraser.toolbar.protectClosed') || '\u4fdd\u8b77\u5c01\u9589\u5340\u57df'}</span>
                                             <input
                                                 type="checkbox"
                                                 checked={aiSettings.protectHoles}
@@ -980,7 +980,7 @@ const SmartRemoveTab = () => {
                                             />
                                         </label>
                                         <label className="flex items-center justify-between cursor-pointer">
-                                            <span className="text-xs font-medium text-bronze-text">{t('eraser.toolbar.enhanceText') || 'Enhance Text'}</span>
+                                            <span className="text-xs font-medium text-bronze-text">{t('eraser.toolbar.enhanceText') || '\u6587\u5b57\u5f37\u5316'}</span>
                                             <input
                                                 type="checkbox"
                                                 checked={aiSettings.enhanceText}
@@ -1004,7 +1004,7 @@ const SmartRemoveTab = () => {
                                 className="w-full py-2 bg-cream-light hover:bg-cream-medium text-bronze-text rounded-lg font-bold text-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                             >
                                 <Trash2 size={16} />
-                                {t('eraser.toolbar.reset') || 'Reset'}
+                                {t('eraser.toolbar.reset') || '??'}
                             </button>
                         </div>
 
@@ -1052,13 +1052,13 @@ const SmartRemoveTab = () => {
                                             className={`flex-1 py-1 text-[10px] font-bold rounded-md transition-all ${magicToolMode === 'fill' ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}
                                             onClick={() => setMagicToolMode('fill')}
                                         >
-                                            {t('eraser.magic.fill') || 'Flood Fill'}
+                                            {t('eraser.magic.fill') || '\u5340\u57df\u586b\u6eff'}
                                         </button>
                                         <button
                                             className={`flex-1 py-1 text-[10px] font-bold rounded-md transition-all ${magicToolMode === 'brush' ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}
                                             onClick={() => setMagicToolMode('brush')}
                                         >
-                                            {t('eraser.magic.brush') || 'Magic Brush'}
+                                            {t('eraser.magic.brush') || '\u9b54\u8853\u7b46\u5237'}
                                         </button>
                                     </div>
 
@@ -1110,7 +1110,7 @@ const SmartRemoveTab = () => {
 
                                     <div className="space-y-2">
                                         <div className="flex justify-between text-xs font-bold text-bronze-text">
-                                            <span>{t('eraser.toolbar.hardness') || 'Hardness'}</span>
+                                            <span>{t('eraser.toolbar.hardness') || '??'}</span>
                                             <span>{Math.round(brushHardness * 100)}%</span>
                                         </div>
                                         <input
@@ -1123,17 +1123,17 @@ const SmartRemoveTab = () => {
                                     </div>
                                 </>
                             ) : (
-                                <div className="text-xs text-bronze-light italic">No settings for this tool</div>
+                                <div className="text-xs text-bronze-light italic">此工具目前沒有額外設定</div>
                             )}
                         </div>
 
                         <div className="space-y-4 pt-4 border-t border-cream-light pb-4">
-                            <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('packager.phase2.stroke') || 'Stroke'}</label>
+                            <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('packager.phase2.stroke') || '??'}</label>
 
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Palette size={18} className={strokeConfig.enabled ? 'text-primary' : 'text-bronze-light'} />
-                                    <span className="text-xs font-bold text-bronze-text">{t('eraser.toolbar.enableStroke') || 'Enable Stroke'}</span>
+                                    <span className="text-xs font-bold text-bronze-text">{t('eraser.toolbar.enableStroke') || '\u555f\u7528\u63cf\u908a'}</span>
                                 </div>
                                 <div
                                     onClick={() => setStrokeConfig(prev => ({ ...prev, enabled: !prev.enabled }))}
@@ -1177,11 +1177,11 @@ const SmartRemoveTab = () => {
                                 </div>
                             )}
 
-                            <label className="text-xs font-bold text-bronze-light uppercase tracking-wider mt-4 block">{t('packager.phase2.shadow') || 'Shadow'}</label>
+                            <label className="text-xs font-bold text-bronze-light uppercase tracking-wider mt-4 block">{t('packager.phase2.shadow') || '??'}</label>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Sun size={18} className={shadowConfig.enabled ? 'text-secondary' : 'text-bronze-light'} />
-                                    <span className="text-xs font-bold text-bronze-text">{t('eraser.toolbar.enableShadow') || 'Enable Shadow'}</span>
+                                    <span className="text-xs font-bold text-bronze-text">{t('eraser.toolbar.enableShadow') || '\u555f\u7528\u9670\u5f71'}</span>
                                 </div>
                                 <div
                                     onClick={() => setShadowConfig(prev => ({ ...prev, enabled: !prev.enabled }))}
@@ -1219,4 +1219,5 @@ const SmartRemoveTab = () => {
 };
 
 export default SmartRemoveTab;
+
 

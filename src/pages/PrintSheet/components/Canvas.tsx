@@ -1,9 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { DraggableImage } from './DraggableImage';
-import { toPng } from 'html-to-image';
+import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Download, Grid, Loader2, Check, Minus, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { saveStickerToDB } from '../../../db';
 
 interface StickerImage {
     id: string;
@@ -17,6 +18,34 @@ interface CanvasProps {
     setImages: React.Dispatch<React.SetStateAction<StickerImage[]>>;
 }
 
+type SheetSize =
+    | 'A4'
+    | 'A5'
+    | 'A6'
+    | 'Letter'
+    | 'Legal'
+    | 'Tabloid'
+    | 'Photo4x6'
+    | 'Photo5x7'
+    | 'Photo8x10'
+    | 'Postcard100x148'
+    | 'Postcard105x148';
+type Orientation = 'portrait' | 'landscape';
+
+const SHEET_SPECS: Record<SheetSize, { label: string; widthPx: number; heightPx: number; widthMm: number; heightMm: number }> = {
+    A4: { label: 'A4 (210 x 297 mm)', widthPx: 794, heightPx: 1123, widthMm: 210, heightMm: 297 },
+    A5: { label: 'A5 (148 x 210 mm)', widthPx: 559, heightPx: 794, widthMm: 148, heightMm: 210 },
+    A6: { label: 'A6 (105 x 148 mm)', widthPx: 397, heightPx: 559, widthMm: 105, heightMm: 148 },
+    Letter: { label: 'Letter (8.5 x 11 in)', widthPx: 816, heightPx: 1056, widthMm: 215.9, heightMm: 279.4 },
+    Legal: { label: 'Legal (8.5 x 14 in)', widthPx: 816, heightPx: 1344, widthMm: 215.9, heightMm: 355.6 },
+    Tabloid: { label: 'Tabloid (11 x 17 in)', widthPx: 1056, heightPx: 1632, widthMm: 279.4, heightMm: 431.8 },
+    Photo4x6: { label: '4x6 相片 (101.6 x 152.4 mm)', widthPx: 384, heightPx: 576, widthMm: 101.6, heightMm: 152.4 },
+    Photo5x7: { label: '5x7 相片 (127 x 177.8 mm)', widthPx: 480, heightPx: 672, widthMm: 127, heightMm: 177.8 },
+    Photo8x10: { label: '8x10 相片 (203.2 x 254 mm)', widthPx: 768, heightPx: 960, widthMm: 203.2, heightMm: 254 },
+    Postcard100x148: { label: '明信片 100 x 148 mm', widthPx: 378, heightPx: 559, widthMm: 100, heightMm: 148 },
+    Postcard105x148: { label: '明信片 105 x 148 mm', widthPx: 397, heightPx: 559, widthMm: 105, heightMm: 148 }
+};
+
 export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
     const { t } = useTranslation();
     const canvasRef = useRef<HTMLDivElement>(null);
@@ -25,12 +54,66 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
     const [isExporting, setIsExporting] = useState(false);
     const [bgColor, setBgColor] = useState<string>('#ffffff');
     const [viewScale, setViewScale] = useState(0.4); // Default easier for mobile
+    const [sheetSize, setSheetSize] = useState<SheetSize>('A4');
+    const [orientation, setOrientation] = useState<Orientation>('portrait');
+    const sheetBase = SHEET_SPECS[sheetSize];
+    const sheet = orientation === 'portrait'
+        ? sheetBase
+        : {
+            ...sheetBase,
+            widthPx: sheetBase.heightPx,
+            heightPx: sheetBase.widthPx,
+            widthMm: sheetBase.heightMm,
+            heightMm: sheetBase.widthMm
+        };
+    const isIosSafari = typeof navigator !== 'undefined'
+        && /iPad|iPhone|iPod/.test(navigator.userAgent)
+        && /Safari/.test(navigator.userAgent)
+        && !/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent);
 
-    // A4 size in pixels at 96 DPI (standard screen)
-    // A4 is 210mm x 297mm.
-    // 96 DPI: 794px x 1123px approx.
-    const A4_WIDTH_PX = 794;
-    const A4_HEIGHT_PX = 1123;
+    const createSafeId = () =>
+        (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+            ? crypto.randomUUID()
+            : `print_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
+    const autoSaveToGallery = async (imageUrl: string) => {
+        try {
+            await saveStickerToDB({
+                id: createSafeId(),
+                imageUrl,
+                timestamp: Date.now(),
+                phrase: `Print Sheet (${sheetSize}-${orientation})`
+            });
+        } catch (e) {
+            console.error('Auto-save on download failed', e);
+        }
+    };
+
+    const renderExportImage = async (): Promise<string> => {
+        if (!canvasRef.current) throw new Error('Canvas not ready');
+        const previousScale = viewScale;
+        if (previousScale !== 1) {
+            setViewScale(1);
+            await new Promise(resolve => setTimeout(resolve, 60));
+        }
+        const exportBg = bgColor === 'transparent' ? null : bgColor;
+        try {
+            const canvas = await html2canvas(canvasRef.current, {
+                backgroundColor: exportBg,
+                scale: 300 / 96,
+                width: sheet.widthPx,
+                height: sheet.heightPx,
+                useCORS: true,
+                allowTaint: true,
+                logging: false
+            });
+            return canvas.toDataURL('image/png');
+        } finally {
+            if (previousScale !== 1) {
+                setViewScale(previousScale);
+            }
+        }
+    };
 
     const handleDelete = (id: string) => {
         setImages(prev => prev.filter(img => img.id !== id));
@@ -44,19 +127,12 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
 
         try {
             await new Promise(resolve => setTimeout(resolve, 500)); // Wait for React to re-render
+            const dataUrl = await renderExportImage();
 
-            const exportBg = bgColor === 'transparent' ? null : bgColor;
-            // 300 DPI / 96 DPI = 3.125 scale factor for print quality
-            // @ts-ignore
-            const dataUrl = await toPng(canvasRef.current, {
-                backgroundColor: exportBg || undefined,
-                pixelRatio: 300 / 96,
-                width: A4_WIDTH_PX,
-                height: A4_HEIGHT_PX
-            });
+            await autoSaveToGallery(dataUrl);
 
             const link = document.createElement('a');
-            link.download = `sticker-sheet-${bgColor === 'transparent' ? 'transparent' : 'color'}.png`;
+            link.download = `sticker-sheet-${sheetSize}-${orientation}-${bgColor === 'transparent' ? 'transparent' : 'color'}.png`;
             link.href = dataUrl;
             link.click();
         } catch (err: any) {
@@ -76,23 +152,30 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
         try {
             // Wait for React to re-render without selection
             await new Promise(resolve => setTimeout(resolve, 500));
+            const dataUrl = await renderExportImage();
 
-            const exportBg = bgColor === 'transparent' ? null : bgColor;
-            // 300 DPI / 96 DPI = 3.125 scale factor for print quality
-            // @ts-ignore
-            const dataUrl = await toPng(canvasRef.current, {
-                backgroundColor: exportBg || undefined,
-                pixelRatio: 300 / 96,
-                width: A4_WIDTH_PX,
-                height: A4_HEIGHT_PX
+            await autoSaveToGallery(dataUrl);
+
+            const pdf = new jsPDF({
+                orientation: orientation === 'portrait' ? 'p' : 'l',
+                unit: 'mm',
+                format: [sheet.widthMm, sheet.heightMm]
             });
-
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const pdfWidth = sheet.widthMm;
+            const pdfHeight = sheet.heightMm;
 
             pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save('sticker-sheet.pdf');
+            // Use blob download flow to avoid iOS Safari opening blank page.
+            const pdfBlob = pdf.output('blob');
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            const link = document.createElement('a');
+            link.href = pdfUrl;
+            link.download = `sticker-sheet-${sheetSize}-${orientation}.pdf`;
+            link.target = '_self';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(pdfUrl), 1000);
         } catch (err: any) {
             console.error('Export failed:', err);
             const errorMessage = err?.message || 'Unknown error';
@@ -188,6 +271,45 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
 
                 <div className="w-px h-8 bg-slate-200 self-center mx-2" />
 
+                {/* Output Size */}
+                <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">
+                        {t('printSheet.outputSize') || '輸出尺寸'}
+                    </span>
+                    <select
+                        value={sheetSize}
+                        onChange={(e) => setSheetSize(e.target.value as SheetSize)}
+                        className="h-9 rounded-lg border border-slate-300 bg-white px-2 text-xs font-bold text-slate-700"
+                        aria-label={t('printSheet.outputSize') || '輸出尺寸'}
+                    >
+                        {Object.entries(SHEET_SPECS).map(([key, spec]) => (
+                            <option key={key} value={key}>
+                                {spec.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="w-px h-8 bg-slate-200 self-center mx-2" />
+
+                {/* Orientation */}
+                <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">
+                        {t('printSheet.orientation') || '方向'}
+                    </span>
+                    <select
+                        value={orientation}
+                        onChange={(e) => setOrientation(e.target.value as Orientation)}
+                        className="h-9 rounded-lg border border-slate-300 bg-white px-2 text-xs font-bold text-slate-700"
+                        aria-label={t('printSheet.orientation') || '方向'}
+                    >
+                        <option value="portrait">{t('printSheet.portrait') || '直式'}</option>
+                        <option value="landscape">{t('printSheet.landscape') || '橫式'}</option>
+                    </select>
+                </div>
+
+                <div className="w-px h-8 bg-slate-200 self-center mx-2" />
+
                 {/* Export Buttons */}
                 <button
                     onClick={handleExportPNG}
@@ -208,17 +330,23 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
                 </button>
             </div>
 
+            {isIosSafari && (
+                <div className="w-full max-w-3xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
+                    iPhone PDF 儲存方式：按 Safari 右下角「分享」→「列印」→ 再按一次「分享」→「儲存到檔案」。
+                </div>
+            )}
+
             {/* Canvas Container - Scaled to fit screen */}
             <div className="relative w-full overflow-hidden flex justify-center bg-slate-100/50 rounded-2xl border border-slate-200 p-8 shadow-inner min-h-[500px]">
                 {/* Visual Wrapper for Shadow and Checkerboard (NOT Exported) */}
                 <div
                     className="relative transition-transform origin-top z-0 flex-shrink-0"
                     style={{
-                        width: A4_WIDTH_PX,
-                        height: A4_HEIGHT_PX,
+                        width: sheet.widthPx,
+                        height: sheet.heightPx,
                         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
                         transform: `scale(${viewScale})`,
-                        marginBottom: `-${A4_HEIGHT_PX * (1 - viewScale)}px` // Negative margin to reduce empty space when zoomed out
+                        marginBottom: `-${sheet.heightPx * (1 - viewScale)}px` // Negative margin to reduce empty space when zoomed out
                     }}
                 >
                     {/* Checkerboard Pattern Layer */}
@@ -264,12 +392,13 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
                                 onDelete={handleDelete}
                                 gridSize={showGrid ? 50 : 0}
                                 isExporting={isExporting}
+                                canvasScale={viewScale}
                             />
                         ))}
 
                         {images.length === 0 && (
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ color: '#94a3b8' }}>
-                                <p className="text-2xl font-black uppercase tracking-widest opacity-50 select-none">A4 Canvas</p>
+                                <p className="text-2xl font-black uppercase tracking-widest opacity-50 select-none">{sheetSize} {orientation === 'portrait' ? 'Portrait' : 'Landscape'}</p>
                             </div>
                         )}
                     </div>

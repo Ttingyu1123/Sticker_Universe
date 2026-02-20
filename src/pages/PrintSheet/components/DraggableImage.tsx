@@ -12,6 +12,7 @@ interface DraggableImageProps {
     onDelete: (id: string) => void;
     gridSize?: number;
     isExporting?: boolean;
+    canvasScale?: number;
 }
 
 export const DraggableImage: React.FC<DraggableImageProps> = ({
@@ -23,16 +24,18 @@ export const DraggableImage: React.FC<DraggableImageProps> = ({
     onSelect,
     onDelete,
     gridSize = 0,
-    isExporting = false
+    isExporting = false,
+    canvasScale = 1
 }) => {
     const nodeRef = useRef(null);
     const [scale, setScale] = useState(1);
+    const resizeSpeed = 0.02 / Math.max(canvasScale, 0.25);
 
     const handleWheel = (e: React.WheelEvent) => {
         if (isSelected) {
             e.stopPropagation();
-            const delta = e.deltaY * -0.001;
-            setScale(prev => Math.min(Math.max(0.5, prev + delta), 3));
+            const delta = e.deltaY * -0.0015 / Math.max(canvasScale, 0.25);
+            setScale(prev => Math.min(Math.max(0.2, prev + delta), 8));
         }
     };
 
@@ -44,7 +47,7 @@ export const DraggableImage: React.FC<DraggableImageProps> = ({
 
         const handleMouseMove = (moveEvent: MouseEvent) => {
             const deltaY = moveEvent.clientY - startY;
-            const newScale = Math.min(Math.max(0.5, startScale + deltaY * 0.01), 3);
+            const newScale = Math.min(Math.max(0.2, startScale + deltaY * resizeSpeed), 8);
             setScale(newScale);
         };
 
@@ -72,7 +75,7 @@ export const DraggableImage: React.FC<DraggableImageProps> = ({
 
             const touchMove = moveEvent.touches[0];
             const deltaY = touchMove.clientY - startY;
-            const newScale = Math.min(Math.max(0.5, startScale + deltaY * 0.01), 3);
+            const newScale = Math.min(Math.max(0.2, startScale + deltaY * resizeSpeed), 8);
             setScale(newScale);
         };
 
@@ -92,6 +95,7 @@ export const DraggableImage: React.FC<DraggableImageProps> = ({
             defaultPosition={{ x: 0, y: 0 }}
             grid={gridSize > 0 ? [gridSize, gridSize] : undefined}
             onStart={() => onSelect(id)}
+            scale={canvasScale}
         >
             <div
                 ref={nodeRef}

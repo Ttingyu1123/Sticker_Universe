@@ -16,6 +16,10 @@ const PrintSheetTab = () => {
     const [images, setImages] = useState<StickerImage[]>([]);
     const [showGallery, setShowGallery] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const createSafeId = () =>
+        (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+            ? crypto.randomUUID()
+            : `img_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -62,7 +66,7 @@ const PrintSheetTab = () => {
             setImages(prev => [
                 ...prev,
                 {
-                    id: crypto.randomUUID(),
+                    id: createSafeId(),
                     src,
                     width,
                     height
