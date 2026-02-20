@@ -11,6 +11,7 @@ const GalleryApp = React.lazy(() => import('./pages/Gallery/App').catch(err => {
 const LayerLabApp = React.lazy(() => import('./pages/LayerLab/App').then(module => ({ default: module.LayerLabApp })).catch(err => { console.error("Failed to load LayerLab:", err); return { default: () => <div className="p-10 text-red-500">LayerLab Load Error: {err.message}</div> }; }));
 const ImageEditorApp = React.lazy(() => import('./pages/ImageEditor/App').catch(err => { console.error("Failed to load ImageEditor:", err); return { default: () => <div className="p-10 text-red-500">ImageEditor Load Error: {err.message}</div> }; }));
 const PhotoCollageApp = React.lazy(() => import('./pages/PhotoCollage/App').catch(err => { console.error("Failed to load PhotoCollage:", err); return { default: () => <div className="p-10 text-red-500">PhotoCollage Load Error: {err.message}</div> }; }));
+const DrawingStudioApp = React.lazy(() => import('./pages/DrawingStudio/App').catch(err => { console.error("Failed to load DrawingStudio:", err); return { default: () => <div className="p-10 text-red-500">DrawingStudio Load Error: {err.message}</div> }; }));
 const Loading = () => (
     <div className="flex items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
@@ -68,6 +69,16 @@ function App() {
                             <PageWrapper>
                                 <div className="p-6 max-w-[1920px] mx-auto">
                                     <PhotoCollageApp />
+                                </div>
+                            </PageWrapper>
+                        </Suspense>
+                    } />
+
+                    <Route path="/drawing-studio/*" element={
+                        <Suspense fallback={<Loading />}>
+                            <PageWrapper>
+                                <div className="p-6 max-w-[1920px] mx-auto">
+                                    <DrawingStudioApp />
                                 </div>
                             </PageWrapper>
                         </Suspense>

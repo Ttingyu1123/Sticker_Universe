@@ -39,15 +39,17 @@ const SHEET_SPECS: Record<SheetSize, { label: string; widthPx: number; heightPx:
     Letter: { label: 'Letter (8.5 x 11 in)', widthPx: 816, heightPx: 1056, widthMm: 215.9, heightMm: 279.4 },
     Legal: { label: 'Legal (8.5 x 14 in)', widthPx: 816, heightPx: 1344, widthMm: 215.9, heightMm: 355.6 },
     Tabloid: { label: 'Tabloid (11 x 17 in)', widthPx: 1056, heightPx: 1632, widthMm: 279.4, heightMm: 431.8 },
-    Photo4x6: { label: '4x6 相片 (101.6 x 152.4 mm)', widthPx: 384, heightPx: 576, widthMm: 101.6, heightMm: 152.4 },
-    Photo5x7: { label: '5x7 相片 (127 x 177.8 mm)', widthPx: 480, heightPx: 672, widthMm: 127, heightMm: 177.8 },
-    Photo8x10: { label: '8x10 相片 (203.2 x 254 mm)', widthPx: 768, heightPx: 960, widthMm: 203.2, heightMm: 254 },
-    Postcard100x148: { label: '明信片 100 x 148 mm', widthPx: 378, heightPx: 559, widthMm: 100, heightMm: 148 },
-    Postcard105x148: { label: '明信片 105 x 148 mm', widthPx: 397, heightPx: 559, widthMm: 105, heightMm: 148 }
+    Photo4x6: { label: '4x6 Photo (101.6 x 152.4 mm)', widthPx: 384, heightPx: 576, widthMm: 101.6, heightMm: 152.4 },
+    Photo5x7: { label: '5x7 Photo (127 x 177.8 mm)', widthPx: 480, heightPx: 672, widthMm: 127, heightMm: 177.8 },
+    Photo8x10: { label: '8x10 Photo (203.2 x 254 mm)', widthPx: 768, heightPx: 960, widthMm: 203.2, heightMm: 254 },
+    Postcard100x148: { label: 'Postcard (100 x 148 mm)', widthPx: 378, heightPx: 559, widthMm: 100, heightMm: 148 },
+    Postcard105x148: { label: 'Postcard (105 x 148 mm)', widthPx: 397, heightPx: 559, widthMm: 105, heightMm: 148 }
 };
 
 export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
     const { t } = useTranslation();
+    const getSheetLabel = (key: SheetSize, fallback: string) =>
+        t(`printSheet.sheetSizes.${key}`, { defaultValue: fallback });
     const canvasRef = useRef<HTMLDivElement>(null);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [showGrid, setShowGrid] = useState(false);
@@ -229,7 +231,7 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
                     <button
                         onClick={() => setBgColor('transparent')}
                         className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${bgColor === 'transparent' ? 'ring-2 ring-violet-500 border-transparent' : 'border-slate-300 hover:border-slate-400'}`}
-                        title="Transparent"
+                        title={t('printSheet.transparent', { defaultValue: 'Transparent' })}
                         style={{
                             backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
                             backgroundSize: '8px 8px',
@@ -244,7 +246,7 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
                     <button
                         onClick={() => setBgColor('#ffffff')}
                         className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${bgColor === '#ffffff' ? 'ring-2 ring-violet-500 border-transparent' : 'border-slate-300 hover:border-slate-400'}`}
-                        title="White"
+                        title={t('printSheet.white', { defaultValue: 'White' })}
                         style={{ backgroundColor: '#ffffff' }}
                     >
                         {bgColor === '#ffffff' && <Check size={14} className="text-slate-900" />}
@@ -258,7 +260,7 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
                                 value={bgColor === 'transparent' ? '#ffffff' : bgColor}
                                 onChange={(e) => setBgColor(e.target.value)}
                                 className="w-[150%] h-[150%] p-0 -m-[25%] cursor-pointer border-none"
-                                title="Custom Color"
+                                title={t('printSheet.customColor', { defaultValue: 'Custom Color' })}
                             />
                         </div>
                         {bgColor !== 'transparent' && bgColor !== '#ffffff' && (
@@ -274,17 +276,17 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
                 {/* Output Size */}
                 <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">
-                        {t('printSheet.outputSize') || '輸出尺寸'}
+                        {t('printSheet.outputSize', { defaultValue: 'Output Size' })}
                     </span>
                     <select
                         value={sheetSize}
                         onChange={(e) => setSheetSize(e.target.value as SheetSize)}
                         className="h-9 rounded-lg border border-slate-300 bg-white px-2 text-xs font-bold text-slate-700"
-                        aria-label={t('printSheet.outputSize') || '輸出尺寸'}
+                        aria-label={t('printSheet.outputSize', { defaultValue: 'Output Size' })}
                     >
                         {Object.entries(SHEET_SPECS).map(([key, spec]) => (
                             <option key={key} value={key}>
-                                {spec.label}
+                                {getSheetLabel(key as SheetSize, spec.label)}
                             </option>
                         ))}
                     </select>
@@ -295,16 +297,16 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
                 {/* Orientation */}
                 <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">
-                        {t('printSheet.orientation') || '方向'}
+                        {t('printSheet.orientation', { defaultValue: 'Orientation' })}
                     </span>
                     <select
                         value={orientation}
                         onChange={(e) => setOrientation(e.target.value as Orientation)}
                         className="h-9 rounded-lg border border-slate-300 bg-white px-2 text-xs font-bold text-slate-700"
-                        aria-label={t('printSheet.orientation') || '方向'}
+                        aria-label={t('printSheet.orientation', { defaultValue: 'Orientation' })}
                     >
-                        <option value="portrait">{t('printSheet.portrait') || '直式'}</option>
-                        <option value="landscape">{t('printSheet.landscape') || '橫式'}</option>
+                        <option value="portrait">{t('printSheet.portrait', { defaultValue: 'Portrait' })}</option>
+                        <option value="landscape">{t('printSheet.landscape', { defaultValue: 'Landscape' })}</option>
                     </select>
                 </div>
 
@@ -332,7 +334,7 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
 
             {isIosSafari && (
                 <div className="w-full max-w-3xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
-                    iPhone PDF 儲存方式：按 Safari 右下角「分享」→「列印」→ 再按一次「分享」→「儲存到檔案」。
+                    {t('printSheet.iosPdfHint', { defaultValue: 'iPhone PDF download uses Safari share flow: tap Safari share, then choose Print, share again, and Save to Files.' })}
                 </div>
             )}
 
@@ -398,7 +400,7 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
 
                         {images.length === 0 && (
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ color: '#94a3b8' }}>
-                                <p className="text-2xl font-black uppercase tracking-widest opacity-50 select-none">{sheetSize} {orientation === 'portrait' ? 'Portrait' : 'Landscape'}</p>
+                                <p className="text-2xl font-black uppercase tracking-widest opacity-50 select-none">{sheetSize} {orientation === 'portrait' ? t('printSheet.portrait', { defaultValue: 'Portrait' }) : t('printSheet.landscape', { defaultValue: 'Landscape' })}</p>
                             </div>
                         )}
                     </div>

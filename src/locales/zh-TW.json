@@ -22,7 +22,8 @@
     "captioning": "AI 智慧配文",
     "animator": "動態貼圖",
     "smartEraser": "智慧去背",
-    "processing": "加工..."
+    "processing": "加工...",
+    "drawingStudio": "繪圖工作室"
   },
   "manual": {
     "title": "使用說明書",
@@ -149,6 +150,27 @@
     "tipDelete": "點擊 X 刪除",
     "grid": "顯示網格",
     "background": "背景色彩",
+    "transparent": "透明",
+    "white": "白色",
+    "customColor": "自訂顏色",
+    "outputSize": "輸出尺寸",
+    "orientation": "方向",
+    "portrait": "直式",
+    "landscape": "橫式",
+    "sheetSizes": {
+      "A4": "A4 (210 x 297 mm)",
+      "A5": "A5 (148 x 210 mm)",
+      "A6": "A6 (105 x 148 mm)",
+      "Letter": "Letter (8.5 x 11 in)",
+      "Legal": "Legal (8.5 x 14 in)",
+      "Tabloid": "Tabloid (11 x 17 in)",
+      "Photo4x6": "4x6 相片 (101.6 x 152.4 mm)",
+      "Photo5x7": "5x7 相片 (127 x 177.8 mm)",
+      "Photo8x10": "8x10 相片 (203.2 x 254 mm)",
+      "Postcard100x148": "明信片 (100 x 148 mm)",
+      "Postcard105x148": "明信片 (105 x 148 mm)"
+    },
+    "iosPdfHint": "iPhone PDF 下載請使用 Safari 分享流程：先點 Safari 分享，選「列印」，再分享一次並選「儲存到檔案」。",
     "idPrint": {
       "sidebar": {
         "title": "證件照排版",
@@ -1598,11 +1620,11 @@
       "rotation": "旋轉",
       "scale": "縮放",
       "effect": "效果強度",
-      "effectHint": "??????????100 ??????"
+      "effectHint": "調整色彩飽和與對比。100 代表中性。"
     },
     "copyright": "自動拼貼人工智慧 © 2026",
-    "heroHint": "????????????????????? 2 ???",
-    "heroBadge": "??"
+    "heroHint": "標星相片在聚焦版型會優先排版（最多 2 張）。",
+    "heroBadge": "Hero"
   },
   "headshot": {
     "step1_upload": "第一步：上傳照片",
@@ -1769,5 +1791,53 @@
       "sitting_side": "坐姿側拍（椅子）",
       "lying_side": "躺姿側拍半身"
     }
+  },
+  "drawing": {
+    "brush": "筆刷",
+    "color": "顏色",
+    "size": "大小",
+    "opacity": "透明度",
+    "pressure": "壓力",
+    "pressureCurve": "壓力曲線",
+    "smoothing": "平滑",
+    "spacing": "間距",
+    "canvas": "畫布",
+    "preset": "預設",
+    "zoom": "縮放",
+    "layers": "圖層",
+    "layerLabel": "圖層",
+    "copySuffix": "副本",
+    "eyedropper": "吸管",
+    "clearLayer": "清空圖層",
+    "layerLocked": "圖層已鎖定",
+    "brushPresets": "筆刷預設",
+    "savePreset": "儲存預設",
+    "noPresets": "尚無預設",
+    "applyPreset": "套用預設",
+    "deletePreset": "刪除預設",
+    "presetNamePrompt": "預設名稱",
+    "hideLayer": "隱藏圖層",
+    "showLayer": "顯示圖層",
+    "lock": "鎖定",
+    "unlock": "解鎖",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "blendMode": "混合模式",
+    "blendModes": {
+      "sourceOver": "一般",
+      "multiply": "色彩增值",
+      "screen": "濾色",
+      "overlay": "疊加",
+      "darken": "變暗",
+      "lighten": "變亮"
+    },
+    "brushTypes": {
+      "pen": "鋼筆",
+      "pencil": "鉛筆",
+      "marker": "麥克筆",
+      "airbrush": "噴槍",
+      "eraser": "橡皮擦"
+    },
+    "activeLayer": "目前"
   }
 }

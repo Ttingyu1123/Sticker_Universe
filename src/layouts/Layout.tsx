@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Sparkles, Palette, Home, FolderHeart, Printer, ArrowLeft, BookOpen, Grid } from 'lucide-react';
+import { Sparkles, Palette, Home, FolderHeart, Printer, ArrowLeft, BookOpen, Grid, PenTool } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
@@ -41,6 +41,7 @@ export const Layout = () => {
         // Added specifically for consistency
         if (path.startsWith('/image-editor')) return t('editor.title') || 'Image Editor';
         if (path.startsWith('/photo-collage')) return t('collage.title') || 'Photo Collage';
+        if (path.startsWith('/drawing-studio')) return t('app.drawingStudio', { defaultValue: 'Drawing Studio' });
 
         // For other pages or root, return app title
         return t('app.title');
@@ -79,6 +80,7 @@ export const Layout = () => {
                     <NavItem to="/generator" icon={Sparkles} label={t('app.generator')} />
                     <NavItem to="/image-editor" icon={Palette} label={t('editor.title') || 'Image Editor'} />
                     <NavItem to="/photo-collage" icon={Grid} label={t('collage.title') || 'Photo Collage'} />
+                    <NavItem to="/drawing-studio" icon={PenTool} label={t('app.drawingStudio', { defaultValue: 'Drawing Studio' })} />
 
                     <NavItem to="/print-sheet" icon={Printer} label={t('app.printSheet')} />
                     <NavItem to="/gallery" icon={FolderHeart} label={t('app.gallery')} />
@@ -141,6 +143,14 @@ export const Layout = () => {
                             <>
                                 <Grid size={20} strokeWidth={isActive ? 2.5 : 2} />
                                 <span className="text-[10px] font-bold">{t('collage.title') || 'Collage'}</span>
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink to="/drawing-studio" className={({ isActive }) => clsx("flex flex-col items-center gap-1 p-2 rounded-xl transition-all", isActive ? "text-primary bg-primary/10" : "text-bronze-light")}>
+                        {({ isActive }) => (
+                            <>
+                                <PenTool size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[10px] font-bold">{t('app.drawingStudio', { defaultValue: 'Drawing' })}</span>
                             </>
                         )}
                     </NavLink>
