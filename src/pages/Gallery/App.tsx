@@ -233,14 +233,15 @@ const App = () => {
     };
 
     // Helper to convert Base64 Data URL to Blob for reliable sharing
-    const base64ToBlob = (base64: string, mimeType: string = 'image/png'): Blob => {
+    const base64ToBlob = (base64: string, mimeType?: string): Blob => {
+        const inferredMime = mimeType || base64.match(/^data:([^;]+);base64,/)?.[1] || 'image/png';
         const byteString = atob(base64.split(',')[1]);
         const ab = new ArrayBuffer(byteString.length);
         const ia = new Uint8Array(ab);
         for (let i = 0; i < byteString.length; i++) {
             ia[i] = byteString.charCodeAt(i);
         }
-        return new Blob([ab], { type: mimeType });
+        return new Blob([ab], { type: inferredMime });
     };
 
     const handleShare = async (sticker: Sticker) => {
@@ -310,17 +311,85 @@ const App = () => {
     const handleDownloadZip = async (subset: Sticker[] = filteredStickers) => {
         const zip = new JSZip();
         const folder = zip.folder("stickers");
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
         if (subset.length === 0) return;
 
+        let addedCount = 0;
+        const failedIds: string[] = [];
+
         for (const sticker of subset) {
-            const response = await fetch(sticker.imageUrl);
-            const blob = await response.blob();
-            folder?.file(`${sticker.phrase.replace(/\s/g, '_')}_${sticker.id}.png`, blob);
+            try {
+                let blob: Blob;
+                if (sticker.imageUrl.startsWith('data:')) {
+                    blob = base64ToBlob(sticker.imageUrl);
+                } else {
+                    const response = await fetch(sticker.imageUrl);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    blob = await response.blob();
+                }
+                folder?.file(`${sticker.phrase.replace(/\s/g, '_')}_${sticker.id}.png`, blob);
+                addedCount += 1;
+            } catch (error) {
+                console.error('Failed to add image to zip:', sticker.id, error);
+                failedIds.push(sticker.id);
+            }
+        }
+
+        if (addedCount === 0) {
+            throw new Error('No images could be added to ZIP.');
+        }
+
+        if (failedIds.length > 0) {
+            console.warn('Some stickers were skipped during ZIP creation:', failedIds);
         }
 
         const content = await zip.generateAsync({ type: "blob" });
-        saveAs(content, "my_stickers.zip");
+        const zipDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        const filename = `stickers_${zipDate}.zip`;
+
+        if (isIOS) {
+            const hasShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+            if (hasShare) {
+                try {
+                    const zipFile = new File([content], filename, { type: 'application/zip' });
+                    const canShareFile = !navigator.canShare || navigator.canShare({ files: [zipFile] });
+                    if (canShareFile) {
+                        await navigator.share({ files: [zipFile], title: filename });
+                        return;
+                    }
+                } catch (error) {
+                    console.error('ZIP share fallback failed on iOS:', error);
+                }
+            }
+
+            // Fallback for iOS Safari:
+            // 1) Try direct download with explicit filename.
+            // 2) If Safari ignores it, navigate to blob page for manual "Save to Files".
+            const zipFile = new File([content], filename, { type: 'application/zip' });
+            const url = URL.createObjectURL(zipFile);
+
+            try {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch {
+                // Ignore and continue to manual fallback.
+            }
+
+            alert('ZIP 已建立。若檔名顯示 unknown.zip，請改用 HTTPS 網址測試，或下載後於檔案 App 重新命名。');
+            window.location.assign(url);
+            setTimeout(() => URL.revokeObjectURL(url), 60_000);
+            return;
+        }
+
+        saveAs(content, filename);
     };
 
 
