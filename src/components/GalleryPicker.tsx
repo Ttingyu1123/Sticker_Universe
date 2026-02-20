@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { getAllStickersFromDB } from '../db';
 import { Sticker } from '../pages/Generator/types';
 import { X, Image as ImageIcon, Loader2, CheckCircle2, Circle } from 'lucide-react';
@@ -85,12 +86,12 @@ export const GalleryPicker: React.FC<GalleryPickerProps> = ({ onSelect, onClose 
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white rounded-3xl w-full max-w-4xl h-[80vh] flex flex-col shadow-2xl overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
+    const content = (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-4xl h-[92dvh] sm:h-[85vh] sm:max-h-[920px] flex flex-col shadow-2xl overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
 
                 {/* Header */}
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+                <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="p-2.5 bg-violet-100 text-violet-600 rounded-xl">
                             <ImageIcon size={20} />
@@ -109,7 +110,7 @@ export const GalleryPicker: React.FC<GalleryPickerProps> = ({ onSelect, onClose 
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6 bg-slate-50 scrollbar-thin">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50 scrollbar-thin">
                     {loading ? (
                         <div className="h-full flex items-center justify-center text-slate-400 gap-3">
                             <Loader2 size={32} className="animate-spin text-violet-500" />
@@ -160,7 +161,7 @@ export const GalleryPicker: React.FC<GalleryPickerProps> = ({ onSelect, onClose 
                 </div>
 
                 {/* Footer */}
-                <div className="p-4 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
+                <div className="sticky bottom-0 z-10 p-4 border-t border-slate-100 bg-white flex items-center justify-between shrink-0 pb-[calc(env(safe-area-inset-bottom)+1rem)] shadow-[0_-8px_16px_rgba(0,0,0,0.04)]">
                     <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">
                         {selectedIds.size} {t('gallery.selected') || 'Selected'}
                     </div>
@@ -176,4 +177,10 @@ export const GalleryPicker: React.FC<GalleryPickerProps> = ({ onSelect, onClose 
             </div>
         </div>
     );
+
+    if (typeof document === 'undefined') {
+        return content;
+    }
+
+    return createPortal(content, document.body);
 };

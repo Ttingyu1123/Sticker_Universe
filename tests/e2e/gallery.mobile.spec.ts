@@ -79,8 +79,9 @@ test.describe('Gallery mobile multi-select actions', () => {
     await page.getByText('e2e_share_2').click();
   });
 
-  test('batch action bar only shows zip download button', async ({ page }) => {
+  test('batch action bar shows zip download and delete buttons', async ({ page }) => {
     await expect(page.getByTestId('gallery-batch-download')).toBeVisible();
+    await expect(page.getByTestId('gallery-batch-delete')).toBeVisible();
     await expect(page.getByTestId('gallery-batch-share')).toHaveCount(0);
   });
 

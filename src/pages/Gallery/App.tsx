@@ -461,6 +461,18 @@ const App = () => {
         }
     };
 
+    const handleBatchDelete = async () => {
+        if (!window.confirm(t('gallery.deleteConfirm'))) return;
+
+        for (const id of Array.from(selectedIds)) {
+            await deleteStickerFromDB(id);
+        }
+
+        setStickers(prev => prev.filter(s => !selectedIds.has(s.id)));
+        setSelectedIds(new Set());
+        setIsSelectionMode(false);
+    };
+
     const filteredStickers = stickers.filter(s =>
         s.phrase.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -633,16 +645,27 @@ const App = () => {
             {
                 isSelectionMode && selectedIds.size > 0 && (
                     <div className="fixed bottom-6 inset-x-0 flex justify-center z-50 animate-in slide-in-from-bottom-10 fade-in">
-                        <div className="bg-bronze-text/95 backdrop-blur-md text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-4 border border-cream-light/10">
+                        <div className="bg-bronze-text/95 backdrop-blur-md text-white px-4 py-2 sm:px-6 sm:py-3 rounded-2xl shadow-2xl flex items-center gap-2 sm:gap-4 border border-cream-light/10 max-w-[calc(100vw-1rem)]">
                             <span className="text-xs font-bold bg-white/20 px-2 py-1 rounded-md">{selectedIds.size}</span>
                             <div className="h-6 w-px bg-white/20"></div>
                             <button
                                 onClick={handleBatchDownload}
                                 data-testid="gallery-batch-download"
-                                className="flex items-center gap-2 text-sm font-bold hover:text-secondary-light transition-colors"
+                                className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold hover:text-secondary-light transition-colors"
                             >
                                 <Download size={18} />
-                                {t('gallery.downloadZip')}
+                                <span className="hidden sm:inline">{t('gallery.downloadZip')}</span>
+                                <span className="sm:hidden">ZIP</span>
+                            </button>
+                            <div className="h-6 w-px bg-white/20"></div>
+                            <button
+                                onClick={handleBatchDelete}
+                                data-testid="gallery-batch-delete"
+                                className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold hover:text-red-300 transition-colors"
+                            >
+                                <Trash2 size={18} />
+                                <span className="hidden sm:inline">{t('gallery.deleteSelected', { count: selectedIds.size })}</span>
+                                <span className="sm:hidden">{t('gallery.delete')}</span>
                             </button>
                         </div>
                     </div>
