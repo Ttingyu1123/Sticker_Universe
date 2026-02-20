@@ -34,6 +34,100 @@ const roundRect = (ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
     ctx.closePath();
 };
 
+const fillCustomGradient = (
+    ctx: CanvasRenderingContext2D,
+    w: number,
+    h: number,
+    startColor: string,
+    endColor: string,
+    direction: 'diagonal' | 'horizontal' | 'vertical' = 'diagonal'
+) => {
+    const gradient = direction === 'horizontal'
+        ? ctx.createLinearGradient(0, 0, w, 0)
+        : direction === 'vertical'
+            ? ctx.createLinearGradient(0, 0, 0, h)
+            : ctx.createLinearGradient(0, 0, w, h);
+    gradient.addColorStop(0, startColor);
+    gradient.addColorStop(1, endColor);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, w, h);
+};
+
+const fillCanvasSurface = (
+    ctx: CanvasRenderingContext2D,
+    settings: CollageSettings,
+    w: number,
+    h: number
+) => {
+    const bgDrawn = settings.backgroundId ? drawBackgroundPreset(ctx, w, h, settings.backgroundId) : false;
+    if (bgDrawn) return;
+
+    if (settings.customGradientEnabled) {
+        fillCustomGradient(
+            ctx,
+            w,
+            h,
+            settings.customGradientStart || '#ff9a9e',
+            settings.customGradientEnd || '#fecfef',
+            settings.customGradientDirection || 'diagonal'
+        );
+        return;
+    }
+
+    if (settings.backgroundColor === 'transparent') {
+        ctx.clearRect(0, 0, w, h);
+        return;
+    }
+
+    ctx.fillStyle = settings.backgroundColor;
+    ctx.fillRect(0, 0, w, h);
+};
+
+const fillFrameSurface = (
+    ctx: CanvasRenderingContext2D,
+    settings: CollageSettings,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    radius: number
+) => {
+    ctx.save();
+    ctx.beginPath();
+    if (radius > 0) {
+        roundRect(ctx, x, y, w, h, radius);
+    } else {
+        ctx.rect(x, y, w, h);
+    }
+    ctx.clip();
+
+    ctx.translate(x, y);
+    const presetDrawn = settings.backgroundId ? drawBackgroundPreset(ctx, w, h, settings.backgroundId) : false;
+    if (presetDrawn) {
+        ctx.restore();
+        return;
+    }
+
+    if (settings.customGradientEnabled) {
+        fillCustomGradient(
+            ctx,
+            w,
+            h,
+            settings.customGradientStart || '#ff9a9e',
+            settings.customGradientEnd || '#fecfef',
+            settings.customGradientDirection || 'diagonal'
+        );
+        ctx.restore();
+        return;
+    }
+
+    const frameColor = settings.backgroundColor === 'transparent' ? '#ffffff' : settings.backgroundColor;
+    ctx.fillStyle = frameColor;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.restore();
+};
+
 // Standalone render function to support both preview and export
 const renderCollageToContext = (
     ctx: CanvasRenderingContext2D,
@@ -46,16 +140,7 @@ const renderCollageToContext = (
 ): ImageFrame[] => {
 
     // 1. Draw Background
-    const bgDrawn = settings.backgroundId ? drawBackgroundPreset(ctx, width, height, settings.backgroundId) : false;
-
-    if (!bgDrawn) {
-        if (settings.backgroundColor === 'transparent') {
-            ctx.clearRect(0, 0, width, height);
-        } else {
-            ctx.fillStyle = settings.backgroundColor;
-            ctx.fillRect(0, 0, width, height);
-        }
-    }
+    fillCanvasSurface(ctx, settings, width, height);
 
     // 2. Calculate frames (with hero photo indices for smart positioning)
     const heroIndices = images
@@ -82,7 +167,10 @@ const renderCollageToContext = (
         if (!img || !frame) return;
 
         const { x, y, width: fW, height: fH } = frame;
-        const imgScale = imgData.scale || 1;
+        const baseUserScale = imgData.scale || 1;
+        // Make hero effect visible across all layouts, not only hero-aware frame algorithms.
+        const heroBoost = imgData.isHero ? 1.15 : 1;
+        const imgScale = baseUserScale * heroBoost;
 
         // Combine base layout rotation + user adjustment
         const baseRotation = frame.rotation || 0;
@@ -134,14 +222,7 @@ const renderCollageToContext = (
         const radius = Number(settings.cornerRadius) * scaleFactor;
 
         if (settings.frameStyle === 'film') {
-            // Draw Film Strip Background
-            ctx.fillStyle = '#1a1a1a'; // Dark film border?? distinct from white paper usually
-            // Actually usually film strips are black/dark with white holes OR white with holes.
-            // Based on example: It's a white border with perforations.
-
-            ctx.fillStyle = '#ffffff';
-            roundRect(ctx, localX, localY, fW, fH, radius);
-            ctx.fill();
+            fillFrameSurface(ctx, settings, localX, localY, fW, fH, radius);
 
             // Holes
             const holeSize = Math.max(4, Math.min(fW, fH) * 0.04);
@@ -178,10 +259,7 @@ const renderCollageToContext = (
             // Visual Inner Rect (White/Black?)
             // Usually image fits in here.
         } else if (settings.frameStyle === 'polaroid') {
-            ctx.fillStyle = '#ffffff';
-            // Shadow is already applied externally if set
-            roundRect(ctx, localX, localY, fW, fH, 2); // Small radius for paper
-            ctx.fill();
+            fillFrameSurface(ctx, settings, localX, localY, fW, fH, 2);
 
             // Polaroid: Image is consistent square-ish on top, large chin on bottom
             const border = Math.min(fW, fH) * 0.08;
@@ -329,8 +407,16 @@ const renderCollageToContext = (
             ctx.globalAlpha = 1.0;
 
         } else {
-            // No filter or intensity 0
-            ctx.filter = 'none';
+            // Default "effect intensity" behavior even without selected preset filter.
+            // 100 = neutral, below reduces richness/contrast, above increases it.
+            if (intensity !== 100) {
+                const saturation = Math.max(0.4, Math.min(1.6, 1 + (intensity - 100) * 0.006));
+                const contrast = Math.max(0.7, Math.min(1.3, 1 + (intensity - 100) * 0.003));
+                const brightness = Math.max(0.9, Math.min(1.1, 1 + (intensity - 100) * 0.001));
+                ctx.filter = `saturate(${saturation}) contrast(${contrast}) brightness(${brightness})`;
+            } else {
+                ctx.filter = 'none';
+            }
             ctx.drawImage(
                 img,
                 -renderW / 2 + rotatedOffsetX,
@@ -338,6 +424,7 @@ const renderCollageToContext = (
                 renderW,
                 renderH
             );
+            ctx.filter = 'none';
         }
 
         ctx.restore();

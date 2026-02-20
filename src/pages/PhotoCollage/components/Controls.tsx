@@ -37,21 +37,22 @@ interface ControlsProps {
     onUpdate: (s: CollageSettings) => void;
     imageCount: number;
     onShuffle?: () => void;
+    showLayout?: boolean;
 }
 
-export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCount, onShuffle }) => {
+export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCount, onShuffle, showLayout = true }) => {
     const { t } = useTranslation();
 
     const handleChange = (key: keyof CollageSettings, value: any) => {
         if (key === 'backgroundColor') {
-            onUpdate({ ...settings, [key]: value, backgroundId: undefined });
+            onUpdate({ ...settings, [key]: value, backgroundId: undefined, customGradientEnabled: false });
         } else {
             onUpdate({ ...settings, [key]: value });
         }
     };
 
     const handlePresetChange = (id: string | undefined) => {
-        onUpdate({ ...settings, backgroundId: id, backgroundColor: '#ffffff' });
+        onUpdate({ ...settings, backgroundId: id, backgroundColor: '#ffffff', customGradientEnabled: false });
     };
 
     const handleRatioChange = (w: number, h: number) => {
@@ -72,62 +73,64 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
         <div className="space-y-6 text-bronze-text">
 
             {/* Layout Mode */}
-            <div>
-                <Label>{t('collage.layout.title')}</Label>
-                <div className="grid grid-cols-3 gap-2">
-                    {[
-                        // Basic Layouts
-                        { id: LayoutType.GRID, label: t('collage.layout.grid'), icon: Grid2X2 },
-                        { id: LayoutType.HORIZONTAL, label: t('collage.layout.cols'), icon: Columns },
-                        { id: LayoutType.VERTICAL, label: t('collage.layout.rows'), icon: Rows },
-                        // Feature removed as it duplicates L-Left
-                        { id: LayoutType.MASONRY, label: t('collage.layout.masonry'), icon: BrickWall },
-                        { id: LayoutType.CENTER, label: t('collage.layout.center'), icon: PanelLeft },
-                        { id: LayoutType.SCATTER, label: t('collage.layout.scatter'), icon: Shuffle },
+            {showLayout && (
+                <div>
+                    <Label>{t('collage.layout.title')}</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                        {[
+                            // Basic Layouts
+                            { id: LayoutType.GRID, label: t('collage.layout.grid'), icon: Grid2X2 },
+                            { id: LayoutType.HORIZONTAL, label: t('collage.layout.cols'), icon: Columns },
+                            { id: LayoutType.VERTICAL, label: t('collage.layout.rows'), icon: Rows },
+                            // Feature removed as it duplicates L-Left
+                            { id: LayoutType.MASONRY, label: t('collage.layout.masonry'), icon: BrickWall },
+                            { id: LayoutType.CENTER, label: t('collage.layout.center'), icon: PanelLeft },
+                            { id: LayoutType.SCATTER, label: t('collage.layout.scatter'), icon: Shuffle },
 
-                        // Creative Layouts (Phase 1)
-                        // Diagonal removed
-                        { id: LayoutType.L_LEFT, label: t('collage.layout.lLeft'), icon: SquareSplitVertical, minCount: 2 },
-                        { id: LayoutType.L_RIGHT, label: t('collage.layout.lRight'), icon: SquareSplitHorizontal, minCount: 2 },
-                        { id: LayoutType.T_SHAPE, label: t('collage.layout.tShape'), icon: ALargeSmall, minCount: 2 },
-                        { id: LayoutType.CROSS_FOCUS, label: t('collage.layout.crossFocus'), icon: Plus, minCount: 5 },
-                    ].map(type => (
-                        <button
-                            key={type.id}
-                            onClick={() => handleChange('layout', type.id)}
-                            disabled={
-                                (type.id === LayoutType.CENTER && imageCount < 3) ||
-                                (type.id === LayoutType.L_LEFT && imageCount < 2) ||
-                                (type.id === LayoutType.L_RIGHT && imageCount < 2) ||
-                                (type.id === LayoutType.T_SHAPE && imageCount < 2) ||
-                                (type.id === LayoutType.CROSS_FOCUS && imageCount < 5)
-                            }
-                            className={`flex flex-col items-center justify-center p-2 rounded-xl border text-[10px] font-bold transition-all h-16 ${settings.layout === type.id
-                                ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
-                                : 'bg-white border-cream-dark text-bronze-light hover:bg-cream-light hover:text-primary hover:border-primary/30'
-                                } ${((type.id === LayoutType.CENTER && imageCount < 3) ||
+                            // Creative Layouts (Phase 1)
+                            // Diagonal removed
+                            { id: LayoutType.L_LEFT, label: t('collage.layout.lLeft'), icon: SquareSplitVertical, minCount: 2 },
+                            { id: LayoutType.L_RIGHT, label: t('collage.layout.lRight'), icon: SquareSplitHorizontal, minCount: 2 },
+                            { id: LayoutType.T_SHAPE, label: t('collage.layout.tShape'), icon: ALargeSmall, minCount: 2 },
+                            { id: LayoutType.CROSS_FOCUS, label: t('collage.layout.crossFocus'), icon: Plus, minCount: 5 },
+                        ].map(type => (
+                            <button
+                                key={type.id}
+                                onClick={() => handleChange('layout', type.id)}
+                                disabled={
+                                    (type.id === LayoutType.CENTER && imageCount < 3) ||
                                     (type.id === LayoutType.L_LEFT && imageCount < 2) ||
                                     (type.id === LayoutType.L_RIGHT && imageCount < 2) ||
                                     (type.id === LayoutType.T_SHAPE && imageCount < 2) ||
-                                    (type.id === LayoutType.CROSS_FOCUS && imageCount < 5))
-                                    ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
-                        >
-                            <type.icon size={20} />
-                            <span className="mt-1">{type.label}</span>
-                        </button>
-                    ))}
+                                    (type.id === LayoutType.CROSS_FOCUS && imageCount < 5)
+                                }
+                                className={`flex flex-col items-center justify-center p-2 rounded-xl border text-[10px] font-bold transition-all h-16 ${settings.layout === type.id
+                                    ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
+                                    : 'bg-white border-cream-dark text-bronze-light hover:bg-cream-light hover:text-primary hover:border-primary/30'
+                                    } ${((type.id === LayoutType.CENTER && imageCount < 3) ||
+                                        (type.id === LayoutType.L_LEFT && imageCount < 2) ||
+                                        (type.id === LayoutType.L_RIGHT && imageCount < 2) ||
+                                        (type.id === LayoutType.T_SHAPE && imageCount < 2) ||
+                                        (type.id === LayoutType.CROSS_FOCUS && imageCount < 5))
+                                        ? 'opacity-50 cursor-not-allowed' : ''
+                                    }`}
+                            >
+                                <type.icon size={20} />
+                                <span className="mt-1">{type.label}</span>
+                            </button>
+                        ))}
 
-                    <button
-                        onClick={() => onShuffle?.()}
-                        className="flex flex-col items-center justify-center p-2 rounded-xl bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10 transition-all h-16"
-                        title={t('collage.layout.randomize')}
-                    >
-                        <RefreshCcw size={20} />
-                        <span className="mt-1 text-[10px] font-bold">{t('collage.layout.shuffle')}</span>
-                    </button>
+                        <button
+                            onClick={() => onShuffle?.()}
+                            className="flex flex-col items-center justify-center p-2 rounded-xl bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10 transition-all h-16"
+                            title={t('collage.layout.randomize')}
+                        >
+                            <RefreshCcw size={20} />
+                            <span className="mt-1 text-[10px] font-bold">{t('collage.layout.shuffle')}</span>
+                        </button>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Frame Style */}
             <div>
@@ -278,6 +281,68 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
             {/* Background Color */}
             <div>
                 <Label>{t('collage.background.title')}</Label>
+                <div className="mb-3 p-3 bg-white border border-cream-dark rounded-xl">
+                    <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-black text-bronze-light uppercase">2 色漸層</span>
+                        <button
+                            onClick={() => onUpdate({ ...settings, backgroundId: undefined, customGradientEnabled: !settings.customGradientEnabled })}
+                            className={`px-2 py-1 rounded-md text-[11px] font-bold border transition-colors ${settings.customGradientEnabled
+                                ? 'bg-primary text-white border-primary'
+                                : 'bg-cream-light text-bronze-light border-cream-dark'
+                                }`}
+                        >
+                            {settings.customGradientEnabled ? '啟用中' : '關閉'}
+                        </button>
+                    </div>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                        <label className="flex items-center gap-2 text-[11px] font-bold text-bronze-light">
+                            起始
+                            <input
+                                type="color"
+                                value={settings.customGradientStart || '#ff9a9e'}
+                                onChange={(e) => onUpdate({
+                                    ...settings,
+                                    backgroundId: undefined,
+                                    customGradientEnabled: true,
+                                    customGradientStart: e.target.value
+                                })}
+                                className="w-8 h-8 rounded border border-cream-dark cursor-pointer"
+                            />
+                        </label>
+                        <label className="flex items-center gap-2 text-[11px] font-bold text-bronze-light">
+                            結束
+                            <input
+                                type="color"
+                                value={settings.customGradientEnd || '#fecfef'}
+                                onChange={(e) => onUpdate({
+                                    ...settings,
+                                    backgroundId: undefined,
+                                    customGradientEnabled: true,
+                                    customGradientEnd: e.target.value
+                                })}
+                                className="w-8 h-8 rounded border border-cream-dark cursor-pointer"
+                            />
+                        </label>
+                    </div>
+                    <div className="mt-2">
+                        <label className="text-[11px] font-bold text-bronze-light mr-2">方向</label>
+                        <select
+                            value={settings.customGradientDirection || 'diagonal'}
+                            onChange={(e) => onUpdate({
+                                ...settings,
+                                backgroundId: undefined,
+                                customGradientEnabled: true,
+                                customGradientDirection: e.target.value as 'diagonal' | 'horizontal' | 'vertical'
+                            })}
+                            className="bg-cream-light border border-cream-dark rounded-lg px-2 py-1 text-[11px] font-bold text-bronze"
+                        >
+                            <option value="diagonal">斜向</option>
+                            <option value="horizontal">左右</option>
+                            <option value="vertical">上下</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div className="flex flex-wrap gap-2 mb-4">
                     {/* Transparent Option */}
                     <button
@@ -336,6 +401,22 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                                 <div className="w-full h-full" style={{ background: preset.css }} />
                             </button>
                         ))}
+                    </div>
+
+                    <div className="mt-3 p-2 rounded-lg border border-primary/15 bg-primary/5 flex items-center justify-between">
+                        <div>
+                            <div className="text-[11px] font-black text-primary">自動避空白</div>
+                            <div className="text-[10px] text-bronze-light">留白超過門檻時自動切換為較緊湊版型</div>
+                        </div>
+                        <button
+                            onClick={() => handleChange('autoAvoidBlank', !settings.autoAvoidBlank)}
+                            className={`px-2 py-1 rounded-md text-[11px] font-bold border transition-colors ${settings.autoAvoidBlank
+                                ? 'bg-primary text-white border-primary'
+                                : 'bg-white text-bronze-light border-cream-dark'
+                                }`}
+                        >
+                            {settings.autoAvoidBlank ? '開啟' : '關閉'}
+                        </button>
                     </div>
                 </div>
             </div>

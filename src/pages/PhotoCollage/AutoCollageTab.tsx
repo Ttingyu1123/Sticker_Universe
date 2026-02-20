@@ -1,20 +1,46 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { X, Download, Image as ImageIcon, Trash2, ZoomIn, ZoomOut, Edit2, Check, Wand2, RotateCw, Scaling, Plus, FolderHeart, Save, Star } from 'lucide-react';
 import { AspectRatio, CollageSettings, LayoutType, UploadedImage } from './types';
 import { Controls } from './components/Controls';
 import { PhotoCanvas, PhotoCanvasHandle } from './components/PhotoCanvas';
 import { generateImage } from './geminiService';
+import { calculateFrames, getCanvasDimensions } from './utils/geometry';
 import { useTranslation } from 'react-i18next';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { saveStickerToDB } from '../../db';
 import { loadGeminiApiKey, saveGeminiApiKey, clearGeminiApiKey } from '../../shared/geminiApiKey';
 
+const BASE_EXPORT_WIDTH = 1200;
+const EXPORT_SIZE_OPTIONS = [
+    { label: '1024 px', width: 1024 },
+    { label: '1200 px', width: 1200 },
+    { label: '1600 px', width: 1600 },
+    { label: '2048 px', width: 2048 },
+    { label: '3000 px', width: 3000 },
+];
+const MIN_EXPORT_WIDTH = 512;
+const MAX_EXPORT_WIDTH = 6000;
+const AUTO_AVOID_BLANK_CANDIDATES: LayoutType[] = [
+    LayoutType.GRID,
+    LayoutType.MASONRY,
+    LayoutType.HORIZONTAL,
+    LayoutType.VERTICAL,
+    LayoutType.CENTER,
+    LayoutType.L_LEFT,
+    LayoutType.L_RIGHT,
+    LayoutType.T_SHAPE,
+    LayoutType.CROSS_FOCUS,
+];
+
 export const AutoCollageTab: React.FC = () => {
     const { t } = useTranslation();
     const [images, setImages] = useState<UploadedImage[]>([]);
+    const [editorMode, setEditorMode] = useState<'collage' | 'single'>('collage');
     const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
     const [settings, setSettings] = useState<CollageSettings>({
         layout: LayoutType.GRID,
+        autoAvoidBlank: false,
+        autoAvoidBlankThreshold: 0.12,
         ratio: AspectRatio.SQUARE,
         gap: 10,
         padding: 20,
@@ -22,6 +48,10 @@ export const AutoCollageTab: React.FC = () => {
         shadow: 0,
         frameStyle: 'normal',
         backgroundColor: '#ffffff',
+        customGradientEnabled: false,
+        customGradientStart: '#ff9a9e',
+        customGradientEnd: '#fecfef',
+        customGradientDirection: 'diagonal',
         customRatioW: 4,
         customRatioH: 5,
     });
@@ -34,6 +64,7 @@ export const AutoCollageTab: React.FC = () => {
     // Gallery State
     const [showGalleryPicker, setShowGalleryPicker] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [exportWidth, setExportWidth] = useState<number>(1200);
 
     // Zoom State
     const [zoomLevel, setZoomLevel] = useState(1);
@@ -144,36 +175,72 @@ export const AutoCollageTab: React.FC = () => {
 
     // Image Processing
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const exportScale = Math.max(0.25, exportWidth / BASE_EXPORT_WIDTH);
+    const selectedExportPreset = EXPORT_SIZE_OPTIONS.some((opt) => opt.width === exportWidth) ? String(exportWidth) : 'custom';
 
-    const processFiles = (files: File[]) => {
-        const newFiles = files.slice(0, 12 - images.length);
+    const loadImageDimensions = (url: string): Promise<{ width: number; height: number } | null> =>
+        new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+            img.onerror = () => resolve(null);
+            img.src = url;
+        });
+
+    const clearImages = useCallback(() => {
+        setImages(prev => {
+            prev.forEach(img => URL.revokeObjectURL(img.url));
+            return [];
+        });
+        setSelectedImageId(null);
+    }, []);
+
+    const processFiles = async (files: File[]) => {
+        const maxCount = editorMode === 'single' ? 1 : 12;
+        const newFiles = editorMode === 'single'
+            ? files.slice(0, 1)
+            : files.slice(0, maxCount - images.length);
         if (newFiles.length === 0) return;
 
         saveCheckpoint();
-        const newImages: UploadedImage[] = newFiles.map(file => ({
-            id: Math.random().toString(36).substr(2, 9),
-            url: URL.createObjectURL(file),
-            file,
-            scale: 1,
-            rotation: 0,
-            filter: '',
-            filterIntensity: 100,
-            offsetX: 0,
-            offsetY: 0,
+        const newImages: UploadedImage[] = await Promise.all(newFiles.map(async (file) => {
+            const url = URL.createObjectURL(file);
+            const dimensions = await loadImageDimensions(url);
+            return {
+                id: Math.random().toString(36).substr(2, 9),
+                url,
+                file,
+                originalWidth: dimensions?.width,
+                originalHeight: dimensions?.height,
+                scale: 1,
+                rotation: 0,
+                filter: '',
+                filterIntensity: 100,
+                offsetX: 0,
+                offsetY: 0,
+            };
         }));
+
+        if (editorMode === 'single') {
+            setImages(prev => {
+                prev.forEach(img => URL.revokeObjectURL(img.url));
+                return newImages.slice(0, 1);
+            });
+            setSelectedImageId(newImages[0]?.id ?? null);
+            return;
+        }
 
         setImages(prev => [...prev, ...newImages].slice(0, 12));
     };
 
     const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) processFiles(Array.from(e.target.files));
+        if (e.target.files) void processFiles(Array.from(e.target.files));
     };
 
     // Canvas Logic
     const handleCanvasDragOver = (e: React.DragEvent) => { e.preventDefault(); };
     const handleCanvasDrop = (e: React.DragEvent) => {
         e.preventDefault();
-        if (e.dataTransfer.files?.length > 0) processFiles(Array.from(e.dataTransfer.files));
+        if (e.dataTransfer.files?.length > 0) void processFiles(Array.from(e.dataTransfer.files));
     };
 
     const removeImage = (id: string, e?: React.MouseEvent) => {
@@ -221,12 +288,12 @@ export const AutoCollageTab: React.FC = () => {
     const handleDownload = async () => {
         if (canvasRef.current) {
             try {
-                const dataUrl = await canvasRef.current.exportImage('png', 2); // 2x High Res
+                const dataUrl = await canvasRef.current.exportImage('png', exportScale);
                 try {
                     await saveStickerToDB({
                         id: crypto.randomUUID(),
                         imageUrl: dataUrl,
-                        phrase: `Collage ${new Date().toLocaleString()}`,
+                        phrase: `Collage ${exportWidth}px ${new Date().toLocaleString()}`,
                         timestamp: Date.now(),
                         description: 'Created with Photo Collage'
                     });
@@ -234,7 +301,7 @@ export const AutoCollageTab: React.FC = () => {
                     console.error('Auto-save on download failed', saveErr);
                 }
                 const link = document.createElement('a');
-                link.download = `collage-${Date.now()}.png`;
+                link.download = `collage-${exportWidth}px-${Date.now()}.png`;
                 link.href = dataUrl;
                 link.click();
             } catch (e) {
@@ -247,12 +314,12 @@ export const AutoCollageTab: React.FC = () => {
         if (!canvasRef.current || isSaving) return;
         setIsSaving(true);
         try {
-            const dataUrl = await canvasRef.current.exportImage('png', 2);
+            const dataUrl = await canvasRef.current.exportImage('png', exportScale);
 
             const newSticker = {
                 id: crypto.randomUUID(),
                 imageUrl: dataUrl,
-                phrase: `Collage ${new Date().toLocaleString()}`,
+                phrase: `Collage ${exportWidth}px ${new Date().toLocaleString()}`,
                 timestamp: Date.now(),
                 description: 'Created with Photo Collage'
             };
@@ -277,9 +344,82 @@ export const AutoCollageTab: React.FC = () => {
         );
         console.log('[AutoCollageTab] Created files from blobs:', files.length);
 
-        processFiles(files);
+        void processFiles(editorMode === 'single' ? files.slice(0, 1) : files);
         console.log('[AutoCollageTab] processFiles called');
     };
+
+    const handleModeChange = (mode: 'collage' | 'single') => {
+        if (mode === editorMode) return;
+        saveCheckpoint();
+        clearImages();
+        setEditorMode(mode);
+        if (mode === 'single') {
+            setSettings(prev => ({ ...prev, layout: LayoutType.GRID }));
+        }
+    };
+
+    const clampExportWidth = (value: number) => {
+        if (!Number.isFinite(value)) return exportWidth;
+        return Math.min(MAX_EXPORT_WIDTH, Math.max(MIN_EXPORT_WIDTH, Math.round(value)));
+    };
+
+    const isLayoutAvailable = useCallback((layout: LayoutType, count: number) => {
+        if (layout === LayoutType.CENTER && count < 3) return false;
+        if (layout === LayoutType.L_LEFT && count < 2) return false;
+        if (layout === LayoutType.L_RIGHT && count < 2) return false;
+        if (layout === LayoutType.T_SHAPE && count < 2) return false;
+        if (layout === LayoutType.CROSS_FOCUS && count < 5) return false;
+        return true;
+    }, []);
+
+    const getBlankRatioForLayout = useCallback((layout: LayoutType) => {
+        if (images.length === 0) return 0;
+
+        const { width, height } = getCanvasDimensions(
+            settings.ratio,
+            settings.customRatioW,
+            settings.customRatioH,
+            1
+        );
+        const heroIndices = images
+            .map((img, idx) => (img.isHero ? idx : -1))
+            .filter((idx) => idx !== -1);
+
+        const frames = calculateFrames(
+            images.length,
+            layout,
+            width,
+            height,
+            settings.gap,
+            settings.padding,
+            heroIndices.length > 0 ? heroIndices : undefined
+        );
+
+        const usedArea = frames.reduce((acc, frame) => acc + Math.max(0, frame.width * frame.height), 0);
+        const totalArea = Math.max(1, width * height);
+        const coverage = Math.min(1, usedArea / totalArea);
+        return 1 - coverage;
+    }, [images, settings.customRatioH, settings.customRatioW, settings.gap, settings.padding, settings.ratio]);
+
+    useEffect(() => {
+        if (!settings.autoAvoidBlank || images.length === 0) return;
+
+        const threshold = settings.autoAvoidBlankThreshold ?? 0.12;
+        const currentBlank = getBlankRatioForLayout(settings.layout);
+        if (currentBlank <= threshold) return;
+
+        const candidates = AUTO_AVOID_BLANK_CANDIDATES
+            .filter((layout) => isLayoutAvailable(layout, images.length))
+            .map((layout) => ({ layout, blank: getBlankRatioForLayout(layout) }))
+            .sort((a, b) => a.blank - b.blank);
+
+        const best = candidates[0];
+        if (!best) return;
+
+        if (best.layout !== settings.layout && best.blank + 0.01 < currentBlank) {
+            setSettings((prev) => ({ ...prev, layout: best.layout }));
+        }
+    }, [images.length, settings.autoAvoidBlank, settings.autoAvoidBlankThreshold, settings.layout, getBlankRatioForLayout, isLayoutAvailable]);
 
     // AI Generation
     const handleGenerate = async () => {
@@ -298,7 +438,7 @@ export const AutoCollageTab: React.FC = () => {
             const blob = await res.blob();
             const file = new File([blob], "generated-image.png", { type: "image/png" });
 
-            processFiles([file]);
+            void processFiles([file]);
             setShowAiModal(false);
             setPrompt('');
         } catch (err: any) {
@@ -315,6 +455,47 @@ export const AutoCollageTab: React.FC = () => {
     };
 
     const selectedImage = images.find(i => i.id === selectedImageId);
+    const maxUpscaleFactor = useMemo(() => {
+        if (images.length === 0) return 1;
+
+        const { width: canvasW, height: canvasH } = getCanvasDimensions(
+            settings.ratio,
+            settings.customRatioW,
+            settings.customRatioH,
+            exportScale
+        );
+
+        const heroIndices = images
+            .map((img, idx) => (img.isHero ? idx : -1))
+            .filter((idx) => idx !== -1);
+
+        const frames = calculateFrames(
+            images.length,
+            settings.layout,
+            canvasW,
+            canvasH,
+            settings.gap * exportScale,
+            settings.padding * exportScale,
+            heroIndices.length > 0 ? heroIndices : undefined
+        );
+
+        let maxFactor = 1;
+
+        images.forEach((img, idx) => {
+            if (!img.originalWidth || !img.originalHeight) return false;
+            const frame = frames[idx];
+            if (!frame) return false;
+
+            const frameW = Math.max(1, frame.width);
+            const frameH = Math.max(1, frame.height);
+            const userScale = Math.max(0.1, img.scale || 1);
+            const fitScale = Math.max(frameW / img.originalWidth, frameH / img.originalHeight);
+
+            maxFactor = Math.max(maxFactor, fitScale * userScale);
+        });
+
+        return maxFactor;
+    }, [images, settings, exportScale]);
 
     return (
         <div className="flex flex-col md:flex-row w-full bg-cream-light relative px-4 md:px-0 md:h-full min-h-0 md:overflow-hidden">
@@ -349,7 +530,7 @@ export const AutoCollageTab: React.FC = () => {
                         <button onClick={resetZoom} className="px-2 text-xs font-bold text-bronze-light hover:text-primary">{t('collage.reset')}</button>
                     </div>
 
-                    <div className="pointer-events-auto flex gap-2">
+                    <div className="pointer-events-auto flex items-center gap-2">
                         <button
                             onClick={handleSaveToGallery}
                             disabled={isSaving}
@@ -372,7 +553,7 @@ export const AutoCollageTab: React.FC = () => {
 
                 {/* Canvas Area */}
                 <div
-                    className="bg-cream-light flex items-center justify-center overflow-hidden p-4 md:p-8 min-h-[50vh] md:h-full"
+                    className="bg-cream-light flex items-start justify-center overflow-auto p-4 pt-20 md:p-8 md:pt-16 min-h-[50vh] md:h-full"
                     onDragOver={handleCanvasDragOver}
                     onDrop={handleCanvasDrop}
                 >
@@ -381,8 +562,12 @@ export const AutoCollageTab: React.FC = () => {
                             <div className="w-16 h-16 md:w-20 md:h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
                                 <ImageIcon size={32} />
                             </div>
-                            <h2 className="text-lg md:text-xl font-black text-bronze mb-2">{t('collage.create')}</h2>
-                            <p className="text-xs md:text-sm text-bronze-light mb-6">{t('collage.dragDrop')}</p>
+                            <h2 className="text-lg md:text-xl font-black text-bronze mb-2">
+                                {editorMode === 'single' ? '單張邊框輸出' : t('collage.create')}
+                            </h2>
+                            <p className="text-xs md:text-sm text-bronze-light mb-6">
+                                {editorMode === 'single' ? '上傳一張圖，選擇拍立得或底片框後下載。' : t('collage.dragDrop')}
+                            </p>
                             <div className="flex gap-3 justify-center">
                                 <button onClick={() => fileInputRef.current?.click()} className="px-4 md:px-6 py-2.5 bg-white border border-cream-dark shadow-sm rounded-xl font-bold text-xs md:text-sm text-bronze-text hover:bg-cream-light transition-colors">{t('collage.upload')}</button>
                                 <button onClick={() => setShowGalleryPicker(true)} className="px-4 md:px-6 py-2.5 bg-white border border-secondary/20 text-secondary shadow-sm rounded-xl font-bold text-xs md:text-sm hover:bg-secondary/5 flex items-center gap-2 transition-colors">
@@ -391,7 +576,14 @@ export const AutoCollageTab: React.FC = () => {
                             </div>
                         </div>
                     ) : (
-                        <div style={{ transform: `scale(${zoomLevel})`, transition: 'transform 0.2s' }} className="shadow-2xl">
+                        <div
+                            style={{
+                                transform: `scale(${zoomLevel})`,
+                                transformOrigin: 'top center',
+                                transition: 'transform 0.2s'
+                            }}
+                            className="shadow-2xl"
+                        >
                             <PhotoCanvas
                                 ref={canvasRef}
                                 images={images}
@@ -410,24 +602,45 @@ export const AutoCollageTab: React.FC = () => {
             <aside className="w-full md:w-80 bg-cream/90 backdrop-blur-md border-l border-cream-dark flex flex-col md:h-full md:overflow-y-auto min-h-0 shadow-xl shadow-bronze/5 rounded-t-3xl md:rounded-none custom-scrollbar">
                 <div className="p-4 border-b border-cream-dark/50">
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="font-black text-bronze text-sm md:text-base">{t('collage.photos')} ({images.length}/12)</h2>
+                        <div className="flex flex-col gap-2">
+                            <h2 className="font-black text-bronze text-sm md:text-base">
+                                {editorMode === 'single' ? '單張編輯' : t('collage.photos')} ({images.length}/{editorMode === 'single' ? 1 : 12})
+                            </h2>
+                            {editorMode === 'collage' && (
+                                <p className="text-[10px] text-bronze-light">{t('collage.heroHint', { defaultValue: 'Star marks Hero photos: prioritized in focus layouts (max 2).' })}</p>
+                            )}
+                            <div className="inline-flex p-1 rounded-lg bg-cream-light border border-cream-dark">
+                                <button
+                                    onClick={() => handleModeChange('collage')}
+                                    className={`px-2.5 py-1 text-xs font-black rounded-md transition-colors ${editorMode === 'collage' ? 'bg-primary text-white' : 'text-bronze-light hover:text-primary'}`}
+                                >
+                                    拼貼
+                                </button>
+                                <button
+                                    onClick={() => handleModeChange('single')}
+                                    className={`px-2.5 py-1 text-xs font-black rounded-md transition-colors ${editorMode === 'single' ? 'bg-primary text-white' : 'text-bronze-light hover:text-primary'}`}
+                                >
+                                    單張邊框
+                                </button>
+                            </div>
+                        </div>
                         <div className="flex gap-1">
                             <button onClick={() => setShowGalleryPicker(true)} className="p-2 hover:bg-secondary/10 rounded-lg text-secondary" title={t('collage.addFromGallery')}><FolderHeart size={18} /></button>
                             <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-primary/10 rounded-lg text-primary" title={t('collage.addPhoto')}><Plus size={18} /></button>
-                            {images.length > 0 && <button onClick={() => { saveCheckpoint(); setImages([]); }} className="p-2 hover:bg-red-50 rounded-lg text-red-500" title={t('collage.clearAll')}><Trash2 size={18} /></button>}
+                            {images.length > 0 && <button onClick={() => { saveCheckpoint(); clearImages(); }} className="p-2 hover:bg-red-50 rounded-lg text-red-500" title={t('collage.clearAll')}><Trash2 size={18} /></button>}
                         </div>
                     </div>
-                    <input type="file" ref={fileInputRef} onChange={handleFiles} className="hidden" multiple accept="image/*" />
+                    <input type="file" ref={fileInputRef} onChange={handleFiles} className="hidden" multiple={editorMode === 'collage'} accept="image/*" />
 
                     <div className="p-4">
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className={`${editorMode === 'single' ? 'grid grid-cols-1 gap-2' : 'grid grid-cols-3 gap-2'}`}>
                             {images.map((img) => (
                                 <div
                                     key={img.id}
                                     onClick={() => setSelectedImageId(img.id)}
                                     draggable
                                     onDragStart={(e) => e.dataTransfer.setData('text/plain', img.id)}
-                                    className={`relative aspect-square rounded-lg overflow-hidden border cursor-pointer ${img.isHero
+                                    className={`relative aspect-square rounded-lg overflow-hidden border cursor-pointer ${editorMode === 'collage' && img.isHero
                                         ? 'ring-2 ring-yellow-500 border-yellow-500'
                                         : selectedImageId === img.id
                                             ? 'ring-2 ring-primary border-transparent'
@@ -437,20 +650,23 @@ export const AutoCollageTab: React.FC = () => {
                                     <img src={img.url} alt="Thumbnail" className="w-full h-full object-cover" />
 
                                     {/* Hero Star Badge */}
-                                    {img.isHero && (
-                                        <div className="absolute top-1 left-1 bg-yellow-500 text-white rounded-full p-1">
-                                            <Star size={12} fill="white" />
+                                    {editorMode === 'collage' && img.isHero && (
+                                        <div className="absolute top-1 left-1 bg-yellow-500 text-white rounded-full px-1.5 py-0.5 flex items-center gap-1">
+                                            <Star size={10} fill="white" />
+                                            <span className="text-[9px] font-black leading-none">{t('collage.heroBadge', { defaultValue: 'Hero' })}</span>
                                         </div>
                                     )}
 
                                     {/* Hero Toggle Button */}
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); toggleHero(img.id); }}
-                                        className="absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors"
-                                        title={img.isHero ? t('collage.removeHero') : t('collage.setHero')}
-                                    >
-                                        <Star size={12} fill={img.isHero ? '#fbbf24' : 'none'} stroke={img.isHero ? '#fbbf24' : 'white'} />
-                                    </button>
+                                    {editorMode === 'collage' && (
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); toggleHero(img.id); }}
+                                            className="absolute top-1 right-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors"
+                                            title={img.isHero ? t('collage.removeHero') : t('collage.setHero')}
+                                        >
+                                            <Star size={12} fill={img.isHero ? '#fbbf24' : 'none'} stroke={img.isHero ? '#fbbf24' : 'white'} />
+                                        </button>
+                                    )}
 
                                     {selectedImageId === img.id && <div className="absolute inset-0 bg-primary/20 flex items-center justify-center"><Check size={16} className="text-white drop-shadow-md" /></div>}
                                 </div>
@@ -469,26 +685,72 @@ export const AutoCollageTab: React.FC = () => {
 
                         <div className="space-y-3">
                             {/* Rotation */}
-                            <div className="flex items-center gap-2">
+                            <div className="grid grid-cols-[auto_auto_1fr] items-center gap-2">
                                 <RotateCw size={14} className="text-bronze-light" />
+                                <span className="text-[10px] font-bold text-bronze-light min-w-[30px]">{t('collage.image.rotation')}</span>
                                 <input type="range" min="-180" max="180" value={selectedImage.rotation} onChange={e => updateImageProperty(selectedImage.id, { rotation: parseInt(e.target.value) })} className="flex-1 h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary" title={t('collage.image.rotation')} />
                             </div>
                             {/* Scale */}
-                            <div className="flex items-center gap-2">
+                            <div className="grid grid-cols-[auto_auto_1fr] items-center gap-2">
                                 <Scaling size={14} className="text-bronze-light" />
+                                <span className="text-[10px] font-bold text-bronze-light min-w-[30px]">{t('collage.image.scale')}</span>
                                 <input type="range" min="0.5" max="3" step="0.1" value={selectedImage.scale} onChange={e => updateImageProperty(selectedImage.id, { scale: parseFloat(e.target.value) })} className="flex-1 h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary" title={t('collage.image.scale')} />
                             </div>
                             {/* Filter Intensity */}
-                            <div className="flex items-center gap-2">
+                            <div className="grid grid-cols-[auto_auto_1fr] items-center gap-2">
                                 <Wand2 size={14} className="text-bronze-light" />
+                                <span className="text-[10px] font-bold text-bronze-light min-w-[30px]">{t('collage.image.effect')}</span>
                                 <input type="range" min="0" max="100" value={selectedImage.filterIntensity ?? 100} onChange={e => updateImageProperty(selectedImage.id, { filterIntensity: parseInt(e.target.value) })} className="flex-1 h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary" title={t('collage.image.effect')} />
                             </div>
+                            <p className="text-[10px] text-bronze-light leading-tight">{t('collage.image.effectHint', { defaultValue: 'Adjust color richness and contrast. 100 means neutral.' })}</p>
                             <div className="flex gap-2 justify-end">
                                 <button onClick={() => removeImage(selectedImage.id)} className="text-xs text-red-500 hover:underline font-bold">{t('collage.remove')}</button>
                             </div>
                         </div>
                     </div>
                 )}
+
+                <div className="px-4 pt-4">
+                    <div className="bg-white border border-cream-dark rounded-xl p-3 space-y-2">
+                        <div className="text-xs font-black text-bronze uppercase tracking-wide">輸出設定</div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <select
+                                value={selectedExportPreset}
+                                onChange={(e) => {
+                                    if (e.target.value === 'custom') return;
+                                    setExportWidth(parseInt(e.target.value, 10));
+                                }}
+                                className="bg-cream-light border border-cream-dark rounded-lg px-2 py-1.5 text-xs font-bold text-bronze"
+                            >
+                                {EXPORT_SIZE_OPTIONS.map((option) => (
+                                    <option key={option.width} value={option.width}>{option.label}</option>
+                                ))}
+                                <option value="custom">自訂</option>
+                            </select>
+                            <input
+                                type="number"
+                                min={MIN_EXPORT_WIDTH}
+                                max={MAX_EXPORT_WIDTH}
+                                step={1}
+                                value={exportWidth}
+                                onChange={(e) => {
+                                    const parsed = Number(e.target.value);
+                                    if (!Number.isNaN(parsed)) setExportWidth(parsed);
+                                }}
+                                onBlur={() => setExportWidth((prev) => clampExportWidth(prev))}
+                                className="bg-cream-light border border-cream-dark rounded-lg px-2 py-1.5 text-xs font-bold text-bronze"
+                                title="自訂輸出寬度"
+                            />
+                        </div>
+                        <div className="text-[10px] text-bronze-light leading-tight">寬度(px)，高度依比例自動計算</div>
+                        {maxUpscaleFactor > 1.5 && (
+                            <div className="text-[10px] text-red-600 leading-tight font-bold">警示：原圖需大幅放大 ({maxUpscaleFactor.toFixed(2)}x)，輸出可能明顯模糊</div>
+                        )}
+                        {maxUpscaleFactor > 1.02 && maxUpscaleFactor <= 1.5 && (
+                            <div className="text-[10px] text-orange-600 leading-tight font-bold">提醒：原圖需放大 ({maxUpscaleFactor.toFixed(2)}x)，輸出可能較模糊</div>
+                        )}
+                    </div>
+                </div>
 
                 <div className="p-4">
                     <Controls
@@ -502,6 +764,7 @@ export const AutoCollageTab: React.FC = () => {
                             saveCheckpoint();
                             setImages(prev => [...prev].sort(() => Math.random() - 0.5));
                         }}
+                        showLayout={editorMode === 'collage'}
                     />
                 </div>
             </aside>

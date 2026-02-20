@@ -89,79 +89,57 @@ export const calculateFrames = (
             const hasHero = heroIndices && heroIndices.length > 0;
 
             if (hasHero && count > 2) {
-                // Hero photos get 2x2 cells, others get 1x1
+                // Compact hero layout:
+                // One hero block on the left, remaining images packed tightly on the right.
+                const primaryHero = heroIndices![0];
+                const sideRatio = count >= 5 ? 0.58 : 0.52;
+                const leftW = (w - gap) * sideRatio;
+                const rightW = w - leftW - gap;
 
-                // Simplified approach: Place heroes first (2x2), then fill remaining with 1x1
-                let cols = Math.ceil(Math.sqrt(count)) + 1; // Extra space for hero cells
-                let rows = Math.ceil(count / cols) + 1;
+                frames[primaryHero] = {
+                    x: startX,
+                    y: startY,
+                    width: leftW,
+                    height: h
+                };
 
-                // Hero cell size (2x2 grid cells)
-                const heroCellSize = 2;
-                const itemW = (w - (cols - 1) * gap) / cols;
-                const itemH = (h - (rows - 1) * gap) / rows;
+                const nonHeroIndices = Array.from({ length: count }, (_, i) => i).filter(i => i !== primaryHero);
+                const rightCols = nonHeroIndices.length >= 4 ? 2 : 1;
 
-                const heroW = itemW * heroCellSize + gap * (heroCellSize - 1);
-                const heroH = itemH * heroCellSize + gap * (heroCellSize - 1);
+                // Place right-side items in a compact row-fill grid (last row expands to avoid blank cells).
+                const tempFrames: ImageFrame[] = [];
+                const cols = Math.max(1, Math.min(rightCols, nonHeroIndices.length));
+                const rows = Math.ceil(nonHeroIndices.length / cols);
+                const rowH = (h - (rows - 1) * gap) / rows;
+                let placed = 0;
+                for (let row = 0; row < rows; row++) {
+                    const remaining = nonHeroIndices.length - placed;
+                    const rowCount = row === rows - 1 ? remaining : cols;
+                    const rowW = (rightW - (rowCount - 1) * gap) / rowCount;
 
-                // Track occupied cells
-                const occupied = new Set<string>();
-
-                // Place heroes first
-                heroIndices!.forEach((heroIdx, i) => {
-                    // Place hero in prominent position (top-left, top-right)
-                    const heroRow = i === 0 ? 0 : 0;
-                    const heroCol = i === 0 ? 0 : (cols - heroCellSize);
-
-                    frames[heroIdx] = {
-                        x: startX + heroCol * (itemW + gap),
-                        y: startY + heroRow * (itemH + gap),
-                        width: heroW,
-                        height: heroH
-                    };
-
-                    // Mark cells as occupied
-                    for (let r = 0; r < heroCellSize; r++) {
-                        for (let c = 0; c < heroCellSize; c++) {
-                            occupied.add(`${heroRow + r},${heroCol + c}`);
-                        }
-                    }
-                });
-
-                // Place regular photos
-                let currentRow = 0;
-                let currentCol = 0;
-                for (let i = 0; i < count; i++) {
-                    if (heroIndices!.includes(i)) continue; // Skip heroes
-
-                    // Find next available cell
-                    while (occupied.has(`${currentRow},${currentCol}`)) {
-                        currentCol++;
-                        if (currentCol >= cols) {
-                            currentCol = 0;
-                            currentRow++;
-                        }
-                    }
-
-                    frames[i] = {
-                        x: startX + currentCol * (itemW + gap),
-                        y: startY + currentRow * (itemH + gap),
-                        width: itemW,
-                        height: itemH
-                    };
-
-                    occupied.add(`${currentRow},${currentCol}`);
-                    currentCol++;
-                    if (currentCol >= cols) {
-                        currentCol = 0;
-                        currentRow++;
+                    for (let col = 0; col < rowCount; col++) {
+                        tempFrames.push({
+                            x: startX + leftW + gap + col * (rowW + gap),
+                            y: startY + row * (rowH + gap),
+                            width: rowW,
+                            height: rowH
+                        });
+                        placed++;
                     }
                 }
+
+                nonHeroIndices.forEach((imgIndex, i) => {
+                    frames[imgIndex] = tempFrames[i];
+                });
             } else {
                 // Standard grid without hero - optimize for container aspect ratio
                 const aspectRatio = w / h;
                 let cols, rows;
 
-                if (count === 2) {
+                if (count === 1) {
+                    cols = 1;
+                    rows = 1;
+                } else if (count === 2) {
                     // 2 items: side by side
                     cols = 2;
                     rows = 1;
@@ -185,23 +163,27 @@ export const calculateFrames = (
                         cols = Math.ceil(sqrtCount);
                     }
 
-                    cols = Math.max(2, Math.min(cols, count)); // At least 2, at most count
+                    cols = Math.max(1, Math.min(cols, count)); // At least 1, at most count
                     rows = Math.ceil(count / cols);
                 }
 
-                const itemW = (w - (cols - 1) * gap) / cols;
                 const itemH = (h - (rows - 1) * gap) / rows;
 
-                for (let i = 0; i < count; i++) {
-                    const col = i % cols;
-                    const row = Math.floor(i / cols);
+                let placed = 0;
+                for (let row = 0; row < rows; row++) {
+                    const remaining = count - placed;
+                    const rowCount = row === rows - 1 ? remaining : cols;
+                    const itemW = (w - (rowCount - 1) * gap) / rowCount;
 
-                    frames.push({
-                        x: startX + col * (itemW + gap),
-                        y: startY + row * (itemH + gap),
-                        width: itemW,
-                        height: itemH
-                    });
+                    for (let col = 0; col < rowCount; col++) {
+                        frames.push({
+                            x: startX + col * (itemW + gap),
+                            y: startY + row * (itemH + gap),
+                            width: itemW,
+                            height: itemH
+                        });
+                        placed++;
+                    }
                 }
             }
             break;
@@ -254,7 +236,8 @@ export const calculateFrames = (
         case LayoutType.MASONRY: {
             // Logic: Define row patterns [itemsInRow1, itemsInRow2, ...]
             let pattern: number[] = [];
-            if (count <= 2) pattern = [1, 1]; // Vertical stack for 1 or 2
+            if (count === 1) pattern = [1];
+            else if (count === 2) pattern = [1, 1]; // Vertical stack for 2
             else if (count === 3) pattern = [1, 2]; // 1 Top, 2 Bottom
             else if (count === 4) pattern = [1, 2, 1];
             else if (count === 5) pattern = [2, 3];

@@ -555,7 +555,7 @@
       "batchProcessing": "批次處理中",
       "generatingArt": "正在生成 AI 藝術...",
       "applyingMagic": "正在進行綠幕去背...",
-      "applyIdPreset": "\u5957\u7528\u8B49\u4EF6\u7167\u63A8\u85A6\u8A2D\u5B9A",
+      "applyIdPreset": "套用證件照推薦設定",
       "manga": {
         "title": "漫畫大師",
         "story": "故事劇本",
@@ -1597,9 +1597,12 @@
     "image": {
       "rotation": "旋轉",
       "scale": "縮放",
-      "effect": "效果強度"
+      "effect": "效果強度",
+      "effectHint": "??????????100 ??????"
     },
-    "copyright": "自動拼貼人工智慧 © 2026"
+    "copyright": "自動拼貼人工智慧 © 2026",
+    "heroHint": "????????????????????? 2 ???",
+    "heroBadge": "??"
   },
   "headshot": {
     "step1_upload": "第一步：上傳照片",

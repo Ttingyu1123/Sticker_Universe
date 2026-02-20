@@ -1489,12 +1489,15 @@
     "image": {
       "rotation": "Rotation",
       "scale": "Scale",
-      "effect": "Effect Intensity"
+      "effect": "Effect",
+      "effectHint": "Adjust color richness and contrast. 100 means neutral."
     },
     "setHero": "Set as Hero",
     "removeHero": "Remove Hero",
     "maxHeroLimit": "Maximum 2 hero photos allowed",
-    "heroPhoto": "Hero Photo"
+    "heroPhoto": "Hero Photo",
+    "heroHint": "Star-marked photos are prioritized in focus layouts (max 2).",
+    "heroBadge": "Hero"
   },
   "headshot": {
     "step1_upload": "Step 1: Upload Photo",

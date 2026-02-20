@@ -29,9 +29,15 @@ export enum AspectRatio {
 
 export interface CollageSettings {
     layout: LayoutType;
+    autoAvoidBlank?: boolean;
+    autoAvoidBlankThreshold?: number;
     ratio: AspectRatio;
     gap: number;
     backgroundColor: string;
+    customGradientEnabled?: boolean;
+    customGradientStart?: string;
+    customGradientEnd?: string;
+    customGradientDirection?: 'diagonal' | 'horizontal' | 'vertical';
     padding: number;
     cornerRadius: number;
     frameStyle: 'normal' | 'film' | 'polaroid'; // New: Frame decoration
@@ -45,6 +51,8 @@ export interface UploadedImage {
     id: string;
     url: string;
     file: File;
+    originalWidth?: number;
+    originalHeight?: number;
     scale: number;
     rotation: number; // 0, 90, 180, 270...
     filter?: string;  // New: CSS filter string (e.g. 'grayscale(1)')
