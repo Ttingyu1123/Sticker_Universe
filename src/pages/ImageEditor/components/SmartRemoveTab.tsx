@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Upload, Eraser, Brush, Download, Image as ImageIcon, Loader2, Undo, Redo, Save, Palette, Sun, Sparkles, Trash2, Settings } from 'lucide-react';
+import { Upload, Eraser, Brush, Download, Image as ImageIcon, Loader2, Undo, Redo, Save, Palette, Sun, Sparkles, Trash2, Settings, Hand, X } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { MaskCanvas, generateMaskFromAI, processMask } from '../../../features/mask-core';
 import type { AISettings } from '../../../features/mask-core';
@@ -68,6 +68,7 @@ const SmartRemoveTab = () => {
     const [historyIndex, setHistoryIndex] = useState(-1);
     const [historyVersion, setHistoryVersion] = useState(0); // To force re-render
     const [showGalleryPicker, setShowGalleryPicker] = useState(false);
+    const [showMobileMoreTools, setShowMobileMoreTools] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
     // Effects State
@@ -169,12 +170,7 @@ const SmartRemoveTab = () => {
             const errorMsg = e instanceof Error ? e.message : String(e);
             alert(
                 t('editor.aiRemoval.error') ||
-                `AI 去背失敗\n\n可能原因：\n` +
-                `• 瀏覽器安全性設定問題\n` +
-                `• 網路連線問題\n` +
-                `• 圖片格式不支援\n\n` +
-                `錯誤詳情：${errorMsg}\n\n` +
-                `建議：請重新整理頁面後再試，或使用其他瀏覽器`
+                `AI background removal failed.\n\nDetails: ${errorMsg}`
             );
         } finally {
             setIsProcessing(false);
@@ -322,6 +318,23 @@ const SmartRemoveTab = () => {
             alert('Failed to save');
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const getToolShortLabel = (value: typeof tool) => {
+        switch (value) {
+            case 'erase':
+                return 'Eraser';
+            case 'restore':
+                return 'Restore';
+            case 'magic-wand':
+                return 'Magic';
+            case 'move':
+                return 'Move';
+            case 'crop':
+                return 'Crop';
+            default:
+                return '';
         }
     };
 
@@ -473,10 +486,110 @@ const SmartRemoveTab = () => {
                             </div>
                         )
                     }
+
+                    {/* Mobile Quick Controls: keep zoom/background close to canvas */}
+                    {originalImage && (
+                        <div className="lg:hidden absolute left-3 right-3 bottom-3 z-10 rounded-2xl border border-cream-dark bg-white/95 backdrop-blur-sm shadow-xl p-2 space-y-2">
+                            <div className="flex items-center justify-between px-1">
+                                <span className="text-[11px] font-bold text-bronze-light">Tool: <span className="text-bronze-text">{getToolShortLabel(tool)}</span></span>
+                                <button
+                                    onClick={() => setShowMobileMoreTools(true)}
+                                    className="px-2 py-1 rounded-md bg-cream-light border border-cream-dark text-[11px] font-bold text-bronze-text inline-flex items-center gap-1"
+                                    title="More Tools"
+                                >
+                                    <Settings size={12} />
+                                    More Tools
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-4 gap-1">
+                                <button
+                                    onClick={() => setTool('erase')}
+                                    className={`h-12 rounded-lg border flex flex-col items-center justify-center gap-0.5 ${tool === 'erase' ? 'border-primary bg-primary/10 text-primary' : 'border-cream-dark bg-cream-light text-bronze-text'}`}
+                                    title={t('eraser.toolbar.eraser')}
+                                    aria-label={t('eraser.toolbar.eraser') || 'Eraser'}
+                                >
+                                    <Eraser size={16} />
+                                    <span className="text-[10px] font-bold leading-none">Eraser</span>
+                                </button>
+                                <button
+                                    onClick={() => setTool('restore')}
+                                    className={`h-12 rounded-lg border flex flex-col items-center justify-center gap-0.5 ${tool === 'restore' ? 'border-secondary bg-secondary/10 text-secondary' : 'border-cream-dark bg-cream-light text-bronze-text'}`}
+                                    title={t('eraser.toolbar.restore')}
+                                    aria-label={t('eraser.toolbar.restore') || 'Restore'}
+                                >
+                                    <Brush size={16} />
+                                    <span className="text-[10px] font-bold leading-none">Restore</span>
+                                </button>
+                                <button
+                                    onClick={() => setTool('magic-wand')}
+                                    className={`h-12 rounded-lg border flex flex-col items-center justify-center gap-0.5 ${tool === 'magic-wand' ? 'border-primary bg-primary/10 text-primary' : 'border-cream-dark bg-cream-light text-bronze-text'}`}
+                                    title={t('eraser.toolbar.magic')}
+                                    aria-label={t('eraser.toolbar.magic') || 'Magic Wand'}
+                                >
+                                    <Sparkles size={16} />
+                                    <span className="text-[10px] font-bold leading-none">Magic</span>
+                                </button>
+                                <button
+                                    onClick={() => setTool('move')}
+                                    className={`h-12 rounded-lg border flex flex-col items-center justify-center gap-0.5 ${tool === 'move' ? 'border-bronze-text bg-bronze-light/10 text-bronze-text' : 'border-cream-dark bg-cream-light text-bronze-text'}`}
+                                    title={t('eraser.toolbar.move')}
+                                    aria-label={t('eraser.toolbar.move') || 'Move'}
+                                >
+                                    <Hand size={16} />
+                                    <span className="text-[10px] font-bold leading-none">Move</span>
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-1">
+                                <button
+                                    onClick={handleUndo}
+                                    disabled={historyIndex <= 0}
+                                    className="h-9 rounded-lg border border-cream-dark bg-cream-light text-bronze-text flex items-center justify-center gap-1 disabled:opacity-50"
+                                    title={t('eraser.toolbar.undo') || 'Undo'}
+                                >
+                                    <Undo size={14} />
+                                    <span className="text-[11px] font-bold">Undo</span>
+                                </button>
+                                <button
+                                    onClick={handleRedo}
+                                    disabled={historyIndex >= history.length - 1}
+                                    className="h-9 rounded-lg border border-cream-dark bg-cream-light text-bronze-text flex items-center justify-center gap-1 disabled:opacity-50"
+                                    title={t('eraser.toolbar.redo') || 'Redo'}
+                                >
+                                    <Redo size={14} />
+                                    <span className="text-[11px] font-bold">Redo</span>
+                                </button>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setZoom(z => Math.max(0.1, z - 0.1))}
+                                    className="px-3 py-1.5 bg-cream-light rounded-lg hover:bg-cream-medium text-bronze-text font-bold text-sm"
+                                >
+                                    -
+                                </button>
+                                <span className="text-xs font-bold text-bronze-text flex-1 text-center">{Math.round(zoom * 100)}%</span>
+                                <button
+                                    onClick={() => setZoom(z => Math.min(5, z + 0.1))}
+                                    className="px-3 py-1.5 bg-cream-light rounded-lg hover:bg-cream-medium text-bronze-text font-bold text-sm"
+                                >
+                                    +
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-4 gap-1 bg-cream-light p-1 rounded-lg">
+                                {(['checkerboard', 'white', 'black', 'green'] as const).map((bg) => (
+                                    <button
+                                        key={bg}
+                                        onClick={() => setBgColor(bg)}
+                                        className={`h-7 rounded-md border ${bgColor === bg ? 'border-primary shadow-sm' : 'border-transparent'} ${bg === 'checkerboard' ? 'bg-[url(https://img.ly/assets/demo-assets/transparent-bg.png)] bg-[length:10px_10px]' : bg === 'white' ? 'bg-white' : bg === 'black' ? 'bg-black' : 'bg-[#00FF00]'}`}
+                                        title={bg}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Left: Toolbar (Bottom on mobile) */}
-                <div className="w-full lg:w-64 h-[45vh] lg:h-auto flex-shrink-0 bg-white border-t lg:border-t-0 lg:border-r border-cream-dark p-4 flex flex-col gap-6 z-10 overflow-y-auto lg:order-1 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] lg:shadow-none">
+                <div className="hidden lg:flex w-full lg:w-64 h-[45vh] lg:h-auto flex-shrink-0 bg-white border-t lg:border-t-0 lg:border-r border-cream-dark p-4 flex flex-col gap-6 z-10 overflow-y-auto lg:order-1 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] lg:shadow-none">
 
                     {/* Top: AI Actions & Reset */}
                     <div className="space-y-3 pb-4 border-b border-cream-light">
@@ -579,14 +692,14 @@ const SmartRemoveTab = () => {
                                 onClick={() => setTool('magic-wand')}
                                 className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${tool === 'magic-wand' ? 'border-primary bg-primary/10 text-primary font-bold shadow-sm' : 'border-cream-dark hover:border-primary/50 text-bronze-light hover:text-bronze-text hover:bg-cream-light'}`}
                             >
-                                <div className="text-2xl mb-1">🪄</div>
+                                <Sparkles size={24} className="mb-1" />
                                 <span className="text-xs font-bold">{t('eraser.toolbar.magic')}</span>
                             </button>
                             <button
                                 onClick={() => setTool('move')}
                                 className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${tool === 'move' ? 'border-bronze-text bg-bronze-light/10 text-bronze-text font-bold shadow-sm' : 'border-cream-dark hover:border-bronze-text/50 text-bronze-light hover:text-bronze-text hover:bg-cream-light'}`}
                             >
-                                <div className="text-2xl mb-1">✋</div>
+                                <Hand size={24} className="mb-1" />
                                 <span className="text-xs font-bold">{t('eraser.toolbar.move')}</span>
                             </button>
                         </div>
@@ -681,7 +794,7 @@ const SmartRemoveTab = () => {
                     </div>
 
                     {/* History Controls */}
-                    <div className="space-y-3">
+                    <div className="hidden lg:block space-y-3">
                         <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('eraser.history')}</label>
                         <div className="flex gap-2">
                             <button
@@ -777,7 +890,7 @@ const SmartRemoveTab = () => {
                     </div>
 
                     {/* View Controls */}
-                    <div className="space-y-4 pt-4 border-t border-cream-light">
+                    <div className="hidden lg:block space-y-4 pt-4 border-t border-cream-light">
                         <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('eraser.zoom') || 'View'}</label>
 
                         {/* Zoom */}
@@ -789,10 +902,10 @@ const SmartRemoveTab = () => {
 
                         {/* Background */}
                         <div className="flex gap-1 bg-cream-light p-1 rounded-lg">
-                            {['checkerboard', 'white', 'black', 'green'].map((bg) => (
+                            {(['checkerboard', 'white', 'black', 'green'] as const).map((bg) => (
                                 <button
                                     key={bg}
-                                    onClick={() => setBgColor(bg as any)}
+                                    onClick={() => setBgColor(bg)}
                                     className={`flex-1 h-6 rounded-md border ${bgColor === bg ? 'border-primary shadow-sm' : 'border-transparent'} ${bg === 'checkerboard' ? 'bg-[url(https://img.ly/assets/demo-assets/transparent-bg.png)] bg-[length:10px_10px]' : bg === 'white' ? 'bg-white' : bg === 'black' ? 'bg-black' : 'bg-[#00FF00]'}`}
                                     title={bg}
                                 />
@@ -800,10 +913,290 @@ const SmartRemoveTab = () => {
                         </div>
                     </div>
                 </div>
-            </main >
+            </main>
+
+            {/* Mobile More Tools Drawer */}
+            {showMobileMoreTools && (
+                <div className="lg:hidden fixed inset-0 z-40" onClick={() => setShowMobileMoreTools(false)}>
+                    <div className="absolute inset-0 bg-black/40" />
+                    <div
+                        className="absolute inset-x-0 bottom-0 max-h-[78dvh] rounded-t-3xl border-t border-cream-dark bg-white p-4 shadow-2xl overflow-y-auto"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="mb-3 flex items-center justify-between">
+                            <h3 className="text-sm font-bold text-bronze-text">More Tools</h3>
+                            <button
+                                onClick={() => setShowMobileMoreTools(false)}
+                                className="h-8 w-8 rounded-lg border border-cream-dark bg-cream-light text-bronze-text flex items-center justify-center"
+                                title="Close"
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-3 pb-4 border-b border-cream-light">
+                            <button
+                                onClick={handleRunAI}
+                                disabled={!originalImage || isProcessing}
+                                className="w-full py-3 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isProcessing ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                                {t('packager.phase1.aiRemoveBg') || 'AI Auto Remove'}
+                            </button>
+
+                            {originalImage && (
+                                <div className="space-y-3 bg-cream-light p-3 rounded-xl border border-cream-dark">
+                                    <div className="flex items-center gap-2 text-xs font-bold text-bronze-light mb-2">
+                                        <Settings size={14} />
+                                        <span>{t('eraser.toolbar.advancedSettings') || 'Advanced AI Settings'}</span>
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between text-[10px] font-bold text-bronze-light uppercase">
+                                            <span>{t('eraser.toolbar.edgeTolerance') || 'Edge Tolerance'}</span>
+                                            <span>{aiSettings.edgeTolerance}</span>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="-10" max="10"
+                                            value={aiSettings.edgeTolerance}
+                                            onChange={(e) => updateMaskSettings({ ...aiSettings, edgeTolerance: Number(e.target.value) })}
+                                            className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
+                                        />
+                                        <div className="flex justify-between text-[10px] text-bronze-light/70">
+                                            <span>{t('eraser.toolbar.shrink') || 'Shrink'}</span>
+                                            <span>{t('eraser.toolbar.grow') || 'Grow'}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="flex items-center justify-between cursor-pointer">
+                                            <span className="text-xs font-medium text-bronze-text">{t('eraser.toolbar.protectClosed') || 'Protect Closed Areas'}</span>
+                                            <input
+                                                type="checkbox"
+                                                checked={aiSettings.protectHoles}
+                                                onChange={(e) => updateMaskSettings({ ...aiSettings, protectHoles: e.target.checked })}
+                                                className="w-4 h-4 rounded text-primary focus:ring-primary border-cream-dark"
+                                            />
+                                        </label>
+                                        <label className="flex items-center justify-between cursor-pointer">
+                                            <span className="text-xs font-medium text-bronze-text">{t('eraser.toolbar.enhanceText') || 'Enhance Text'}</span>
+                                            <input
+                                                type="checkbox"
+                                                checked={aiSettings.enhanceText}
+                                                onChange={(e) => updateMaskSettings({ ...aiSettings, enhanceText: e.target.checked })}
+                                                className="w-4 h-4 rounded text-primary focus:ring-primary border-cream-dark"
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
+                            )}
+
+                            <button
+                                onClick={() => {
+                                    setOriginalImage(null);
+                                    setMaskCanvas(null);
+                                    setAiSettings({ edgeTolerance: 0, protectHoles: false, enhanceText: false });
+                                    rawAiMaskRef.current = null;
+                                    setShowMobileMoreTools(false);
+                                }}
+                                disabled={!originalImage}
+                                className="w-full py-2 bg-cream-light hover:bg-cream-medium text-bronze-text rounded-lg font-bold text-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                            >
+                                <Trash2 size={16} />
+                                {t('eraser.toolbar.reset') || 'Reset'}
+                            </button>
+                        </div>
+
+                        <div className="space-y-3 pt-4">
+                            <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('eraser.toolbar.tools')}</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <button
+                                    onClick={() => setTool('erase')}
+                                    className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${tool === 'erase' ? 'border-primary bg-primary/10 text-primary font-bold shadow-sm' : 'border-cream-dark hover:border-primary/50 text-bronze-light hover:text-bronze-text hover:bg-cream-light'}`}
+                                >
+                                    <Eraser size={22} className="mb-1" />
+                                    <span className="text-xs font-bold">{t('eraser.toolbar.eraser')}</span>
+                                </button>
+                                <button
+                                    onClick={() => setTool('restore')}
+                                    className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${tool === 'restore' ? 'border-secondary bg-secondary/10 text-secondary font-bold shadow-sm' : 'border-cream-dark hover:border-secondary/50 text-bronze-light hover:text-bronze-text hover:bg-cream-light'}`}
+                                >
+                                    <Brush size={22} className="mb-1" />
+                                    <span className="text-xs font-bold">{t('eraser.toolbar.restore')}</span>
+                                </button>
+                                <button
+                                    onClick={() => setTool('magic-wand')}
+                                    className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${tool === 'magic-wand' ? 'border-primary bg-primary/10 text-primary font-bold shadow-sm' : 'border-cream-dark hover:border-primary/50 text-bronze-light hover:text-bronze-text hover:bg-cream-light'}`}
+                                >
+                                    <Sparkles size={22} className="mb-1" />
+                                    <span className="text-xs font-bold">{t('eraser.toolbar.magic')}</span>
+                                </button>
+                                <button
+                                    onClick={() => setTool('move')}
+                                    className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${tool === 'move' ? 'border-bronze-text bg-bronze-light/10 text-bronze-text font-bold shadow-sm' : 'border-cream-dark hover:border-bronze-text/50 text-bronze-light hover:text-bronze-text hover:bg-cream-light'}`}
+                                >
+                                    <Hand size={22} className="mb-1" />
+                                    <span className="text-xs font-bold">{t('eraser.toolbar.move')}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4 pt-4 border-t border-cream-light">
+                            <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('app.settings')}</label>
+
+                            {tool === 'magic-wand' ? (
+                                <>
+                                    <div className="flex bg-cream-medium p-1 rounded-lg mb-2">
+                                        <button
+                                            className={`flex-1 py-1 text-[10px] font-bold rounded-md transition-all ${magicToolMode === 'fill' ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}
+                                            onClick={() => setMagicToolMode('fill')}
+                                        >
+                                            {t('eraser.magic.fill') || 'Flood Fill'}
+                                        </button>
+                                        <button
+                                            className={`flex-1 py-1 text-[10px] font-bold rounded-md transition-all ${magicToolMode === 'brush' ? 'bg-white shadow-sm text-primary' : 'text-bronze-light hover:text-bronze-text'}`}
+                                            onClick={() => setMagicToolMode('brush')}
+                                        >
+                                            {t('eraser.magic.brush') || 'Magic Brush'}
+                                        </button>
+                                    </div>
+
+                                    {magicToolMode === 'brush' && (
+                                        <div className="space-y-2 mb-2">
+                                            <div className="flex justify-between text-xs font-bold text-bronze-text">
+                                                <span>{t('eraser.toolbar.size')}</span>
+                                                <span>{brushSize}px</span>
+                                            </div>
+                                            <input
+                                                type="range"
+                                                min="1" max="200"
+                                                value={brushSize}
+                                                onChange={(e) => setBrushSize(Number(e.target.value))}
+                                                className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-xs font-bold text-bronze-text">
+                                            <span>{t('eraser.toolbar.tolerance')}</span>
+                                            <span>{tolerance}</span>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="1" max="100"
+                                            value={tolerance}
+                                            onChange={(e) => setTolerance(Number(e.target.value))}
+                                            className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
+                                        />
+                                    </div>
+                                </>
+                            ) : (tool === 'erase' || tool === 'restore') ? (
+                                <>
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-xs font-bold text-bronze-text">
+                                            <span>{t('eraser.toolbar.size')}</span>
+                                            <span>{brushSize}px</span>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="1" max="200"
+                                            value={brushSize}
+                                            onChange={(e) => setBrushSize(Number(e.target.value))}
+                                            className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-xs font-bold text-bronze-text">
+                                            <span>{t('eraser.toolbar.hardness') || 'Hardness'}</span>
+                                            <span>{Math.round(brushHardness * 100)}%</span>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="0" max="1" step="0.1"
+                                            value={brushHardness}
+                                            onChange={(e) => setBrushHardness(Number(e.target.value))}
+                                            className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="text-xs text-bronze-light italic">No settings for this tool</div>
+                            )}
+                        </div>
+
+                        <div className="space-y-4 pt-4 border-t border-cream-light pb-4">
+                            <label className="text-xs font-bold text-bronze-light uppercase tracking-wider">{t('packager.phase2.stroke') || 'Stroke'}</label>
+
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Palette size={18} className={strokeConfig.enabled ? 'text-primary' : 'text-bronze-light'} />
+                                    <span className="text-xs font-bold text-bronze-text">{t('eraser.toolbar.enableStroke') || 'Enable Stroke'}</span>
+                                </div>
+                                <div
+                                    onClick={() => setStrokeConfig(prev => ({ ...prev, enabled: !prev.enabled }))}
+                                    className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${strokeConfig.enabled ? 'bg-primary' : 'bg-cream-dark'}`}
+                                >
+                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${strokeConfig.enabled ? 'right-1' : 'left-1'}`} />
+                                </div>
+                            </div>
+
+                            {strokeConfig.enabled && (
+                                <div className="space-y-3 pl-2 animate-in slide-in-from-left-2">
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-xs font-bold text-bronze-text">
+                                            <span>Size</span>
+                                            <span>{strokeConfig.size}px</span>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="1" max="50"
+                                            value={strokeConfig.size}
+                                            onChange={(e) => setStrokeConfig(prev => ({ ...prev, size: Number(e.target.value) }))}
+                                            className="w-full h-1.5 bg-cream-medium rounded-lg appearance-none cursor-pointer accent-primary"
+                                        />
+                                    </div>
+                                    <div className="flex gap-2 flex-wrap">
+                                        {['#ffffff', '#000000', '#FF0000', '#FFFF00', '#0000FF'].map(c => (
+                                            <button
+                                                key={c}
+                                                onClick={() => setStrokeConfig(prev => ({ ...prev, color: c }))}
+                                                className={`w-5 h-5 rounded-full border border-cream-dark ${strokeConfig.color === c ? 'ring-2 ring-primary scale-110' : ''}`}
+                                                style={{ backgroundColor: c }}
+                                            />
+                                        ))}
+                                        <input
+                                            type="color"
+                                            value={strokeConfig.color}
+                                            onChange={(e) => setStrokeConfig(prev => ({ ...prev, color: e.target.value }))}
+                                            className="w-6 h-6 p-0 border-0 rounded overflow-hidden"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <label className="text-xs font-bold text-bronze-light uppercase tracking-wider mt-4 block">{t('packager.phase2.shadow') || 'Shadow'}</label>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Sun size={18} className={shadowConfig.enabled ? 'text-secondary' : 'text-bronze-light'} />
+                                    <span className="text-xs font-bold text-bronze-text">{t('eraser.toolbar.enableShadow') || 'Enable Shadow'}</span>
+                                </div>
+                                <div
+                                    onClick={() => setShadowConfig(prev => ({ ...prev, enabled: !prev.enabled }))}
+                                    className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${shadowConfig.enabled ? 'bg-secondary' : 'bg-cream-dark'}`}
+                                >
+                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${shadowConfig.enabled ? 'right-1' : 'left-1'}`} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Hidden Input */}
-            < input
+            <input
                 type="file"
                 ref={fileInputRef}
                 className="hidden"
@@ -821,8 +1214,9 @@ const SmartRemoveTab = () => {
                     />
                 )
             }
-        </div >
+        </div>
     );
 };
 
 export default SmartRemoveTab;
+
