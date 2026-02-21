@@ -125,6 +125,7 @@ export const DrawingStudioApp: React.FC = () => {
 
   const [brushType, setBrushType] = useState<BrushType>('pen');
   const [brushColor, setBrushColor] = useState('#111111');
+  const [hexCopied, setHexCopied] = useState(false);
   const [brushSize, setBrushSize] = useState(6);
   const [brushOpacity, setBrushOpacity] = useState(1);
   const [pressureEnabled, setPressureEnabled] = useState(true);
@@ -1136,6 +1137,27 @@ export const DrawingStudioApp: React.FC = () => {
     savePresetList([next, ...customPresets].slice(0, 12));
   };
   const applyBrushPreset = (p: BrushPreset) => { setBrushType(p.brushType); setBrushColor(p.brushColor); setBrushSize(p.brushSize); setBrushOpacity(p.brushOpacity); setPressureEnabled(p.pressureEnabled); setPressureCurve(p.pressureCurve); setSmoothing(p.smoothing); setSpacing(p.spacing); };
+  const copyBrushHex = useCallback(async () => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(brushColor.toUpperCase());
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = brushColor.toUpperCase();
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      setHexCopied(true);
+      window.setTimeout(() => setHexCopied(false), 1200);
+    } catch {
+      setHexCopied(false);
+    }
+  }, [brushColor]);
   const removeBrushPreset = (id: string) => savePresetList(customPresets.filter((p) => p.id !== id));
 
   const brushSummary = useMemo(() => `${brushTypeLabel(brushType)} · ${brushSize}px · ${(brushOpacity * 100).toFixed(0)}%`, [brushOpacity, brushSize, brushType]);
@@ -1193,7 +1215,25 @@ export const DrawingStudioApp: React.FC = () => {
           <div className="flex items-center justify-between mb-2"><div className="text-xs font-black uppercase text-bronze-light">{t('drawing.brush', { defaultValue: '\u7b46\u5237' })}</div><button onClick={saveBrushPreset} className="p-1.5 rounded border bg-cream-light" title={t('drawing.savePreset', { defaultValue: '\u5132\u5b58\u9810\u8a2d' })}><Save size={14} /></button></div>
           <div className="grid grid-cols-3 gap-2 mb-3">{BRUSH_PRESETS.map((p) => <button key={p.id} onClick={() => { setBrushType(p.id); setBrushSize(p.size); setBrushOpacity(p.opacity); }} className={`px-2 py-2 text-xs rounded-lg border font-bold ${brushType === p.id ? 'bg-primary text-white border-primary' : 'bg-cream-light border-cream-dark text-bronze-light'}`}>{p.id === 'eraser' ? <Eraser size={14} className="mx-auto mb-1" /> : <Brush size={14} className="mx-auto mb-1" />}{brushTypeLabel(p.id)}</button>)}</div>
           <div className="space-y-2 text-xs">
-            <label className="flex items-center gap-2 font-bold text-bronze-light">{t('drawing.color', { defaultValue: '\u984f\u8272' })}<input type="color" value={brushColor} onChange={(e) => setBrushColor(e.target.value)} className="w-8 h-8 border rounded" /></label>
+            <label className="flex items-center justify-between gap-2 font-bold text-bronze-light">
+              <span>{t('drawing.color', { defaultValue: '\u984f\u8272' })}</span>
+              <span className="inline-flex items-center gap-2">
+                <input
+                  type="color"
+                  value={brushColor}
+                  onChange={(e) => setBrushColor(e.target.value)}
+                  className="w-8 h-8 border rounded"
+                />
+                <button
+                  type="button"
+                  onClick={copyBrushHex}
+                  title={hexCopied ? '已複製' : '點擊複製 HEX'}
+                  className="rounded border border-cream-dark bg-cream-light px-1.5 py-0.5 text-[10px] font-black tracking-wide text-bronze-text hover:border-primary hover:text-primary"
+                >
+                  {hexCopied ? '已複製' : brushColor.toUpperCase()}
+                </button>
+              </span>
+            </label>
             <label className="block font-bold text-bronze-light">{t('drawing.size', { defaultValue: '\u5927\u5c0f' })}: {brushSize}px<input type="range" min={1} max={96} value={brushSize} onChange={(e) => setBrushSize(parseInt(e.target.value, 10))} className="w-full" /></label>
             <label className="block font-bold text-bronze-light">{t('drawing.opacity', { defaultValue: '\u900f\u660e\u5ea6' })}: {(brushOpacity * 100).toFixed(0)}%<input type="range" min={1} max={100} value={Math.round(brushOpacity * 100)} onChange={(e) => setBrushOpacity(parseInt(e.target.value, 10) / 100)} className="w-full" /></label>
             <label className="flex items-center justify-between font-bold text-bronze-light">{t('drawing.pressure', { defaultValue: '\u58d3\u529b' })}<input type="checkbox" checked={pressureEnabled} onChange={(e) => setPressureEnabled(e.target.checked)} /></label>
