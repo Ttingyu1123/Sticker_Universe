@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, FolderOpen, Loader2, RefreshCw, Upload } from 'lucide-react';
 import { GalleryPicker } from '../../../components/GalleryPicker';
@@ -14,6 +14,9 @@ const ratioPresets = [
   { label: '9:16', width: 720, height: 1280 }
 ] as const;
 
+type FixedMode = 'width' | 'height';
+type Quality = '1K' | '2K' | '4K';
+
 const gcd = (a: number, b: number): number => {
   let x = Math.abs(Math.round(a));
   let y = Math.abs(Math.round(b));
@@ -23,27 +26,6 @@ const gcd = (a: number, b: number): number => {
     x = t;
   }
   return x || 1;
-};
-
-type FixedMode = 'width' | 'height';
-type Quality = '1K' | '2K' | '4K';
-type EditTool = 'select' | 'protect';
-
-type Rect = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
-
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
-
-const normalizeRect = (rect: Rect): Rect => {
-  const x = rect.width < 0 ? rect.x + rect.width : rect.x;
-  const y = rect.height < 0 ? rect.y + rect.height : rect.y;
-  const width = Math.abs(rect.width);
-  const height = Math.abs(rect.height);
-  return { x, y, width, height };
 };
 
 const OutpaintTab: React.FC = () => {
@@ -58,15 +40,6 @@ const OutpaintTab: React.FC = () => {
     startY: number;
     startScale: number;
   } | null>(null);
-  const localInteractionRef = useRef<{
-    mode: EditTool;
-    startX: number;
-    startY: number;
-    lastX: number;
-    lastY: number;
-  } | null>(null);
-  const maskCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const maskPreviewRef = useRef<HTMLCanvasElement>(null);
 
   const [showGallery, setShowGallery] = useState(false);
   const [sourceImage, setSourceImage] = useState<string | null>(null);
@@ -76,22 +49,15 @@ const OutpaintTab: React.FC = () => {
   const [fixedMode, setFixedMode] = useState<FixedMode>('width');
   const [fixedPx, setFixedPx] = useState(1024);
   const [quality, setQuality] = useState<Quality>('1K');
-
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
   const [scale, setScale] = useState(100);
   const [prompt, setPrompt] = useState('');
   const [resultImage, setResultImage] = useState<string | null>(null);
-  const [baseResultImage, setBaseResultImage] = useState<string | null>(null);
   const [resultSize, setResultSize] = useState<{ width: number; height: number } | null>(null);
   const [modelRawSize, setModelRawSize] = useState<{ width: number; height: number } | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isLocalGenerating, setIsLocalGenerating] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [editTool, setEditTool] = useState<EditTool>('select');
-  const [selectionRect, setSelectionRect] = useState<Rect | null>(null);
-  const [localPrompt, setLocalPrompt] = useState('');
-  const [protectBrushSize, setProtectBrushSize] = useState(28);
 
   const outputSize = useMemo(
     () => ({
@@ -108,11 +74,8 @@ const OutpaintTab: React.FC = () => {
 
   const clearGenerated = () => {
     setResultImage(null);
-    setBaseResultImage(null);
     setResultSize(null);
     setModelRawSize(null);
-    setSelectionRect(null);
-    clearProtectMask();
   };
 
   const handleResetImage = () => {
@@ -122,103 +85,11 @@ const OutpaintTab: React.FC = () => {
     setY(0);
     setScale(100);
     setPrompt('');
-    setLocalPrompt('');
     setErrorMessage('');
-    setEditTool('select');
     clearGenerated();
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  };
-
-  const redrawMaskPreview = () => {
-    const preview = maskPreviewRef.current;
-    const mask = maskCanvasRef.current;
-    if (!preview || !mask) return;
-    const pctx = preview.getContext('2d');
-    if (!pctx) return;
-
-    pctx.clearRect(0, 0, preview.width, preview.height);
-    pctx.globalAlpha = 0.38;
-    pctx.drawImage(mask, 0, 0, preview.width, preview.height);
-    pctx.globalCompositeOperation = 'source-in';
-    pctx.fillStyle = '#ef4444';
-    pctx.fillRect(0, 0, preview.width, preview.height);
-    pctx.globalCompositeOperation = 'source-over';
-    pctx.globalAlpha = 1;
-  };
-
-  const clearProtectMask = () => {
-    const mask = maskCanvasRef.current;
-    if (!mask) return;
-    const maskCtx = mask.getContext('2d');
-    if (maskCtx) {
-      maskCtx.clearRect(0, 0, mask.width, mask.height);
-    }
-    redrawMaskPreview();
-  };
-
-  useEffect(() => {
-    const mask = document.createElement('canvas');
-    mask.width = outputSize.width;
-    mask.height = outputSize.height;
-    maskCanvasRef.current = mask;
-
-    const preview = maskPreviewRef.current;
-    if (preview) {
-      preview.width = outputSize.width;
-      preview.height = outputSize.height;
-    }
-    redrawMaskPreview();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [outputSize.width, outputSize.height]);
-
-  useEffect(() => {
-    redrawMaskPreview();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resultImage]);
-
-  const clampScale = (value: number) => Math.max(30, Math.min(160, value));
-
-  const applyFixedPx = (pxValue: number, mode: FixedMode) => {
-    const safePx = Math.max(64, Math.round(pxValue || 64));
-    const ratio = outputSize.width / outputSize.height || 1;
-
-    if (mode === 'width') {
-      const nextWidth = safePx;
-      const nextHeight = Math.max(64, Math.round(nextWidth / ratio));
-      setCustomSize({ width: nextWidth, height: nextHeight });
-    } else {
-      const nextHeight = safePx;
-      const nextWidth = Math.max(64, Math.round(nextHeight * ratio));
-      setCustomSize({ width: nextWidth, height: nextHeight });
-    }
-    clearGenerated();
-  };
-
-  const swapWidthHeight = () => {
-    setCustomSize((prev) => ({ width: prev.height, height: prev.width }));
-    clearGenerated();
-  };
-
-  const getCanvasToViewScale = () => {
-    const stage = stageRef.current;
-    if (!stage) return 1;
-    const rect = stage.getBoundingClientRect();
-    if (!rect.width) return 1;
-    return outputSize.width / rect.width;
-  };
-
-  const eventToCanvasPoint = (clientX: number, clientY: number) => {
-    const stage = stageRef.current;
-    if (!stage) return null;
-    const rect = stage.getBoundingClientRect();
-    if (!rect.width || !rect.height) return null;
-
-    return {
-      x: clamp(Math.round(((clientX - rect.left) / rect.width) * outputSize.width), 0, outputSize.width),
-      y: clamp(Math.round(((clientY - rect.top) / rect.height) * outputSize.height), 0, outputSize.height)
-    };
   };
 
   const loadSourceDataUrl = (dataUrl: string) => {
@@ -344,11 +215,7 @@ const OutpaintTab: React.FC = () => {
       setModelRawSize(rawSize);
       setResultSize(finalSize);
       setResultImage(normalized);
-      setBaseResultImage(normalized);
-      setSelectionRect(null);
-      clearProtectMask();
 
-      // Auto-import generated result to gallery to avoid accidental loss.
       try {
         await saveStickerToDB({
           id: crypto.randomUUID(),
@@ -386,132 +253,35 @@ const OutpaintTab: React.FC = () => {
     link.click();
   };
 
-  const drawMaskStroke = (from: { x: number; y: number }, to: { x: number; y: number }) => {
-    const mask = maskCanvasRef.current;
-    if (!mask) return;
-    const ctx = mask.getContext('2d');
-    if (!ctx) return;
-    ctx.strokeStyle = 'rgba(255,255,255,1)';
-    ctx.lineWidth = protectBrushSize;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
-    ctx.lineTo(to.x, to.y);
-    ctx.stroke();
+  const clampScale = (value: number) => Math.max(30, Math.min(160, value));
+
+  const applyFixedPx = (pxValue: number, mode: FixedMode) => {
+    const safePx = Math.max(64, Math.round(pxValue || 64));
+    const ratio = outputSize.width / outputSize.height || 1;
+
+    if (mode === 'width') {
+      const nextWidth = safePx;
+      const nextHeight = Math.max(64, Math.round(nextWidth / ratio));
+      setCustomSize({ width: nextWidth, height: nextHeight });
+    } else {
+      const nextHeight = safePx;
+      const nextWidth = Math.max(64, Math.round(nextHeight * ratio));
+      setCustomSize({ width: nextWidth, height: nextHeight });
+    }
+    clearGenerated();
   };
 
-  const mergeSelectedRegion = async (baseImage: string, generatedImage: string, rect: Rect): Promise<string> => {
-    const baseImg = new Image();
-    const genImg = new Image();
-    baseImg.src = baseImage;
-    genImg.src = generatedImage;
-    await Promise.all([
-      new Promise((resolve, reject) => {
-        baseImg.onload = resolve;
-        baseImg.onerror = reject;
-      }),
-      new Promise((resolve, reject) => {
-        genImg.onload = resolve;
-        genImg.onerror = reject;
-      })
-    ]);
-
-    const canvas = document.createElement('canvas');
-    canvas.width = outputSize.width;
-    canvas.height = outputSize.height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return baseImage;
-    ctx.drawImage(baseImg, 0, 0, outputSize.width, outputSize.height);
-    const baseData = ctx.getImageData(0, 0, outputSize.width, outputSize.height);
-
-    const genCanvas = document.createElement('canvas');
-    genCanvas.width = outputSize.width;
-    genCanvas.height = outputSize.height;
-    const genCtx = genCanvas.getContext('2d');
-    if (!genCtx) return baseImage;
-    genCtx.drawImage(genImg, 0, 0, outputSize.width, outputSize.height);
-    const genData = genCtx.getImageData(0, 0, outputSize.width, outputSize.height);
-
-    const mask = maskCanvasRef.current;
-    let maskData: ImageData | null = null;
-    if (mask) {
-      const mctx = mask.getContext('2d');
-      if (mctx) {
-        maskData = mctx.getImageData(0, 0, outputSize.width, outputSize.height);
-      }
-    }
-
-    const safe = normalizeRect(rect);
-    const startX = clamp(Math.round(safe.x), 0, outputSize.width);
-    const startY = clamp(Math.round(safe.y), 0, outputSize.height);
-    const endX = clamp(Math.round(safe.x + safe.width), 0, outputSize.width);
-    const endY = clamp(Math.round(safe.y + safe.height), 0, outputSize.height);
-
-    for (let py = startY; py < endY; py += 1) {
-      for (let px = startX; px < endX; px += 1) {
-        const idx = (py * outputSize.width + px) * 4;
-        const protectedAlpha = maskData ? maskData.data[idx + 3] : 0;
-        if (protectedAlpha > 0) continue;
-        baseData.data[idx] = genData.data[idx];
-        baseData.data[idx + 1] = genData.data[idx + 1];
-        baseData.data[idx + 2] = genData.data[idx + 2];
-        baseData.data[idx + 3] = genData.data[idx + 3];
-      }
-    }
-
-    ctx.putImageData(baseData, 0, 0);
-    return canvas.toDataURL('image/png');
+  const swapWidthHeight = () => {
+    setCustomSize((prev) => ({ width: prev.height, height: prev.width }));
+    clearGenerated();
   };
 
-  const handleLocalRegenerate = async () => {
-    if (!resultImage) return;
-    const apiKeyState = loadGeminiApiKey();
-    if (!apiKeyState?.key) {
-      setErrorMessage(t('generator.apiKey.invalid', { defaultValue: '請先設定 API Key' }));
-      return;
-    }
-    if (!selectionRect || Math.abs(selectionRect.width) < 8 || Math.abs(selectionRect.height) < 8) {
-      setErrorMessage(t('editor.outpaint.localNeedSelection', { defaultValue: '請先框選要局部重生成的區域。' }));
-      return;
-    }
-
-    const originalForEdit = baseResultImage || resultImage;
-    setIsLocalGenerating(true);
-    setErrorMessage('');
-    const safe = normalizeRect(selectionRect);
-    const rectInfo = `Selected region: x=${Math.round(safe.x)}, y=${Math.round(safe.y)}, w=${Math.round(safe.width)}, h=${Math.round(safe.height)}.`;
-
-    try {
-      const instruction = [
-        'You are editing an existing image.',
-        'Change ONLY the selected region while preserving the rest of the image.',
-        'Blend naturally with surrounding pixels.',
-        'No text, no watermark.',
-        rectInfo,
-        localPrompt?.trim() ? `Edit request: ${localPrompt.trim()}` : 'Edit request: improve visual details in this selected region.'
-      ].join('\n');
-
-      const generated = await generateImage(
-        apiKeyState.key,
-        instruction,
-        originalForEdit,
-        aspectRatio,
-        'gemini-3-pro-image-preview',
-        quality
-      );
-
-      const normalized = await normalizeToOutputSize(generated);
-      const merged = await mergeSelectedRegion(originalForEdit, normalized, safe);
-      const finalSize = await getImageDimensions(merged);
-      setResultImage(merged);
-      setResultSize(finalSize);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Local regenerate failed';
-      setErrorMessage(message);
-    } finally {
-      setIsLocalGenerating(false);
-    }
+  const getCanvasToViewScale = () => {
+    const stage = stageRef.current;
+    if (!stage) return 1;
+    const rect = stage.getBoundingClientRect();
+    if (!rect.width) return 1;
+    return outputSize.width / rect.width;
   };
 
   const handlePointerDownDrag = (e: React.PointerEvent<HTMLImageElement>) => {
@@ -568,58 +338,8 @@ const OutpaintTab: React.FC = () => {
     interactionRef.current = null;
   };
 
-  const handleResultPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!resultImage) return;
-    const point = eventToCanvasPoint(e.clientX, e.clientY);
-    if (!point) return;
-
-    e.preventDefault();
-    e.currentTarget.setPointerCapture(e.pointerId);
-    localInteractionRef.current = {
-      mode: editTool,
-      startX: point.x,
-      startY: point.y,
-      lastX: point.x,
-      lastY: point.y
-    };
-
-    if (editTool === 'select') {
-      setSelectionRect({ x: point.x, y: point.y, width: 0, height: 0 });
-    } else {
-      drawMaskStroke(point, point);
-      redrawMaskPreview();
-    }
-  };
-
-  const handleResultPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const current = localInteractionRef.current;
-    if (!current) return;
-    const point = eventToCanvasPoint(e.clientX, e.clientY);
-    if (!point) return;
-
-    if (current.mode === 'select') {
-      setSelectionRect({
-        x: current.startX,
-        y: current.startY,
-        width: point.x - current.startX,
-        height: point.y - current.startY
-      });
-      return;
-    }
-
-    drawMaskStroke({ x: current.lastX, y: current.lastY }, point);
-    current.lastX = point.x;
-    current.lastY = point.y;
-    redrawMaskPreview();
-  };
-
-  const handleResultPointerUp = () => {
-    localInteractionRef.current = null;
-  };
-
   const drawWidth = (sourceSize.width * scale) / 100;
   const drawHeight = (sourceSize.height * scale) / 100;
-  const safeSelection = selectionRect ? normalizeRect(selectionRect) : null;
 
   return (
     <div className="h-full min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 md:p-6 overflow-hidden">
@@ -809,9 +529,6 @@ const OutpaintTab: React.FC = () => {
                   </button>
                 ))}
               </div>
-              <p className="text-[11px] text-bronze-light">
-                {t('editor.outpaint.qualityHint', { defaultValue: '最大邊長參考：1K≈1024px、2K≈2048px、4K≈4096px（實際依模型回傳為準）。' })}
-              </p>
             </div>
 
             <div className="text-[11px] text-bronze-light bg-cream-light border border-cream-dark rounded-lg px-3 py-2">
@@ -915,3 +632,4 @@ const OutpaintTab: React.FC = () => {
 };
 
 export default OutpaintTab;
+

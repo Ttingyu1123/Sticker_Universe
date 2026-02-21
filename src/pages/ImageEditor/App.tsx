@@ -1,6 +1,6 @@
 import React, { useState, Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Scissors, Image, Sparkles, Video, FileCode, Expand, Scan } from 'lucide-react';
+import { Scissors, Image, Sparkles, Video, FileCode, Expand, Scan, Wand2 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import EditorTab from './components/EditorTab';
 import PackagerTab from './components/PackagerTab';
@@ -9,6 +9,7 @@ import AnimatorTab from './components/AnimatorTab';
 import ImageResizerTab from './components/ImageResizerTab';
 import SvgConverterTab from './components/SvgConverterTab';
 import OutpaintTab from './components/OutpaintTab';
+import LocalRedrawTab from './components/LocalRedrawTab';
 
 import { Tabs, TabList, Tab, TabPanel } from 'react-aria-components';
 
@@ -136,6 +137,23 @@ const ImageEditorApp: React.FC = () => {
                             )}
                         </Tab>
                         <Tab
+                            id="local-redraw"
+                            className={({ isSelected }) => `
+                        px-5 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer outline-none flex items-center gap-2.5 select-none
+                        ${isSelected
+                                    ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]'
+                                    : 'text-bronze-light hover:text-primary hover:bg-white/60'
+                                }
+                    `}
+                        >
+                            {({ isSelected }) => (
+                                <>
+                                    <Wand2 size={18} className={isSelected ? 'fill-white/20 text-white' : ''} />
+                                    {t('editor.tabs.localRedraw', { defaultValue: '局部重繪工作室' })}
+                                </>
+                            )}
+                        </Tab>
+                        <Tab
                             id="svg"
                             className={({ isSelected }) => `
                         px-5 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer outline-none flex items-center gap-2.5 select-none
@@ -190,6 +208,11 @@ const ImageEditorApp: React.FC = () => {
                         <TabPanel id="outpaint" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
                                 <OutpaintTab />
+                            </Suspense>
+                        </TabPanel>
+                        <TabPanel id="local-redraw" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 overflow-y-auto custom-scrollbar">
+                            <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
+                                <LocalRedrawTab />
                             </Suspense>
                         </TabPanel>
                     </div>
