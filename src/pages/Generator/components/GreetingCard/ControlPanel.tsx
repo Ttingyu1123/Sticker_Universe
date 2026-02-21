@@ -25,6 +25,8 @@ interface ControlPanelProps {
     isOptimizingPrompt: boolean;
     userName: string;
     recipientName: string;
+    showRecipientName: boolean;
+    showUserName: boolean;
     message: string;
     isGenerating: boolean;
     isRegenerating: boolean;
@@ -52,6 +54,8 @@ interface ControlPanelProps {
     onOptimizePrompt: () => void;
     onSetRecipientName: (val: string) => void;
     onSetUserName: (val: string) => void;
+    onSetShowRecipientName: (val: boolean) => void;
+    onSetShowUserName: (val: boolean) => void;
     onSetMessage: (val: string) => void;
     onGenerate: () => void;
 }
@@ -341,20 +345,42 @@ export const ControlPanel: React.FC<ControlPanelProps> = (props) => {
 
                     {/* Names & Message */}
                     <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-3">
+                            <label className="flex items-center gap-2 text-xs font-bold text-bronze-text">
+                                <input
+                                    type="checkbox"
+                                    checked={props.showRecipientName}
+                                    onChange={(e) => props.onSetShowRecipientName(e.target.checked)}
+                                    className="w-4 h-4 rounded border-2 border-primary text-primary"
+                                />
+                                顯示收件人
+                            </label>
+                            <label className="flex items-center gap-2 text-xs font-bold text-bronze-text">
+                                <input
+                                    type="checkbox"
+                                    checked={props.showUserName}
+                                    onChange={(e) => props.onSetShowUserName(e.target.checked)}
+                                    className="w-4 h-4 rounded border-2 border-primary text-primary"
+                                />
+                                顯示你的名字
+                            </label>
+                        </div>
                         <div className="grid grid-cols-2 gap-4">
                             <input
                                 type="text"
                                 value={props.recipientName}
                                 onChange={(e) => props.onSetRecipientName(e.target.value)}
                                 placeholder="收件人 (To)"
-                                className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm"
+                                disabled={!props.showRecipientName}
+                                className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             />
                             <input
                                 type="text"
                                 value={props.userName}
                                 onChange={(e) => props.onSetUserName(e.target.value)}
                                 placeholder="你的名字 (From)"
-                                className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm"
+                                disabled={!props.showUserName}
+                                className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             />
                         </div>
                         <textarea

@@ -9,6 +9,8 @@ interface CardPreviewProps {
     cardLayout: CardLayoutId;
     recipientName: string;
     userName: string;
+    showRecipientName: boolean;
+    showUserName: boolean;
     cardBgColor: string;
     showTextOnCard: boolean;
     selectedFont: string;
@@ -29,6 +31,8 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
     cardLayout,
     recipientName,
     userName,
+    showRecipientName,
+    showUserName,
     cardBgColor,
     showTextOnCard,
     selectedFont,
@@ -44,6 +48,9 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
     onDownloadRaw
 }) => {
     const activeFont = [...FONTS, ...customFonts].find(f => f.id === selectedFont);
+    const toText = showRecipientName ? (recipientName || "You") : "";
+    const fromText = showUserName ? (userName || "Me") : "";
+    const hasNameLine = Boolean(toText || fromText);
 
     if (!generatedResult) {
         return (
@@ -75,9 +82,13 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
                             <h3 className="text-2xl font-black text-bronze-text font-serif">
                                 {generatedResult.title}
                             </h3>
-                            <div className="text-xs font-bold text-bronze-light uppercase tracking-widest border-t border-cream-dark/50 pt-3 w-full text-center">
-                                To: {recipientName || "You"} | From: {userName || "Me"}
-                            </div>
+                            {hasNameLine && (
+                                <div className="text-xs font-bold text-bronze-light uppercase tracking-widest border-t border-cream-dark/50 pt-3 w-full text-center">
+                                    {toText ? `To: ${toText}` : ''}
+                                    {toText && fromText ? ' | ' : ''}
+                                    {fromText ? `From: ${fromText}` : ''}
+                                </div>
+                            )}
                             {showTextOnCard && generatedResult.message && (
                                 <div className="relative p-4 bg-white/80 backdrop-blur-sm shadow-sm border border-cream-dark rounded-xl transform rotate-1 mt-2">
                                     <p
@@ -102,9 +113,13 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
                             <h3 className="text-2xl md:text-4xl font-black text-bronze-text md:text-white font-sans uppercase leading-tight md:drop-shadow-lg mb-3">
                                 {generatedResult.title || "Greeting"}
                             </h3>
-                            <div className="text-xs font-mono text-bronze-text md:text-white/80 mb-4 bg-cream-light md:bg-white/20 px-2 py-1 rounded md:backdrop-blur-md tracking-wider">
-                                TO {recipientName?.toUpperCase() || "YOU"} • FROM {userName?.toUpperCase() || "ME"}
-                            </div>
+                            {hasNameLine && (
+                                <div className="text-xs font-mono text-bronze-text md:text-white/80 mb-4 bg-cream-light md:bg-white/20 px-2 py-1 rounded md:backdrop-blur-md tracking-wider">
+                                    {toText ? `TO ${toText.toUpperCase()}` : ''}
+                                    {toText && fromText ? ' • ' : ''}
+                                    {fromText ? `FROM ${fromText.toUpperCase()}` : ''}
+                                </div>
+                            )}
                             {showTextOnCard && generatedResult.message && (
                                 <p
                                     className={`text-sm md:text-base text-bronze-text md:text-white/95 leading-relaxed md:drop-shadow-md border-t border-cream-dark/50 md:border-white/20 pt-3 w-full ${activeFont?.className || ''}`}
@@ -124,9 +139,13 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
                             <img src={generatedResult.imageUrl} className="max-w-[80%] max-h-[300px] object-contain mx-auto" alt="Generated Card" />
                         </div>
                         <div className="text-center space-y-4 max-w-sm">
-                            <div className="text-base italic text-gray-400 font-serif">
-                                {recipientName || "Dear"} / {userName || "Me"}
-                            </div>
+                            {hasNameLine && (
+                                <div className="text-base italic text-gray-400 font-serif">
+                                    {toText || "Dear"}
+                                    {toText && fromText ? " / " : ""}
+                                    {fromText || ""}
+                                </div>
+                            )}
                             {showTextOnCard && generatedResult.message && (
                                 <p
                                     className={`text-xl leading-relaxed py-4 border-t border-b border-gray-100 ${activeFont?.className || ''}`}

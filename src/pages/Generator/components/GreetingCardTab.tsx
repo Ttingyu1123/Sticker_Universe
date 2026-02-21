@@ -35,6 +35,8 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({ apiKey, onError, onNe
 
     const [userName, setUserName] = useState("");
     const [recipientName, setRecipientName] = useState("");
+    const [showRecipientName, setShowRecipientName] = useState(true);
+    const [showUserName, setShowUserName] = useState(true);
     const [cardBgColor, setCardBgColor] = useState('#FDFCF8');
     const [message, setMessage] = useState("");
     const [customPrompt, setCustomPrompt] = useState("");
@@ -253,7 +255,13 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({ apiKey, onError, onNe
         const f = FESTIVALS.find(f => f.id === festival) || FESTIVALS[0];
         const s = CARD_STYLES.find(s => s.id === style) || CARD_STYLES[0];
 
-        const systemPrompt = `Create a ${f.id} greeting card prompt in ${s.id} style. JSON output: { "visualPrompt": "...", "refinedMessage": "...", "title": "..." }. Refined message should be in Traditional Chinese. Based on user message: "${message}" and from "${userName}" to "${recipientName}".`;
+        const effectiveRecipientName = showRecipientName ? recipientName.trim() : "";
+        const effectiveUserName = showUserName ? userName.trim() : "";
+        const nameGuidance = [
+            effectiveRecipientName ? `Recipient name: "${effectiveRecipientName}".` : "Do not include recipient name on the card.",
+            effectiveUserName ? `Sender name: "${effectiveUserName}".` : "Do not include sender name on the card."
+        ].join(" ");
+        const systemPrompt = `Create a ${f.id} greeting card prompt in ${s.id} style. JSON output: { "visualPrompt": "...", "refinedMessage": "...", "title": "..." }. Refined message should be in Traditional Chinese. Based on user message: "${message}". ${nameGuidance}`;
         const optimizeResult = await ai.models.generateContent({
             model: modelName,
             contents: [{ parts: [{ text: systemPrompt }] }],
@@ -354,7 +362,7 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({ apiKey, onError, onNe
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <ControlPanel
-                    {...{ userImage, autoRemoveBg, isProcessingUploadBg, festival, style, cardBgColor, aspectRatio, cardLayout, faceSwapMode, autoExpandBackground, styleIntensity, negativePrompt, showTextOnCard, selectedFont, customFonts, textColor, customPrompt, isOptimizingPrompt, userName, recipientName, message, isGenerating, isRegenerating, loadingStep, localError, fileInputRef }}
+                    {...{ userImage, autoRemoveBg, isProcessingUploadBg, festival, style, cardBgColor, aspectRatio, cardLayout, faceSwapMode, autoExpandBackground, styleIntensity, negativePrompt, showTextOnCard, selectedFont, customFonts, textColor, customPrompt, isOptimizingPrompt, userName, recipientName, showRecipientName, showUserName, message, isGenerating, isRegenerating, loadingStep, localError, fileInputRef }}
                     onFileUpload={handleFileUpload}
                     onManualBgRemoval={handleManualUploadBgRemoval}
                     onShowGallery={() => setShowGallery(true)}
@@ -376,6 +384,8 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({ apiKey, onError, onNe
                     onOptimizePrompt={optimizePrompt}
                     onSetRecipientName={setRecipientName}
                     onSetUserName={setUserName}
+                    onSetShowRecipientName={setShowRecipientName}
+                    onSetShowUserName={setShowUserName}
                     onSetMessage={setMessage}
                     onGenerate={handleGenerate}
                 />
@@ -385,6 +395,8 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({ apiKey, onError, onNe
                     cardLayout={cardLayout}
                     recipientName={recipientName}
                     userName={userName}
+                    showRecipientName={showRecipientName}
+                    showUserName={showUserName}
                     cardBgColor={cardBgColor}
                     showTextOnCard={showTextOnCard}
                     selectedFont={selectedFont}
