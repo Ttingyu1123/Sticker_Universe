@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, Eraser, FolderOpen, Loader2, RefreshCw, SquareDashed, Upload, Wand2 } from 'lucide-react';
+import { Download, Eraser, FolderOpen, Loader2, RefreshCw, Sparkles, SquareDashed, Upload, Wand2 } from 'lucide-react';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { loadGeminiApiKey } from '../../../shared/geminiApiKey';
 import { generateImage } from '../../Generator/services/geminiService';
@@ -26,6 +26,22 @@ const normalizeRect = (rect: Rect): Rect => {
   return { x, y, width, height };
 };
 
+const expandRect = (rect: Rect, ratio: number, maxWidth: number, maxHeight: number): Rect => {
+  const safe = normalizeRect(rect);
+  const growX = Math.round(safe.width * ratio * 0.5);
+  const growY = Math.round(safe.height * ratio * 0.5);
+  const x = clamp(safe.x - growX, 0, maxWidth);
+  const y = clamp(safe.y - growY, 0, maxHeight);
+  const right = clamp(safe.x + safe.width + growX, 0, maxWidth);
+  const bottom = clamp(safe.y + safe.height + growY, 0, maxHeight);
+  return {
+    x,
+    y,
+    width: Math.max(1, right - x),
+    height: Math.max(1, bottom - y)
+  };
+};
+
 const gcd = (a: number, b: number): number => {
   let x = Math.abs(Math.round(a));
   let y = Math.abs(Math.round(b));
@@ -35,6 +51,30 @@ const gcd = (a: number, b: number): number => {
     x = t;
   }
   return x || 1;
+};
+
+const SUPPORTED_ASPECT_RATIOS = [
+  '1:1', '1:4', '1:8', '2:3', '3:2', '3:4', '4:1', '4:3',
+  '4:5', '5:4', '8:1', '9:16', '16:9', '21:9'
+] as const;
+
+const toAspectRatio = (width: number, height: number) => {
+  if (width <= 0 || height <= 0) return '1:1';
+  const target = width / height;
+  let best = '1:1';
+  let bestDiff = Number.POSITIVE_INFINITY;
+
+  for (const candidate of SUPPORTED_ASPECT_RATIOS) {
+    const [w, h] = candidate.split(':').map(Number);
+    const ratio = w / h;
+    const diff = Math.abs(Math.log(target / ratio));
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = candidate;
+    }
+  }
+
+  return best;
 };
 
 const LocalRedrawTab: React.FC = () => {
@@ -59,15 +99,10 @@ const LocalRedrawTab: React.FC = () => {
   const [editTool, setEditTool] = useState<EditTool>('select');
   const [selectionRect, setSelectionRect] = useState<Rect | null>(null);
   const [prompt, setPrompt] = useState('');
+  const [autoExpandSelection, setAutoExpandSelection] = useState(true);
   const [protectBrushSize, setProtectBrushSize] = useState(28);
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  const aspectRatio = useMemo(() => {
-    if (imageSize.width <= 0 || imageSize.height <= 0) return '1:1';
-    const d = gcd(imageSize.width, imageSize.height);
-    return `${Math.round(imageSize.width / d)}:${Math.round(imageSize.height / d)}`;
-  }, [imageSize]);
 
   const safeSelection = selectionRect ? normalizeRect(selectionRect) : null;
 
@@ -154,8 +189,8 @@ const LocalRedrawTab: React.FC = () => {
     setShowGallery(false);
   };
 
-  const normalizeToCanvasSize = async (dataUrl: string): Promise<string> => {
-    if (imageSize.width <= 0 || imageSize.height <= 0) return dataUrl;
+  const normalizeToSize = async (dataUrl: string, targetWidth: number, targetHeight: number): Promise<string> => {
+    if (targetWidth <= 0 || targetHeight <= 0) return dataUrl;
     const img = new Image();
     img.src = dataUrl;
     await new Promise((resolve, reject) => {
@@ -164,8 +199,8 @@ const LocalRedrawTab: React.FC = () => {
     });
 
     const canvas = document.createElement('canvas');
-    canvas.width = imageSize.width;
-    canvas.height = imageSize.height;
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
     const ctx = canvas.getContext('2d');
     if (!ctx) return dataUrl;
     ctx.imageSmoothingEnabled = true;
@@ -174,7 +209,32 @@ const LocalRedrawTab: React.FC = () => {
     return canvas.toDataURL('image/png');
   };
 
-  const mergeSelectedRegion = async (baseImageUrl: string, generatedImage: string, rect: Rect): Promise<string> => {
+  const cropImageRegion = async (imageUrl: string, rect: Rect): Promise<string> => {
+    const safe = normalizeRect(rect);
+    const w = Math.max(1, Math.round(safe.width));
+    const h = Math.max(1, Math.round(safe.height));
+    const x = Math.max(0, Math.round(safe.x));
+    const y = Math.max(0, Math.round(safe.y));
+
+    const img = new Image();
+    img.src = imageUrl;
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return imageUrl;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
+    return canvas.toDataURL('image/png');
+  };
+
+  const mergeSelectedRegion = async (baseImageUrl: string, generatedImage: string, rect: Rect, blendPx = 16): Promise<string> => {
     const baseImg = new Image();
     const genImg = new Image();
     baseImg.src = baseImageUrl;
@@ -220,21 +280,64 @@ const LocalRedrawTab: React.FC = () => {
     const startY = clamp(Math.round(safe.y), 0, imageSize.height);
     const endX = clamp(Math.round(safe.x + safe.width), 0, imageSize.width);
     const endY = clamp(Math.round(safe.y + safe.height), 0, imageSize.height);
+    const regionMinSide = Math.max(1, Math.min(endX - startX, endY - startY));
+    const adaptiveBlendPx = Math.max(blendPx, Math.round(regionMinSide * 0.18));
 
     for (let py = startY; py < endY; py += 1) {
       for (let px = startX; px < endX; px += 1) {
         const idx = (py * imageSize.width + px) * 4;
         const protectedAlpha = maskData ? maskData.data[idx + 3] : 0;
         if (protectedAlpha > 0) continue;
-        baseData.data[idx] = genData.data[idx];
-        baseData.data[idx + 1] = genData.data[idx + 1];
-        baseData.data[idx + 2] = genData.data[idx + 2];
-        baseData.data[idx + 3] = genData.data[idx + 3];
+        const distLeft = px - startX;
+        const distRight = endX - 1 - px;
+        const distTop = py - startY;
+        const distBottom = endY - 1 - py;
+        const minEdgeDist = Math.min(distLeft, distRight, distTop, distBottom);
+        const edgeT = adaptiveBlendPx > 0 ? clamp(minEdgeDist / adaptiveBlendPx, 0, 1) : 1;
+        const blendFactor = edgeT * edgeT * (3 - 2 * edgeT);
+
+        baseData.data[idx] = Math.round(baseData.data[idx] * (1 - blendFactor) + genData.data[idx] * blendFactor);
+        baseData.data[idx + 1] = Math.round(baseData.data[idx + 1] * (1 - blendFactor) + genData.data[idx + 1] * blendFactor);
+        baseData.data[idx + 2] = Math.round(baseData.data[idx + 2] * (1 - blendFactor) + genData.data[idx + 2] * blendFactor);
+        baseData.data[idx + 3] = Math.round(baseData.data[idx + 3] * (1 - blendFactor) + genData.data[idx + 3] * blendFactor);
       }
     }
 
     ctx.putImageData(baseData, 0, 0);
     return canvas.toDataURL('image/png');
+  };
+
+  const mergeGeneratedPatch = async (baseImageUrl: string, generatedPatch: string, rect: Rect, blendPx = 16): Promise<string> => {
+    const safe = normalizeRect(rect);
+    const normalizedPatch = await normalizeToSize(generatedPatch, Math.max(1, Math.round(safe.width)), Math.max(1, Math.round(safe.height)));
+
+    const patchCanvas = document.createElement('canvas');
+    patchCanvas.width = imageSize.width;
+    patchCanvas.height = imageSize.height;
+    const patchCtx = patchCanvas.getContext('2d');
+    if (!patchCtx) return baseImageUrl;
+
+    const patchImg = new Image();
+    patchImg.src = normalizedPatch;
+    await new Promise((resolve, reject) => {
+      patchImg.onload = resolve;
+      patchImg.onerror = reject;
+    });
+
+    patchCtx.drawImage(
+      patchImg,
+      0,
+      0,
+      patchImg.width,
+      patchImg.height,
+      Math.round(safe.x),
+      Math.round(safe.y),
+      Math.round(safe.width),
+      Math.round(safe.height)
+    );
+
+    const fullPatch = patchCanvas.toDataURL('image/png');
+    return mergeSelectedRegion(baseImageUrl, fullPatch, safe, blendPx);
   };
 
   const drawMaskStroke = (from: { x: number; y: number }, to: { x: number; y: number }) => {
@@ -304,7 +407,7 @@ const LocalRedrawTab: React.FC = () => {
     if (!workingImage) return;
     const apiKeyState = loadGeminiApiKey();
     if (!apiKeyState?.key) {
-      setErrorMessage(t('generator.apiKey.invalid', { defaultValue: '請先設定 API Key' }));
+      setErrorMessage(t('generator.apiKey.invalid', { defaultValue: '請先設定有效的 API Key。' }));
       return;
     }
     if (!selectionRect || Math.abs(selectionRect.width) < 8 || Math.abs(selectionRect.height) < 8) {
@@ -314,15 +417,30 @@ const LocalRedrawTab: React.FC = () => {
 
     setIsGenerating(true);
     setErrorMessage('');
-    const safe = normalizeRect(selectionRect);
-    const rectInfo = `Selected region: x=${Math.round(safe.x)}, y=${Math.round(safe.y)}, w=${Math.round(safe.width)}, h=${Math.round(safe.height)}.`;
+    const selected = normalizeRect(selectionRect);
+    const expanded = autoExpandSelection
+      ? expandRect(selected, 0.2, imageSize.width, imageSize.height)
+      : selected;
+    const selectedInPatch = {
+      x: Math.round(selected.x - expanded.x),
+      y: Math.round(selected.y - expanded.y),
+      width: Math.round(selected.width),
+      height: Math.round(selected.height)
+    };
+    const patchAspect = toAspectRatio(Math.round(expanded.width), Math.round(expanded.height));
+    const patchInput = await cropImageRegion(workingImage, expanded);
+    const rectInfo = `Primary edit zone in this patch: x=${selectedInPatch.x}, y=${selectedInPatch.y}, w=${selectedInPatch.width}, h=${selectedInPatch.height}.`;
 
     try {
       const instruction = [
-        'You are editing an existing image.',
-        'Change ONLY the selected region while preserving the rest of the image.',
-        'Blend naturally with surrounding pixels.',
+        'You are editing a cropped patch from a larger image.',
+        'Preserve original context and texture continuity near patch borders.',
+        'Main changes should happen inside the primary edit zone.',
         'No text, no watermark.',
+        'Any newly added subject must be fully visible and fully contained inside the primary edit zone.',
+        'Do not crop new subjects. Do not place important parts touching region borders.',
+        'Keep at least ~8% visual margin from each side of the primary edit zone for newly added subjects.',
+        'If adding an object, generate the complete object (not partial body parts).',
         rectInfo,
         prompt?.trim() ? `Edit request: ${prompt.trim()}` : 'Edit request: improve visual details in this selected region.'
       ].join('\n');
@@ -330,13 +448,12 @@ const LocalRedrawTab: React.FC = () => {
       const generated = await generateImage(
         apiKeyState.key,
         instruction,
-        workingImage,
-        aspectRatio,
+        patchInput,
+        patchAspect,
         'gemini-3-pro-image-preview',
         quality
       );
-      const normalized = await normalizeToCanvasSize(generated);
-      const merged = await mergeSelectedRegion(workingImage, normalized, safe);
+      const merged = await mergeGeneratedPatch(workingImage, generated, expanded, autoExpandSelection ? 24 : 12);
       setWorkingImage(merged);
 
       try {
@@ -355,6 +472,23 @@ const LocalRedrawTab: React.FC = () => {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleOptimizePrompt = () => {
+    const base = prompt.trim() || 'Add one small cat';
+    const optimized = [
+      base,
+      'The new subject must be fully inside the selected region and not cross the border.',
+      'Do not crop the subject. Match lighting and color tone with the original image.',
+      'Blend edges naturally and avoid obvious seam artifacts.'
+    ].join(' ');
+    setPrompt(optimized);
+  };
+
+  const handleApplyRemoveObjectPrompt = () => {
+    setPrompt(
+      '移除框內主要內容（可為文字、標記或物件），以周圍場景自動補齊背景，保持原圖光線、色調、透視與材質一致，邊緣自然融合且無明顯修補痕跡。'
+    );
   };
 
   const handleDownload = async () => {
@@ -459,9 +593,40 @@ const LocalRedrawTab: React.FC = () => {
                 </label>
               )}
 
-              <label className="text-xs block">
+                            <label className="text-xs block">
                 <div className="mb-1 text-bronze-light">{t('editor.outpaint.localPrompt', { defaultValue: '局部重生成提示詞' })}</div>
-                <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={2} className="w-full rounded-lg border border-cream-dark px-3 py-2 text-sm" placeholder={t('editor.outpaint.localPromptHint', { defaultValue: '例如：把此區改為夕陽雲彩、保留人物主體' })} />
+                <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={2} className="w-full rounded-lg border border-cream-dark px-3 py-2 text-sm" placeholder={t('editor.outpaint.localPromptHint', { defaultValue: '例如：在框內加入一隻完整小貓，光線一致，邊緣自然融合' })} />
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={handleOptimizePrompt}
+                    className="rounded-lg border border-cream-dark bg-white hover:bg-cream-light px-3 py-1.5 text-xs font-bold text-bronze-text inline-flex items-center justify-center gap-1"
+                  >
+                    <Sparkles size={12} />
+                    {t('editor.localRedraw.optimizePrompt', { defaultValue: '優化提示詞' })}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleApplyRemoveObjectPrompt}
+                    className="rounded-lg border border-cream-dark bg-white hover:bg-cream-light px-3 py-1.5 text-xs font-bold text-bronze-text inline-flex items-center justify-center gap-1"
+                  >
+                    <Sparkles size={12} />
+                    {t('editor.localRedraw.removeObjectTemplate', { defaultValue: '去除內容（自動補背景）' })}
+                  </button>
+                </div>
+                <p className="mt-1 text-[11px] text-bronze-light">
+                  {t('editor.localRedraw.promptTip', { defaultValue: '建議：框選範圍至少比目標物件大 1.3x，可降低裁切與接縫感。' })}
+                </p>
+              </label>
+
+              <label className="flex items-center gap-2 text-xs text-bronze-text">
+                <input
+                  type="checkbox"
+                  checked={autoExpandSelection}
+                  onChange={(e) => setAutoExpandSelection(e.target.checked)}
+                  className="accent-primary"
+                />
+                {t('editor.localRedraw.autoExpand', { defaultValue: '自動擴框 20%（減少邊界接縫）' })}
               </label>
 
               <div className="grid grid-cols-2 gap-2">
@@ -509,7 +674,7 @@ const LocalRedrawTab: React.FC = () => {
       </div>
 
       <div className="lg:col-span-2 min-h-0 overflow-auto rounded-2xl border border-cream-dark bg-slate-100/50 p-4 md:p-5 flex items-center justify-center">
-        {!workingImage && <div className="text-sm text-slate-500">{t('editor.localRedraw.empty', { defaultValue: '請先上傳圖片，開始局部重繪。' })}</div>}
+        {!workingImage && <div className="text-sm text-slate-500">{t('editor.localRedraw.empty', { defaultValue: '請先上傳圖片或從作品集選取，開始局部重繪。' })}</div>}
 
         {!!workingImage && (
           <div
@@ -525,8 +690,8 @@ const LocalRedrawTab: React.FC = () => {
             <img src={workingImage} alt="local-redraw-result" className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute left-2 top-2 px-2 py-1 rounded bg-black/45 text-white text-[11px] pointer-events-none">
               {editTool === 'protect'
-                ? t('editor.outpaint.protecting', { defaultValue: '保護筆刷模式：塗紅區將不被覆蓋' })
-                : t('editor.outpaint.selecting', { defaultValue: '框選模式：拖拉畫布選範圍' })}
+                ? t('editor.outpaint.protecting', { defaultValue: '筆刷模式：塗抹可保護區域' })
+                : t('editor.outpaint.selecting', { defaultValue: '框選模式：拖曳建立重繪範圍' })}
             </div>
             <canvas ref={maskPreviewRef} className="absolute inset-0 w-full h-full pointer-events-none" />
             {safeSelection && safeSelection.width > 0 && safeSelection.height > 0 && (
@@ -550,4 +715,5 @@ const LocalRedrawTab: React.FC = () => {
 };
 
 export default LocalRedrawTab;
+
 
