@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, Eraser, FolderOpen, Loader2, RefreshCw, SquareDashed, Upload, Wand2 } from 'lucide-react';
+import { Download, FolderOpen, Loader2, RefreshCw, Upload } from 'lucide-react';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { loadGeminiApiKey } from '../../../shared/geminiApiKey';
 import { generateImage } from '../../Generator/services/geminiService';
@@ -82,6 +82,7 @@ const OutpaintTab: React.FC = () => {
   const [scale, setScale] = useState(100);
   const [prompt, setPrompt] = useState('');
   const [resultImage, setResultImage] = useState<string | null>(null);
+  const [baseResultImage, setBaseResultImage] = useState<string | null>(null);
   const [resultSize, setResultSize] = useState<{ width: number; height: number } | null>(null);
   const [modelRawSize, setModelRawSize] = useState<{ width: number; height: number } | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -107,10 +108,27 @@ const OutpaintTab: React.FC = () => {
 
   const clearGenerated = () => {
     setResultImage(null);
+    setBaseResultImage(null);
     setResultSize(null);
     setModelRawSize(null);
     setSelectionRect(null);
     clearProtectMask();
+  };
+
+  const handleResetImage = () => {
+    setSourceImage(null);
+    setSourceSize({ width: 0, height: 0 });
+    setX(0);
+    setY(0);
+    setScale(100);
+    setPrompt('');
+    setLocalPrompt('');
+    setErrorMessage('');
+    setEditTool('select');
+    clearGenerated();
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const redrawMaskPreview = () => {
@@ -326,8 +344,21 @@ const OutpaintTab: React.FC = () => {
       setModelRawSize(rawSize);
       setResultSize(finalSize);
       setResultImage(normalized);
+      setBaseResultImage(normalized);
       setSelectionRect(null);
       clearProtectMask();
+
+      // Auto-import generated result to gallery to avoid accidental loss.
+      try {
+        await saveStickerToDB({
+          id: crypto.randomUUID(),
+          imageUrl: normalized,
+          timestamp: Date.now(),
+          phrase: prompt?.trim() ? `AI Expand: ${prompt.trim().slice(0, 80)}` : 'AI Expand Background'
+        });
+      } catch (error) {
+        console.error('Auto-save after outpaint generation failed', error);
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Generate failed';
       setErrorMessage(message);
@@ -445,6 +476,7 @@ const OutpaintTab: React.FC = () => {
       return;
     }
 
+    const originalForEdit = baseResultImage || resultImage;
     setIsLocalGenerating(true);
     setErrorMessage('');
     const safe = normalizeRect(selectionRect);
@@ -463,14 +495,14 @@ const OutpaintTab: React.FC = () => {
       const generated = await generateImage(
         apiKeyState.key,
         instruction,
-        resultImage,
+        originalForEdit,
         aspectRatio,
         'gemini-3-pro-image-preview',
         quality
       );
 
       const normalized = await normalizeToOutputSize(generated);
-      const merged = await mergeSelectedRegion(resultImage, normalized, safe);
+      const merged = await mergeSelectedRegion(originalForEdit, normalized, safe);
       const finalSize = await getImageDimensions(merged);
       setResultImage(merged);
       setResultSize(finalSize);
@@ -610,6 +642,14 @@ const OutpaintTab: React.FC = () => {
         {sourceImage && (
           <>
             <div className="text-xs text-bronze-light">{t('editor.outpaint.source', { defaultValue: '來源尺寸' })}: {sourceSize.width} x {sourceSize.height}</div>
+            <button
+              type="button"
+              onClick={handleResetImage}
+              className="w-full rounded-lg border border-cream-dark bg-white hover:bg-cream-light px-3 py-2 text-xs font-bold text-bronze-text inline-flex items-center justify-center gap-2"
+            >
+              <RefreshCw size={14} />
+              {t('common.reset', { defaultValue: '重置圖片' })}
+            </button>
 
             <div className="space-y-2">
               <label className="text-xs font-bold text-bronze-light uppercase">{t('editor.outpaint.canvas', { defaultValue: '輸出比例' })}</label>
@@ -794,70 +834,11 @@ const OutpaintTab: React.FC = () => {
               </>
             )}
 
-            {sourceImage && (
-              <div className="space-y-2 rounded-xl border border-cream-dark bg-cream-light p-3">
-                <label className="text-xs font-bold text-bronze-light uppercase">{t('editor.outpaint.localEdit', { defaultValue: '局部改圖' })}</label>
-                {!resultImage && (
-                  <p className="text-[11px] text-bronze-light">
-                    {t('editor.outpaint.localEditNeedResult', { defaultValue: '先完成一次生成後，即可使用保護筆刷與框選局部重生成。' })}
-                  </p>
-                )}
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditTool('select')}
-                    disabled={!resultImage}
-                    className={`rounded-lg border px-3 py-2 text-xs font-bold flex items-center justify-center gap-1 disabled:opacity-50 ${editTool === 'select' ? 'bg-primary text-white border-primary' : 'bg-white text-bronze-text border-cream-dark'}`}
-                  >
-                    <SquareDashed size={14} />
-                    {t('editor.outpaint.selectArea', { defaultValue: '框選區域' })}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditTool('protect')}
-                    disabled={!resultImage}
-                    className={`rounded-lg border px-3 py-2 text-xs font-bold flex items-center justify-center gap-1 disabled:opacity-50 ${editTool === 'protect' ? 'bg-primary text-white border-primary' : 'bg-white text-bronze-text border-cream-dark'}`}
-                  >
-                    <Eraser size={14} />
-                    {t('editor.outpaint.protectBrush', { defaultValue: '保護筆刷' })}
-                  </button>
-                </div>
-
-                {editTool === 'protect' && (
-                  <label className="text-xs block">
-                    <div className="mb-1 text-bronze-light">{t('editor.outpaint.brushSize', { defaultValue: '筆刷大小' })}: {protectBrushSize}px</div>
-                    <input type="range" min={8} max={96} value={protectBrushSize} onChange={(e) => setProtectBrushSize(Number(e.target.value))} className="w-full" />
-                  </label>
-                )}
-
-                <label className="text-xs block">
-                  <div className="mb-1 text-bronze-light">{t('editor.outpaint.localPrompt', { defaultValue: '局部重生成提示詞' })}</div>
-                  <textarea value={localPrompt} onChange={(e) => setLocalPrompt(e.target.value)} rows={2} className="w-full rounded-lg border border-cream-dark px-3 py-2 text-sm" placeholder={t('editor.outpaint.localPromptHint', { defaultValue: '例如：把此區改為夕陽雲彩、保留人物主體' })} />
-                </label>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <button type="button" onClick={() => setSelectionRect(null)} disabled={!resultImage} className="rounded-lg border border-cream-dark bg-white hover:bg-cream-light px-3 py-2 text-xs font-bold text-bronze-text disabled:opacity-50">
-                    {t('editor.outpaint.clearSelection', { defaultValue: '清除框選' })}
-                  </button>
-                  <button type="button" onClick={clearProtectMask} disabled={!resultImage} className="rounded-lg border border-cream-dark bg-white hover:bg-cream-light px-3 py-2 text-xs font-bold text-bronze-text disabled:opacity-50">
-                    {t('editor.outpaint.clearMask', { defaultValue: '清除保護' })}
-                  </button>
-                </div>
-              </div>
-            )}
-
             <div className="grid grid-cols-1 gap-2">
               {!resultImage && (
                 <button onClick={handleGenerate} disabled={isGenerating} className="w-full rounded-xl bg-primary hover:bg-primary-hover text-white font-bold px-4 py-2.5 flex items-center justify-center gap-2 disabled:opacity-60">
                   {isGenerating ? <Loader2 size={16} className="animate-spin" /> : null}
                   {isGenerating ? t('generator.action.generating', { defaultValue: '生成中...' }) : t('generator.action.generate', { defaultValue: '生成' })}
-                </button>
-              )}
-
-              {resultImage && (
-                <button onClick={handleLocalRegenerate} disabled={isLocalGenerating} className="w-full rounded-xl bg-primary hover:bg-primary-hover text-white font-bold px-4 py-2.5 flex items-center justify-center gap-2 disabled:opacity-60">
-                  {isLocalGenerating ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
-                  {isLocalGenerating ? t('generator.action.generating', { defaultValue: '生成中...' }) : t('editor.outpaint.localRegenerate', { defaultValue: '局部重生成' })}
                 </button>
               )}
 
@@ -922,30 +903,8 @@ const OutpaintTab: React.FC = () => {
             ref={stageRef}
             className="relative w-full max-w-[920px] max-h-[70vh] rounded-lg shadow-lg overflow-hidden border border-slate-300 bg-white touch-none select-none"
             style={{ aspectRatio: `${outputSize.width} / ${outputSize.height}` }}
-            onPointerDown={handleResultPointerDown}
-            onPointerMove={handleResultPointerMove}
-            onPointerUp={handleResultPointerUp}
-            onPointerCancel={handleResultPointerUp}
-            onPointerLeave={handleResultPointerUp}
           >
             <img src={resultImage} alt="outpaint-result" className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute left-2 top-2 px-2 py-1 rounded bg-black/45 text-white text-[11px] pointer-events-none">
-              {editTool === 'protect'
-                ? t('editor.outpaint.protecting', { defaultValue: '保護筆刷模式：塗紅區將不被覆蓋' })
-                : t('editor.outpaint.selecting', { defaultValue: '框選模式：拖拉畫布選範圍' })}
-            </div>
-            <canvas ref={maskPreviewRef} className="absolute inset-0 w-full h-full pointer-events-none" />
-            {safeSelection && safeSelection.width > 0 && safeSelection.height > 0 && (
-              <div
-                className="absolute border-2 border-primary bg-primary/10 pointer-events-none"
-                style={{
-                  left: `${(safeSelection.x / outputSize.width) * 100}%`,
-                  top: `${(safeSelection.y / outputSize.height) * 100}%`,
-                  width: `${(safeSelection.width / outputSize.width) * 100}%`,
-                  height: `${(safeSelection.height / outputSize.height) * 100}%`
-                }}
-              />
-            )}
           </div>
         )}
       </div>
