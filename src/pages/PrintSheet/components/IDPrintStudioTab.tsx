@@ -1,6 +1,6 @@
 import React, { useState, useRef, DragEvent, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { Upload, Layout, Trash2, Plus, Edit2, Copy, Grid, FolderHeart, CheckCircle2, AlertTriangle, XCircle, Info } from 'lucide-react';
 import { AppConfig, DEFAULT_CONFIG, PhotoAsset, PhotoSize, PaperSize } from '../types/idPrint';
 import { PHOTO_DIMENSIONS_MM, PAPER_DIMENSIONS } from '../utils/IDPrint/constants';
@@ -39,6 +39,7 @@ const colorDistance = (a: [number, number, number], b: [number, number, number])
 
 const IDPrintStudioTab: React.FC = () => {
     const { t } = useTranslation();
+    const location = useLocation();
 
     // State
     const [assets, setAssets] = useState<PhotoAsset[]>([]);
@@ -54,18 +55,22 @@ const IDPrintStudioTab: React.FC = () => {
     // 自動載入來自 HeadshotGeneratorTab 的圖片
     useEffect(() => {
         const autoLoad = searchParams.get('autoLoad');
-        if (autoLoad === 'true') {
-            const headshotImage = localStorage.getItem('headshot_to_print');
-            if (headshotImage) {
-                // 載入圖片到裁剪器
-                setCropSession({ sourceUrl: headshotImage });
-                // 清除 localStorage 和 URL 參數
+        if (autoLoad !== 'true') return;
+
+        const stateImage = (location.state as { headshotToPrint?: string } | null)?.headshotToPrint;
+        const cachedImage = localStorage.getItem('headshot_to_print');
+        const headshotImage = stateImage || cachedImage;
+        if (headshotImage) {
+            setCropSession({ sourceUrl: headshotImage });
+            if (cachedImage) {
                 localStorage.removeItem('headshot_to_print');
-                searchParams.delete('autoLoad');
-                setSearchParams(searchParams);
             }
         }
-    }, [searchParams, setSearchParams]);
+
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.delete('autoLoad');
+        setSearchParams(nextParams, { replace: true });
+    }, [location.state, searchParams, setSearchParams]);
 
     useEffect(() => {
         if (assets.length === 0) {

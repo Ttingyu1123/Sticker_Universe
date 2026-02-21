@@ -140,6 +140,7 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({ apiKey, onError
     const [userImage, setUserImage] = useState<string | null>(null);
     const [secondUserImage, setSecondUserImage] = useState<string | null>(null);
     const [role, setRole] = useState<"male" | "female">("male");
+    const [secondRole, setSecondRole] = useState<"male" | "female">("female");
     const [dramaStyle, setDramaStyle] = useState('k-drama');
     const [userName, setUserName] = useState("");
     const [firstCharacterName, setFirstCharacterName] = useState("");
@@ -218,7 +219,8 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({ apiKey, onError
         firstLeadActor: string,
         firstLeadCharacter: string,
         secondLeadActor: string,
-        secondLeadCharacter: string
+        secondLeadCharacter: string,
+        secondLeadRole: "male" | "female"
     ) => {
         if (!apiKey) {
             onNeedApiKey();
@@ -234,7 +236,7 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({ apiKey, onError
         const prompt = `Generate a catchy title and a short plot summary for a new ${styleConfig.prompt} poster. 
         Cast: 
         - Lead 1 Actor: "${firstLeadActor}" (playing character "${firstLeadCharacter}", ${role === 'male' ? 'Male Lead' : 'Female Lead'}).
-        - Lead 2 Actor: "${secondLeadActor}" (playing character "${secondLeadCharacter}").
+        - Lead 2 Actor: "${secondLeadActor}" (playing character "${secondLeadCharacter}", ${secondLeadRole === 'male' ? 'Male Lead' : 'Female Lead'}).
         
         Target Language for Plot: Traditional Chinese (zh-TW).
         Specific Genre: ${genre}.
@@ -344,7 +346,7 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({ apiKey, onError
 
         try {
             const styleKey = dramaStyle;
-            const actorList = role === 'male' ? ACTOR_DB[styleKey].women : ACTOR_DB[styleKey].men;
+            const actorList = secondRole === 'male' ? ACTOR_DB[styleKey].men : ACTOR_DB[styleKey].women;
             const partner = actorList[Math.floor(Math.random() * actorList.length)];
             const firstLeadActor = userName || "The User";
             const firstLeadCharacter = firstCharacterName || firstLeadActor;
@@ -357,7 +359,8 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({ apiKey, onError
                 firstLeadActor,
                 firstLeadCharacter,
                 secondLeadActor,
-                secondLeadCharacter
+                secondLeadCharacter,
+                secondRole
             );
 
             // 2. Generate Image
@@ -571,29 +574,28 @@ ${generatedResult.plot}
                             </div>
                         </div>
 
-                        <div className="flex bg-white rounded-2xl border border-cream-dark p-1">
-                            <button onClick={() => setRole('male')} className={`flex-1 py-2 rounded-xl font-bold text-xs transition-all ${role === 'male' ? 'bg-secondary text-bronze shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>
-                                男主角
-                            </button>
-                            <button onClick={() => setRole('female')} className={`flex-1 py-2 rounded-xl font-bold text-xs transition-all ${role === 'female' ? 'bg-primary text-white shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>
-                                女主角
-                            </button>
-                        </div>
-
-                        <div>
-                            <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">
-                                {t('generator.cinematic.firstLeadActor', { defaultValue: '第一主角演員藝名' })}
-                            </label>
-                            <input
-                                type="text"
-                                value={userName}
-                                onChange={(e) => setUserName(e.target.value)}
-                                placeholder={t('generator.cinematic.firstLeadActorPlaceholder', { defaultValue: '例如：白川澤' })}
-                                className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text placeholder-bronze-light/50"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div className="space-y-3 rounded-2xl border border-cream-dark/70 bg-white/40 p-3">
+                            <label className="text-xs font-bold text-bronze-light ml-1 block">第一主角定位</label>
+                            <div className="flex bg-white rounded-xl border border-cream-dark p-1">
+                                <button type="button" onClick={() => setRole('male')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${role === 'male' ? 'bg-secondary text-bronze shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>
+                                    男主角
+                                </button>
+                                <button type="button" onClick={() => setRole('female')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${role === 'female' ? 'bg-primary text-white shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>
+                                    女主角
+                                </button>
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">
+                                    {t('generator.cinematic.firstLeadActor', { defaultValue: '第一主角演員藝名' })}
+                                </label>
+                                <input
+                                    type="text"
+                                    value={userName}
+                                    onChange={(e) => setUserName(e.target.value)}
+                                    placeholder={t('generator.cinematic.firstLeadActorPlaceholder', { defaultValue: '例如：白川澤' })}
+                                    className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text placeholder-bronze-light/50"
+                                />
+                            </div>
                             <div>
                                 <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">
                                     {t('generator.cinematic.firstLeadCharacter', { defaultValue: '第一主角角色名' })}
@@ -605,6 +607,26 @@ ${generatedResult.plot}
                                     placeholder={t('generator.cinematic.firstLeadCharacterPlaceholder', { defaultValue: '例如：沈知夏' })}
                                     className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text placeholder-bronze-light/50"
                                 />
+                            </div>
+                        </div>
+
+                        <div className="space-y-3 rounded-2xl border border-cream-dark/70 bg-white/40 p-3">
+                            <label className="text-xs font-bold text-bronze-light ml-1 block">第二主角定位</label>
+                            <div className="flex bg-white rounded-xl border border-cream-dark p-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setSecondRole('male')}
+                                    className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${secondRole === 'male' ? 'bg-secondary text-bronze shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}
+                                >
+                                    男主角
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setSecondRole('female')}
+                                    className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${secondRole === 'female' ? 'bg-primary text-white shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}
+                                >
+                                    女主角
+                                </button>
                             </div>
                             <div>
                                 <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">
@@ -618,19 +640,18 @@ ${generatedResult.plot}
                                     className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text placeholder-bronze-light/50"
                                 />
                             </div>
-                        </div>
-
-                        <div>
-                            <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">
-                                {t('generator.cinematic.secondLeadCharacter', { defaultValue: '第二主角角色名' })}
-                            </label>
-                            <input
-                                type="text"
-                                value={secondCharacterName}
-                                onChange={(e) => setSecondCharacterName(e.target.value)}
-                                placeholder={t('generator.cinematic.secondLeadCharacterPlaceholder', { defaultValue: '例如：程亦凡' })}
-                                className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text placeholder-bronze-light/50"
-                            />
+                            <div>
+                                <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">
+                                    {t('generator.cinematic.secondLeadCharacter', { defaultValue: '第二主角角色名' })}
+                                </label>
+                                <input
+                                    type="text"
+                                    value={secondCharacterName}
+                                    onChange={(e) => setSecondCharacterName(e.target.value)}
+                                    placeholder={t('generator.cinematic.secondLeadCharacterPlaceholder', { defaultValue: '例如：程亦凡' })}
+                                    className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text placeholder-bronze-light/50"
+                                />
+                            </div>
                         </div>
 
                         <div>

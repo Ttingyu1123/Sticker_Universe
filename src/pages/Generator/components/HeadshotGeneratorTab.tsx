@@ -433,10 +433,15 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
     };
 
     const handleSendToPrint = (imageSrc: string) => {
-        // 將圖片存入 localStorage
-        localStorage.setItem('headshot_to_print', imageSrc);
-        // 導航到證件照列印頁面，帶上參數
-        navigate('/print-sheet?tab=id-print&autoLoad=true');
+        // Primary path: route state. Fallback path: localStorage.
+        try {
+            localStorage.setItem('headshot_to_print', imageSrc);
+        } catch (err) {
+            console.warn('Failed to cache headshot_to_print in localStorage, continue with route state.', err);
+        }
+        navigate('/print-sheet?tab=id-print&autoLoad=true', {
+            state: { headshotToPrint: imageSrc }
+        });
     };
 
     return (
