@@ -1,4 +1,4 @@
-import React, { useState, Suspense, useEffect } from 'react';
+﻿import React, { useState, Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Scissors, Image, Sparkles, Video, FileCode, Expand, Scan, Wand2 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
@@ -132,7 +132,7 @@ const ImageEditorApp: React.FC = () => {
                             {({ isSelected }) => (
                                 <>
                                     <Scan size={18} className={isSelected ? 'fill-white/20 text-white' : ''} />
-                                    {t('editor.tabs.outpaint', { defaultValue: 'AI 擴張圖片' })}
+                                    {t('editor.tabs.outpaint', { defaultValue: '魔法擴圖' })}
                                 </>
                             )}
                         </Tab>
@@ -149,7 +149,7 @@ const ImageEditorApp: React.FC = () => {
                             {({ isSelected }) => (
                                 <>
                                     <Wand2 size={18} className={isSelected ? 'fill-white/20 text-white' : ''} />
-                                    {t('editor.tabs.localRedraw', { defaultValue: '局部重繪工作室' })}
+                                    {t('editor.tabs.localRedraw', { defaultValue: '局部重繪' })}
                                 </>
                             )}
                         </Tab>
@@ -223,3 +223,4 @@ const ImageEditorApp: React.FC = () => {
 };
 
 export default ImageEditorApp;
+

@@ -344,7 +344,7 @@ const OutpaintTab: React.FC = () => {
   return (
     <div className="h-full min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 md:p-6 overflow-hidden">
       <div className="lg:col-span-1 min-h-0 rounded-2xl border border-cream-dark bg-white p-4 md:p-5 space-y-4 overflow-y-auto">
-        <h3 className="text-lg font-black text-bronze-text">{t('editor.outpaint.title', { defaultValue: 'AI 擴張圖片' })}</h3>
+        <h3 className="text-lg font-black text-bronze-text">{t('editor.outpaint.title', { defaultValue: '魔法擴圖' })}</h3>
 
         {!sourceImage && (
           <div className="space-y-3">
@@ -632,4 +632,3 @@ const OutpaintTab: React.FC = () => {
 };
 
 export default OutpaintTab;
-

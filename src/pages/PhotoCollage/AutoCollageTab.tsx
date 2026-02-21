@@ -510,7 +510,7 @@ export const AutoCollageTab: React.FC = () => {
 
 
             {/* Main Content (Canvas) - LEFT SIDE */}
-            <main className="w-full md:flex-1 flex flex-col relative border-b md:border-b-0 border-cream-dark mb-8 md:mb-0 min-h-0">
+            <main className="w-full md:flex-1 flex flex-col relative border-b md:border-b-0 border-cream-dark mb-2 md:mb-0 min-h-0">
 
                 {/* Toolbar (Zoom & Actions) */}
                 <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-start pointer-events-none">
@@ -553,7 +553,7 @@ export const AutoCollageTab: React.FC = () => {
 
                 {/* Canvas Area */}
                 <div
-                    className="bg-cream-light flex items-start justify-center overflow-auto p-4 pt-20 md:p-8 md:pt-16 min-h-[50vh] md:h-full"
+                    className="bg-cream-light flex items-start justify-center overflow-auto p-3 pt-20 pb-24 md:p-8 md:pt-16 md:pb-8 min-h-[50vh] md:h-full"
                     onDragOver={handleCanvasDragOver}
                     onDrop={handleCanvasDrop}
                 >
@@ -596,6 +596,37 @@ export const AutoCollageTab: React.FC = () => {
                         </div>
                     )}
                 </div>
+
+                {/* Mobile Quick Editor: keep image controls close to canvas */}
+                {selectedImage && (
+                    <div className="md:hidden absolute left-2 right-2 bottom-2 z-20 bg-white/95 backdrop-blur-md border border-cream-dark rounded-2xl shadow-xl p-3">
+                        <div className="flex justify-between items-center mb-2">
+                            <h3 className="text-[11px] font-black uppercase text-primary flex items-center gap-1"><Edit2 size={10} /> {t('collage.editImage')}</h3>
+                            <button onClick={() => setSelectedImageId(null)} className="text-bronze-light hover:text-bronze"><X size={12} /></button>
+                        </div>
+
+                        <div className="space-y-2.5">
+                            <div className="grid grid-cols-[auto_auto_1fr] items-center gap-2">
+                                <RotateCw size={13} className="text-bronze-light" />
+                                <span className="text-[10px] font-bold text-bronze-light min-w-[30px]">{t('collage.image.rotation')}</span>
+                                <input type="range" min="-180" max="180" value={selectedImage.rotation} onChange={e => updateImageProperty(selectedImage.id, { rotation: parseInt(e.target.value) })} className="flex-1 h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary" title={t('collage.image.rotation')} />
+                            </div>
+                            <div className="grid grid-cols-[auto_auto_1fr] items-center gap-2">
+                                <Scaling size={13} className="text-bronze-light" />
+                                <span className="text-[10px] font-bold text-bronze-light min-w-[30px]">{t('collage.image.scale')}</span>
+                                <input type="range" min="0.5" max="3" step="0.1" value={selectedImage.scale} onChange={e => updateImageProperty(selectedImage.id, { scale: parseFloat(e.target.value) })} className="flex-1 h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary" title={t('collage.image.scale')} />
+                            </div>
+                            <div className="grid grid-cols-[auto_auto_1fr] items-center gap-2">
+                                <Wand2 size={13} className="text-bronze-light" />
+                                <span className="text-[10px] font-bold text-bronze-light min-w-[30px]">{t('collage.image.effect')}</span>
+                                <input type="range" min="0" max="100" value={selectedImage.filterIntensity ?? 100} onChange={e => updateImageProperty(selectedImage.id, { filterIntensity: parseInt(e.target.value) })} className="flex-1 h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary" title={t('collage.image.effect')} />
+                            </div>
+                            <div className="flex justify-end">
+                                <button onClick={() => removeImage(selectedImage.id)} className="text-xs text-red-500 hover:underline font-bold">{t('collage.remove')}</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
 
             {/* Sidebar Controls - RIGHT SIDE */}
@@ -677,7 +708,7 @@ export const AutoCollageTab: React.FC = () => {
 
                 {/* Selected Image Editor */}
                 {selectedImage && (
-                    <div className="bg-primary/5 p-4 border-b border-primary/10 animate-in slide-in-from-right-4">
+                    <div className="hidden md:block bg-primary/5 p-4 border-b border-primary/10 animate-in slide-in-from-right-4">
                         <div className="flex justify-between items-center mb-2">
                             <h3 className="text-xs font-black uppercase text-primary flex items-center gap-1"><Edit2 size={10} /> {t('collage.editImage')}</h3>
                             <button onClick={() => setSelectedImageId(null)} className="text-bronze-light hover:text-bronze"><X size={12} /></button>
