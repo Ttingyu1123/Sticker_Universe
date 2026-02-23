@@ -1,109 +1,19 @@
 ﻿
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowDown, ArrowUp, Brush, Copy, Download, Eraser, Eye, EyeOff, Layers, Lock, Move3D, Pipette, Plus, Redo2, Save, Trash2, Undo2, Unlock, Upload } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { saveStickerToDB } from '../../db';
+import { useBrushPresets } from './hooks/useBrushPresets';
+import { CanvasToolbar } from './components/CanvasToolbar';
+import { BrushSettingsPanel } from './components/BrushSettingsPanel';
+import { LayerPanel } from './components/LayerPanel';
+import type { BrushType, BlendMode, InteractionMode, VectorStroke, LayerMeta, Point, LayerImageObject, Snapshot, SelectionRect, TransformRect, BrushPreset } from './types';
 
-type BrushType = 'pen' | 'pencil' | 'marker' | 'airbrush' | 'eraser';
-type BlendMode = GlobalCompositeOperation;
-type InteractionMode = 'draw' | 'transform' | 'select';
-
-interface VectorPoint {
-  x: number;
-  y: number;
-  pressure: number;
-}
-
-interface VectorStroke {
-  brushType: Exclude<BrushType, 'eraser'>;
-  brushColor: string;
-  brushSize: number;
-  brushOpacity: number;
-  points: VectorPoint[];
-}
-
-interface LayerMeta {
-  id: string;
-  name: string;
-  visible: boolean;
-  locked: boolean;
-  opacity: number;
-  blendMode: BlendMode;
-  maskEnabled: boolean;
-  fillColor?: string;
-  fillX?: number;
-  fillY?: number;
-  fillWidth?: number;
-  fillHeight?: number;
-}
-interface Point { x: number; y: number; pressure: number; }
-interface LayerImageObject {
-  dataUrl: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  bgColor?: string;
-  sourceWidth?: number;
-  sourceHeight?: number;
-}
-interface Snapshot {
-  layers: Record<string, string>;
-  layerImages: Record<string, LayerImageObject | null>;
-  masks: Record<string, string>;
-  imageMasks: Record<string, string | null>;
-  fillMasks: Record<string, string | null>;
-  vectorStrokes: Record<string, VectorStroke[]>;
-  selection: SelectionRect | null;
-}
-
-interface SelectionRect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-interface TransformRect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-interface BrushPreset {
-  id: string; name: string; brushType: BrushType; brushColor: string; brushSize: number; brushOpacity: number;
-  pressureEnabled: boolean; pressureCurve: number; smoothing: number; spacing: number;
-}
-
-const CANVAS_PRESETS = [
-  { label: '1024 x 1024', width: 1024, height: 1024 },
-  { label: '1200 x 1200', width: 1200, height: 1200 },
-  { label: '1200 x 1600', width: 1200, height: 1600 },
-  { label: '1600 x 1200', width: 1600, height: 1200 },
-  { label: '1920 x 1080', width: 1920, height: 1080 },
-];
-const BRUSH_PRESETS: { id: BrushType; size: number; opacity: number }[] = [
-  { id: 'pen', size: 6, opacity: 1 },
-  { id: 'pencil', size: 4, opacity: 0.7 },
-  { id: 'marker', size: 18, opacity: 0.35 },
-  { id: 'airbrush', size: 22, opacity: 0.2 },
-  { id: 'eraser', size: 24, opacity: 1 },
-];
-const BLENDS: { value: BlendMode; key: string; fallback: string }[] = [
-  { value: 'source-over', key: 'sourceOver', fallback: 'Normal' },
-  { value: 'multiply', key: 'multiply', fallback: 'Multiply' },
-  { value: 'screen', key: 'screen', fallback: 'Screen' },
-  { value: 'overlay', key: 'overlay', fallback: 'Overlay' },
-  { value: 'darken', key: 'darken', fallback: 'Darken' },
-  { value: 'lighten', key: 'lighten', fallback: 'Lighten' },
-];
 const MAX_HISTORY = 25;
 const MAX_LAYERS = 30;
-const PRESET_KEY = 'drawing-studio-brush-presets-v1';
 const HANDLE_SIZE = 18;
 const makeLayerId = () => `layer-${Math.random().toString(36).slice(2, 10)}`;
-const makePresetId = () => `preset-${Math.random().toString(36).slice(2, 10)}`;
 
 const loadImage = (dataUrl: string) => new Promise<HTMLImageElement>((resolve, reject) => {
   const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = dataUrl;
@@ -125,7 +35,6 @@ export const DrawingStudioApp: React.FC = () => {
 
   const [brushType, setBrushType] = useState<BrushType>('pen');
   const [brushColor, setBrushColor] = useState('#111111');
-  const [hexCopied, setHexCopied] = useState(false);
   const [brushSize, setBrushSize] = useState(6);
   const [brushOpacity, setBrushOpacity] = useState(1);
   const [pressureEnabled, setPressureEnabled] = useState(true);
@@ -138,7 +47,6 @@ export const DrawingStudioApp: React.FC = () => {
   const [vectorStabilizer, setVectorStabilizer] = useState(55);
   const [maskPaintMode, setMaskPaintMode] = useState(false);
   const [hoverCursor, setHoverCursor] = useState<'default' | 'move' | 'nwse-resize' | 'crosshair'>('default');
-  const [customPresets, setCustomPresets] = useState<BrushPreset[]>([]);
   const [showGalleryPicker, setShowGalleryPicker] = useState(false);
   const [fitCanvasToImport, setFitCanvasToImport] = useState(false);
   const [selectionRect, setSelectionRect] = useState<SelectionRect | null>(null);
@@ -150,6 +58,16 @@ export const DrawingStudioApp: React.FC = () => {
 
   const [history, setHistory] = useState<Snapshot[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+
+  const {
+    customPresets, hexCopied,
+    saveBrushPreset, applyBrushPreset, removeBrushPreset, copyBrushHex,
+  } = useBrushPresets({
+    brushType, brushColor, brushSize, brushOpacity,
+    pressureEnabled, pressureCurve, smoothing, spacing,
+    setBrushType, setBrushColor, setBrushSize, setBrushOpacity,
+    setPressureEnabled, setPressureCurve, setSmoothing, setSpacing,
+  });
 
   const displayRef = useRef<HTMLCanvasElement>(null);
   const layerCanvasesRef = useRef<Record<string, HTMLCanvasElement>>({});
@@ -188,9 +106,6 @@ export const DrawingStudioApp: React.FC = () => {
   const activeLayerHasFill = !!(activeLayer && activeLayer.fillColor && activeLayer.fillColor !== 'transparent');
 
   useEffect(() => { if (!activeLayerId && layers[0]) setActiveLayerId(layers[0].id); }, [activeLayerId, layers]);
-  useEffect(() => {
-    try { const raw = localStorage.getItem(PRESET_KEY); if (raw) { const arr = JSON.parse(raw); if (Array.isArray(arr)) setCustomPresets(arr); } } catch {}
-  }, []);
   useEffect(() => { if (mode !== 'transform') setHoverCursor('default'); }, [mode]);
   useEffect(() => {
     if (!maskPaintMode || !activeLayerId) return;
@@ -201,10 +116,6 @@ export const DrawingStudioApp: React.FC = () => {
     setCustomCanvasHeight(String(canvasSize.height));
   }, [canvasSize.height, canvasSize.width]);
 
-  const savePresetList = useCallback((next: BrushPreset[]) => {
-    setCustomPresets(next);
-    try { localStorage.setItem(PRESET_KEY, JSON.stringify(next)); } catch {}
-  }, []);
   const ensureLayerCanvas = useCallback((layerId: string) => {
     const existing = layerCanvasesRef.current[layerId];
     if (existing && existing.width === canvasSize.width && existing.height === canvasSize.height) return existing;
@@ -1130,67 +1041,30 @@ export const DrawingStudioApp: React.FC = () => {
     await importToActiveLayer(new File([blobs[0]], `gallery-${Date.now()}.png`, { type: blobs[0].type || 'image/png' }));
   };
 
-  const saveBrushPreset = () => {
-    const fallback = `${brushTypeLabel(brushType)} ${customPresets.length + 1}`;
-    const name = window.prompt(t('drawing.presetNamePrompt', { defaultValue: '\u9810\u8a2d\u540d\u7a31' }), fallback)?.trim(); if (!name) return;
-    const next: BrushPreset = { id: makePresetId(), name, brushType, brushColor, brushSize, brushOpacity, pressureEnabled, pressureCurve, smoothing, spacing };
-    savePresetList([next, ...customPresets].slice(0, 12));
-  };
-  const applyBrushPreset = (p: BrushPreset) => { setBrushType(p.brushType); setBrushColor(p.brushColor); setBrushSize(p.brushSize); setBrushOpacity(p.brushOpacity); setPressureEnabled(p.pressureEnabled); setPressureCurve(p.pressureCurve); setSmoothing(p.smoothing); setSpacing(p.spacing); };
-  const copyBrushHex = useCallback(async () => {
-    try {
-      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(brushColor.toUpperCase());
-      } else {
-        const ta = document.createElement('textarea');
-        ta.value = brushColor.toUpperCase();
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-      }
-      setHexCopied(true);
-      window.setTimeout(() => setHexCopied(false), 1200);
-    } catch {
-      setHexCopied(false);
-    }
-  }, [brushColor]);
-  const removeBrushPreset = (id: string) => savePresetList(customPresets.filter((p) => p.id !== id));
-
   const brushSummary = useMemo(() => `${brushTypeLabel(brushType)} · ${brushSize}px · ${(brushOpacity * 100).toFixed(0)}%`, [brushOpacity, brushSize, brushType]);
   const layerLimitReached = layers.length >= MAX_LAYERS;
 
   return (
     <div className="flex flex-col md:flex-row h-[calc(100dvh-120px)] min-h-[640px] bg-cream-light">
       <main className="flex-1 min-w-0 p-4 md:p-6 border-b md:border-b-0 md:border-r border-cream-dark/50">
-        <div className="flex flex-wrap items-center gap-2 mb-3">
-          <div className="inline-flex rounded-lg border overflow-hidden bg-white">
-            <button onClick={() => void undo()} disabled={historyIndex <= 0} className="px-3 py-2 disabled:opacity-40"><Undo2 size={16} /></button>
-            <button onClick={() => void redo()} disabled={historyIndex >= history.length - 1} className="px-3 py-2 border-l disabled:opacity-40"><Redo2 size={16} /></button>
-            <button onClick={clearActiveLayer} disabled={activeLocked} title={activeLocked ? t('drawing.layerLocked', { defaultValue: '\u5716\u5c64\u5df2\u9396\u5b9a' }) : t('drawing.clearLayer', { defaultValue: '\u6e05\u7a7a\u5716\u5c64' })} className="px-3 py-2 border-l text-red-600 disabled:opacity-40"><Trash2 size={16} /></button>
-          </div>
-          <div className="inline-flex rounded-lg border overflow-hidden bg-white">
-            <label className="px-3 py-2 cursor-pointer inline-flex items-center gap-2 text-sm font-semibold border-r">
-              <Upload size={16} />
-              <span>{t('drawing.uploadImage', { defaultValue: '\u4e0a\u50b3\u5716\u7247' })}</span>
-              <input type="file" className="hidden" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) void importToActiveLayer(f); }} />
-            </label>
-            <button onClick={() => setShowGalleryPicker(true)} className="px-3 py-2 inline-flex items-center gap-2 text-sm font-semibold">{t('drawing.fromGallery', { defaultValue: '\u5f9e\u4f5c\u54c1\u96c6\u9078\u53d6' })}</button>
-          </div>
-          <button onClick={() => setEyedropper((v) => !v)} className={`px-3 py-2 rounded-lg border inline-flex items-center gap-2 ${eyedropper ? 'bg-primary text-white border-primary' : 'bg-white'}`} title={t('drawing.eyedropper', { defaultValue: '\u5438\u7ba1' })}><Pipette size={16} /></button>
-          <div className="inline-flex rounded-lg border overflow-hidden">
-            <button onClick={() => setMode('draw')} className={`px-3 py-2 inline-flex items-center gap-1 ${mode === 'draw' ? 'bg-primary text-white' : 'bg-white'}`}>{t('drawing.drawMode', { defaultValue: '\u7e6a\u88fd' })}</button>
-            <button onClick={() => setMode('transform')} className={`px-3 py-2 inline-flex items-center gap-1 border-l ${mode === 'transform' ? 'bg-primary text-white' : 'bg-white'}`}><Move3D size={14} />{t('drawing.transformMode', { defaultValue: '\u8b8a\u5f62' })}</button>
-            <button onClick={() => setMode('select')} className={`px-3 py-2 inline-flex items-center gap-1 border-l ${mode === 'select' ? 'bg-primary text-white' : 'bg-white'}`}>{t('drawing.selectMode', { defaultValue: '\u9078\u53d6' })}</button>
-          </div>
-          <button onClick={() => setSelectionRect(null)} className="px-3 py-2 rounded-lg border bg-white inline-flex items-center gap-2">{t('drawing.clearSelection', { defaultValue: '\u6e05\u9664\u9078\u53d6' })}</button>
-          <button onClick={saveToGallery} className="px-3 py-2 rounded-lg border bg-white inline-flex items-center gap-2"><Save size={16} />{t('drawing.saveToGallery', { defaultValue: '\u5132\u5b58\u81f3\u4f5c\u54c1\u96c6' })}</button>
-          <button onClick={exportPng} className="px-3 py-2 rounded-lg bg-primary text-white inline-flex items-center gap-2"><Download size={16} />PNG</button>
-          <div className="ml-auto flex items-center gap-2 text-xs font-bold text-bronze-light"><Move3D size={14} /><span>{brushSummary}</span></div>
-        </div>
+        <CanvasToolbar
+          historyIndex={historyIndex}
+          historyLength={history.length}
+          activeLocked={activeLocked}
+          mode={mode}
+          eyedropper={eyedropper}
+          brushSummary={brushSummary}
+          onUndo={() => void undo()}
+          onRedo={() => void redo()}
+          onClearLayer={clearActiveLayer}
+          onImportFile={(f) => void importToActiveLayer(f)}
+          onOpenGallery={() => setShowGalleryPicker(true)}
+          onToggleEyedropper={() => setEyedropper((v) => !v)}
+          onSetMode={setMode}
+          onClearSelection={() => setSelectionRect(null)}
+          onSaveToGallery={() => void saveToGallery()}
+          onExportPng={exportPng}
+        />
         <div className="w-full h-[calc(100%-52px)] bg-[#dbe7e8] rounded-2xl border border-cream-dark/50 overflow-auto">
           <div className="sticky top-0 z-10 px-3 py-2">
             <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-white/85 backdrop-blur px-2.5 py-1.5 text-[11px] font-bold text-bronze-text shadow-sm">
@@ -1211,109 +1085,76 @@ export const DrawingStudioApp: React.FC = () => {
       </main>
 
       <aside className="w-full md:w-[360px] bg-white/80 backdrop-blur-md p-4 overflow-y-auto border-l border-cream-dark/50 space-y-4">
-        <div className="rounded-xl border border-cream-dark p-3 bg-white">
-          <div className="flex items-center justify-between mb-2"><div className="text-xs font-black uppercase text-bronze-light">{t('drawing.brush', { defaultValue: '\u7b46\u5237' })}</div><button onClick={saveBrushPreset} className="p-1.5 rounded border bg-cream-light" title={t('drawing.savePreset', { defaultValue: '\u5132\u5b58\u9810\u8a2d' })}><Save size={14} /></button></div>
-          <div className="grid grid-cols-3 gap-2 mb-3">{BRUSH_PRESETS.map((p) => <button key={p.id} onClick={() => { setBrushType(p.id); setBrushSize(p.size); setBrushOpacity(p.opacity); }} className={`px-2 py-2 text-xs rounded-lg border font-bold ${brushType === p.id ? 'bg-primary text-white border-primary' : 'bg-cream-light border-cream-dark text-bronze-light'}`}>{p.id === 'eraser' ? <Eraser size={14} className="mx-auto mb-1" /> : <Brush size={14} className="mx-auto mb-1" />}{brushTypeLabel(p.id)}</button>)}</div>
-          <div className="space-y-2 text-xs">
-            <label className="flex items-center justify-between gap-2 font-bold text-bronze-light">
-              <span>{t('drawing.color', { defaultValue: '\u984f\u8272' })}</span>
-              <span className="inline-flex items-center gap-2">
-                <input
-                  type="color"
-                  value={brushColor}
-                  onChange={(e) => setBrushColor(e.target.value)}
-                  className="w-8 h-8 border rounded"
-                />
-                <button
-                  type="button"
-                  onClick={copyBrushHex}
-                  title={hexCopied ? '已複製' : '點擊複製 HEX'}
-                  className="rounded border border-cream-dark bg-cream-light px-1.5 py-0.5 text-[10px] font-black tracking-wide text-bronze-text hover:border-primary hover:text-primary"
-                >
-                  {hexCopied ? '已複製' : brushColor.toUpperCase()}
-                </button>
-              </span>
-            </label>
-            <label className="block font-bold text-bronze-light">{t('drawing.size', { defaultValue: '\u5927\u5c0f' })}: {brushSize}px<input type="range" min={1} max={96} value={brushSize} onChange={(e) => setBrushSize(parseInt(e.target.value, 10))} className="w-full" /></label>
-            <label className="block font-bold text-bronze-light">{t('drawing.opacity', { defaultValue: '\u900f\u660e\u5ea6' })}: {(brushOpacity * 100).toFixed(0)}%<input type="range" min={1} max={100} value={Math.round(brushOpacity * 100)} onChange={(e) => setBrushOpacity(parseInt(e.target.value, 10) / 100)} className="w-full" /></label>
-            <label className="flex items-center justify-between font-bold text-bronze-light">{t('drawing.pressure', { defaultValue: '\u58d3\u529b' })}<input type="checkbox" checked={pressureEnabled} onChange={(e) => setPressureEnabled(e.target.checked)} /></label>
-            <label className="block font-bold text-bronze-light">{t('drawing.pressureCurve', { defaultValue: '\u58d3\u529b\u66f2\u7dda' })}: {pressureCurve.toFixed(2)}<input type="range" min={0.5} max={3} step={0.05} value={pressureCurve} onChange={(e) => setPressureCurve(parseFloat(e.target.value))} className="w-full" /></label>
-            <label className="block font-bold text-bronze-light">{t('drawing.smoothing', { defaultValue: '\u5e73\u6ed1' })}: {(smoothing * 100).toFixed(0)}%<input type="range" min={0} max={95} value={Math.round(smoothing * 100)} onChange={(e) => setSmoothing(parseInt(e.target.value, 10) / 100)} className="w-full" /></label>
-            <label className="block font-bold text-bronze-light">{t('drawing.spacing', { defaultValue: '\u9593\u8ddd' })}: {spacing}%<input type="range" min={2} max={80} value={spacing} onChange={(e) => setSpacing(parseInt(e.target.value, 10))} className="w-full" /></label>
-            <label className="flex items-center justify-between font-bold text-bronze-light">{t('drawing.vectorBrush', { defaultValue: '\u5411\u91cf\u7b46\u5237' })}<input type="checkbox" checked={vectorBrushEnabled} onChange={(e) => setVectorBrushEnabled(e.target.checked)} /></label>
-            <label className="block font-bold text-bronze-light">{t('drawing.stabilizer', { defaultValue: '\u7a69\u5b9a\u5668' })}: {vectorStabilizer}%<input type="range" min={0} max={95} value={vectorStabilizer} onChange={(e) => setVectorStabilizer(parseInt(e.target.value, 10))} className="w-full" /></label>
-            <label className="flex items-center justify-between font-bold text-bronze-light">{t('drawing.maskPaintMode', { defaultValue: '遮罩編輯' })}<input type="checkbox" checked={maskPaintMode} onChange={(e) => setMaskPaintMode(e.target.checked)} /></label>
-            <div className="text-[10px] text-bronze-light">{t('drawing.maskPaintHint', { defaultValue: '遮罩編輯：畫筆=隱藏，橡皮擦=還原' })}</div>
-          </div>
-          <div className="mt-3"><div className="text-[10px] font-black uppercase text-bronze-light mb-2">{t('drawing.brushPresets', { defaultValue: '\u7b46\u5237\u9810\u8a2d' })}</div><div className="space-y-1 max-h-28 overflow-auto pr-1">{customPresets.length === 0 && <div className="text-[11px] text-bronze-light">{t('drawing.noPresets', { defaultValue: '\u5c1a\u7121\u5df2\u5132\u5b58\u9810\u8a2d' })}</div>}{customPresets.map((p) => <div key={p.id} className="flex items-center gap-1"><button className="text-left flex-1 px-2 py-1.5 rounded border bg-cream-light text-[11px] font-bold hover:border-primary" onClick={() => applyBrushPreset(p)} title={t('drawing.applyPreset', { defaultValue: '\u5957\u7528\u9810\u8a2d' })}>{p.name}</button><button className="p-1 rounded border bg-white text-red-500" onClick={() => removeBrushPreset(p.id)} title={t('drawing.deletePreset', { defaultValue: '\u522a\u9664\u9810\u8a2d' })}><Trash2 size={12} /></button></div>)}</div></div>
-        </div>
+        <BrushSettingsPanel
+          brushType={brushType}
+          brushColor={brushColor}
+          brushSize={brushSize}
+          brushOpacity={brushOpacity}
+          pressureEnabled={pressureEnabled}
+          pressureCurve={pressureCurve}
+          smoothing={smoothing}
+          spacing={spacing}
+          vectorBrushEnabled={vectorBrushEnabled}
+          vectorStabilizer={vectorStabilizer}
+          maskPaintMode={maskPaintMode}
+          hexCopied={hexCopied}
+          customPresets={customPresets}
+          setBrushType={setBrushType}
+          setBrushColor={setBrushColor}
+          setBrushSize={setBrushSize}
+          setBrushOpacity={setBrushOpacity}
+          setPressureEnabled={setPressureEnabled}
+          setPressureCurve={setPressureCurve}
+          setSmoothing={setSmoothing}
+          setSpacing={setSpacing}
+          setVectorBrushEnabled={setVectorBrushEnabled}
+          setVectorStabilizer={setVectorStabilizer}
+          setMaskPaintMode={setMaskPaintMode}
+          onSavePreset={saveBrushPreset}
+          onApplyPreset={applyBrushPreset}
+          onRemovePreset={removeBrushPreset}
+          onCopyHex={copyBrushHex}
+        />
 
-        <div className="rounded-xl border border-cream-dark p-3 bg-white">
-          <div className="text-xs font-black uppercase text-bronze-light mb-2">{t('drawing.canvas', { defaultValue: '\u756b\u5e03' })}</div>
-          <label className="block text-xs font-bold text-bronze-light mb-2">{t('drawing.preset', { defaultValue: '\u9810\u8a2d' })}</label>
-          <select className="w-full border rounded-lg px-2 py-2 text-sm mb-3" value={`${canvasSize.width}x${canvasSize.height}`} onChange={(e) => { const [w, h] = e.target.value.split('x').map((v) => parseInt(v, 10)); setCanvasSize({ width: w, height: h }); }}>{CANVAS_PRESETS.map((p) => <option key={p.label} value={`${p.width}x${p.height}`}>{p.label}</option>)}</select>
-          <div className="grid grid-cols-2 gap-2 mb-2">
-            <label className="text-[10px] text-bronze-light">{t('drawing.customWidth', { defaultValue: '\u81ea\u8a02\u5bec\u5ea6' })}
-              <input type="number" min={24} max={8000} value={customCanvasWidth} onChange={(e) => setCustomCanvasWidth(e.target.value)} className="w-full mt-1 border rounded px-2 py-1.5 text-xs" />
-            </label>
-            <label className="text-[10px] text-bronze-light">{t('drawing.customHeight', { defaultValue: '\u81ea\u8a02\u9ad8\u5ea6' })}
-              <input type="number" min={24} max={8000} value={customCanvasHeight} onChange={(e) => setCustomCanvasHeight(e.target.value)} className="w-full mt-1 border rounded px-2 py-1.5 text-xs" />
-            </label>
-          </div>
-          <button onClick={applyCustomCanvasSize} className="w-full mb-3 px-2 py-1.5 rounded border text-xs font-bold bg-cream-light hover:bg-cream">{t('drawing.applyCanvasSize', { defaultValue: '\u5957\u7528\u756b\u5e03\u5c3a\u5bf8' })}</button>
-          <label className="flex items-center justify-between text-xs font-bold text-bronze-light mb-2">{t('drawing.fitCanvasToImport', { defaultValue: '\u5339\u914d\u532f\u5165\u5716\u7247\u5c3a\u5bf8' })}<input type="checkbox" checked={fitCanvasToImport} onChange={(e) => { const checked = e.target.checked; setFitCanvasToImport(checked); if (checked) void applyFitCanvasToActiveImage(); }} /></label>
-          <label className="block text-xs font-bold text-bronze-light">{t('drawing.zoom', { defaultValue: '\u7e2e\u653e' })}: {zoom}%<input type="range" min={25} max={200} value={zoom} onChange={(e) => setZoom(parseInt(e.target.value, 10))} className="w-full" /></label>
-        </div>
-
-        <div className="rounded-xl border border-cream-dark p-3 bg-white">
-          <div className="flex items-center justify-between mb-1"><div className="text-xs font-black uppercase text-bronze-light inline-flex items-center gap-1"><Layers size={14} />{t('drawing.layers', { defaultValue: '\u5716\u5c64' })}</div><div className="flex gap-1"><button onClick={addLayer} disabled={layerLimitReached} title={layerLimitReached ? t('drawing.layerLimitReached', { defaultValue: '\u5df2\u9054\u5716\u5c64\u4e0a\u9650 (30 \u5c64)' }) : t('drawing.addLayer', { defaultValue: '\u65b0\u589e\u5716\u5c64' })} className="p-1.5 rounded border bg-cream-light disabled:opacity-40"><Plus size={14} /></button><button onClick={duplicateLayer} className="p-1.5 rounded border bg-cream-light"><Copy size={14} /></button><button onClick={deleteLayer} className="p-1.5 rounded border bg-cream-light text-red-600"><Trash2 size={14} /></button></div></div>
-          <div className="text-[10px] text-bronze-light mb-2">{t('drawing.layerLimitHint', { defaultValue: '\u5efa\u8b70 20 \u5c64\u5167\uff0c\u7cfb\u7d71\u4e0a\u9650 30 \u5c64' })}</div>
-          {activeLayer && <label className="flex items-center justify-between text-[10px] text-bronze-light mb-2">{t('drawing.layerFillColor', { defaultValue: '\u5716\u5c64\u586b\u8272' })}<span className="inline-flex items-center gap-2"><input type="color" value={activeLayer.fillColor && activeLayer.fillColor !== 'transparent' ? activeLayer.fillColor : '#ffffff'} onChange={(e) => setLayers((prev) => prev.map((x) => x.id === activeLayer.id ? { ...x, fillColor: e.target.value } : x))} className="w-6 h-6 rounded border" /><button className="px-1.5 py-0.5 rounded border bg-white" onClick={() => setLayers((prev) => prev.map((x) => x.id === activeLayer.id ? { ...x, fillColor: 'transparent' } : x))}>{t('drawing.transparent', { defaultValue: '\u900f\u660e' })}</button></span></label>}
-          {activeLayerImage && <label className="block text-[10px] text-bronze-light mb-2">{t('drawing.imageScale', { defaultValue: '\u5716\u7247\u7e2e\u653e' })}: {Math.round((activeLayerImage.width / Math.max(1, canvasSize.width)) * 100)}%<input type="range" min={5} max={300} value={Math.round((activeLayerImage.width / Math.max(1, canvasSize.width)) * 100)} onChange={(e) => updateActiveImageScale(parseInt(e.target.value, 10))} className="w-full" /></label>}
-          {activeLayerImage && <label className="block text-[10px] text-bronze-light mb-2">{t('drawing.imageWidth', { defaultValue: '\u5716\u7247\u5bec\u5ea6' })}: {Math.round((activeLayerImage.width / Math.max(1, canvasSize.width)) * 100)}%<input type="range" min={5} max={300} value={Math.round((activeLayerImage.width / Math.max(1, canvasSize.width)) * 100)} onChange={(e) => updateActiveImageWidth(parseInt(e.target.value, 10))} className="w-full" /></label>}
-          {activeLayerImage && <label className="block text-[10px] text-bronze-light mb-2">{t('drawing.imageHeight', { defaultValue: '\u5716\u7247\u9ad8\u5ea6' })}: {Math.round((activeLayerImage.height / Math.max(1, canvasSize.height)) * 100)}%<input type="range" min={5} max={300} value={Math.round((activeLayerImage.height / Math.max(1, canvasSize.height)) * 100)} onChange={(e) => updateActiveImageHeight(parseInt(e.target.value, 10))} className="w-full" /></label>}
-          {activeLayerImage && <label className="flex items-center justify-between text-[10px] text-bronze-light mb-2">{t('drawing.imageBgColor', { defaultValue: '\u5716\u5c64\u5716\u7247\u5e95\u8272' })}<span className="inline-flex items-center gap-2"><input type="color" value={activeLayerImage.bgColor && activeLayerImage.bgColor !== 'transparent' ? activeLayerImage.bgColor : '#ffffff'} onChange={(e) => updateActiveImageBgColor(e.target.value)} className="w-6 h-6 rounded border" /><button className="px-1.5 py-0.5 rounded border bg-white" onClick={() => updateActiveImageBgColor('transparent')}>{t('drawing.transparent', { defaultValue: '\u900f\u660e' })}</button></span></label>}
-          {(activeLayerImage || (activeLayerHasFill && activeLayerFillRect)) && (
-            <>
-              <div className="grid grid-cols-2 gap-2 mb-2">
-                <label className="text-[10px] text-bronze-light">{t('drawing.layerWidthPx', { defaultValue: '\u5716\u5c64\u5bec\u5ea6 (px)' })}
-                  <input type="number" min={1} value={customLayerWidth} onChange={(e) => setCustomLayerWidth(e.target.value)} className="w-full mt-1 border rounded px-2 py-1 text-[11px]" />
-                </label>
-                <label className="text-[10px] text-bronze-light">{t('drawing.layerHeightPx', { defaultValue: '\u5716\u5c64\u9ad8\u5ea6 (px)' })}
-                  <input type="number" min={1} value={customLayerHeight} onChange={(e) => setCustomLayerHeight(e.target.value)} className="w-full mt-1 border rounded px-2 py-1 text-[11px]" />
-                </label>
-              </div>
-              <button onClick={applyCustomLayerSize} className="w-full mb-2 px-2 py-1.5 rounded border text-xs font-bold bg-cream-light hover:bg-cream">{t('drawing.applyLayerSize', { defaultValue: '\u5957\u7528\u5716\u5c64\u5c3a\u5bf8' })}</button>
-            </>
-          )}
-          <div className="text-[10px] text-bronze-light mb-2">{t('drawing.transformHint', { defaultValue: '\u8b8a\u5f62\u6a21\u5f0f\uff1a\u62d6\u66f3\u7269\u4ef6\u53ef\u79fb\u52d5\uff0c\u62d6\u66f3\u53f3\u4e0b\u89d2\u53ef\u7e2e\u653e\u3002' })}</div>
-          <div className="space-y-2">
-            {layers.map((l, i) => <div key={l.id} onClick={() => setActiveLayerId(l.id)} className={`border rounded-lg p-2 cursor-pointer relative ${activeLayerId === l.id ? 'border-primary bg-primary/10 ring-2 ring-primary/30 shadow-sm' : 'border-cream-dark bg-cream-light/50'}`}>
-              {activeLayerId === l.id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg" />}
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded border overflow-hidden bg-white shrink-0">{layerCanvasesRef.current[l.id] && <img src={layerCanvasesRef.current[l.id].toDataURL('image/png')} alt={l.name} className="w-full h-full object-cover" />}</div>
-                <button onClick={(e) => { e.stopPropagation(); setLayers((prev) => prev.map((x) => x.id === l.id ? { ...x, visible: !x.visible } : x)); }} className="text-bronze-light" title={l.visible ? t('drawing.hideLayer', { defaultValue: '\u96b1\u85cf\u5716\u5c64' }) : t('drawing.showLayer', { defaultValue: '\u986f\u793a\u5716\u5c64' })}>{l.visible ? <Eye size={14} /> : <EyeOff size={14} />}</button>
-                <button onClick={(e) => { e.stopPropagation(); setLayers((prev) => prev.map((x) => x.id === l.id ? { ...x, locked: !x.locked } : x)); }} className="text-bronze-light" title={l.locked ? t('drawing.unlock', { defaultValue: '\u89e3\u9396' }) : t('drawing.lock', { defaultValue: '\u9396\u5b9a' })}>{l.locked ? <Lock size={14} /> : <Unlock size={14} />}</button>
-                <button onClick={(e) => { e.stopPropagation(); setLayers((prev) => prev.map((x) => x.id === l.id ? { ...x, maskEnabled: !x.maskEnabled } : x)); }} className={`text-[10px] font-black px-1.5 py-0.5 rounded border ${l.maskEnabled ? 'text-primary border-primary/40 bg-primary/10' : 'text-bronze-light border-cream-dark bg-white'}`} title={t('drawing.maskToggle', { defaultValue: '切換遮罩' })}>{t('drawing.maskShort', { defaultValue: '遮罩' })}</button>
-                <button className="text-xs font-bold flex-1 text-left truncate inline-flex items-center gap-1" onClick={(e) => { e.stopPropagation(); setActiveLayerId(l.id); }}>
-                  <span className={activeLayerId === l.id ? 'text-primary' : ''}>{l.name}</span>
-                  {activeLayerId === l.id && (
-                    <span className="px-1.5 py-0.5 rounded bg-primary text-white text-[9px] font-black uppercase tracking-wide">
-                      {t('drawing.activeLayer', { defaultValue: '\u76ee\u524d' })}
-                    </span>
-                  )}
-                </button>
-                <button onClick={(e) => { e.stopPropagation(); renameLayer(l.id); }} className="text-[10px] font-bold px-1.5 py-0.5 rounded border border-cream-dark bg-white text-bronze-light" title={t('drawing.renameLayer', { defaultValue: '\u91cd\u65b0\u547d\u540d\u5716\u5c64' })}>
-                  {t('drawing.renameShort', { defaultValue: '\u91cd\u65b0\u547d\u540d' })}
-                </button>
-                <button disabled={i === 0} onClick={(e) => { e.stopPropagation(); moveLayer(l.id, -1); }} className="text-bronze-light disabled:opacity-30" title={t('drawing.moveUp', { defaultValue: '\u4e0a\u79fb' })}><ArrowUp size={12} /></button>
-                <button disabled={i === layers.length - 1} onClick={(e) => { e.stopPropagation(); moveLayer(l.id, 1); }} className="text-bronze-light disabled:opacity-30" title={t('drawing.moveDown', { defaultValue: '\u4e0b\u79fb' })}><ArrowDown size={12} /></button>
-              </div>
-              <label className="block text-[10px] text-bronze-light mt-1">{t('drawing.opacity', { defaultValue: '\u900f\u660e\u5ea6' })} {(l.opacity * 100).toFixed(0)}%<input type="range" min={0} max={100} value={Math.round(l.opacity * 100)} onChange={(e) => { const v = parseInt(e.target.value, 10) / 100; setLayers((prev) => prev.map((x) => x.id === l.id ? { ...x, opacity: v } : x)); }} onClick={(e) => e.stopPropagation()} className="w-full" /></label>
-              <label className="block text-[10px] text-bronze-light mt-1">{t('drawing.blendMode', { defaultValue: '\u6df7\u5408\u6a21\u5f0f' })}<select className="w-full mt-1 border rounded px-1 py-1 text-[11px] bg-white" value={l.blendMode} onChange={(e) => { const v = e.target.value as BlendMode; setLayers((prev) => prev.map((x) => x.id === l.id ? { ...x, blendMode: v } : x)); }} onClick={(e) => e.stopPropagation()}>{BLENDS.map((b) => <option key={b.value} value={b.value}>{t(`drawing.blendModes.${b.key}`, { defaultValue: b.fallback })}</option>)}</select></label>
-            </div>)}
-          </div>
-        </div>
+        <LayerPanel
+          layers={layers}
+          activeLayerId={activeLayerId}
+          layerImages={layerImages}
+          canvasSize={canvasSize}
+          activeLayer={activeLayer}
+          activeLayerImage={activeLayerImage}
+          activeLayerHasFill={activeLayerHasFill}
+          activeLayerFillRect={activeLayerFillRect}
+          layerLimitReached={layerLimitReached}
+          customLayerWidth={customLayerWidth}
+          customLayerHeight={customLayerHeight}
+          customCanvasWidth={customCanvasWidth}
+          customCanvasHeight={customCanvasHeight}
+          zoom={zoom}
+          fitCanvasToImport={fitCanvasToImport}
+          layerCanvasesRef={layerCanvasesRef}
+          setLayers={setLayers}
+          setActiveLayerId={setActiveLayerId}
+          setCanvasSize={setCanvasSize}
+          setCustomLayerWidth={setCustomLayerWidth}
+          setCustomLayerHeight={setCustomLayerHeight}
+          setCustomCanvasWidth={setCustomCanvasWidth}
+          setCustomCanvasHeight={setCustomCanvasHeight}
+          setZoom={setZoom}
+          setFitCanvasToImport={setFitCanvasToImport}
+          onAddLayer={addLayer}
+          onDeleteLayer={deleteLayer}
+          onDuplicateLayer={duplicateLayer}
+          onRenameLayer={renameLayer}
+          onMoveLayer={moveLayer}
+          onUpdateActiveImageScale={updateActiveImageScale}
+          onUpdateActiveImageWidth={updateActiveImageWidth}
+          onUpdateActiveImageHeight={updateActiveImageHeight}
+          onUpdateActiveImageBgColor={updateActiveImageBgColor}
+          onApplyCustomLayerSize={applyCustomLayerSize}
+          onApplyCustomCanvasSize={applyCustomCanvasSize}
+          onApplyFitCanvasToActiveImage={() => void applyFitCanvasToActiveImage()}
+        />
       </aside>
       {showGalleryPicker && <GalleryPicker onSelect={(blobs) => void handleGallerySelect(blobs)} onClose={() => setShowGalleryPicker(false)} />}
     </div>

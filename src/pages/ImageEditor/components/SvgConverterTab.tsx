@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, Download, Image as ImageIcon, FileCode, Trash2, Settings, Loader2, FolderHeart } from 'lucide-react';
 import ImageTracer from 'imagetracerjs';
+import DOMPurify from 'dompurify';
 import { Button } from '../../../components/ui/Button';
 import { useTranslation } from 'react-i18next';
 import { GalleryPicker } from '../../../components/GalleryPicker';
@@ -240,7 +241,7 @@ export default function SvgConverterTab() {
                         ) : (
                             <div
                                 className="w-full h-full flex items-center justify-center p-4 svg-container"
-                                dangerouslySetInnerHTML={{ __html: svgContent }}
+                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(svgContent, { USE_PROFILES: { svg: true, svgFilters: true } }) }}
                             />
                         )}
                     </div>

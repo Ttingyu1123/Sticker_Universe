@@ -19,10 +19,12 @@ export const APIKeySetup: React.FC = () => {
         setRememberKey(stored.remember);
     }, []);
 
+    const isValidGeminiKey = (key: string) => key.startsWith('AIza') && key.length >= 35;
+
     const handleSaveKey = () => {
         const key = tempKey.trim();
-        if (!key) {
-            setMessage({ type: 'error', text: t('generator.apiKey.required') || 'Please enter a valid API key.' });
+        if (!key || !isValidGeminiKey(key)) {
+            setMessage({ type: 'error', text: t('generator.apiKey.invalid') });
             return;
         }
 

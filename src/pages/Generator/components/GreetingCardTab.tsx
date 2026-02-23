@@ -3,6 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { CardLayoutId } from '../types';
 import { processImage } from '../../../features/packager-core';
+import { safeSaveToLocalStorage, safeLoadFromLocalStorage } from '../../../shared/localStorage';
 
 // --- Modular Components ---
 import { FESTIVALS, CARD_STYLES, HistoryItem, FONTS } from './GreetingCard/Constants';
@@ -23,15 +24,9 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({ apiKey, onError, onNe
     const [festival, setFestival] = useState('new-year');
     const [style, setStyle] = useState('watercolor');
     const [aspectRatio, setAspectRatio] = useState('3:4');
-    const [history, setHistory] = useState<HistoryItem[]>(() => {
-        try {
-            const saved = localStorage.getItem('greeting_card_history');
-            return saved ? JSON.parse(saved) : [];
-        } catch (e) {
-            console.error("Failed to load history", e);
-            return [];
-        }
-    });
+    const [history, setHistory] = useState<HistoryItem[]>(() =>
+        safeLoadFromLocalStorage<HistoryItem[]>('greeting_card_history') ?? []
+    );
 
     const [userName, setUserName] = useState("");
     const [recipientName, setRecipientName] = useState("");
@@ -73,11 +68,7 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({ apiKey, onError, onNe
 
     // Save History
     useEffect(() => {
-        try {
-            localStorage.setItem('greeting_card_history', JSON.stringify(history));
-        } catch (e) {
-            console.error("History save failed", e);
-        }
+        safeSaveToLocalStorage('greeting_card_history', history);
     }, [history]);
 
     // Helpers

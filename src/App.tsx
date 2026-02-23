@@ -2,16 +2,18 @@ import React, { Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Layout } from './layouts/Layout';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ErrorBoundary } from './components/shared/ErrorBoundary';
 
 // Lazy load pages for better performance
-const LandingApp = React.lazy(() => import('./pages/Landing/App').catch(err => { console.error("Failed to load Landing:", err); return { default: () => <div className="p-10 text-red-500">Landing Load Error: {err.message}</div> }; }));
-const GeneratorApp = React.lazy(() => import('./pages/Generator/App').catch(err => { console.error("Failed to load Generator:", err); return { default: () => <div className="p-10 text-red-500">Generator Load Error: {err.message}</div> }; }));
-const PrintSheetApp = React.lazy(() => import('./pages/PrintSheet/App').catch(err => { console.error("Failed to load PrintSheet:", err); return { default: () => <div className="p-10 text-red-500">PrintSheet Load Error: {err.message}</div> }; }));
-const GalleryApp = React.lazy(() => import('./pages/Gallery/App').catch(err => { console.error("Failed to load Gallery:", err); return { default: () => <div className="p-10 text-red-500">Gallery Load Error: {err.message}</div> }; }));
-const LayerLabApp = React.lazy(() => import('./pages/LayerLab/App').then(module => ({ default: module.LayerLabApp })).catch(err => { console.error("Failed to load LayerLab:", err); return { default: () => <div className="p-10 text-red-500">LayerLab Load Error: {err.message}</div> }; }));
-const ImageEditorApp = React.lazy(() => import('./pages/ImageEditor/App').catch(err => { console.error("Failed to load ImageEditor:", err); return { default: () => <div className="p-10 text-red-500">ImageEditor Load Error: {err.message}</div> }; }));
-const PhotoCollageApp = React.lazy(() => import('./pages/PhotoCollage/App').catch(err => { console.error("Failed to load PhotoCollage:", err); return { default: () => <div className="p-10 text-red-500">PhotoCollage Load Error: {err.message}</div> }; }));
-const DrawingStudioApp = React.lazy(() => import('./pages/DrawingStudio/App').catch(err => { console.error("Failed to load DrawingStudio:", err); return { default: () => <div className="p-10 text-red-500">DrawingStudio Load Error: {err.message}</div> }; }));
+const LandingApp = React.lazy(() => import('./pages/Landing/App'));
+const GeneratorApp = React.lazy(() => import('./pages/Generator/App'));
+const PrintSheetApp = React.lazy(() => import('./pages/PrintSheet/App'));
+const GalleryApp = React.lazy(() => import('./pages/Gallery/App'));
+const LayerLabApp = React.lazy(() => import('./pages/LayerLab/App').then(m => ({ default: m.LayerLabApp })));
+const ImageEditorApp = React.lazy(() => import('./pages/ImageEditor/App'));
+const PhotoCollageApp = React.lazy(() => import('./pages/PhotoCollage/App'));
+const DrawingStudioApp = React.lazy(() => import('./pages/DrawingStudio/App'));
+
 const Loading = () => (
     <div className="flex items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
@@ -29,6 +31,21 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => (
     </motion.div>
 );
 
+interface PageRouteProps {
+    children: React.ReactNode;
+    className?: string;
+}
+
+const PageRoute = ({ children, className }: PageRouteProps) => (
+    <ErrorBoundary>
+        <Suspense fallback={<Loading />}>
+            <PageWrapper>
+                {className ? <div className={className}>{children}</div> : children}
+            </PageWrapper>
+        </Suspense>
+    </ErrorBoundary>
+);
+
 function App() {
     const location = useLocation();
 
@@ -37,77 +54,51 @@ function App() {
             <Routes location={location} key={location.pathname}>
                 <Route element={<Layout />}>
                     <Route path="/" element={
-                        <Suspense fallback={<Loading />}>
-                            <PageWrapper>
-                                <LandingApp />
-                            </PageWrapper>
-                        </Suspense>
+                        <PageRoute>
+                            <LandingApp />
+                        </PageRoute>
                     } />
 
                     <Route path="/generator/*" element={
-                        <Suspense fallback={<Loading />}>
-                            <PageWrapper>
-                                <div className="p-6 max-w-7xl mx-auto">
-                                    <GeneratorApp />
-                                </div>
-                            </PageWrapper>
-                        </Suspense>
+                        <PageRoute className="p-6 max-w-7xl mx-auto">
+                            <GeneratorApp />
+                        </PageRoute>
                     } />
 
                     <Route path="/image-editor/*" element={
-                        <Suspense fallback={<Loading />}>
-                            <PageWrapper>
-                                <div className="p-6 max-w-[1920px] mx-auto">
-                                    <ImageEditorApp />
-                                </div>
-                            </PageWrapper>
-                        </Suspense>
+                        <PageRoute className="p-6 max-w-[1920px] mx-auto">
+                            <ImageEditorApp />
+                        </PageRoute>
                     } />
 
                     <Route path="/photo-collage/*" element={
-                        <Suspense fallback={<Loading />}>
-                            <PageWrapper>
-                                <div className="p-6 max-w-[1920px] mx-auto">
-                                    <PhotoCollageApp />
-                                </div>
-                            </PageWrapper>
-                        </Suspense>
+                        <PageRoute className="p-6 max-w-[1920px] mx-auto">
+                            <PhotoCollageApp />
+                        </PageRoute>
                     } />
 
                     <Route path="/drawing-studio/*" element={
-                        <Suspense fallback={<Loading />}>
-                            <PageWrapper>
-                                <div className="p-6 max-w-[1920px] mx-auto">
-                                    <DrawingStudioApp />
-                                </div>
-                            </PageWrapper>
-                        </Suspense>
+                        <PageRoute className="p-6 max-w-[1920px] mx-auto">
+                            <DrawingStudioApp />
+                        </PageRoute>
                     } />
 
                     <Route path="/print-sheet" element={
-                        <Suspense fallback={<Loading />}>
-                            <PageWrapper>
-                                <div className="p-6 max-w-[1920px] mx-auto">
-                                    <PrintSheetApp />
-                                </div>
-                            </PageWrapper>
-                        </Suspense>
+                        <PageRoute className="p-6 max-w-[1920px] mx-auto">
+                            <PrintSheetApp />
+                        </PageRoute>
                     } />
 
                     <Route path="/gallery" element={
-                        <Suspense fallback={<Loading />}>
-                            <PageWrapper>
-                                <GalleryApp />
-                            </PageWrapper>
-                        </Suspense>
+                        <PageRoute>
+                            <GalleryApp />
+                        </PageRoute>
                     } />
 
                     <Route path="/layer-lab" element={
-                        <Suspense fallback={<Loading />}>
-                            <PageWrapper>
-                                <LayerLabApp />
-                            </PageWrapper>
-                        </Suspense>
+                        <PageRoute>
+                            <LayerLabApp />
+                        </PageRoute>
                     } />
                 </Route>
             </Routes>

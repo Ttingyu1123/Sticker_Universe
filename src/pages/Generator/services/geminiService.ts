@@ -1,6 +1,14 @@
 
 import { GoogleGenAI } from "@google/genai";
 
+const clientCache = new Map<string, GoogleGenAI>();
+function getClient(apiKey: string): GoogleGenAI {
+    if (!clientCache.has(apiKey)) {
+        clientCache.set(apiKey, new GoogleGenAI({ apiKey }));
+    }
+    return clientCache.get(apiKey)!;
+}
+
 export async function generateSticker(
   apiKey: string,
   base64Image: string,
@@ -14,7 +22,7 @@ export async function generateSticker(
   variationStrength: number = 3,
   preserveComposition: boolean = false
 ): Promise<{ imageUrl: string; prompt: string }> {
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getClient(apiKey);
   const normalizedPhrase = (phrase || '').trim();
   const phraseForPrompt = normalizedPhrase || 'a context-appropriate sticker meaning chosen by the model';
 
@@ -175,7 +183,7 @@ export async function generateImage(
   model: string = "gemini-3-pro-image-preview",
   imageSize: "1K" | "2K" | "4K" = "1K"
 ): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getClient(apiKey);
 
   const config: any = {
     imageConfig: {
@@ -246,7 +254,7 @@ export async function generateCaptions(
   base64Image: string,
   model: string = "gemini-1.5-pro"
 ): Promise<string[]> {
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getClient(apiKey);
 
   const prompt = `
     Analyze this image and suggest 5 short, funny, and relevant captions suitable for a LINE sticker.
@@ -297,7 +305,7 @@ export async function suggestStickerPhrases(
   count: number,
   model: string = "gemini-2.0-flash"
 ): Promise<string[]> {
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getClient(apiKey);
   const safeCount = Math.max(1, Math.min(32, count));
 
   const prompt = `
@@ -349,7 +357,7 @@ Rules:
 }
 
 export async function listAvailableModels(apiKey: string): Promise<string[]> {
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getClient(apiKey);
   try {
     const response: any = await ai.models.list();
     if (response.models) {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import DOMPurify from 'dompurify';
 
 interface BubblePickerProps {
     onSelect: (svgContent: string) => void;
@@ -70,7 +71,7 @@ export const BubblePicker: React.FC<BubblePickerProps> = ({ onSelect, onClose })
                         >
                             <div
                                 className="w-full aspect-[4/3] flex items-center justify-center p-2"
-                                dangerouslySetInnerHTML={{ __html: bubble.svg.replace(/width="\d+"/, 'width="100%"').replace(/height="\d+"/, 'height="100%"') }}
+                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(bubble.svg.replace(/width="\d+"/, 'width="100%"').replace(/height="\d+"/, 'height="100%"'), { USE_PROFILES: { svg: true } }) }}
                             />
                             <span className="text-sm font-bold text-slate-600 group-hover:text-indigo-600">
                                 {bubble.name}

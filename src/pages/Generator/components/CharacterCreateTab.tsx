@@ -13,6 +13,7 @@ import {
   generateCharacterStory,
   optimizeCharacterPrompt,
 } from '../../../features/character-creator-core';
+import { safeSaveToLocalStorage } from '../../../shared/localStorage';
 
 interface CharacterCreateTabProps {
   apiKey: string;
@@ -164,11 +165,11 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
       lockedKeys: Array.from(lockedKeys),
       ideaInput,
     };
-    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(payload));
+    safeSaveToLocalStorage(DRAFT_STORAGE_KEY, payload);
   }, [worldMode, promptState, lockedKeys, ideaInput]);
 
   useEffect(() => {
-    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profiles));
+    safeSaveToLocalStorage(PROFILE_STORAGE_KEY, profiles);
   }, [profiles]);
 
   useEffect(() => {

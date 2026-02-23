@@ -9,6 +9,7 @@ import { Sticker } from './types';
 import { Button } from '../../components/ui/Button';
 import { AnimatePresence, motion } from 'framer-motion';
 import { loadGeminiApiKey, saveGeminiApiKey, clearGeminiApiKey } from '../../shared/geminiApiKey';
+import { safeSaveToLocalStorage, safeLoadFromLocalStorage } from '../../shared/localStorage';
 
 import ImageGeneratorTab from './components/ImageGeneratorTab';
 import HolidayStickerTab from './components/HolidayStickerTab';
@@ -46,34 +47,26 @@ const App: React.FC = () => {
 
   // Persistent History for Image Gen
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('image_gen_history');
-      if (saved) {
-        setStickers(JSON.parse(saved));
-      }
-    } catch (e) {
-      console.error("Failed to load history", e);
-    }
+    const saved = safeLoadFromLocalStorage<Sticker[]>('image_gen_history');
+    if (saved) setStickers(saved);
   }, []);
 
   useEffect(() => {
     if (stickers.length > 0) {
-      try {
-        localStorage.setItem('image_gen_history', JSON.stringify(stickers.slice(0, 5)));
-      } catch (e) {
-        console.warn("LocalStorage Quota Exceeded. Failed to save history cache:", e);
-        // We can safely ignore this error; history is also saved to IndexedDB (saveStickerToDB)
-        // This just means the "Recent History" might reset on refresh for some users.
-      }
+      // History is also saved to IndexedDB (saveStickerToDB);
+      // this localStorage cache is best-effort only.
+      safeSaveToLocalStorage('image_gen_history', stickers.slice(0, 5));
     }
   }, [stickers]);
 
+  const isValidGeminiKey = (key: string) => key.startsWith('AIza') && key.length >= 35;
+
   const handleSaveKey = () => {
-    if (!tempKey.trim()) {
-      setError("請輸入有效的 API Key");
+    const key = tempKey.trim();
+    if (!key || !isValidGeminiKey(key)) {
+      setError(t('generator.apiKey.invalid'));
       return;
     }
-    const key = tempKey.trim();
     setApiKey(key);
     saveGeminiApiKey(key, rememberKey);
 
@@ -172,7 +165,7 @@ const App: React.FC = () => {
       const processedImageUrl = await smartRemoveBackground(stickerToProcess.imageUrl);
       const updatedSticker = { ...stickerToProcess, imageUrl: processedImageUrl };
       setStickers(prev => prev.map(s => s.id === stickerId ? updatedSticker : s));
-      saveStickerToDB(updatedSticker).catch(console.error);
+      saveStickerToDB(updatedSticker).catch(err => console.error('[Generator] Failed to save processed sticker to DB:', err));
     } catch (err: any) {
       console.error("Failed to remove background:", err);
     }
@@ -211,7 +204,7 @@ const App: React.FC = () => {
     navigator.clipboard.writeText(promptText).then(() => {
       // Small feedback using standard alert for now, or could use a toast if available
       // Using a console log to avoid disrupting flow, or we could add a temporary success state
-    }).catch(console.error);
+    }).catch(err => console.error('[Generator] Failed to copy prompt to clipboard:', err));
   };
 
   const downloadAllAsZip = async () => {
@@ -241,8 +234,8 @@ const App: React.FC = () => {
         document.body.removeChild(link);
       })
       .catch(err => {
-        console.error("Failed to generate zip:", err);
-        setError("壓縮檔案失敗。");
+        console.error('[Generator] Failed to generate zip:', err);
+        setError(t('generator.errors.zipFailed'));
       })
       .finally(() => {
         setIsZipping(false);
@@ -261,7 +254,7 @@ const App: React.FC = () => {
       description: description
     };
     setStickers(prev => [newSticker, ...prev]);
-    saveStickerToDB(newSticker).catch(console.error);
+    saveStickerToDB(newSticker).catch(err => console.error('[Generator] Failed to save new sticker to DB:', err));
 
     // FIX: Only auto-show preview if we are on the Image Generator tab
     // Other tabs (like Greeting Card) handle their own preview/results logic
