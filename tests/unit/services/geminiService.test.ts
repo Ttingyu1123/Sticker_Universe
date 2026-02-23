@@ -22,7 +22,7 @@ const { generateCaptions, suggestStickerPhrases, listAvailableModels } = await i
     '../../../src/pages/Generator/services/geminiService'
 );
 
-const FAKE_API_KEY = 'AIzaFakeKey1234567890123456789012345';
+const FAKE_API_KEY = 'FAKE_KEY_FOR_TESTING_ONLY_NOT_REAL';
 const FAKE_IMAGE = 'data:image/jpeg;base64,/9j/abc123';
 
 beforeEach(() => {
@@ -123,8 +123,8 @@ describe('suggestStickerPhrases', () => {
 
 describe('GoogleGenAI singleton (getClient)', () => {
     // Use fresh keys unique to this describe block to avoid clientCache collisions
-    const SINGLETON_KEY_A = 'AIzaSingletonTestKeyAAAAAAAAAAAAAAAAAAA';
-    const SINGLETON_KEY_B = 'AIzaSingletonTestKeyBBBBBBBBBBBBBBBBBBB';
+    const SINGLETON_KEY_A = 'FAKE_SINGLETON_KEY_AAAAAAAAAAAAAAAAAAA';
+    const SINGLETON_KEY_B = 'FAKE_SINGLETON_KEY_BBBBBBBBBBBBBBBBBBB';
 
     it('reuses the same instance for the same apiKey across functions', async () => {
         mockGenerateContent.mockResolvedValue({
@@ -145,7 +145,7 @@ describe('GoogleGenAI singleton (getClient)', () => {
         });
 
         await generateCaptions(SINGLETON_KEY_B, FAKE_IMAGE);
-        await generateCaptions('AIzaSingletonTestKeyCCCCCCCCCCCCCCCCCCC', FAKE_IMAGE);
+        await generateCaptions('FAKE_SINGLETON_KEY_CCCCCCCCCCCCCCCCCCC', FAKE_IMAGE);
 
         // Both are new keys not seen before, so each should create one instance
         expect(GoogleGenAI).toHaveBeenCalledTimes(2);
