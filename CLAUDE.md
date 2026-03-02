@@ -282,6 +282,46 @@ React State (useState/useReducer)
 - `features/*-core/index.ts` 只做 re-export，不含業務邏輯
 - 業務邏輯保留在各自 `pages/` 內，features/ 只是統一的對外介面
 
+### UI 架構強制規則
+- **禁止在 page 檔內建立 local `<header>`**，一律使用 `src/layouts/Layout.tsx` 的 Global Header
+- 新功能路由需在 `Layout.tsx` 的 `getPageTitle()` 加對應標題，並在 sidebar `<NavItem>` 加入連結
+- 主要內容容器標準：`container mx-auto px-4 max-w-[1920px]`
+
+### 設計系統色票（Mint/Cream 主題）
+禁止使用 `text-gray-*` / `bg-gray-*`，一律使用專案色票：
+
+| 用途 | Tailwind Class | Hex |
+|------|---------------|-----|
+| App 背景 | `bg-cream-light` | `#E3F3F1` |
+| 側欄 / 卡片 | `bg-cream` | `#F8F7EE` |
+| 主強調色 | `text-primary` / `bg-primary` | `#A186B4` |
+| 內文 | `text-bronze-text` | `#4A4055` |
+| 邊框 | `border-cream-dark` | `#D8D7CE` |
+| 靜音文字 | `text-bronze-text/60` | 取代 `text-gray-500` |
+
+互動元素：
+- Primary 按鈕：`bg-primary text-white hover:bg-primary-hover`
+- Ghost 按鈕：`text-bronze-light hover:text-primary hover:bg-white/60`
+
+### 新功能整合必做清單
+新增任何 App / Tab 時，以下項目必須完成：
+- [ ] 圖片下載 / 分享一律用 `useImageShare` hook（`src/hooks/useImageShare.ts`），不要自行寫 `<a>` 下載
+- [ ] 成功生成後立即呼叫 `saveStickerToDB()`（`src/db.ts`）自動存入 Gallery
+- [ ] 上傳區提供「從作品集選取」按鈕，使用 `<GalleryPicker />` modal
+- [ ] AI 生成採兩步驟：先 text 模式最佳化 prompt → 再 image 模式生成
+
+### AI 輸出安全規則
+- **JSON 回傳前必須去除 Markdown code block**：
+  ```typescript
+  const json = rawText.replace(/```json\n?|\n?```/g, '').trim();
+  ```
+- **渲染 AI 資料前必須強制型別**（防空白頁 crash）：
+  ```typescript
+  title: String(data.title || "")  // 不能直接 {data.title}
+  ```
+- **localStorage 存 base64 圖片必須 try-catch + 限制筆數**（防 `QuotaExceededError`）：
+  使用 `safeSaveToLocalStorage`（`src/shared/localStorage.ts`），history 最多保留 3–5 筆
+
 ---
 
 ## 文件慣例
