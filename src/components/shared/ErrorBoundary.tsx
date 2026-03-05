@@ -22,9 +22,26 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
     componentDidCatch(error: Error, info: React.ErrorInfo) {
         console.error('[ErrorBoundary] Uncaught error:', error, info.componentStack);
+
+        // Detect stale chunk errors caused by new deployments invalidating old hashed filenames.
+        // Auto-reload once to fetch the fresh index.html and updated chunks.
+        const isChunkLoadError =
+            error.message.includes('Failed to fetch dynamically imported module') ||
+            error.message.includes('Importing a module script failed') ||
+            error.message.includes('Unable to preload CSS') ||
+            error.name === 'ChunkLoadError';
+
+        if (isChunkLoadError) {
+            const reloadKey = 'chunkErrorReloaded';
+            if (!sessionStorage.getItem(reloadKey)) {
+                sessionStorage.setItem(reloadKey, '1');
+                window.location.reload();
+            }
+        }
     }
 
     handleReset = () => {
+        sessionStorage.removeItem('chunkErrorReloaded');
         this.setState({ hasError: false, error: null });
     };
 
