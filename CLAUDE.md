@@ -331,6 +331,24 @@ React State (useState/useReducer)
 
 ---
 
+## 部署與除錯
+
+### 部署環境
+- 平台：**Vercel**（push to main 自動觸發部署）
+- PWA Service Worker：Workbox `autoUpdate` 策略，快取所有 `.js/.css/.html`
+- 機密管理：API 金鑰存在 **Vercel 環境變數** 或 **GitHub Secrets**，**不是** `.env` 檔
+
+### 修完 bug 後必確認
+1. 除了本地測試，還要考慮 **SW 快取** 和 **Vite chunk hash** 是否會影響 deployed 結果
+2. Lazy-loaded chunk 檔名含 hash（如 `App-Br3uJH07.js`），新部署後舊 hash 失效 → 用戶端會出現 "Failed to fetch dynamically imported module"
+3. `ErrorBoundary` 已加入 chunk load error 自動 reload 機制（`src/components/shared/ErrorBoundary.tsx`）
+
+### 遇到失敗的原則
+- **同一方向最多嘗試 2 次**，失敗就換策略，不要重試同一方法
+- 如果 agent 嘗試建立檔案失敗（hook 限制），立刻改用 Python/Bash script
+
+---
+
 ## 注意事項
 
 - `src/locales/zh-TW-temp.json` 已刪除，不要重新建立
@@ -338,3 +356,16 @@ React State (useState/useReducer)
 - `GoogleGenAI` 實例在 `geminiService.ts` 已有 Map 快取（clientCache），同 key 不會重複建立實例
 - `@imgly/background-removal` 模型資料由 `copy-imgly-assets.js` 在 `postinstall` 時複製到 `public/imgly-data/`
 - GIF 動畫使用 `gif.js` 的 Web Worker（`public/gif.worker.js`），不要移動此檔案位置
+
+
+## Available CLI Tools (OpenCLI)
+
+Run `opencli list` to discover all available CLI tools. Use `opencli <command> -f json` for structured output.
+
+Key commands:
+- `opencli list` — list all available tools (50+ sites, 200+ commands)
+- `opencli doctor` — check daemon/extension connectivity
+- `opencli <site> <action> --format json` — execute with JSON output
+- `opencli <site> <action> --format md` — execute with Markdown output
+
+> Requires: `npm install -g @jackwener/opencli`. Public commands work without Chrome Extension.
