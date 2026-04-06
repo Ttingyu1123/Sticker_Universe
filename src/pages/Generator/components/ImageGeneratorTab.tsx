@@ -35,7 +35,13 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
     const [customHeight, setCustomHeight] = useState('720');
     const [isCustomRatio, setIsCustomRatio] = useState(false);
     const [showGallery, setShowGallery] = useState(false);
+    const [selectedModel, setSelectedModel] = useState<string>('gemini-3-pro-image-preview');
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const IMAGE_MODELS = [
+        { id: 'gemini-3-pro-image-preview', name: 'Gemini 3 Pro Image', badge: '' },
+        { id: 'imagen-4.0-generate-001', name: 'Imagen 4', badge: '免費 25/日' },
+    ] as const;
 
     useEffect(() => {
         if (!externalPrompt || !externalPrompt.trim()) return;
@@ -100,7 +106,8 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                 apiKey,
                 prompt,
                 referenceImage,
-                aspectRatio
+                aspectRatio,
+                selectedModel
             );
 
             onSuccess(imageUrl, prompt || 'Generated Image');
@@ -378,6 +385,24 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                                 </div>
                             </div>
                         )}
+                    </div>
+
+                    {/* Model Selector */}
+                    <div className="space-y-3">
+                        <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">模型</label>
+                        <div className="flex flex-wrap gap-2">
+                            {IMAGE_MODELS.map((m) => (
+                                <button
+                                    key={m.id}
+                                    onClick={() => setSelectedModel(m.id)}
+                                    className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${selectedModel === m.id
+                                        ? 'bg-primary text-white border-primary shadow-md'
+                                        : 'bg-cream-light border-cream-dark text-bronze-light hover:bg-white hover:border-primary/30'}`}
+                                >
+                                    {m.name}{m.badge && <span className="ml-1 text-[10px] opacity-75">({m.badge})</span>}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Aspect Ratio */}

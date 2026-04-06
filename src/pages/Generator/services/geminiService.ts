@@ -184,13 +184,11 @@ export async function generateImage(
   imageSize: "1K" | "2K" | "4K" = "1K"
 ): Promise<string> {
   const ai = getClient(apiKey);
+  const isImagen = model.startsWith('imagen-');
 
-  const config: any = {
-    imageConfig: {
-      aspectRatio: aspectRatio,
-      imageSize
-    }
-  };
+  const config: any = isImagen
+    ? { responseModalities: ['IMAGE'], imageConfig: { aspectRatio } }
+    : { imageConfig: { aspectRatio, imageSize } };
 
   const contents: any = [
     {
@@ -200,7 +198,8 @@ export async function generateImage(
     }
   ];
 
-  if (base64Image) {
+  // Imagen 4 is text-to-image only, skip reference image
+  if (base64Image && !isImagen) {
     contents[0].parts.unshift({
       inlineData: {
         data: base64Image.split(',')[1] || base64Image,
