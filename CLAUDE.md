@@ -27,28 +27,6 @@ npm run e2e              # Playwright E2E 測試
 
 ## 軟體架構
 
-### 整體架構圖
-
-```
-Browser (PWA)
-├── Service Worker (Workbox)          # 離線快取
-├── React 19 App
-│   ├── React Router v7               # SPA 路由
-│   ├── framer-motion                 # 頁面切換動畫
-│   ├── i18next                       # 多語系 (en / zh-TW)
-│   └── Pages (lazy-loaded)
-│       ├── Landing                   # 首頁 /
-│       ├── Generator                 # AI 生成器 /generator/*
-│       ├── ImageEditor               # 圖像編輯 /image-editor/*
-│       ├── PhotoCollage              # 照片拼貼 /photo-collage/*
-│       ├── DrawingStudio             # 手繪工作室 /drawing-studio/*
-│       ├── PrintSheet                # 列印版面 /print-sheet
-│       ├── Gallery                   # 作品庫 /gallery
-│       └── LayerLab                  # 圖層實驗室 /layer-lab
-└── External Services
-    └── Google Gemini API             # 直接從瀏覽器呼叫 (HTTPS)
-```
-
 ### 路由結構
 
 | 路徑 | 頁面 | 說明 |
@@ -66,225 +44,79 @@ Browser (PWA)
 
 ```
 src/
-├── App.tsx                  # 路由設定、PageRoute wrapper (ErrorBoundary + Suspense)
-├── main.tsx                 # 應用程式入口，掛載 BrowserRouter + i18n
-├── db.ts                    # IndexedDB 操作 (idb): 貼紙 CRUD
-├── i18n.ts                  # i18next 初始化，語言偵測設定
-├── index.css                # 全域樣式，Tailwind v4 指令
-│
-├── pages/                   # 各功能頁面（按功能模組切分）
-│   ├── Landing/             # 首頁：CategorySection、TabCard 入口卡片
-│   ├── Generator/           # AI 生成器
-│   │   ├── App.tsx          # API Key 管理、Tab 切換、全域結果 Gallery
-│   │   ├── components/      # 9 個 Tab 元件（StyleStickerTab, ImageGeneratorTab...）
-│   │   ├── services/
-│   │   │   ├── geminiService.ts       # 核心 Gemini API 呼叫（sticker/image/caption）
-│   │   │   └── geminiMangaService.ts  # 漫畫分格專用 Gemini 服務
-│   │   ├── config/apps.ts   # Generator 功能 app 清單設定
-│   │   ├── constants/       # 生成器常數（模型清單、提示詞模板）
-│   │   └── types.ts         # Sticker、GeneratorState 等型別
-│   │
-│   ├── ImageEditor/         # 圖像編輯套件 (8 Tabs)
-│   │   ├── App.tsx          # Tab 切換控制器（react-aria Tabs）
-│   │   └── components/
-│   │       ├── PackagerTab.tsx      # 批次處理：背景移除、格式轉換
-│   │       ├── SmartRemoveTab.tsx   # AI 背景移除 (@imgly/background-removal)
-│   │       ├── AnimatorTab.tsx      # GIF 動畫製作 (gif.js)
-│   │       ├── EditorTab.tsx        # 裁切/旋轉/濾鏡 (cropperjs)
-│   │       ├── ImageResizerTab.tsx  # 尺寸調整
-│   │       ├── OutpaintTab.tsx      # 魔法擴圖 (Gemini 圖生圖)
-│   │       ├── LocalRedrawTab.tsx   # 局部重繪 (Gemini 遮罩修補)
-│   │       └── SvgConverterTab.tsx  # 點陣圖轉 SVG (imagetracerjs)
-│   │
-│   ├── PhotoCollage/        # 照片拼貼
-│   │   ├── App.tsx          # 拼貼主控制器
-│   │   ├── AutoCollageTab.tsx # AI 自動排版（Gemini 建議）
-│   │   ├── components/      # PhotoCanvas、Controls
-│   │   ├── geminiService.ts # 拼貼專用 Gemini 服務
-│   │   └── utils/           # backgroundPresets、geometry 工具
-│   │
-│   ├── DrawingStudio/       # 手繪工作室
-│   │   ├── App.tsx          # 畫布 + 圖層 + 筆刷控制
-│   │   ├── components/      # CanvasToolbar、LayerPanel、BrushSettingsPanel
-│   │   ├── hooks/
-│   │   │   └── useBrushPresets.ts  # 筆刷預設管理
-│   │   └── types.ts         # DrawingLayer、BrushSettings 型別
-│   │
-│   ├── PrintSheet/          # 列印版面
-│   │   ├── App.tsx          # 列印版面主控制器
-│   │   └── components/
-│   │       ├── PrintSheetTab.tsx    # 貼紙列印排版
-│   │       └── IDPrintStudioTab.tsx # 證件照排版
-│   │
-│   ├── Gallery/             # 作品庫（IndexedDB 瀏覽）
-│   ├── LayerLab/            # 圖層合成/遮罩實驗室
-│   │   ├── components/      # EditorCanvas、MaskCanvas、SplitPreviewModal
-│   │   └── utils/           # exportUtils、maskUtils
-│   │
-│   ├── Editor/              # 獨立 Canvas 編輯器（貼紙製作）
-│   │   ├── components/      # EditorCanvas、Sidebar、Toolbar、BubblePicker、LayerObject
-│   │   ├── hooks/
-│   │   │   └── useHistory.ts  # Undo/Redo 歷程管理
-│   │   ├── utils/           # exportUtils、idUtils、textMeasurement
-│   │   └── types.ts         # Layer、LayerType、TextProperties、CanvasConfig
-│   │
-│   ├── Packager/            # 批次背景處理引擎
-│   │   └── services/ai/
-│   │       └── backgroundRemoval.ts  # @imgly 背景移除包裝
-│   │
-│   └── Eraser/              # 橡皮擦工具頁面
-│
-├── features/                # 可重用 Feature Cores（re-export 模式）
-│   ├── editor-core/index.ts      # 匯出 EditorCanvas、Layer 型別、useHistory
-│   ├── animator-core/index.ts    # 匯出 LayerCanvas、LayerProperties
-│   ├── packager-core/index.ts    # 匯出 processImage、fileToBase64
-│   ├── eraser-core/index.ts      # 橡皮擦工具 exports
-│   ├── mask-core/index.ts        # 遮罩工具 exports
-│   └── character-creator-core/  # 角色創建核心（service + constants + types）
-│
-├── components/              # 跨頁面共用元件
-│   ├── GalleryPicker.tsx    # 從 IndexedDB 挑選作品的彈窗
-│   ├── LinePreviewModal.tsx # LINE 貼圖預覽模態窗
-│   ├── shared/
-│   │   ├── APIKeySetup.tsx  # Gemini API Key 設定元件
-│   │   └── ErrorBoundary.tsx # React Error Boundary
-│   └── ui/
-│       ├── Button.tsx       # 共用按鈕元件
-│       └── LanguageSwitcher.tsx # 語言切換器
-│
-├── shared/                  # 共用工具函式（純邏輯，無 UI）
-│   ├── geminiApiKey.ts      # API Key 讀取/儲存/清除（localStorage/sessionStorage）
-│   ├── localStorage.ts      # safeSaveToLocalStorage / safeLoadFromLocalStorage
-│   └── types/
-│       └── sticker.ts       # Sticker 型別定義
-│
-├── locales/                 # i18n 翻譯檔
-│   ├── en.json              # 英文翻譯（主要）
-│   ├── zh-TW.json           # 繁體中文翻譯
-│   └── landing_en.json      # 首頁專用英文翻譯
-│
-├── config/
-│   └── landingTabs.ts       # Landing 頁面 Tab 設定資料
-│
-├── constants/
-│   └── top100Styles.ts      # Top 100 風格常數
-│
-└── layouts/
-    └── Layout.tsx           # 全域版面（含 Header、語言切換）
+├── pages/       # 各功能頁面（Landing/Generator/ImageEditor/PhotoCollage/DrawingStudio/PrintSheet/Gallery/LayerLab/Editor/Packager/Eraser）
+├── features/    # 可重用 Feature Cores（re-export 模式，不含業務邏輯）
+├── components/  # 跨頁面共用元件（GalleryPicker、LinePreviewModal、shared/、ui/）
+├── shared/      # 共用工具函式（geminiApiKey、localStorage、types/）
+├── locales/     # i18n 翻譯檔（en.json、zh-TW.json、landing_en.json）
+├── config/      # landingTabs.ts
+├── constants/   # top100Styles.ts
+└── layouts/     # Layout.tsx（含 Global Header、語言切換）
 ```
 
-### 資料流架構
+### 資料流
 
-```
-使用者操作
-    │
-    ▼
-React State (useState/useReducer)
-    │
-    ├─── 持久化 ──→ IndexedDB (idb)            # 貼紙/作品庫
-    │              src/db.ts
-    │
-    ├─── 輕量快取 → localStorage / sessionStorage  # API Key、近期歷程
-    │              src/shared/geminiApiKey.ts
-    │              src/shared/localStorage.ts
-    │
-    └─── AI 生成 → Google Gemini API            # 直連 (無後端代理)
-                   src/pages/Generator/services/geminiService.ts
-                   src/pages/PhotoCollage/geminiService.ts
-                   src/pages/Generator/services/geminiMangaService.ts
-```
+- React State → **IndexedDB** (idb) — 貼紙/作品庫持久化（`src/db.ts`）
+- React State → **localStorage/sessionStorage** — API Key、近期歷程（`src/shared/`）
+- React State → **Google Gemini API** — 直連無後端代理（`src/pages/*/geminiService.ts`）
 
-### Gemini API Key 管理機制
+### Gemini API Key 管理
 
-```
-使用者輸入 API Key
-    │
-    ├─ 勾選「記住」→ localStorage   (跨 session 持久)
-    └─ 未勾選     → sessionStorage (關閉分頁即清除)
+- 勾選「記住」→ localStorage（跨 session 持久）；未勾選 → sessionStorage（關閉分頁清除）
+- 驗證規則：`key.startsWith('AIza') && key.length >= 35`
 
-驗證規則: key.startsWith('AIza') && key.length >= 35
-```
-
-### 關鍵第三方套件用途
+### 關鍵第三方套件
 
 | 套件 | 用途 |
 |------|------|
-| `@google/genai` | Gemini API 呼叫（圖像生成、文字生成） |
-| `@imgly/background-removal` | 本地 AI 背景移除（WASM/ONNX，無需伺服器） |
-| `@xenova/transformers` | 本地 ML 推論（Hugging Face 模型） |
-| `gif.js` | 前端 GIF 動畫合成（Web Worker） |
-| `jspdf` + `html2canvas` | 匯出 PDF 或高解析圖片 |
+| `@google/genai` | Gemini API（圖像/文字生成） |
+| `@imgly/background-removal` | 本地 AI 背景移除（WASM/ONNX） |
+| `@xenova/transformers` | 本地 ML 推論（Hugging Face） |
+| `gif.js` | 前端 GIF 合成（Web Worker） |
+| `jspdf` + `html2canvas` | 匯出 PDF/高解析圖片 |
 | `jszip` | 批次打包下載（.zip） |
-| `cropperjs` + `react-image-crop` | 圖片裁切工具 |
-| `imagetracerjs` | 點陣圖轉 SVG 向量化 |
-| `framer-motion` | 頁面/元件進出場動畫 |
-| `react-aria-components` | 無障礙 UI 元件（Tabs 等） |
+| `cropperjs` + `react-image-crop` | 圖片裁切 |
+| `imagetracerjs` | 點陣圖轉 SVG |
+| `framer-motion` | 頁面/元件動畫 |
 | `dompurify` | SVG/HTML sanitize（防 XSS） |
 | `idb` | IndexedDB Promise 封裝 |
-| `upng-js` | PNG 壓縮處理 |
 
 ### PWA 設定
 
-- App 名稱：**CreativeOS**（`vite.config.ts` manifest）
-- Service Worker：Workbox autoUpdate 策略
+- App 名稱：**CreativeOS**；Service Worker：Workbox autoUpdate
 - 快取排除：`*.wasm`、`ort-*.mjs/js`（避免快取過大的 ML 模型）
-- imgly-data（背景移除模型資料）不走 navigateFallback
-- 部署平台：**Vercel**（`vercel.json` 設定）
+- 部署平台：**Vercel**（push to main 自動觸發）
 
 ---
 
 ## 安全規則（必須遵守）
 
-### SVG / HTML 渲染
-- **所有 `dangerouslySetInnerHTML` 的 SVG 內容必須先經過 DOMPurify sanitize**
-- 使用 svg profile：
-  ```tsx
-  import DOMPurify from 'dompurify';
-  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(svgContent, { USE_PROFILES: { svg: true, svgFilters: true } }) }}
-  ```
-
-### Gemini API Key 驗證
-- 儲存前必須驗證格式：
-  ```typescript
-  const isValidGeminiKey = (key: string) => key.startsWith('AIza') && key.length >= 35;
-  ```
+- **所有 `dangerouslySetInnerHTML` SVG 必須先 DOMPurify sanitize**（svg + svgFilters profile）
+- **Gemini API Key 儲存前必須驗證格式**（`startsWith('AIza') && length >= 35`）
 
 ---
 
 ## 程式碼規範
 
-### localStorage 操作
-- **禁止直接 `try/catch` 包 localStorage**，統一使用共用工具：
-  ```typescript
-  import { safeSaveToLocalStorage, safeLoadFromLocalStorage } from '../../shared/localStorage';
-  ```
+### localStorage
+禁止直接 `try/catch` 包 localStorage，統一使用 `safeSaveToLocalStorage` / `safeLoadFromLocalStorage`（`src/shared/localStorage.ts`）。
 
 ### 多語系（i18n）
-- **禁止硬編碼中文字串**，一律使用 `t('key')` 翻譯函式
-- 新增翻譯鍵時，`en.json` 和 `zh-TW.json` 都要同步更新
-- 修改後跑 `npm run validate:i18n` 確認
+- 禁止硬編碼中文字串，一律使用 `t('key')`
+- 新增翻譯鍵時 `en.json` + `zh-TW.json` 同步更新，修改後跑 `npm run validate:i18n`
 
 ### Error Boundary
-- 每個 lazy-loaded 頁面已由 `src/App.tsx` 的 `PageRoute` 包覆 `ErrorBoundary`
-- 新增頁面路由時，使用同樣的 `PageRoute` wrapper
-
-### 新增路由頁面
-1. 在 `src/pages/` 下建立新目錄
-2. 在 `src/App.tsx` 用 `React.lazy` 載入
-3. 使用 `PageRoute` wrapper（內含 ErrorBoundary + Suspense）
-4. 確認符合 `check:boundaries` 規範
+- 每個 lazy-loaded 頁面由 `src/App.tsx` 的 `PageRoute` 包覆 ErrorBoundary + Suspense
+- 新增路由頁面時，使用同樣的 `PageRoute` wrapper，並在 `Layout.tsx` 的 `getPageTitle()` 加標題
 
 ### 元件大小
-- 單一元件超過 500 行應考慮拆分
-- 優先將 side-effect 邏輯提取為 custom hook
+- 單一元件超過 500 行應拆分；side-effect 邏輯提取為 custom hook
 
-### features/ 目錄規範
+### features/ 規範
 - `features/*-core/index.ts` 只做 re-export，不含業務邏輯
-- 業務邏輯保留在各自 `pages/` 內，features/ 只是統一的對外介面
 
 ### UI 架構強制規則
-- **禁止在 page 檔內建立 local `<header>`**，一律使用 `src/layouts/Layout.tsx` 的 Global Header
-- 新功能路由需在 `Layout.tsx` 的 `getPageTitle()` 加對應標題，並在 sidebar `<NavItem>` 加入連結
+- **禁止在 page 檔內建立 local `<header>`**，一律使用 `src/layouts/Layout.tsx` Global Header
 - 主要內容容器標準：`container mx-auto px-4 max-w-[1920px]`
 
 ### 設計系統色票（Mint/Cream 主題）
@@ -299,73 +131,41 @@ React State (useState/useReducer)
 | 邊框 | `border-cream-dark` | `#D8D7CE` |
 | 靜音文字 | `text-bronze-text/60` | 取代 `text-gray-500` |
 
-互動元素：
-- Primary 按鈕：`bg-primary text-white hover:bg-primary-hover`
-- Ghost 按鈕：`text-bronze-light hover:text-primary hover:bg-white/60`
+互動元素：Primary 按鈕 `bg-primary text-white hover:bg-primary-hover`；Ghost 按鈕 `text-bronze-light hover:text-primary hover:bg-white/60`
 
 ### 新功能整合必做清單
-新增任何 App / Tab 時，以下項目必須完成：
-- [ ] 圖片下載 / 分享一律用 `useImageShare` hook（`src/hooks/useImageShare.ts`），不要自行寫 `<a>` 下載
+- [ ] 圖片下載/分享一律用 `useImageShare` hook（`src/hooks/useImageShare.ts`）
 - [ ] 成功生成後立即呼叫 `saveStickerToDB()`（`src/db.ts`）自動存入 Gallery
 - [ ] 上傳區提供「從作品集選取」按鈕，使用 `<GalleryPicker />` modal
 - [ ] AI 生成採兩步驟：先 text 模式最佳化 prompt → 再 image 模式生成
 
 ### AI 輸出安全規則
-- **JSON 回傳前必須去除 Markdown code block**：
-  ```typescript
-  const json = rawText.replace(/```json\n?|\n?```/g, '').trim();
-  ```
-- **渲染 AI 資料前必須強制型別**（防空白頁 crash）：
-  ```typescript
-  title: String(data.title || "")  // 不能直接 {data.title}
-  ```
-- **localStorage 存 base64 圖片必須 try-catch + 限制筆數**（防 `QuotaExceededError`）：
-  使用 `safeSaveToLocalStorage`（`src/shared/localStorage.ts`），history 最多保留 3–5 筆
-
----
-
-## 文件慣例
-
-- Code review 記錄存放於 `docs/code-review-YYYY-MM-DD.md`
-- 不要建立 `tasks/` 目錄，統一用 `docs/`
+- JSON 回傳前必須去除 Markdown code block（`.replace(/```json\n?|\n?```/g, '').trim()`）
+- 渲染 AI 資料前必須強制型別（`String(data.title || "")`，防空白頁 crash）
+- localStorage 存 base64 圖片必須用 `safeSaveToLocalStorage`，history 最多保留 3–5 筆（防 `QuotaExceededError`）
 
 ---
 
 ## 部署與除錯
 
-### 部署環境
-- 平台：**Vercel**（push to main 自動觸發部署）
-- PWA Service Worker：Workbox `autoUpdate` 策略，快取所有 `.js/.css/.html`
-- 機密管理：API 金鑰存在 **Vercel 環境變數** 或 **GitHub Secrets**，**不是** `.env` 檔
-
-### 修完 bug 後必確認
-1. 除了本地測試，還要考慮 **SW 快取** 和 **Vite chunk hash** 是否會影響 deployed 結果
-2. Lazy-loaded chunk 檔名含 hash（如 `App-Br3uJH07.js`），新部署後舊 hash 失效 → 用戶端會出現 "Failed to fetch dynamically imported module"
-3. `ErrorBoundary` 已加入 chunk load error 自動 reload 機制（`src/components/shared/ErrorBoundary.tsx`）
-
-### 遇到失敗的原則
-- **同一方向最多嘗試 2 次**，失敗就換策略，不要重試同一方法
-- 如果 agent 嘗試建立檔案失敗（hook 限制），立刻改用 Python/Bash script
+- 平台：**Vercel**（push to main 自動部署）；機密存 Vercel 環境變數 / GitHub Secrets，不用 `.env`
+- 修完 bug 注意 SW 快取和 Vite chunk hash（lazy-loaded chunk 新部署後舊 hash 失效，會出現 "Failed to fetch dynamically imported module"）
+- `ErrorBoundary` 已加入 chunk load error 自動 reload（`src/components/shared/ErrorBoundary.tsx`）
+- **同一方向最多嘗試 2 次**，失敗立即換策略
 
 ---
 
 ## 注意事項
 
 - `src/locales/zh-TW-temp.json` 已刪除，不要重新建立
-- Gemini API Key 存在 localStorage / sessionStorage 是已知限制，不要試圖在前端加密
-- `GoogleGenAI` 實例在 `geminiService.ts` 已有 Map 快取（clientCache），同 key 不會重複建立實例
-- `@imgly/background-removal` 模型資料由 `copy-imgly-assets.js` 在 `postinstall` 時複製到 `public/imgly-data/`
-- GIF 動畫使用 `gif.js` 的 Web Worker（`public/gif.worker.js`），不要移動此檔案位置
+- Gemini API Key 存在 localStorage/sessionStorage 是已知限制，不要在前端加密
+- `GoogleGenAI` 實例在 `geminiService.ts` 有 Map 快取（clientCache），同 key 不重複建立
+- `@imgly/background-removal` 模型資料由 `copy-imgly-assets.js` 在 `postinstall` 複製到 `public/imgly-data/`
+- GIF 動畫使用 `gif.js` Web Worker（`public/gif.worker.js`），不要移動此檔案位置
+- Code review 記錄存 `docs/code-review-YYYY-MM-DD.md`，不建立 `tasks/` 目錄
 
+---
 
 ## Available CLI Tools (OpenCLI)
 
 Run `opencli list` to discover all available CLI tools. Use `opencli <command> -f json` for structured output.
-
-Key commands:
-- `opencli list` — list all available tools (50+ sites, 200+ commands)
-- `opencli doctor` — check daemon/extension connectivity
-- `opencli <site> <action> --format json` — execute with JSON output
-- `opencli <site> <action> --format md` — execute with Markdown output
-
-> Requires: `npm install -g @jackwener/opencli`. Public commands work without Chrome Extension.
