@@ -1,21 +1,53 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload, FileText, Wand2, Sparkles, ChevronDown, X, FolderHeart } from 'lucide-react';
-import { ART_STYLES_CATEGORIES, ASPECT_RATIOS, EDITING_EXAMPLES, EXAMPLE_PROMPTS, FUNCTION_BUTTONS, TWELVE_GRID_CATEGORIES, TOP_100_STYLES_CATEGORIZED } from '../constants/generatorConstants';
-import { generateImage } from '../services/geminiService';
+import {
+    ART_STYLES_CATEGORIES,
+    ASPECT_RATIOS,
+    EDITING_EXAMPLES,
+    EXAMPLE_PROMPTS,
+    FUNCTION_BUTTONS,
+    TWELVE_GRID_CATEGORIES,
+    TOP_100_STYLES_CATEGORIZED,
+} from '../constants/generatorConstants';
+import { generateImage as generateGeminiImage } from '../services/geminiService';
+import { generateOpenAiImage } from '../services/openaiImageService';
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
+import { AiProvider } from '../../../shared/geminiApiKey';
 
 interface ImageGeneratorTabProps {
-    apiKey: string;
+    provider: AiProvider;
+    apiKeys: Record<AiProvider, string>;
+    onProviderChange: (provider: AiProvider) => void;
+    onNeedApiKey: (provider: AiProvider) => void;
     onSuccess: (imageUrl: string, prompt: string) => void;
     onError: (error: string) => void;
     externalPrompt?: string;
     externalPromptToken?: number;
 }
 
+const GEMINI_MODELS = [
+    { id: 'gemini-3-pro-image-preview', name: 'Gemini 3 Pro Image', badge: '' },
+    { id: 'imagen-4.0-generate-001', name: 'Imagen 4', badge: 'Free 25/day' },
+] as const;
+
+const OPENAI_MODELS = [
+    { id: 'gpt-image-2', name: 'GPT Image 2', badge: 'Latest' },
+    { id: 'gpt-image-1.5', name: 'GPT Image 1.5', badge: 'Quality' },
+    { id: 'gpt-image-1-mini', name: 'GPT Image 1 Mini', badge: 'Budget' },
+] as const;
+
+const PROVIDERS: Array<{ id: AiProvider; label: string }> = [
+    { id: 'gemini', label: 'Gemini' },
+    { id: 'openai', label: 'OpenAI' },
+];
+
 const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
-    apiKey,
+    provider,
+    apiKeys,
+    onProviderChange,
+    onNeedApiKey,
     onSuccess,
     onError,
     externalPrompt,
@@ -35,13 +67,13 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
     const [customHeight, setCustomHeight] = useState('720');
     const [isCustomRatio, setIsCustomRatio] = useState(false);
     const [showGallery, setShowGallery] = useState(false);
-    const [selectedModel, setSelectedModel] = useState<string>('gemini-3-pro-image-preview');
+    const [selectedGeminiModel, setSelectedGeminiModel] = useState<string>('gemini-3-pro-image-preview');
+    const [selectedOpenAiModel, setSelectedOpenAiModel] = useState<string>('gpt-image-2');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const IMAGE_MODELS = [
-        { id: 'gemini-3-pro-image-preview', name: 'Gemini 3 Pro Image', badge: '' },
-        { id: 'imagen-4.0-generate-001', name: 'Imagen 4', badge: '免費 25/日' },
-    ] as const;
+    const activeApiKey = apiKeys[provider];
+    const activeModels = provider === 'gemini' ? GEMINI_MODELS : OPENAI_MODELS;
+    const selectedModel = provider === 'gemini' ? selectedGeminiModel : selectedOpenAiModel;
 
     useEffect(() => {
         if (!externalPrompt || !externalPrompt.trim()) return;
@@ -50,30 +82,31 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setReferenceImage(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setReferenceImage(reader.result as string);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handlePaste = async () => {
         try {
             const items = await navigator.clipboard.read();
             for (const item of items) {
-                if (item.types.includes('image/png') || item.types.includes('image/jpeg')) {
-                    const blob = await item.getType(item.types.includes('image/png') ? 'image/png' : 'image/jpeg');
-                    const reader = new FileReader();
-                    reader.onloadend = () => setReferenceImage(reader.result as string);
-                    reader.readAsDataURL(blob);
-                    break;
-                }
+                if (!item.types.includes('image/png') && !item.types.includes('image/jpeg')) continue;
+
+                const preferredType = item.types.includes('image/png') ? 'image/png' : 'image/jpeg';
+                const blob = await item.getType(preferredType);
+                const reader = new FileReader();
+                reader.onloadend = () => setReferenceImage(reader.result as string);
+                reader.readAsDataURL(blob);
+                return;
             }
         } catch (err) {
             console.error('Failed to paste image:', err);
-            onError('無法從剪貼簿讀取圖片');
+            onError('貼上圖片失敗，請改用上傳。');
         }
     };
 
@@ -91,50 +124,64 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
 
     const handleGenerate = async () => {
         if (!prompt && !referenceImage) {
-            onError('請輸入提示詞或上傳參考圖');
+            onError('請先輸入提示詞或上傳參考圖。');
             return;
         }
-        if (!apiKey) {
-            onError('請先設定 API Key');
+
+        if (!activeApiKey) {
+            onNeedApiKey(provider);
+            onError(provider === 'gemini' ? '請先設定 Gemini API Key。' : '請先設定 OpenAI API Key。');
             return;
         }
 
         setIsGenerating(true);
         setErrorMessage(null);
+
         try {
-            const imageUrl = await generateImage(
-                apiKey,
-                prompt,
-                referenceImage,
-                aspectRatio,
-                selectedModel
-            );
+            const imageUrl = provider === 'gemini'
+                ? await generateGeminiImage(
+                    activeApiKey,
+                    prompt,
+                    referenceImage,
+                    aspectRatio,
+                    selectedGeminiModel,
+                )
+                : await generateOpenAiImage(
+                    activeApiKey,
+                    prompt,
+                    referenceImage,
+                    aspectRatio,
+                    selectedOpenAiModel,
+                );
 
             onSuccess(imageUrl, prompt || 'Generated Image');
         } catch (err: any) {
-            let errorMessage = err.message || '生成失敗';
+            let nextErrorMessage = err.message || 'Generation failed.';
 
-            // Check for 503 Overloaded error
-            if (errorMessage.includes('503') || errorMessage.includes('overloaded')) {
-                errorMessage = '伺服器目前忙碌中 (Model Overloaded)，由 Google Gemini API 回傳，請稍後再試。';
-            } else if (errorMessage.includes('KEY_NOT_FOUND')) {
-                errorMessage = '找不到有效的 API Key，請檢查設定。';
+            if (nextErrorMessage.includes('503') || nextErrorMessage.includes('overloaded')) {
+                nextErrorMessage = provider === 'gemini'
+                    ? 'Gemini 圖片模型目前繁忙，請稍後再試。'
+                    : 'OpenAI 圖片模型目前繁忙，請稍後再試。';
+            } else if (nextErrorMessage.includes('KEY_NOT_FOUND')) {
+                nextErrorMessage = provider === 'gemini'
+                    ? 'Gemini API Key 無效，請重新設定。'
+                    : 'OpenAI API Key 無效，請重新設定。';
             }
 
-            setErrorMessage(errorMessage);
-            onError(errorMessage);
+            setErrorMessage(nextErrorMessage);
+            onError(nextErrorMessage);
         } finally {
             setIsGenerating(false);
         }
     };
 
     const addPrompt = (text: string) => {
-        setPrompt(prev => prev ? `${prev}, ${text}` : text);
+        setPrompt((prev) => (prev ? `${prev}, ${text}` : text));
     };
 
     const autoOptimize = () => {
         if (!prompt) return;
-        setPrompt(prev => `Best quality, masterpiece, ultra high res, ${prev}, detailed lighting, 8k wallpaper`);
+        setPrompt((prev) => `Best quality, masterpiece, ultra high res, ${prev}, detailed lighting, 8k wallpaper`);
     };
 
     const luckyPrompt = () => {
@@ -145,15 +192,12 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
-                {/* Left Panel: Styles & Inspiration */}
                 <div className="lg:col-span-1 space-y-6 bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-6 h-fit">
                     <div className="flex items-center gap-2 border-b border-cream-dark/50 pb-4 mb-2">
                         <Sparkles size={18} className="text-yellow-400" />
                         <h2 className="text-sm font-black text-bronze-light uppercase tracking-widest">{t('generator.imageGen.styleInspiration')}</h2>
                     </div>
 
-                    {/* Hot Apps */}
                     <div className="space-y-3">
                         <h3 className="text-xs font-black text-primary uppercase tracking-widest pl-1">{t('generator.imageGen.hotApps')}</h3>
                         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2">
@@ -170,9 +214,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                         </div>
                     </div>
 
-                    {/* Dropdowns */}
                     <div className="space-y-3">
-                        {/* 12-Grid Style Stickers */}
                         <div className="border border-cream-dark rounded-2xl bg-cream overflow-hidden">
                             <button
                                 onClick={() => setIsTwelveGridOpen(!isTwelveGridOpen)}
@@ -205,7 +247,6 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                             )}
                         </div>
 
-                        {/* Top 100 Styles */}
                         <div className="border border-cream-dark rounded-2xl bg-cream overflow-hidden">
                             <button
                                 onClick={() => setIsTop100Open(!isTop100Open)}
@@ -239,7 +280,6 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                             )}
                         </div>
 
-                        {/* Art Styles */}
                         <div className="border border-cream-dark rounded-2xl bg-cream overflow-hidden">
                             <button
                                 onClick={() => setIsStyleOpen(!isStyleOpen)}
@@ -272,7 +312,6 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                             )}
                         </div>
 
-                        {/* Editing Guide */}
                         <div className="border border-cream-dark rounded-2xl bg-cream overflow-hidden">
                             <button
                                 onClick={() => setIsGuideOpen(!isGuideOpen)}
@@ -307,14 +346,12 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                     </div>
                 </div>
 
-                {/* Right Panel: Generation Controls */}
                 <div className="space-y-6 bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 h-fit">
                     <div className="flex items-center gap-2 border-b border-cream-dark/50 pb-4 mb-2">
                         <Wand2 size={18} className="text-primary" />
                         <h2 className="text-sm font-black text-bronze-light uppercase tracking-widest">{t('generator.imageGen.settings')}</h2>
                     </div>
 
-                    {/* Prompt Input */}
                     <div className="space-y-3">
                         <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">{t('generator.imageGen.prompt')}</label>
                         <textarea
@@ -325,7 +362,6 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                         />
                     </div>
 
-                    {/* Prompt Controls */}
                     <div className="grid grid-cols-2 gap-3">
                         <button
                             onClick={autoOptimize}
@@ -341,7 +377,23 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                         </button>
                     </div>
 
-                    {/* Reference Image */}
+                    <div className="space-y-3">
+                        <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">Provider</label>
+                        <div className="grid grid-cols-2 gap-2">
+                            {PROVIDERS.map((option) => (
+                                <button
+                                    key={option.id}
+                                    onClick={() => onProviderChange(option.id)}
+                                    className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option.id
+                                        ? 'bg-primary text-white border-primary shadow-md'
+                                        : 'bg-cream-light border-cream-dark text-bronze-light hover:bg-white hover:border-primary/30'}`}
+                                >
+                                    {option.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     <div className="space-y-3">
                         <div className="flex justify-between items-center pl-1">
                             <label className="text-xs font-black text-bronze-light uppercase tracking-widest">{t('generator.action.referenceImage')}</label>
@@ -379,7 +431,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                             </div>
                         ) : (
                             <div className="relative rounded-2xl overflow-hidden border border-cream-dark bg-black/5 aspect-video flex items-center justify-center group">
-                                <img src={referenceImage} alt="Ref" className="max-w-full max-h-48 object-contain" />
+                                <img src={referenceImage} alt="Reference" className="max-w-full max-h-48 object-contain" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
                                     <span className="text-white text-xs font-bold">{t('generator.action.imageLoaded')}</span>
                                 </div>
@@ -387,25 +439,35 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                         )}
                     </div>
 
-                    {/* Model Selector */}
                     <div className="space-y-3">
-                        <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">模型</label>
+                        <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">Model</label>
                         <div className="flex flex-wrap gap-2">
-                            {IMAGE_MODELS.map((m) => (
+                            {activeModels.map((model) => (
                                 <button
-                                    key={m.id}
-                                    onClick={() => setSelectedModel(m.id)}
-                                    className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${selectedModel === m.id
+                                    key={model.id}
+                                    onClick={() => {
+                                        if (provider === 'gemini') {
+                                            setSelectedGeminiModel(model.id);
+                                            return;
+                                        }
+                                        setSelectedOpenAiModel(model.id);
+                                    }}
+                                    className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${selectedModel === model.id
                                         ? 'bg-primary text-white border-primary shadow-md'
                                         : 'bg-cream-light border-cream-dark text-bronze-light hover:bg-white hover:border-primary/30'}`}
                                 >
-                                    {m.name}{m.badge && <span className="ml-1 text-[10px] opacity-75">({m.badge})</span>}
+                                    {model.name}
+                                    {model.badge && <span className="ml-1 text-[10px] opacity-75">({model.badge})</span>}
                                 </button>
                             ))}
                         </div>
+                        <p className="text-[11px] text-bronze-light px-1">
+                            {provider === 'gemini'
+                                ? 'Gemini 保留原本既有模型流程。'
+                                : 'OpenAI 使用官方 GPT Image API；有參考圖時會自動改走 image edit。'}
+                        </p>
                     </div>
 
-                    {/* Aspect Ratio */}
                     <div className="space-y-3">
                         <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">{t('generator.action.aspectRatio')}</label>
                         <div className="flex flex-wrap gap-2">
@@ -439,7 +501,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                         {isCustomRatio && (
                             <div className="grid grid-cols-2 gap-3 mt-3 animate-in fade-in slide-in-from-top-2 p-4 bg-cream-light/50 rounded-2xl border border-cream-dark/50">
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-bold text-bronze-light uppercase tracking-wider pl-1">寬度 (Width)</label>
+                                    <label className="text-[10px] font-bold text-bronze-light uppercase tracking-wider pl-1">Width</label>
                                     <input
                                         type="number"
                                         value={customWidth}
@@ -452,7 +514,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-bold text-bronze-light uppercase tracking-wider pl-1">高度 (Height)</label>
+                                    <label className="text-[10px] font-bold text-bronze-light uppercase tracking-wider pl-1">Height</label>
                                     <input
                                         type="number"
                                         value={customHeight}
@@ -468,7 +530,6 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                         )}
                     </div>
 
-                    {/* Generate Button */}
                     <Button
                         onClick={handleGenerate}
                         disabled={isGenerating || (!prompt && !referenceImage)}
@@ -478,56 +539,46 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                         {isGenerating ? t('generator.action.generating') : t('generator.action.generate')}
                     </Button>
 
-                    {/* Error Message Display */}
-                    {
-                        errorMessage && (
-                            <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
-                                <div className="bg-red-100 p-1.5 rounded-full mt-0.5">
-                                    <X size={14} className="text-red-600" />
-                                </div>
-                                <div className="flex-1">
-                                    <h4 className="text-xs font-bold text-red-700 mb-0.5">{t('generator.action.failed')}</h4>
-                                    <p className="text-xs text-red-600 leading-relaxed">{errorMessage}</p>
-                                </div>
+                    {errorMessage && (
+                        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                            <div className="bg-red-100 p-1.5 rounded-full mt-0.5">
+                                <X size={14} className="text-red-600" />
                             </div>
-                        )
-                    }
+                            <div className="flex-1">
+                                <h4 className="text-xs font-bold text-red-700 mb-0.5">{t('generator.action.failed')}</h4>
+                                <p className="text-xs text-red-600 leading-relaxed">{errorMessage}</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Custom Loading Overlay */}
-            {
-                isGenerating && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-md animate-in fade-in duration-500">
-                        <div className="flex flex-col items-center gap-8">
-                            <div className="relative">
-                                {/* Outer Ring */}
-                                <div className="w-32 h-32 rounded-full border-[6px] border-primary/20"></div>
-                                {/* Spinning Segment */}
-                                <div className="absolute top-0 left-0 w-32 h-32 rounded-full border-[6px] border-primary border-t-transparent animate-spin duration-1000"></div>
+            {isGenerating && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-md animate-in fade-in duration-500">
+                    <div className="flex flex-col items-center gap-8">
+                        <div className="relative">
+                            <div className="w-32 h-32 rounded-full border-[6px] border-primary/20"></div>
+                            <div className="absolute top-0 left-0 w-32 h-32 rounded-full border-[6px] border-primary border-t-transparent animate-spin duration-1000"></div>
 
-                                {/* Icon in Center */}
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                                    <Sparkles size={48} className="text-primary animate-pulse" />
-                                </div>
-                            </div>
-
-                            <div className="text-center space-y-3">
-                                <h3 className="text-2xl font-bold text-bronze-dark tracking-wide animate-pulse">{t('generator.action.generatingArt')}</h3>
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                <Sparkles size={48} className="text-primary animate-pulse" />
                             </div>
                         </div>
-                    </div>
-                )
-            }
 
-            {/* Gallery Picker Modal */}
+                        <div className="text-center space-y-3">
+                            <h3 className="text-2xl font-bold text-bronze-dark tracking-wide animate-pulse">{t('generator.action.generatingArt')}</h3>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {showGallery && (
                 <GalleryPicker
                     onSelect={handleGallerySelect}
                     onClose={() => setShowGallery(false)}
                 />
             )}
-        </div >
+        </div>
     );
 };
 

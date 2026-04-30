@@ -8,7 +8,7 @@ import { saveStickerToDB } from '../../db';
 import { Sticker } from './types';
 import { Button } from '../../components/ui/Button';
 import { AnimatePresence, motion } from 'framer-motion';
-import { loadGeminiApiKey, saveGeminiApiKey, clearGeminiApiKey } from '../../shared/geminiApiKey';
+import { AiProvider, clearApiKey, getApiKeyUrl, isValidApiKey, loadApiKey, saveApiKey } from '../../shared/geminiApiKey';
 import { safeSaveToLocalStorage, safeLoadFromLocalStorage } from '../../shared/localStorage';
 
 import ImageGeneratorTab from './components/ImageGeneratorTab';
@@ -21,10 +21,17 @@ import MangaMasterTab from './components/MangaMasterTab';
 import PortraitMasterTab from './components/PortraitMasterTab';
 import CharacterCreateTab from './components/CharacterCreateTab';
 
+const PROVIDER_LABELS: Record<AiProvider, string> = {
+  gemini: 'Gemini',
+  openai: 'OpenAI',
+};
+
 const App: React.FC = () => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'sticker' | 'holiday' | 'greeting' | 'image-gen' | 'cinematic' | 'headshot' | 'manga' | 'portrait' | 'character-create'>('sticker');
-  const [apiKey, setApiKey] = useState('');
+  const [providerKeys, setProviderKeys] = useState<Record<AiProvider, string>>({ gemini: '', openai: '' });
+  const [imageGenProvider, setImageGenProvider] = useState<AiProvider>('gemini');
+  const [keyProvider, setKeyProvider] = useState<AiProvider>('gemini');
   const [tempKey, setTempKey] = useState('');
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [rememberKey, setRememberKey] = useState(false); // Default to false for security (SessionStorage)
@@ -33,16 +40,40 @@ const App: React.FC = () => {
   const [isZipping, setIsZipping] = useState(false);
   const [previewSticker, setPreviewSticker] = useState<Sticker | null>(null);
   const [imageGenSeed, setImageGenSeed] = useState<{ prompt: string; token: number }>({ prompt: '', token: 0 });
+  const apiKey = providerKeys.gemini;
+
+  const syncKeyModalState = (provider: AiProvider, nextKeys = providerKeys) => {
+    const stored = loadApiKey(provider);
+    setKeyProvider(provider);
+    setTempKey(stored?.key || nextKeys[provider] || '');
+    setRememberKey(stored?.remember || false);
+  };
 
   // Initialize API Key
   useEffect(() => {
-    const stored = loadGeminiApiKey();
-    if (stored) {
-      setApiKey(stored.key);
-      setRememberKey(stored.remember);
-    } else {
-      setShowKeyModal(true);
+    const geminiStored = loadApiKey('gemini');
+    const openAiStored = loadApiKey('openai');
+    const nextKeys = {
+      gemini: geminiStored?.key || '',
+      openai: openAiStored?.key || '',
+    };
+
+    setProviderKeys(nextKeys);
+
+    if (geminiStored) {
+      setRememberKey(geminiStored.remember);
+      return;
     }
+
+    if (openAiStored) {
+      setImageGenProvider('openai');
+      syncKeyModalState('openai', nextKeys);
+      setShowKeyModal(true);
+      return;
+    }
+
+    syncKeyModalState('gemini', nextKeys);
+    setShowKeyModal(true);
   }, []);
 
   // Persistent History for Image Gen
@@ -59,16 +90,23 @@ const App: React.FC = () => {
     }
   }, [stickers]);
 
-  const isValidGeminiKey = (key: string) => key.startsWith('AIza') && key.length >= 35;
-
   const handleSaveKey = () => {
     const key = tempKey.trim();
-    if (!key || !isValidGeminiKey(key)) {
-      setError(t('generator.apiKey.invalid'));
+    if (!isValidApiKey(keyProvider, key)) {
+      setError(keyProvider === 'gemini' ? t('generator.apiKey.invalid') : 'Please enter a valid OpenAI API key.');
       return;
     }
-    setApiKey(key);
-    saveGeminiApiKey(key, rememberKey);
+
+    saveApiKey(keyProvider, key, rememberKey);
+    const nextKeys = { ...providerKeys, [keyProvider]: key };
+    setProviderKeys(nextKeys);
+
+    if (keyProvider === 'openai') {
+      setImageGenProvider('openai');
+      if (!nextKeys.gemini && activeTab !== 'image-gen') {
+        setActiveTab('image-gen');
+      }
+    }
 
     setShowKeyModal(false);
     setError(null);
@@ -76,15 +114,36 @@ const App: React.FC = () => {
 
   const handleClearKey = () => {
     if (confirm(t('generator.apiKey.clearConfirm') || "Are you sure you want to remove your API Key?")) {
-      setApiKey('');
+      clearApiKey(keyProvider);
+      const nextKeys = { ...providerKeys, [keyProvider]: '' };
+      setProviderKeys(nextKeys);
       setTempKey('');
-      clearGeminiApiKey();
-      setShowKeyModal(true);
+
+      if (keyProvider === 'openai' && imageGenProvider === 'openai') {
+        setImageGenProvider(nextKeys.gemini ? 'gemini' : 'openai');
+      }
+
+      if (keyProvider === 'gemini') {
+        if (nextKeys.openai) {
+          setActiveTab('image-gen');
+          setImageGenProvider('openai');
+          syncKeyModalState('openai', nextKeys);
+        } else {
+          syncKeyModalState('gemini', nextKeys);
+          setShowKeyModal(true);
+        }
+        return;
+      }
+
+      if (!nextKeys.gemini && !nextKeys.openai) {
+        syncKeyModalState('gemini', nextKeys);
+        setShowKeyModal(true);
+      }
     }
   };
 
-  const handleOpenKeyModal = () => {
-    setTempKey(apiKey);
+  const handleOpenKeyModal = (provider?: AiProvider) => {
+    syncKeyModalState(provider || (activeTab === 'image-gen' ? imageGenProvider : 'gemini'));
     setShowKeyModal(true);
   };
 
@@ -263,6 +322,16 @@ const App: React.FC = () => {
     }
   };
 
+  const keyModalTitle = keyProvider === 'gemini' ? (t('generator.apiKey.title') || 'Google Gemini API Key') : 'OpenAI API Key';
+  const keyModalDescription = keyProvider === 'gemini'
+    ? (t('generator.apiKey.desc') || 'We need your Google Gemini API Key to generate stickers.')
+    : 'Use your OpenAI API key for AI Image Gen. It is stored locally in your browser.';
+  const keyModalPlaceholder = keyProvider === 'gemini'
+    ? (t('generator.apiKey.placeholder') || 'Paste your Gemini API key')
+    : 'Paste your OpenAI API key';
+  const currentTabProvider = activeTab === 'image-gen' ? imageGenProvider : 'gemini';
+  const currentTabKey = providerKeys[currentTabProvider];
+
 
 
   return (
@@ -273,10 +342,23 @@ const App: React.FC = () => {
           <div className="bg-white rounded-3xl p-8 shadow-2xl border border-cream-dark w-full max-w-md space-y-6 animate-in zoom-in-95 duration-300">
             <div className="text-center">
               <Key size={32} className="text-primary mx-auto mb-4" />
-              <h3 className="text-xl font-black text-bronze mb-2">{t('generator.apiKey.title')}</h3>
-              <p className="text-sm text-bronze-light">{t('generator.apiKey.desc')}</p>
+              <h3 className="text-xl font-black text-bronze mb-2">{keyModalTitle}</h3>
+              <p className="text-sm text-bronze-light">{keyModalDescription}</p>
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                {(['gemini', 'openai'] as AiProvider[]).map((provider) => (
+                  <button
+                    key={provider}
+                    onClick={() => syncKeyModalState(provider)}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${keyProvider === provider
+                      ? 'bg-primary text-white border-primary shadow-md'
+                      : 'bg-cream-light border-cream-dark text-bronze-light hover:bg-white hover:border-primary/30'}`}
+                  >
+                    {PROVIDER_LABELS[provider]}
+                  </button>
+                ))}
+              </div>
               <a
-                href="https://aistudio.google.com/app/apikey"
+                href={getApiKeyUrl(keyProvider)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block mt-2 text-xs font-bold text-primary hover:text-primary-hover hover:underline transition-colors border-b border-primary/20 hover:border-primary pb-0.5"
@@ -288,7 +370,7 @@ const App: React.FC = () => {
               type="password"
               value={tempKey}
               onChange={(e) => setTempKey(e.target.value)}
-              placeholder={t('generator.apiKey.placeholder')}
+              placeholder={keyModalPlaceholder}
               className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light/50"
             />
 
@@ -324,7 +406,7 @@ const App: React.FC = () => {
               <Button onClick={handleSaveKey} className="w-full bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/20">
                 {t('generator.apiKey.save')}
               </Button>
-              {apiKey && (
+              {providerKeys[keyProvider] && (
                 <>
                   <Button onClick={() => setShowKeyModal(false)} className="bg-cream-light text-bronze-text hover:bg-cream-dark/20 border border-cream-dark">
                     {t('generator.action.cancel')}
@@ -416,12 +498,12 @@ const App: React.FC = () => {
 
           {/* API Key Button */}
           <button
-            onClick={handleOpenKeyModal}
-            className={`w-full p-3 rounded-xl border transition-all shadow-sm flex items-center justify-center gap-2 ${apiKey ? 'bg-white border-cream-dark text-bronze-text hover:border-primary/50' : 'bg-red-50 border-red-200 text-red-500 animate-pulse'}`}
+            onClick={() => handleOpenKeyModal()}
+            className={`w-full p-3 rounded-xl border transition-all shadow-sm flex items-center justify-center gap-2 ${currentTabKey ? 'bg-white border-cream-dark text-bronze-text hover:border-primary/50' : 'bg-red-50 border-red-200 text-red-500 animate-pulse'}`}
             title={t('generator.apiKey.change')}
           >
-            <Key size={16} className={apiKey ? "text-primary" : "text-red-500"} />
-            <span className="text-xs font-bold">{apiKey ? 'API Key' : 'Set API Key'}</span>
+            <Key size={16} className={currentTabKey ? "text-primary" : "text-red-500"} />
+            <span className="text-xs font-bold">{currentTabKey ? `${PROVIDER_LABELS[currentTabProvider]} API Key` : `Set ${PROVIDER_LABELS[currentTabProvider]} API Key`}</span>
           </button>
         </div>
 
@@ -438,7 +520,7 @@ const App: React.FC = () => {
               <StyleStickerTab
                 apiKey={apiKey}
                 onError={(msg) => setError(msg)}
-                onNeedApiKey={() => setShowKeyModal(true)}
+                onNeedApiKey={() => handleOpenKeyModal('gemini')}
               />
             ) : activeTab === 'holiday' ? (
               <HolidayStickerTab
@@ -450,28 +532,28 @@ const App: React.FC = () => {
               <GreetingCardTab
                 apiKey={apiKey}
                 onError={(msg) => setError(msg)}
-                onNeedApiKey={() => setShowKeyModal(true)}
+                onNeedApiKey={() => handleOpenKeyModal('gemini')}
                 onSuccess={handleImageGenSuccess}
               />
             ) : activeTab === 'manga' ? (
               <MangaMasterTab
                 apiKey={apiKey}
                 onError={(msg) => setError(msg)}
-                onNeedApiKey={() => setShowKeyModal(true)}
+                onNeedApiKey={() => handleOpenKeyModal('gemini')}
                 onSuccess={handleImageGenSuccess}
               />
             ) : activeTab === 'cinematic' ? (
               <CinematicPosterTab
                 apiKey={apiKey}
                 onError={(msg) => setError(msg)}
-                onNeedApiKey={() => setShowKeyModal(true)}
+                onNeedApiKey={() => handleOpenKeyModal('gemini')}
                 onSuccess={handleImageGenSuccess}
               />
             ) : activeTab === 'headshot' ? (
               <HeadshotGeneratorTab
                 apiKey={apiKey}
                 onError={(msg) => setError(msg)}
-                onNeedApiKey={() => setShowKeyModal(true)}
+                onNeedApiKey={() => handleOpenKeyModal('gemini')}
                 onSuccess={handleImageGenSuccess}
               />
             ) : activeTab === 'portrait' ? (
@@ -493,7 +575,10 @@ const App: React.FC = () => {
               />
             ) : (
               <ImageGeneratorTab
-                apiKey={apiKey}
+                provider={imageGenProvider}
+                apiKeys={providerKeys}
+                onProviderChange={setImageGenProvider}
+                onNeedApiKey={handleOpenKeyModal}
                 onSuccess={handleImageGenSuccess}
                 onError={(msg) => setError(msg)}
                 externalPrompt={imageGenSeed.prompt}
