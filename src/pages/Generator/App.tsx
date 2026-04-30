@@ -32,6 +32,7 @@ const App: React.FC = () => {
   const [providerKeys, setProviderKeys] = useState<Record<AiProvider, string>>({ gemini: '', openai: '' });
   const [imageGenProvider, setImageGenProvider] = useState<AiProvider>('gemini');
   const [holidayProvider, setHolidayProvider] = useState<AiProvider>('gemini');
+  const [cinematicProvider, setCinematicProvider] = useState<AiProvider>('gemini');
   const [keyProvider, setKeyProvider] = useState<AiProvider>('gemini');
   const [tempKey, setTempKey] = useState('');
   const [showKeyModal, setShowKeyModal] = useState(false);
@@ -107,7 +108,10 @@ const App: React.FC = () => {
       if (activeTab === 'holiday') {
         setHolidayProvider('openai');
       }
-      if (!nextKeys.gemini && activeTab !== 'image-gen' && activeTab !== 'holiday') {
+      if (activeTab === 'cinematic') {
+        setCinematicProvider('openai');
+      }
+      if (!nextKeys.gemini && activeTab !== 'image-gen' && activeTab !== 'holiday' && activeTab !== 'cinematic') {
         setActiveTab('image-gen');
       }
     }
@@ -129,6 +133,9 @@ const App: React.FC = () => {
         }
         if (holidayProvider === 'openai') {
           setHolidayProvider(nextKeys.gemini ? 'gemini' : 'openai');
+        }
+        if (cinematicProvider === 'openai') {
+          setCinematicProvider(nextKeys.gemini ? 'gemini' : 'openai');
         }
       }
 
@@ -156,6 +163,8 @@ const App: React.FC = () => {
       ? imageGenProvider
       : activeTab === 'holiday'
         ? holidayProvider
+        : activeTab === 'cinematic'
+          ? cinematicProvider
         : 'gemini';
     syncKeyModalState(provider || inferredProvider);
     setShowKeyModal(true);
@@ -347,6 +356,8 @@ const App: React.FC = () => {
     ? imageGenProvider
     : activeTab === 'holiday'
       ? holidayProvider
+      : activeTab === 'cinematic'
+        ? cinematicProvider
       : 'gemini';
   const currentTabKey = providerKeys[currentTabProvider];
 
@@ -565,9 +576,11 @@ const App: React.FC = () => {
               />
             ) : activeTab === 'cinematic' ? (
               <CinematicPosterTab
-                apiKey={apiKey}
+                provider={cinematicProvider}
+                apiKeys={providerKeys}
+                onProviderChange={setCinematicProvider}
                 onError={(msg) => setError(msg)}
-                onNeedApiKey={() => handleOpenKeyModal('gemini')}
+                onNeedApiKey={handleOpenKeyModal}
                 onSuccess={handleImageGenSuccess}
               />
             ) : activeTab === 'headshot' ? (

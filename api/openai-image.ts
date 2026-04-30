@@ -112,7 +112,12 @@ export default async function handler(req: any, res: any) {
             formData.append('prompt', prompt || 'Generate an image based on the reference image.');
             formData.append('size', size);
             formData.append('quality', quality);
-            formData.append('image[]', dataUrlToFile(base64Image, 'reference-image'));
+            const images = Array.isArray(base64Image) ? base64Image : [base64Image];
+            images
+                .filter((value) => typeof value === 'string' && value.length > 0)
+                .forEach((image, index) => {
+                    formData.append('image[]', dataUrlToFile(image, `reference-image-${index + 1}`));
+                });
 
             response = await fetch(OPENAI_IMAGE_EDITS_URL, {
                 method: 'POST',

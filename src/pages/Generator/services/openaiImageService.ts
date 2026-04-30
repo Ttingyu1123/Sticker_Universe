@@ -10,7 +10,7 @@ const getErrorMessage = async (response: Response) => {
 export async function generateOpenAiImage(
     apiKey: string,
     prompt: string,
-    base64Image: string | null,
+    base64Image: string | string[] | null,
     aspectRatio: string = '1:1',
     model: string = 'gpt-image-2',
     quality: 'low' | 'medium' | 'high' | 'auto' = 'medium',
