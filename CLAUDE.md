@@ -166,6 +166,13 @@ src/
 
 ---
 
+## AI Provider 現況
+
+- `AI Image Gen`（`src/pages/Generator/components/ImageGeneratorTab.tsx`）目前支援 **Gemini / OpenAI** 雙 provider 切換。
+- 其他 AI 功能頁目前仍是 **Gemini-only**。
+- API Key 分開儲存為 `gemini_api_key` 與 `openai_api_key`。
+- 專案仍是純前端 BYOK，OpenAI 目前也沒有後端代理層。
+
 ## Available CLI Tools (OpenCLI)
 
 Run `opencli list` to discover all available CLI tools. Use `opencli <command> -f json` for structured output.
