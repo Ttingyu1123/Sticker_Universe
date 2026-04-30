@@ -57,8 +57,11 @@ const getErrorPayload = async (response: Response) => {
 };
 
 const dataUrlToFile = (dataUrl: string, fallbackName: string) => {
-    const [meta, base64] = String(dataUrl || '').split(',');
-    const mimeType = meta?.match(/data:(.*?);base64/)?.[1] || 'image/png';
+    const rawValue = String(dataUrl || '');
+    const hasDataUrlPrefix = rawValue.startsWith('data:');
+    const [meta, base64Part] = rawValue.split(',');
+    const mimeType = hasDataUrlPrefix ? (meta?.match(/data:(.*?);base64/)?.[1] || 'image/png') : 'image/png';
+    const base64 = hasDataUrlPrefix ? base64Part : rawValue;
     const buffer = Buffer.from(base64 || '', 'base64');
     const extension = mimeType.split('/')[1] || 'png';
     return new File([buffer], `${fallbackName}.${extension}`, { type: mimeType });

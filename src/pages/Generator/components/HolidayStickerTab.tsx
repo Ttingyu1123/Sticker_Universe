@@ -231,7 +231,13 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({
     });
   };
 
-  const generateStickerImage = async (prompt: string, index: number, imageBase64: string) => {
+  const parseDataUrl = (dataUrl: string) => {
+    const [meta, base64 = ''] = String(dataUrl || '').split(',');
+    const mimeType = meta?.match(/data:(.*?);base64/)?.[1] || 'image/png';
+    return { mimeType, base64 };
+  };
+
+  const generateStickerImage = async (prompt: string, index: number, imageDataUrl: string) => {
     if (!apiKey) {
       throw new Error('API Key is missing');
     }
@@ -243,19 +249,20 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({
         imageUrl = await generateOpenAiImage(
           apiKey,
           prompt,
-          imageBase64,
+          imageDataUrl,
           '1:1',
           OPENAI_HOLIDAY_MODEL,
           'medium',
         );
       } else {
+        const { mimeType, base64 } = parseDataUrl(imageDataUrl);
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
           model: GEMINI_HOLIDAY_MODEL,
           contents: [{
             parts: [
               { text: prompt },
-              { inlineData: { mimeType: 'image/jpeg', data: imageBase64 } },
+              { inlineData: { mimeType, data: base64 } },
             ],
           }],
           config: {
@@ -400,7 +407,6 @@ TEXT INSTRUCTION:
     setIsGenerating(true);
     resetBatchState();
 
-    const imageBase64 = uploadedImage.split(',')[1];
     const promptVariations = [
       'Surrounded by festive decorations that are part of the sticker design.',
       'Interacting with related food and drinks.',
@@ -411,7 +417,7 @@ TEXT INSTRUCTION:
     const promises = Array.from({ length: batchSize }).map((_, index) => {
       const variation = promptVariations[index % promptVariations.length];
       const prompt = buildPrompt(holidayPrompt, style.prompt, variation);
-      return generateStickerImage(prompt, index, imageBase64);
+      return generateStickerImage(prompt, index, uploadedImage);
     });
 
     try {
