@@ -4,9 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { GoogleGenAI, Modality } from "@google/genai";
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
-import { Upload, Camera, Download, Loader2, Sparkles, Scissors, Trash2, Image as ImageIcon, Briefcase, User, FolderHeart, Printer } from 'lucide-react';
+import { Upload, Camera, Download, Loader2, Sparkles, Scissors, Trash2, Image as ImageIcon, Briefcase, User, FolderHeart, Printer, Key } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
+import { AiProvider } from '../../../shared/geminiApiKey';
+import { generateOpenAiImage } from '../services/openaiImageService';
 
 // Types
 interface Preset {
@@ -97,15 +99,33 @@ interface GeneratedImage {
 }
 
 interface HeadshotGeneratorTabProps {
-    apiKey: string;
+    provider: AiProvider;
+    apiKeys: Record<AiProvider, string>;
+    onProviderChange: (provider: AiProvider) => void;
     onSuccess?: (imageUrl: string, prompt: string) => void;
     onError?: (msg: string) => void;
-    onNeedApiKey?: () => void;
+    onNeedApiKey?: (provider: AiProvider) => void;
 }
 
-const HeadshotGeneratorTab: React.FC<HeadshotGeneratorTabProps> = ({ apiKey, onSuccess, onError, onNeedApiKey }) => {
+const PROVIDER_LABELS: Record<AiProvider, string> = {
+    gemini: 'Gemini',
+    openai: 'OpenAI',
+};
+
+const GEMINI_HEADSHOT_MODEL = 'gemini-3-pro-image-preview';
+const OPENAI_HEADSHOT_MODEL = 'gpt-image-2';
+
+const HeadshotGeneratorTab: React.FC<HeadshotGeneratorTabProps> = ({
+    provider,
+    apiKeys,
+    onProviderChange,
+    onSuccess,
+    onError,
+    onNeedApiKey,
+}) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const apiKey = apiKeys[provider];
 
     // State
     const [image, setImage] = useState<string | null>(null);
@@ -228,7 +248,7 @@ const HeadshotGeneratorTab: React.FC<HeadshotGeneratorTabProps> = ({ apiKey, onS
 
     const generateHeadshot = async () => {
         if (!apiKey) {
-            onNeedApiKey?.();
+            onNeedApiKey?.(provider);
             return;
         }
 
@@ -315,18 +335,8 @@ ${expressionInstr}
 Base Image: {user_photo}
 Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
 
-            const ai = new GoogleGenAI({ apiKey });
-
-            // Prepare Image Part
             const base64Data = croppedImage.split(',')[1];
             const mimeType = croppedImage.split(';')[0].split(':')[1];
-
-            const imagePart = {
-                inlineData: {
-                    data: base64Data,
-                    mimeType: mimeType
-                }
-            };
 
             // Quality mapping
             const qualityMap: { [key: string]: string } = {
@@ -335,36 +345,75 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                 'ultra': '4096x4096'
             };
 
-            const result = await ai.models.generateContent({
-                model: "gemini-3-pro-image-preview",
-                contents: {
-                    parts: [imagePart, { text: prompt }]
-                },
-                config: {
-                    responseModalities: [Modality.IMAGE],
-                    imageConfig: {
-                        imageSize: qualityMap[quality] || '1024x1024',
-                        aspectRatio: selectedPreset.apiAspectRatio
-                    }
-                }
-            });
-
-
             const newImages: GeneratedImage[] = [];
 
-            if (result.candidates?.[0]?.content?.parts) {
-                for (const part of result.candidates[0].content.parts) {
-                    if (part.inlineData) {
-                        const src = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-                        newImages.push({
-                            id: Date.now().toString() + Math.random(),
-                            src,
-                            preset: selectedPreset.id,
-                            style: selectedStyle
-                        });
+            if (provider === 'openai') {
+                const openAiQualityMap: Record<string, 'low' | 'medium' | 'high'> = {
+                    standard: 'medium',
+                    high: 'high',
+                    ultra: 'high'
+                };
 
-                        // Auto-save every generated result to gallery via parent onSuccess
-                        onSuccess?.(src, `Headshot: ${selectedStyle}`);
+                const requests = Array.from({ length: variations }).map(async (_, index) => {
+                    const src = await generateOpenAiImage(
+                        apiKey,
+                        prompt,
+                        croppedImage,
+                        selectedPreset.apiAspectRatio,
+                        OPENAI_HEADSHOT_MODEL,
+                        openAiQualityMap[quality] || 'medium',
+                    );
+
+                    return {
+                        id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 8)}`,
+                        src,
+                        preset: selectedPreset.id,
+                        style: selectedStyle
+                    };
+                });
+
+                const openAiImages = await Promise.all(requests);
+                for (const image of openAiImages) {
+                    newImages.push(image);
+                    onSuccess?.(image.src, `Headshot: ${selectedStyle}`);
+                }
+            } else {
+                const ai = new GoogleGenAI({ apiKey });
+
+                const imagePart = {
+                    inlineData: {
+                        data: base64Data,
+                        mimeType: mimeType
+                    }
+                };
+
+                const result = await ai.models.generateContent({
+                    model: GEMINI_HEADSHOT_MODEL,
+                    contents: {
+                        parts: [imagePart, { text: prompt }]
+                    },
+                    config: {
+                        responseModalities: [Modality.IMAGE],
+                        imageConfig: {
+                            imageSize: qualityMap[quality] || '1024x1024',
+                            aspectRatio: selectedPreset.apiAspectRatio
+                        }
+                    }
+                });
+
+                if (result.candidates?.[0]?.content?.parts) {
+                    for (const part of result.candidates[0].content.parts) {
+                        if (part.inlineData) {
+                            const src = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+                            newImages.push({
+                                id: Date.now().toString() + Math.random(),
+                                src,
+                                preset: selectedPreset.id,
+                                style: selectedStyle
+                            });
+
+                            onSuccess?.(src, `Headshot: ${selectedStyle}`);
+                        }
                     }
                 }
             }
@@ -498,6 +547,37 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                         <h3 className="text-sm font-black text-bronze-light uppercase tracking-widest mb-2 flex items-center gap-2">
                             <User size={16} /> {t('headshot.step2_settings')}
                         </h3>
+
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <label className="text-xs font-bold text-bronze-light mb-1.5 block">Provider</label>
+                                <button
+                                    type="button"
+                                    onClick={() => onNeedApiKey?.(provider)}
+                                    className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1"
+                                >
+                                    <Key size={14} />
+                                    Set API Key
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                {(['gemini', 'openai'] as AiProvider[]).map((option) => (
+                                    <button
+                                        key={option}
+                                        type="button"
+                                        onClick={() => onProviderChange(option)}
+                                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option
+                                            ? 'bg-primary text-white border-primary shadow-md'
+                                            : 'bg-white border-cream-dark text-bronze-text hover:bg-white/80'}`}
+                                    >
+                                        {PROVIDER_LABELS[option]}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-[11px] text-bronze-light">
+                                {provider === 'openai' ? `Model: ${OPENAI_HEADSHOT_MODEL}` : `Model: ${GEMINI_HEADSHOT_MODEL}`}
+                            </p>
+                        </div>
 
                         {/* Preset */}
                         <div>

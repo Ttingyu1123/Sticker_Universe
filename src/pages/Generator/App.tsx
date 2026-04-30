@@ -33,6 +33,7 @@ const App: React.FC = () => {
   const [imageGenProvider, setImageGenProvider] = useState<AiProvider>('gemini');
   const [holidayProvider, setHolidayProvider] = useState<AiProvider>('gemini');
   const [cinematicProvider, setCinematicProvider] = useState<AiProvider>('gemini');
+  const [headshotProvider, setHeadshotProvider] = useState<AiProvider>('gemini');
   const [keyProvider, setKeyProvider] = useState<AiProvider>('gemini');
   const [tempKey, setTempKey] = useState('');
   const [showKeyModal, setShowKeyModal] = useState(false);
@@ -111,7 +112,10 @@ const App: React.FC = () => {
       if (activeTab === 'cinematic') {
         setCinematicProvider('openai');
       }
-      if (!nextKeys.gemini && activeTab !== 'image-gen' && activeTab !== 'holiday' && activeTab !== 'cinematic') {
+      if (activeTab === 'headshot') {
+        setHeadshotProvider('openai');
+      }
+      if (!nextKeys.gemini && activeTab !== 'image-gen' && activeTab !== 'holiday' && activeTab !== 'cinematic' && activeTab !== 'headshot') {
         setActiveTab('image-gen');
       }
     }
@@ -136,6 +140,9 @@ const App: React.FC = () => {
         }
         if (cinematicProvider === 'openai') {
           setCinematicProvider(nextKeys.gemini ? 'gemini' : 'openai');
+        }
+        if (headshotProvider === 'openai') {
+          setHeadshotProvider(nextKeys.gemini ? 'gemini' : 'openai');
         }
       }
 
@@ -165,6 +172,8 @@ const App: React.FC = () => {
         ? holidayProvider
         : activeTab === 'cinematic'
           ? cinematicProvider
+          : activeTab === 'headshot'
+            ? headshotProvider
         : 'gemini';
     syncKeyModalState(provider || inferredProvider);
     setShowKeyModal(true);
@@ -358,6 +367,8 @@ const App: React.FC = () => {
       ? holidayProvider
       : activeTab === 'cinematic'
         ? cinematicProvider
+        : activeTab === 'headshot'
+          ? headshotProvider
       : 'gemini';
   const currentTabKey = providerKeys[currentTabProvider];
 
@@ -585,9 +596,11 @@ const App: React.FC = () => {
               />
             ) : activeTab === 'headshot' ? (
               <HeadshotGeneratorTab
-                apiKey={apiKey}
+                provider={headshotProvider}
+                apiKeys={providerKeys}
+                onProviderChange={setHeadshotProvider}
                 onError={(msg) => setError(msg)}
-                onNeedApiKey={() => handleOpenKeyModal('gemini')}
+                onNeedApiKey={handleOpenKeyModal}
                 onSuccess={handleImageGenSuccess}
               />
             ) : activeTab === 'portrait' ? (
