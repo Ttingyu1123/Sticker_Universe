@@ -1,14 +1,15 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { X, Download, Image as ImageIcon, Trash2, ZoomIn, ZoomOut, Edit2, Check, Wand2, RotateCw, Scaling, Plus, FolderHeart, Save, Star } from 'lucide-react';
+import { X, Download, Image as ImageIcon, Trash2, ZoomIn, ZoomOut, Edit2, Check, Wand2, RotateCw, Scaling, Plus, FolderHeart, Save, Star, Key, Sparkles } from 'lucide-react';
 import { AspectRatio, CollageSettings, LayoutType, UploadedImage } from './types';
 import { Controls } from './components/Controls';
 import { PhotoCanvas, PhotoCanvasHandle } from './components/PhotoCanvas';
 import { generateImage } from './geminiService';
+import { generateOpenAiImage } from '../Generator/services/openaiImageService';
 import { calculateFrames, getCanvasDimensions } from './utils/geometry';
 import { useTranslation } from 'react-i18next';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { saveStickerToDB } from '../../db';
-import { loadGeminiApiKey, saveGeminiApiKey, clearGeminiApiKey } from '../../shared/geminiApiKey';
+import { AiProvider, clearApiKey, getApiKeyUrl, isValidApiKey, loadApiKey, saveApiKey } from '../../shared/geminiApiKey';
 
 const BASE_EXPORT_WIDTH = 1200;
 const EXPORT_SIZE_OPTIONS = [
@@ -31,6 +32,14 @@ const AUTO_AVOID_BLANK_CANDIDATES: LayoutType[] = [
     LayoutType.T_SHAPE,
     LayoutType.CROSS_FOCUS,
 ];
+
+const PROVIDER_LABELS: Record<AiProvider, string> = {
+    gemini: 'Gemini',
+    openai: 'OpenAI',
+};
+
+const GEMINI_COLLAGE_MODEL = 'gemini-3-pro-image-preview';
+const OPENAI_COLLAGE_MODEL = 'gpt-image-2';
 
 export const AutoCollageTab: React.FC = () => {
     const { t } = useTranslation();
@@ -76,8 +85,10 @@ export const AutoCollageTab: React.FC = () => {
     const canvasRef = useRef<PhotoCanvasHandle>(null);
 
     // API Key State
-    const [apiKey, setApiKey] = useState<string>('');
+    const [provider, setProvider] = useState<AiProvider>('gemini');
+    const [providerKeys, setProviderKeys] = useState<Record<AiProvider, string>>({ gemini: '', openai: '' });
     const [showKeyModal, setShowKeyModal] = useState(false);
+    const [keyProvider, setKeyProvider] = useState<AiProvider>('gemini');
     const [tempKey, setTempKey] = useState('');
 
     // History State
@@ -153,24 +164,55 @@ export const AutoCollageTab: React.FC = () => {
     }, [selectedImageId, undo, redo, saveCheckpoint]);
 
     // API Key Loading
+    const syncKeyModalState = useCallback((nextProvider: AiProvider, nextKeys = providerKeys) => {
+        const stored = loadApiKey(nextProvider);
+        setKeyProvider(nextProvider);
+        setTempKey(stored?.key || nextKeys[nextProvider] || '');
+    }, [providerKeys]);
+
     useEffect(() => {
-        const stored = loadGeminiApiKey();
-        if (stored) setApiKey(stored.key);
+        const geminiStored = loadApiKey('gemini');
+        const openAiStored = loadApiKey('openai');
+        const nextKeys = {
+            gemini: geminiStored?.key || '',
+            openai: openAiStored?.key || '',
+        };
+        setProviderKeys(nextKeys);
+
+        if (geminiStored) {
+            return;
+        }
+
+        if (openAiStored) {
+            setProvider('openai');
+            return;
+        }
     }, []);
 
     const handleSaveKey = () => {
-        if (!tempKey.trim()) return;
         const key = tempKey.trim();
-        setApiKey(key);
-        saveGeminiApiKey(key, true);
+        if (!isValidApiKey(keyProvider, key)) return;
+        saveApiKey(keyProvider, key, true);
+        const nextKeys = { ...providerKeys, [keyProvider]: key };
+        setProviderKeys(nextKeys);
+        setProvider(keyProvider);
         setShowKeyModal(false);
     };
 
     const handleClearKey = () => {
-        setApiKey('');
-        clearGeminiApiKey();
+        clearApiKey(keyProvider);
+        const nextKeys = { ...providerKeys, [keyProvider]: '' };
+        setProviderKeys(nextKeys);
         setTempKey('');
-        setShowKeyModal(true);
+        if (provider === keyProvider) {
+            if (keyProvider === 'openai' && nextKeys.gemini) {
+                setProvider('gemini');
+            }
+            if (keyProvider === 'gemini' && nextKeys.openai) {
+                setProvider('openai');
+            }
+        }
+        syncKeyModalState(keyProvider, nextKeys);
     };
 
     // Image Processing
@@ -424,14 +466,32 @@ export const AutoCollageTab: React.FC = () => {
     // AI Generation
     const handleGenerate = async () => {
         if (!prompt.trim()) return;
+        const apiKey = providerKeys[provider];
         if (!apiKey) {
+            syncKeyModalState(provider);
             setShowKeyModal(true);
             return;
         }
 
         setIsAiLoading(true);
         try {
-            const dataUrl = await generateImage(apiKey, prompt);
+            const generationPrompt = [
+                editorMode === 'single'
+                    ? 'Generate one polished standalone photo/collage asset that can be placed on a design canvas.'
+                    : 'Generate one polished photo/collage element that fits a scrapbook or modern collage composition.',
+                prompt.trim(),
+            ].join('\n\n');
+
+            const dataUrl = provider === 'openai'
+                ? await generateOpenAiImage(
+                    apiKey,
+                    generationPrompt,
+                    null,
+                    '1:1',
+                    OPENAI_COLLAGE_MODEL,
+                    'high',
+                )
+                : await generateImage(apiKey, generationPrompt);
 
             // Convert Data URL to a File object to re-use processFiles logic
             const res = await fetch(dataUrl);
@@ -445,6 +505,7 @@ export const AutoCollageTab: React.FC = () => {
             console.error(err);
             if (err.message?.includes("403") || err.message?.includes("401")) { // Check for auth errors
                 alert("API Key issue. Please check your key.");
+                syncKeyModalState(provider);
                 setShowKeyModal(true);
             } else {
                 alert("Generation failed: " + err.message);
@@ -499,6 +560,153 @@ export const AutoCollageTab: React.FC = () => {
 
     return (
         <div className="flex flex-col md:flex-row w-full bg-cream-light relative px-4 md:px-0 md:h-full min-h-0 md:overflow-hidden">
+
+            {showKeyModal && (
+                <div className="fixed inset-0 z-50 bg-bronze-text/30 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="w-full max-w-md bg-white rounded-3xl border border-cream-dark shadow-2xl p-6 space-y-4">
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <h3 className="text-lg font-black text-bronze">API Key</h3>
+                                <p className="text-xs text-bronze-light">Set a key for the provider you want to use in Photo Collage AI.</p>
+                            </div>
+                            <button onClick={() => setShowKeyModal(false)} className="text-bronze-light hover:text-bronze">
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                            {(['gemini', 'openai'] as AiProvider[]).map((option) => (
+                                <button
+                                    key={option}
+                                    type="button"
+                                    onClick={() => syncKeyModalState(option)}
+                                    className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${keyProvider === option
+                                        ? 'bg-primary text-white border-primary shadow-md'
+                                        : 'bg-cream-light border-cream-dark text-bronze-text hover:bg-white'}`}
+                                >
+                                    {PROVIDER_LABELS[option]}
+                                </button>
+                            ))}
+                        </div>
+
+                        <a
+                            href={getApiKeyUrl(keyProvider)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex text-xs font-bold text-primary hover:text-primary-hover"
+                        >
+                            Get {PROVIDER_LABELS[keyProvider]} API Key
+                        </a>
+
+                        <input
+                            type="password"
+                            value={tempKey}
+                            onChange={(e) => setTempKey(e.target.value)}
+                            placeholder={keyProvider === 'openai' ? 'Paste your OpenAI API key' : 'Paste your Gemini API key'}
+                            className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text"
+                        />
+
+                        {!isValidApiKey(keyProvider, tempKey) && tempKey.trim() && (
+                            <p className="text-xs font-bold text-red-500">
+                                {keyProvider === 'openai' ? 'Please enter a valid OpenAI API key.' : 'Please enter a valid Gemini API key.'}
+                            </p>
+                        )}
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={handleSaveKey}
+                                disabled={!isValidApiKey(keyProvider, tempKey)}
+                                className="flex-1 px-4 py-2.5 rounded-xl bg-primary text-white font-black hover:bg-primary-hover disabled:opacity-60"
+                            >
+                                Save Key
+                            </button>
+                            {providerKeys[keyProvider] && (
+                                <button
+                                    onClick={handleClearKey}
+                                    className="px-4 py-2.5 rounded-xl bg-red-50 text-red-500 font-black border border-red-200 hover:bg-red-100"
+                                >
+                                    Clear
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showAiModal && (
+                <div className="fixed inset-0 z-50 bg-bronze-text/30 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="w-full max-w-xl bg-white rounded-3xl border border-cream-dark shadow-2xl p-6 space-y-4">
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <h3 className="text-lg font-black text-bronze">AI Generate</h3>
+                                <p className="text-xs text-bronze-light">Create a new image asset and place it into the collage canvas.</p>
+                            </div>
+                            <button onClick={() => setShowAiModal(false)} className="text-bronze-light hover:text-bronze">
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between gap-3">
+                                <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">Provider</label>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        syncKeyModalState(provider);
+                                        setShowKeyModal(true);
+                                    }}
+                                    className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1"
+                                >
+                                    <Key size={14} />
+                                    Set API Key
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                {(['gemini', 'openai'] as AiProvider[]).map((option) => (
+                                    <button
+                                        key={option}
+                                        type="button"
+                                        onClick={() => setProvider(option)}
+                                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option
+                                            ? 'bg-primary text-white border-primary shadow-md'
+                                            : 'bg-cream-light border-cream-dark text-bronze-text hover:bg-white'}`}
+                                    >
+                                        {PROVIDER_LABELS[option]}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-[11px] text-bronze-light">
+                                {provider === 'openai' ? `Model: ${OPENAI_COLLAGE_MODEL}` : `Model: ${GEMINI_COLLAGE_MODEL}`}
+                            </p>
+                        </div>
+
+                        <textarea
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
+                            placeholder="Describe the image you want to generate for this collage."
+                            rows={5}
+                            className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-xl text-sm font-bold text-bronze-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 resize-none"
+                        />
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={handleGenerate}
+                                disabled={isAiLoading || !prompt.trim()}
+                                className="flex-1 px-4 py-3 rounded-xl bg-primary text-white font-black hover:bg-primary-hover disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                            >
+                                <Sparkles size={16} className={isAiLoading ? 'animate-spin' : ''} />
+                                {isAiLoading ? 'Generating...' : 'Generate'}
+                            </button>
+                            <button
+                                onClick={() => setShowAiModal(false)}
+                                className="px-4 py-3 rounded-xl bg-cream-light text-bronze-text font-black border border-cream-dark hover:bg-white"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Gallery Picker Modal */}
             {showGalleryPicker && (
@@ -656,6 +864,8 @@ export const AutoCollageTab: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex gap-1">
+                            <button onClick={() => setShowAiModal(true)} className="p-2 hover:bg-primary/10 rounded-lg text-primary" title="AI Generate"><Sparkles size={18} /></button>
+                            <button onClick={() => { syncKeyModalState(provider); setShowKeyModal(true); }} className="p-2 hover:bg-primary/10 rounded-lg text-primary" title="API Key"><Key size={18} /></button>
                             <button onClick={() => setShowGalleryPicker(true)} className="p-2 hover:bg-secondary/10 rounded-lg text-secondary" title={t('collage.addFromGallery')}><FolderHeart size={18} /></button>
                             <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-primary/10 rounded-lg text-primary" title={t('collage.addPhoto')}><Plus size={18} /></button>
                             {images.length > 0 && <button onClick={() => { saveCheckpoint(); clearImages(); }} className="p-2 hover:bg-red-50 rounded-lg text-red-500" title={t('collage.clearAll')}><Trash2 size={18} /></button>}

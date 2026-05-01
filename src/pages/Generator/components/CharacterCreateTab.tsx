@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
-import { Sparkles, Wand2, BookOpen, Shuffle, Lock, Unlock, Search, Copy, Save, Trash2, X } from 'lucide-react';
+import { Sparkles, Wand2, BookOpen, Shuffle, Lock, Unlock, Search, Copy, Save, Trash2, X, Key } from 'lucide-react';
 import {
   CHARACTER_COMMON_TAGS,
   CHARACTER_DEFAULT_STATE,
@@ -13,14 +13,22 @@ import {
   generateCharacterStory,
   optimizeCharacterPrompt,
 } from '../../../features/character-creator-core';
+import { AiProvider } from '../../../shared/geminiApiKey';
 import { safeSaveToLocalStorage } from '../../../shared/localStorage';
 
 interface CharacterCreateTabProps {
-  apiKey: string;
+  provider: AiProvider;
+  apiKeys: Record<AiProvider, string>;
+  onProviderChange: (provider: AiProvider) => void;
   onError: (message: string) => void;
-  onNeedApiKey: () => void;
-  onSendToImageGen: (prompt: string) => void;
+  onNeedApiKey: (provider: AiProvider) => void;
+  onSendToImageGen: (prompt: string, provider: AiProvider) => void;
 }
+
+const PROVIDER_LABELS: Record<AiProvider, string> = {
+  gemini: 'Gemini',
+  openai: 'OpenAI',
+};
 
 interface CharacterProfile {
   id: string;
@@ -110,13 +118,16 @@ const STARTER_PRESETS: StarterPreset[] = [
 ];
 
 const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
-  apiKey,
+  provider,
+  apiKeys,
+  onProviderChange,
   onError,
   onNeedApiKey,
   onSendToImageGen,
 }) => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language === 'zh-TW' ? 'zh-TW' : 'en';
+  const apiKey = apiKeys[provider];
 
   const [worldMode, setWorldMode] = useState<CharacterWorldMode>('fantasy');
   const [activeCategory, setActiveCategory] = useState<CharacterCategoryKey>('character');
@@ -203,6 +214,72 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
 
   const displayPrompt = optimizedPrompt || rawPrompt;
 
+  const buildLocalCharacterMatrix = (input: string): Partial<CharacterPromptState> => {
+    const normalized = input
+      .split(/[,\n]/)
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    const inferFromPool = (pool: { en: string }[]) =>
+      pool.find((tag) => input.toLowerCase().includes(tag.en.toLowerCase()))?.en || pool[0]?.en || '';
+
+    return {
+      character: normalized[0] || inferFromPool(CHARACTER_WORLD_DATA[worldMode].character),
+      pose: normalized[1] || inferFromPool(CHARACTER_WORLD_DATA[worldMode].pose),
+      outfit: normalized[2] || inferFromPool(CHARACTER_WORLD_DATA[worldMode].outfit),
+      env: normalized[3] || inferFromPool(CHARACTER_WORLD_DATA[worldMode].env),
+      color: inferFromPool(CHARACTER_COMMON_TAGS.color),
+      shot: inferFromPool(CHARACTER_COMMON_TAGS.shot),
+      style: inferFromPool(CHARACTER_COMMON_TAGS.style),
+      light: inferFromPool(CHARACTER_COMMON_TAGS.light),
+      rare: normalized[4] || inferFromPool(CHARACTER_WORLD_DATA[worldMode].rare),
+    };
+  };
+
+  const buildLocalOptimizedPrompt = (
+    sourceText: string,
+    style: 'artistic' | 'photo' | 'anime'
+  ) => {
+    const styleInstructions = {
+      artistic: 'highly cohesive character concept art, rich storytelling details, premium illustration finish',
+      photo: 'cinematic photography direction, realistic materials, lens-aware composition, natural skin and fabric detail',
+      anime: 'polished anime rendering, expressive silhouette design, clean linework, high-end key visual finish',
+    };
+
+    return [
+      sourceText.trim(),
+      `world setting: ${worldMode}`,
+      `render direction: ${styleInstructions[style]}`,
+      'focus on identity clarity, costume readability, environment storytelling, and strong lighting hierarchy',
+    ].join(', ');
+  };
+
+  const buildLocalStoryCard = (tags: string) => {
+    const titleSeed = promptState.character || tags.split(',')[0]?.trim() || 'Unknown Character';
+    const personalitySeed = promptState.pose || 'calm but vigilant';
+    const backgroundSeed = promptState.env || 'a world shaped by conflict and wonder';
+    const visualSeed = [
+      promptState.outfit,
+      promptState.style,
+      promptState.light,
+      promptState.rare,
+    ].filter(Boolean).join(', ');
+
+    if (lang === 'zh-TW') {
+      return `## Name
+**Title/Class:** ${titleSeed}
+**Personality:** ${personalitySeed}
+**Background Story:** 生於 ${backgroundSeed} 的角色，逐漸把自身天賦磨成獨特標誌。TA 的行動方式結合了 ${promptState.character || '鮮明角色設定'} 與 ${promptState.pose || '具有戲劇張力的姿態'}，在人群中總能留下強烈印象。隨著旅程推進，TA 開始把過去的傷痕、信念與欲望，轉化成更成熟的判斷與選擇，也讓整體形象更適合延伸為完整世界觀中的核心人物。
+**Visual Traits:** ${visualSeed || tags}`;
+    }
+
+    return `## Name
+**Title/Class:** ${titleSeed}
+**Personality:** ${personalitySeed}
+**Background Story:** Raised within ${backgroundSeed}, this character refined their talent into a signature presence. Their overall identity blends ${promptState.character || 'a distinctive archetype'} with ${promptState.pose || 'a memorable stance'}, making them feel immediately readable in a larger world. As their journey progresses, old scars, beliefs, and ambitions evolve into sharper decisions and stronger emotional weight, positioning them as a central figure who can carry both standalone key art and broader narrative expansion.
+**Visual Traits:** ${visualSeed || tags}`;
+  };
+
   const setStatus = (text: string) => {
     if (statusTimerRef.current) {
       window.clearTimeout(statusTimerRef.current);
@@ -250,8 +327,9 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
   };
 
   const ensureApiKey = () => {
+    if (provider === 'openai') return true;
     if (apiKey) return true;
-    onNeedApiKey();
+    onNeedApiKey(provider);
     onError(t('generator.characterCreate.messages.needApiKey'));
     return false;
   };
@@ -266,7 +344,9 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
 
     setLoadingAction('analyze');
     try {
-      const matrix = await generateCharacterMatrix(apiKey, ideaInput.trim(), worldMode);
+      const matrix = provider === 'openai'
+        ? buildLocalCharacterMatrix(ideaInput.trim())
+        : await generateCharacterMatrix(apiKey, ideaInput.trim(), worldMode);
       setPromptState((prev) => {
         const next = { ...prev };
         for (const key of CATEGORY_KEYS) {
@@ -296,7 +376,9 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
 
     setLoadingAction('optimize');
     try {
-      const text = await optimizeCharacterPrompt(apiKey, rawPrompt, worldMode, optStyle);
+      const text = provider === 'openai'
+        ? buildLocalOptimizedPrompt(rawPrompt, optStyle)
+        : await optimizeCharacterPrompt(apiKey, rawPrompt, worldMode, optStyle);
       setOptimizedPrompt(text);
     } catch (e: any) {
       onError(e?.message || t('generator.characterCreate.messages.optimizeFailed'));
@@ -316,7 +398,9 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
 
     setLoadingAction('story');
     try {
-      const text = await generateCharacterStory(apiKey, source, worldMode, lang as 'en' | 'zh-TW');
+      const text = provider === 'openai'
+        ? buildLocalStoryCard(source)
+        : await generateCharacterStory(apiKey, source, worldMode, lang as 'en' | 'zh-TW');
       setStory(text);
     } catch (e: any) {
       onError(e?.message || t('generator.characterCreate.messages.storyFailed'));
@@ -347,7 +431,7 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
       onError(t('generator.characterCreate.messages.needPrompt'));
       return;
     }
-    onSendToImageGen(source);
+    onSendToImageGen(source, provider);
   };
 
   const toggleLock = (key: CharacterCategoryKey) => {
@@ -429,6 +513,39 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+      <section className="bg-cream border border-cream-dark rounded-[2rem] p-6 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-black uppercase tracking-widest text-bronze-light">Provider</h2>
+          <button
+            type="button"
+            onClick={() => onNeedApiKey(provider)}
+            className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1"
+          >
+            <Key size={14} />
+            Set API Key
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {(['gemini', 'openai'] as AiProvider[]).map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => onProviderChange(option)}
+              className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option
+                ? 'bg-primary text-white border-primary shadow-md'
+                : 'bg-white border-cream-dark text-bronze-text hover:bg-white/80'}`}
+            >
+              {PROVIDER_LABELS[option]}
+            </button>
+          ))}
+        </div>
+        <p className="text-[11px] text-bronze-light">
+          {provider === 'openai'
+            ? 'OpenAI mode: prompt analysis/optimization/story use local fallback, then you can send the result to AI Image Gen with OpenAI.'
+            : 'Gemini mode: idea analysis, prompt optimization, and story card use Gemini prompt helpers.'}
+        </p>
+      </section>
+
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <section className="bg-cream border border-cream-dark rounded-[2rem] p-6 space-y-4">
           <div className="flex items-center justify-between gap-3 border-b border-cream-dark/60 pb-3">

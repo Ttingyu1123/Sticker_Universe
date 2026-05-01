@@ -38,6 +38,7 @@ const App: React.FC = () => {
   const [headshotProvider, setHeadshotProvider] = useState<AiProvider>('gemini');
   const [mangaProvider, setMangaProvider] = useState<AiProvider>('gemini');
   const [portraitProvider, setPortraitProvider] = useState<AiProvider>('gemini');
+  const [characterCreateProvider, setCharacterCreateProvider] = useState<AiProvider>('gemini');
   const [keyProvider, setKeyProvider] = useState<AiProvider>('gemini');
   const [tempKey, setTempKey] = useState('');
   const [showKeyModal, setShowKeyModal] = useState(false);
@@ -47,7 +48,6 @@ const App: React.FC = () => {
   const [isZipping, setIsZipping] = useState(false);
   const [previewSticker, setPreviewSticker] = useState<Sticker | null>(null);
   const [imageGenSeed, setImageGenSeed] = useState<{ prompt: string; token: number }>({ prompt: '', token: 0 });
-  const apiKey = providerKeys.gemini;
 
   const syncKeyModalState = (provider: AiProvider, nextKeys = providerKeys) => {
     const stored = loadApiKey(provider);
@@ -131,6 +131,9 @@ const App: React.FC = () => {
       if (activeTab === 'portrait') {
         setPortraitProvider('openai');
       }
+      if (activeTab === 'character-create') {
+        setCharacterCreateProvider('openai');
+      }
       if (
         !nextKeys.gemini
         && activeTab !== 'sticker'
@@ -141,6 +144,7 @@ const App: React.FC = () => {
         && activeTab !== 'headshot'
         && activeTab !== 'manga'
         && activeTab !== 'portrait'
+        && activeTab !== 'character-create'
       ) {
         setActiveTab('image-gen');
       }
@@ -182,6 +186,9 @@ const App: React.FC = () => {
         if (portraitProvider === 'openai') {
           setPortraitProvider(nextKeys.gemini ? 'gemini' : 'openai');
         }
+        if (characterCreateProvider === 'openai') {
+          setCharacterCreateProvider(nextKeys.gemini ? 'gemini' : 'openai');
+        }
       }
 
       if (keyProvider === 'gemini') {
@@ -220,6 +227,8 @@ const App: React.FC = () => {
               ? mangaProvider
             : activeTab === 'portrait'
               ? portraitProvider
+            : activeTab === 'character-create'
+              ? characterCreateProvider
         : 'gemini';
     syncKeyModalState(provider || inferredProvider);
     setShowKeyModal(true);
@@ -423,6 +432,8 @@ const App: React.FC = () => {
             ? mangaProvider
           : activeTab === 'portrait'
             ? portraitProvider
+          : activeTab === 'character-create'
+            ? characterCreateProvider
       : 'gemini';
   const currentTabKey = providerKeys[currentTabProvider];
 
@@ -674,10 +685,13 @@ const App: React.FC = () => {
               />
             ) : activeTab === 'character-create' ? (
               <CharacterCreateTab
-                apiKey={apiKey}
+                provider={characterCreateProvider}
+                apiKeys={providerKeys}
+                onProviderChange={setCharacterCreateProvider}
                 onError={(msg) => setError(msg)}
                 onNeedApiKey={handleOpenKeyModal}
-                onSendToImageGen={(prompt) => {
+                onSendToImageGen={(prompt, provider) => {
+                  setImageGenProvider(provider);
                   setImageGenSeed({ prompt, token: Date.now() });
                   setActiveTab('image-gen');
                 }}
