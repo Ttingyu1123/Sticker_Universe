@@ -198,6 +198,30 @@ src/
 - OpenAI 圖片生成目前走 `api/openai-image.ts` Vercel proxy。
 - 專案整體仍是 BYOK：Gemini 多數流程前端直連；OpenAI 目前主要承接圖片生成 / image edit，部分文字優化使用本地 fallback。
 
+## AI Provider Status (2026-05-01, Latest)
+
+- `Generator` 主分頁目前都支援 `Gemini / OpenAI`：
+  - `AI Image Gen`
+  - `Style Sticker`
+  - `Holiday Sticker`
+  - `Greeting Card`
+  - `Cinematic Poster`
+  - `Headshot Generator`
+  - `Manga Master`
+  - `Portrait Master`
+  - `Character Create`
+- `PhotoCollage` 已支援 `Gemini / OpenAI`：
+  - `src/pages/PhotoCollage/AutoCollageTab.tsx`
+- `ImageEditor` 已支援 `Gemini / OpenAI`：
+  - `src/pages/ImageEditor/components/LocalRedrawTab.tsx`
+  - `src/pages/ImageEditor/components/OutpaintTab.tsx`
+- API key 仍分開存：
+  - `gemini_api_key`
+  - `openai_api_key`
+- OpenAI 圖片生成 / edit 路徑統一走：
+  - `api/openai-image.ts`
+- 專案目前仍是前端 BYOK + Vercel proxy 模式，沒有獨立的 OpenAI 後端服務。
+
 ## Available CLI Tools (OpenCLI)
 
 Run `opencli list` to discover all available CLI tools. Use `opencli <command> -f json` for structured output.

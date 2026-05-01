@@ -1,9 +1,10 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, FolderOpen, Loader2, RefreshCw, Upload } from 'lucide-react';
+import { Download, FolderOpen, Key, Loader2, RefreshCw, Upload, X } from 'lucide-react';
 import { GalleryPicker } from '../../../components/GalleryPicker';
-import { loadGeminiApiKey } from '../../../shared/geminiApiKey';
+import { AiProvider, clearApiKey, getApiKeyUrl, isValidApiKey, loadApiKey, saveApiKey } from '../../../shared/geminiApiKey';
 import { generateImage } from '../../Generator/services/geminiService';
+import { generateOpenAiImage } from '../../Generator/services/openaiImageService';
 import { saveStickerToDB } from '../../../db';
 
 const ratioPresets = [
@@ -16,6 +17,14 @@ const ratioPresets = [
 
 type FixedMode = 'width' | 'height';
 type Quality = '1K' | '2K' | '4K';
+
+const PROVIDER_LABELS: Record<AiProvider, string> = {
+  gemini: 'Gemini',
+  openai: 'OpenAI',
+};
+
+const GEMINI_OUTPAINT_MODEL = 'gemini-3-pro-image-preview';
+const OPENAI_OUTPAINT_MODEL = 'gpt-image-2';
 
 const gcd = (a: number, b: number): number => {
   let x = Math.abs(Math.round(a));
@@ -58,6 +67,11 @@ const OutpaintTab: React.FC = () => {
   const [modelRawSize, setModelRawSize] = useState<{ width: number; height: number } | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [provider, setProvider] = useState<AiProvider>('gemini');
+  const [providerKeys, setProviderKeys] = useState<Record<AiProvider, string>>({ gemini: '', openai: '' });
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [keyProvider, setKeyProvider] = useState<AiProvider>('gemini');
+  const [tempKey, setTempKey] = useState('');
 
   const outputSize = useMemo(
     () => ({
@@ -71,6 +85,49 @@ const OutpaintTab: React.FC = () => {
     const d = gcd(outputSize.width, outputSize.height);
     return `${Math.round(outputSize.width / d)}:${Math.round(outputSize.height / d)}`;
   }, [outputSize.width, outputSize.height]);
+
+  const syncKeyModalState = (nextProvider: AiProvider, nextKeys = providerKeys) => {
+    const stored = loadApiKey(nextProvider);
+    setKeyProvider(nextProvider);
+    setTempKey(stored?.key || nextKeys[nextProvider] || '');
+  };
+
+  React.useEffect(() => {
+    const geminiStored = loadApiKey('gemini');
+    const openAiStored = loadApiKey('openai');
+    const nextKeys = {
+      gemini: geminiStored?.key || '',
+      openai: openAiStored?.key || '',
+    };
+    setProviderKeys(nextKeys);
+
+    if (geminiStored) return;
+    if (openAiStored) {
+      setProvider('openai');
+    }
+  }, []);
+
+  const handleSaveKey = () => {
+    const key = tempKey.trim();
+    if (!isValidApiKey(keyProvider, key)) return;
+    saveApiKey(keyProvider, key, true);
+    const nextKeys = { ...providerKeys, [keyProvider]: key };
+    setProviderKeys(nextKeys);
+    setProvider(keyProvider);
+    setShowKeyModal(false);
+  };
+
+  const handleClearKey = () => {
+    clearApiKey(keyProvider);
+    const nextKeys = { ...providerKeys, [keyProvider]: '' };
+    setProviderKeys(nextKeys);
+    setTempKey('');
+    if (provider === keyProvider) {
+      if (keyProvider === 'openai' && nextKeys.gemini) setProvider('gemini');
+      if (keyProvider === 'gemini' && nextKeys.openai) setProvider('openai');
+    }
+    syncKeyModalState(keyProvider, nextKeys);
+  };
 
   const clearGenerated = () => {
     setResultImage(null);
@@ -179,8 +236,12 @@ const OutpaintTab: React.FC = () => {
 
   const handleGenerate = async () => {
     if (!sourceImage) return;
-    const apiKeyState = loadGeminiApiKey();
-    if (!apiKeyState?.key) {
+    const apiKey = providerKeys[provider];
+    if (!apiKey) {
+      syncKeyModalState(provider);
+      setShowKeyModal(true);
+    }
+    if (!apiKey) {
       setErrorMessage(t('generator.apiKey.invalid', { defaultValue: '請先設定 API Key' }));
       return;
     }
@@ -200,14 +261,23 @@ const OutpaintTab: React.FC = () => {
         prompt?.trim() ? `Additional direction: ${prompt.trim()}` : ''
       ].filter(Boolean).join('\n');
 
-      const generated = await generateImage(
-        apiKeyState.key,
-        instruction,
-        baseImage,
-        aspectRatio,
-        'gemini-3-pro-image-preview',
-        quality
-      );
+      const generated = provider === 'openai'
+        ? await generateOpenAiImage(
+            apiKey,
+            instruction,
+            baseImage,
+            aspectRatio,
+            OPENAI_OUTPAINT_MODEL,
+            quality === '1K' ? 'medium' : 'high',
+          )
+        : await generateImage(
+            apiKey,
+            instruction,
+            baseImage,
+            aspectRatio,
+            GEMINI_OUTPAINT_MODEL,
+            quality
+          );
       const rawSize = await getImageDimensions(generated);
       const normalized = await normalizeToOutputSize(generated);
       const finalSize = await getImageDimensions(normalized);
@@ -343,6 +413,78 @@ const OutpaintTab: React.FC = () => {
 
   return (
     <div className="h-full min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 md:p-6 overflow-hidden">
+      {showKeyModal && (
+        <div className="fixed inset-0 z-50 bg-bronze-text/30 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white rounded-3xl border border-cream-dark shadow-2xl p-6 space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-black text-bronze">API Key</h3>
+                <p className="text-xs text-bronze-light">Set a key for the provider you want to use in Outpaint.</p>
+              </div>
+              <button onClick={() => setShowKeyModal(false)} className="text-bronze-light hover:text-bronze">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {(['gemini', 'openai'] as AiProvider[]).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => syncKeyModalState(option)}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${keyProvider === option
+                    ? 'bg-primary text-white border-primary shadow-md'
+                    : 'bg-cream-light border-cream-dark text-bronze-text hover:bg-white'}`}
+                >
+                  {PROVIDER_LABELS[option]}
+                </button>
+              ))}
+            </div>
+
+            <a
+              href={getApiKeyUrl(keyProvider)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex text-xs font-bold text-primary hover:text-primary-hover"
+            >
+              Get {PROVIDER_LABELS[keyProvider]} API Key
+            </a>
+
+            <input
+              type="password"
+              value={tempKey}
+              onChange={(e) => setTempKey(e.target.value)}
+              placeholder={keyProvider === 'openai' ? 'Paste your OpenAI API key' : 'Paste your Gemini API key'}
+              className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text"
+            />
+
+            {!isValidApiKey(keyProvider, tempKey) && tempKey.trim() && (
+              <p className="text-xs font-bold text-red-500">
+                {keyProvider === 'openai' ? 'Please enter a valid OpenAI API key.' : 'Please enter a valid Gemini API key.'}
+              </p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleSaveKey}
+                disabled={!isValidApiKey(keyProvider, tempKey)}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-primary text-white font-black hover:bg-primary-hover disabled:opacity-60"
+              >
+                Save Key
+              </button>
+              {providerKeys[keyProvider] && (
+                <button
+                  onClick={handleClearKey}
+                  className="px-4 py-2.5 rounded-xl bg-red-50 text-red-500 font-black border border-red-200 hover:bg-red-100"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="lg:col-span-1 min-h-0 rounded-2xl border border-cream-dark bg-white p-4 md:p-5 space-y-4 overflow-y-auto">
         <h3 className="text-lg font-black text-bronze-text">{t('editor.outpaint.title', { defaultValue: '魔法擴圖' })}</h3>
 
@@ -370,6 +512,40 @@ const OutpaintTab: React.FC = () => {
               <RefreshCw size={14} />
               {t('common.reset', { defaultValue: '重置圖片' })}
             </button>
+
+            <div className="space-y-2 rounded-xl border border-cream-dark bg-cream-light p-3">
+              <div className="flex items-center justify-between gap-3">
+                <label className="text-xs font-bold text-bronze-light uppercase">Provider</label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    syncKeyModalState(provider);
+                    setShowKeyModal(true);
+                  }}
+                  className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1"
+                >
+                  <Key size={14} />
+                  Set API Key
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {(['gemini', 'openai'] as AiProvider[]).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setProvider(option)}
+                    className={`rounded-lg border px-3 py-2 text-xs font-bold transition-all ${provider === option
+                      ? 'bg-primary text-white border-primary'
+                      : 'bg-white text-bronze-text border-cream-dark hover:border-primary/50'}`}
+                  >
+                    {PROVIDER_LABELS[option]}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-bronze-light">
+                {provider === 'openai' ? `Model: ${OPENAI_OUTPAINT_MODEL}` : `Model: ${GEMINI_OUTPAINT_MODEL}`}
+              </p>
+            </div>
 
             <div className="space-y-2">
               <label className="text-xs font-bold text-bronze-light uppercase">{t('editor.outpaint.canvas', { defaultValue: '輸出比例' })}</label>
