@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
     Upload, Wand2, Download, Sparkles, Type, Palette,
     Image as ImageIcon, Zap, Feather, Cloud, Disc, Tv, Heart,
-    Scissors, AlertTriangle, Trash2, Star, Eye, FileArchive, FolderHeart
+    Scissors, AlertTriangle, Trash2, Star, Eye, FileArchive, FolderHeart, Key
 } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveStickerToDB } from '../../../db';
@@ -12,6 +12,8 @@ import { generateSticker, suggestStickerPhrases } from '../services/geminiServic
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { useImageShare } from '../../../hooks/useImageShare';
+import { AiProvider } from '../../../shared/geminiApiKey';
+import { generateOpenAiImage } from '../services/openaiImageService';
 
 // Helper for Theme Icons
 const getThemeIcon = (iconName: string) => {
@@ -27,9 +29,11 @@ const getThemeIcon = (iconName: string) => {
 };
 
 interface StyleStickerTabProps {
-    apiKey: string;
+    provider: AiProvider;
+    apiKeys: Record<AiProvider, string>;
+    onProviderChange: (provider: AiProvider) => void;
     onError: (error: string) => void;
-    onNeedApiKey: () => void;
+    onNeedApiKey: (provider: AiProvider) => void;
 }
 
 type PromptOption = {
@@ -40,6 +44,11 @@ type PromptOption = {
 
 type PriorityMode = 'style' | 'semantic';
 type BatchPhraseMode = 'same' | 'theme' | 'custom';
+
+const PROVIDER_LABELS: Record<AiProvider, string> = {
+    gemini: 'Gemini',
+    openai: 'OpenAI',
+};
 
 const THEME_PROMPT_OPTIONS: PromptOption[] = [
     { id: 'office', label: '社畜日常 (預設)', prompt: 'Corporate slave daily office life. tired, fake smile, coffee, deadline, overtime, salary day, want to go home.' },
@@ -102,9 +111,16 @@ const THEME_CONFLICT_KEYWORDS: Record<string, string[]> = {
     negative: ['好累', '厭世', '崩潰', '社交電量', 'burnout', 'dead inside'],
 };
 
-const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNeedApiKey }) => {
+const StyleStickerTab: React.FC<StyleStickerTabProps> = ({
+    provider,
+    apiKeys,
+    onProviderChange,
+    onError,
+    onNeedApiKey,
+}) => {
     const { shareImage } = useImageShare();
     const { t } = useTranslation();
+    const apiKey = apiKeys[provider];
     const [currentTheme, setCurrentTheme] = useState<StickerTheme>(THEMES[0]);
     const [image, setImage] = useState<string | null>(null);
     const [selectedPhrase, setSelectedPhrase] = useState<string>('');
@@ -134,7 +150,8 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
     const [showGallery, setShowGallery] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const STICKER_MODEL = 'gemini-3-pro-image-preview';
+    const GEMINI_STICKER_MODEL = 'gemini-3-pro-image-preview';
+    const OPENAI_STICKER_MODEL = 'gpt-image-2';
 
     const sanitizeFilename = (value: string) =>
         (value || 'sticker')
@@ -151,6 +168,137 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
     };
 
     const getThemeOptionLabel = (id: string) => THEME_PROMPT_OPTIONS.find(opt => opt.id === id)?.label || id;
+
+    const buildStickerPrompt = (
+        phrase: string,
+        styleSnippet: string,
+        includeStickerText: boolean,
+        fontPrompt: string,
+        mode: PriorityMode,
+        lockCharacter: boolean,
+        strength: number,
+        keepComposition: boolean,
+    ) => {
+        const normalizedPhrase = (phrase || '').trim();
+        const phraseForPrompt = normalizedPhrase || 'a context-appropriate sticker meaning chosen by the model';
+
+        const priorityInstruction = mode === 'semantic'
+            ? `PRIORITY MODE: MEANING FIRST
+       - Prioritize clear semantic meaning and expression readability over decorative style details.
+       - Style should support readability, not overpower it.`
+            : `PRIORITY MODE: STYLE FIRST
+       - Prioritize style fidelity, rendering quality, and visual consistency first.
+       - Preserve readable expression and semantic clarity as secondary goals.`;
+
+        const characterLockInstruction = lockCharacter
+            ? `CHARACTER LOCK: ON
+       - Keep identity highly consistent with the reference image (face shape, eyes, nose, mouth, hairline, hair color).
+       - Avoid changing identity-defining attributes between outputs.`
+            : `CHARACTER LOCK: OFF
+       - Keep broad resemblance to the reference image, but allow looser character reinterpretation.`;
+
+        const clampedVariation = Math.max(1, Math.min(5, strength));
+        const variationInstruction =
+            clampedVariation <= 2
+                ? 'VARIATION LEVEL: LOW. Keep pose, composition, and details relatively stable.'
+                : clampedVariation === 3
+                    ? 'VARIATION LEVEL: MEDIUM. Balance consistency and expressive changes.'
+                    : 'VARIATION LEVEL: HIGH. Allow larger pose/expression/detail variation while preserving character identity.';
+
+        const compositionInstruction = keepComposition
+            ? `COMPOSITION LOCK: ON
+       - Keep pose, camera angle, framing, and subject placement close to the original reference.
+       - Prefer detail/style updates over changing the overall composition.`
+            : `COMPOSITION LOCK: OFF
+       - You may freely choose pose, camera angle, framing, and subject placement based on the target style.`;
+
+        const textInstruction = includeStickerText
+            ? `TYPOGRAPHY:
+       - ${normalizedPhrase
+                ? `Overlay the Traditional Chinese text "${normalizedPhrase}" in a large, bold, playful font.`
+                : 'Generate a short Traditional Chinese sticker caption (2-6 chars) that matches the expression.'}
+       - The text should be clear and well-integrated into the composition.
+       - Font direction: ${fontPrompt || 'Bold sans-serif with clear readability for sticker usage.'}`
+            : `STRICT RULE - NO TEXT:
+       - DO NOT include any text, letters, symbols, or characters in the image. 
+       - Focus 100% on the character's expression and dynamic pose to convey "${phraseForPrompt}".`;
+
+        const isStickerWithBorder = styleSnippet.includes('OFFSET BORDER');
+
+        return `
+    TASK: Create a professional illustration based on the provided character reference image.
+    
+    STYLE & CHARACTER:
+    - ${styleSnippet}
+    - ${priorityInstruction}
+    - ${characterLockInstruction}
+    - ${variationInstruction}
+    - ${compositionInstruction}
+    - FACIAL IDENTITY: Preserve the character's facial structure and features from the original photo.
+    - EXPRESSION & POSE: Exaggerate the expression to match "${phraseForPrompt}".
+    
+    BORDER & EDGES (CRITICAL):
+    ${isStickerWithBorder
+                ? '- This specific style MUST have a thick, solid white sticker border.'
+                : "- STRICT FORBIDDEN: DO NOT add any white border, offset, outline, or glow. The character's outermost lines must be the black ink lines or the character colors themselves, touching the green background directly."}
+    
+    BACKGROUND (CRITICAL CHROMA KEY):
+    - The background MUST be a 100% SOLID, FLAT, PURE NEON GREEN (#00FF00). 
+    - No gradients, no textures, no shadows, no background objects.
+    - Think of this as a character sprite for a game engine.
+    
+    ${textInstruction}
+    
+    FINAL VALIDATION:
+    - If there is a white border and the style is NOT "撖怠祕鞎潛?", the generation is WRONG.
+    - For anime styles, ensure the edges are sharp and clean against the green.
+  `;
+    };
+
+    const generateStickerWithProvider = async (
+        sourceImage: string,
+        phrase: string,
+        styleSnippet: string,
+        fontPrompt: string,
+    ): Promise<{ imageUrl: string; prompt: string }> => {
+        if (provider === 'openai') {
+            const prompt = buildStickerPrompt(
+                phrase,
+                styleSnippet,
+                includeText,
+                fontPrompt,
+                priorityMode,
+                characterLock,
+                variationStrength,
+                preserveComposition,
+            );
+
+            const imageUrl = await generateOpenAiImage(
+                apiKey,
+                prompt,
+                sourceImage,
+                '1:1',
+                OPENAI_STICKER_MODEL,
+                'high',
+            );
+
+            return { imageUrl, prompt };
+        }
+
+        return generateSticker(
+            apiKey,
+            sourceImage,
+            phrase,
+            GEMINI_STICKER_MODEL,
+            styleSnippet,
+            includeText,
+            fontPrompt,
+            priorityMode,
+            characterLock,
+            variationStrength,
+            preserveComposition
+        );
+    };
 
     const getPhraseConflictMessage = (phrase: string, selectedThemeId: string): string | null => {
         const normalized = phrase.trim().toLowerCase();
@@ -254,19 +402,24 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
 
     const handleAiSuggestBatchPhrases = async () => {
         if (!apiKey) {
-            onNeedApiKey();
+            onNeedApiKey(provider);
             return;
         }
         if (batchSize <= 1) return;
 
         try {
             setIsSuggestingPhrases(true);
+            if (provider === 'openai') {
+                setBatchPhrasesText(buildSuggestedBatchPhrases(batchSize).join('\n'));
+                setBatchPhraseMode('custom');
+                return;
+            }
             const phrases = await suggestStickerPhrases(apiKey, getThemePromptText(), batchSize);
             setBatchPhrasesText(phrases.join('\n'));
             setBatchPhraseMode('custom');
         } catch (err: any) {
             if (err.message === "KEY_NOT_FOUND" || err.message?.includes("403") || err.message?.includes("401")) {
-                onNeedApiKey();
+                onNeedApiKey(provider);
                 return;
             }
             setErrorMessage(`AI 產生台詞失敗：${err.message || '未知錯誤'}`);
@@ -397,7 +550,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
 
     const handleGenerate = async () => {
         if (!apiKey) {
-            onNeedApiKey();
+            onNeedApiKey(provider);
             return;
         }
         if (!image) {
@@ -439,18 +592,11 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                     phraseToUse = batchPhrases[i] || '';
                 }
 
-                const { imageUrl: resultImageUrl, prompt: usedPrompt } = await generateSticker(
-                    apiKey,
+                const { imageUrl: resultImageUrl, prompt: usedPrompt } = await generateStickerWithProvider(
                     image,
                     phraseToUse,
-                    STICKER_MODEL,
                     mergedStylePrompt,
-                    includeText,
                     fontPrompt,
-                    priorityMode,
-                    characterLock,
-                    variationStrength,
-                    preserveComposition
                 );
 
                 let finalImageUrl = resultImageUrl;
@@ -481,7 +627,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
         } catch (err: any) {
             console.error(err);
             if (err.message === "KEY_NOT_FOUND" || err.message?.includes("403") || err.message?.includes("401")) {
-                onNeedApiKey();
+                onNeedApiKey(provider);
             } else {
                 setErrorMessage(`生成失敗：${err.message || '未知錯誤'}`);
             }
@@ -512,7 +658,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
 
     const handleRegenerateSticker = async (stickerId: string) => {
         if (!apiKey) {
-            onNeedApiKey();
+            onNeedApiKey(provider);
             return;
         }
         if (!image) {
@@ -534,18 +680,11 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
             const mergedStylePrompt = [style.promptSnippet, themePrompt, stylePrompt].filter(Boolean).join('\n');
 
             const phraseToUse = (target.phrase || target.semanticLabel || '').trim();
-            const { imageUrl: resultImageUrl, prompt: usedPrompt } = await generateSticker(
-                apiKey,
+            const { imageUrl: resultImageUrl, prompt: usedPrompt } = await generateStickerWithProvider(
                 image,
                 phraseToUse,
-                STICKER_MODEL,
                 mergedStylePrompt,
-                includeText,
                 fontPrompt,
-                priorityMode,
-                characterLock,
-                variationStrength,
-                preserveComposition
             );
 
             const finalImageUrl = autoRemoveBg ? await smartRemoveBackground(resultImageUrl) : resultImageUrl;
@@ -563,7 +702,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
             }));
         } catch (err: any) {
             if (err.message === "KEY_NOT_FOUND" || err.message?.includes("403") || err.message?.includes("401")) {
-                onNeedApiKey();
+                onNeedApiKey(provider);
                 return;
             }
             setErrorMessage(`重抽失敗：${err.message || '未知錯誤'}`);
@@ -701,6 +840,37 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({ apiKey, onError, onNe
                     </div>
 
                     <div className="bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8 space-y-6">
+
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <label className="text-xs font-bold text-bronze-light uppercase tracking-widest">Provider</label>
+                                <button
+                                    type="button"
+                                    onClick={() => onNeedApiKey(provider)}
+                                    className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1"
+                                >
+                                    <Key size={14} />
+                                    Set API Key
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                {(['gemini', 'openai'] as AiProvider[]).map((option) => (
+                                    <button
+                                        key={option}
+                                        type="button"
+                                        onClick={() => onProviderChange(option)}
+                                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option
+                                            ? 'bg-primary text-white border-primary shadow-md'
+                                            : 'bg-white border-cream-dark text-bronze-text hover:bg-white/80'}`}
+                                    >
+                                        {PROVIDER_LABELS[option]}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-[11px] text-bronze-light">
+                                {provider === 'openai' ? `Model: ${OPENAI_STICKER_MODEL}` : `Model: ${GEMINI_STICKER_MODEL}`}
+                            </p>
+                        </div>
 
                         {/* Upload */}
                         <div className="space-y-3">

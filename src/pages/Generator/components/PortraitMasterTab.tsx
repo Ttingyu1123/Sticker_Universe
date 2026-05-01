@@ -4,9 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { GoogleGenAI, Modality } from "@google/genai";
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
-import { Upload, Camera, Sparkles, Scissors, Trash2, Image as ImageIcon, Download, User, FolderHeart, Wand2, Zap, ZoomIn, Edit3 } from 'lucide-react';
+import { Upload, Camera, Sparkles, Scissors, Trash2, Image as ImageIcon, Download, User, FolderHeart, Wand2, Zap, ZoomIn, Edit3, Key } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
+import { AiProvider } from '../../../shared/geminiApiKey';
+import { generateOpenAiImage } from '../services/openaiImageService';
 
 // Mock types if not available, or import from types.ts
 interface SubStyle {
@@ -32,11 +34,21 @@ interface GeneratedImage {
 }
 
 interface PortraitMasterTabProps {
-    apiKey: string;
+    provider: AiProvider;
+    apiKeys: Record<AiProvider, string>;
+    onProviderChange: (provider: AiProvider) => void;
     onSuccess?: (imageUrl: string, prompt: string) => void;
     onError?: (msg: string) => void;
-    onNeedApiKey?: () => void;
+    onNeedApiKey?: (provider: AiProvider) => void;
 }
+
+const PROVIDER_LABELS: Record<AiProvider, string> = {
+    gemini: 'Gemini',
+    openai: 'OpenAI',
+};
+
+const GEMINI_PORTRAIT_MODEL = 'gemini-3-pro-image-preview';
+const OPENAI_PORTRAIT_MODEL = 'gpt-image-2';
 
 const VARIATION_HINT_POOL = {
     outfit: ['layered fabrics', 'mixed material texture', 'ornamental accessories', 'alternative outfit details', 'secondary costume accents'],
@@ -399,8 +411,16 @@ const ASPECT_RATIOS = [
     { id: '9:16', label: '9:16 (Story)', width: 9, height: 16 }
 ];
 
-const PortraitMasterTab: React.FC<PortraitMasterTabProps> = ({ apiKey, onSuccess, onError, onNeedApiKey }) => {
+const PortraitMasterTab: React.FC<PortraitMasterTabProps> = ({
+    provider,
+    apiKeys,
+    onProviderChange,
+    onSuccess,
+    onError,
+    onNeedApiKey,
+}) => {
     const { t } = useTranslation();
+    const apiKey = apiKeys[provider];
 
     // State
     const [image, setImage] = useState<string | null>(null);
@@ -610,7 +630,7 @@ ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
 
     const generatePortrait = async () => {
         if (!apiKey) {
-            onNeedApiKey?.();
+            onNeedApiKey?.(provider);
             return;
         }
         if (!croppedImage) return;
@@ -624,44 +644,65 @@ ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
             const identityGuidance = `Face reference strength: ${faceRefStrength}/100.\n${faceReferenceHint}\n${faceModeGuidance}`;
             const finalPrompt = `${basePrompt}\n\nIdentity Guidance:\n${identityGuidance}${variationHint ? `\n\nVariation Guidance:\n${variationHint}` : ''}`;
 
-            const ai = new GoogleGenAI({ apiKey });
             const referenceImage = useFaceCropReference
                 ? await createFaceCropReference(croppedImage)
                 : croppedImage;
-            const base64Data = referenceImage.split(',')[1];
-            const mimeType = referenceImage.split(';')[0].split(':')[1];
+            const newImages: GeneratedImage[] = [];
 
-            const result = await ai.models.generateContent({
-                model: "gemini-3-pro-image-preview",
-                contents: {
-                    parts: [
-                        { inlineData: { data: base64Data, mimeType } },
-                        { text: finalPrompt }
-                    ]
-                },
-                config: {
-                    responseModalities: [Modality.IMAGE],
-                    imageConfig: {
-                        aspectRatio: selectedRatio
+            if (provider === 'openai') {
+                const src = await generateOpenAiImage(
+                    apiKey,
+                    finalPrompt,
+                    referenceImage,
+                    selectedRatio,
+                    OPENAI_PORTRAIT_MODEL,
+                    'high',
+                );
+
+                newImages.push({
+                    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                    src,
+                    style: selectedStyleId,
+                    ratio: selectedRatio,
+                });
+            } else {
+                const ai = new GoogleGenAI({ apiKey });
+                const base64Data = referenceImage.split(',')[1];
+                const mimeType = referenceImage.split(';')[0].split(':')[1];
+
+                const result = await ai.models.generateContent({
+                    model: GEMINI_PORTRAIT_MODEL,
+                    contents: {
+                        parts: [
+                            { inlineData: { data: base64Data, mimeType } },
+                            { text: finalPrompt }
+                        ]
+                    },
+                    config: {
+                        responseModalities: [Modality.IMAGE],
+                        imageConfig: {
+                            aspectRatio: selectedRatio
+                        }
+                    }
+                });
+
+                if (result.candidates?.[0]?.content?.parts) {
+                    for (const part of result.candidates[0].content.parts) {
+                        if (part.inlineData) {
+                            newImages.push({
+                                id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                                src: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`,
+                                style: selectedStyleId,
+                                ratio: selectedRatio
+                            });
+                        }
                     }
                 }
-            });
+            }
 
-            if (result.candidates?.[0]?.content?.parts) {
-                for (const part of result.candidates[0].content.parts) {
-                    if (part.inlineData) {
-                        const src = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-                        const newImage = {
-                            id: Date.now().toString(),
-                            src,
-                            style: selectedStyleId,
-                            ratio: selectedRatio
-                        };
-                        setGeneratedImages(prev => [newImage, ...prev]);
-                        // Only notify success for the first one if needed, or just let user see it
-                        onSuccess?.(src, finalPrompt);
-                    }
-                }
+            if (newImages.length > 0) {
+                setGeneratedImages(prev => [...newImages, ...prev]);
+                onSuccess?.(newImages[0].src, finalPrompt);
             }
         } catch (err: any) {
             console.error("Generation failed:", err);
@@ -743,6 +784,37 @@ ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
                         <h3 className="text-sm font-black text-bronze-light uppercase tracking-widest mb-2 flex items-center gap-2">
                             <Sparkles size={16} /> {t('generator.portrait.steps.style')}
                         </h3>
+
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <label className="text-xs font-bold text-bronze-light mb-1.5 block">Provider</label>
+                                <button
+                                    type="button"
+                                    onClick={() => onNeedApiKey?.(provider)}
+                                    className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1"
+                                >
+                                    <Key size={14} />
+                                    Set API Key
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                {(['gemini', 'openai'] as AiProvider[]).map((option) => (
+                                    <button
+                                        key={option}
+                                        type="button"
+                                        onClick={() => onProviderChange(option)}
+                                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option
+                                            ? 'bg-primary text-white border-primary shadow-md'
+                                            : 'bg-white border-cream-dark text-bronze-text hover:bg-white/80'}`}
+                                    >
+                                        {PROVIDER_LABELS[option]}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-[11px] text-bronze-light">
+                                {provider === 'openai' ? `Model: ${OPENAI_PORTRAIT_MODEL}` : `Model: ${GEMINI_PORTRAIT_MODEL}`}
+                            </p>
+                        </div>
 
                         {/* Style Grid */}
                         <div className="grid grid-cols-2 gap-3">

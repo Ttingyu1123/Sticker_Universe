@@ -1,19 +1,31 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Wand2, RefreshCw, Sparkles, Image as ImageIcon, Download, Settings2, MessageSquare, MessageSquareOff, Palette, Lightbulb } from 'lucide-react';
+import { Wand2, RefreshCw, Sparkles, Image as ImageIcon, Download, Settings2, MessageSquare, MessageSquareOff, Palette, Lightbulb, Key } from 'lucide-react';
 import { LayoutSelector } from './Manga/LayoutSelector';
 import { CharacterCreator } from './Manga/CharacterCreator';
 import { ComicConfig, ComicLayout, ComicStyle, ColorMode, Resolution } from './Manga/types';
 import { STYLE_OPTIONS, ASPECT_RATIOS, COLOR_OPTIONS, TEXT_LANGUAGES, RESOLUTION_OPTIONS } from './Manga/constants';
 import { generateComicImage, optimizeStory } from '../services/geminiMangaService';
 import { useImageShare } from '../../../hooks/useImageShare';
+import { AiProvider } from '../../../shared/geminiApiKey';
+import { generateOpenAiImage } from '../services/openaiImageService';
 
 interface Props {
-    apiKey: string;
-    onNeedApiKey: () => void;
+    provider: AiProvider;
+    apiKeys: Record<AiProvider, string>;
+    onProviderChange: (provider: AiProvider) => void;
+    onNeedApiKey: (provider: AiProvider) => void;
     onSuccess: (imageUrl: string, prompt: string) => void;
     onError: (msg: string) => void;
 }
+
+const PROVIDER_LABELS: Record<AiProvider, string> = {
+    gemini: 'Gemini',
+    openai: 'OpenAI',
+};
+
+const GEMINI_MANGA_MODEL = 'gemini-3-pro-image-preview';
+const OPENAI_MANGA_MODEL = 'gpt-image-2';
 
 const STORY_INSPIRATIONS_BY_STYLE: Record<ComicStyle, string[]> = {
     [ComicStyle.Cute]: [
@@ -66,9 +78,17 @@ const STORY_INSPIRATIONS_BY_STYLE: Record<ComicStyle, string[]> = {
     ],
 };
 
-const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onError }) => {
+const MangaMasterTab: React.FC<Props> = ({
+    provider,
+    apiKeys,
+    onProviderChange,
+    onNeedApiKey,
+    onSuccess,
+    onError,
+}) => {
     const { t } = useTranslation();
     const { shareImage, isSharing } = useImageShare();
+    const apiKey = apiKeys[provider];
     const [isLoading, setIsLoading] = useState(false);
     const [generatedImage, setGeneratedImage] = useState<string | null>(null);
     const [showAdvanced, setShowAdvanced] = useState(false);
@@ -93,15 +113,87 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
         setConfig(prev => ({ ...prev, theme: pick }));
     };
 
+    const buildFallbackStory = (rawStory: string) => {
+        const panels = (() => {
+            if (config.layout.includes('Eight')) return 8;
+            if (config.layout.includes('Six')) return 6;
+            if (config.layout.includes('Five')) return 5;
+            if (config.layout.includes('Four')) return 4;
+            if (config.layout.includes('Three')) return 3;
+            if (config.layout.includes('Two')) return 2;
+            return 1;
+        })();
+
+        const characterSummary = config.characters.length > 0
+            ? config.characters.map((char) => `${char.name || 'Unnamed character'}: ${char.description || 'use uploaded visual reference'}`).join('; ')
+            : 'No named characters provided.';
+
+        const lines = Array.from({ length: panels }, (_, index) => {
+            const shotType = index === 0
+                ? 'establishing shot'
+                : index === panels - 1
+                    ? 'emotional payoff shot'
+                    : 'character-focused story beat';
+            return `Panel ${index + 1}: ${shotType}. Advance the story "${rawStory}" in ${config.style} with ${config.colorMode.toLowerCase()} rendering, clear composition, and strong continuity.`;
+        });
+
+        return [
+            `Layout: ${config.layout}`,
+            `Style: ${config.style}`,
+            `Characters: ${characterSummary}`,
+            ...lines,
+        ].join('\n');
+    };
+
+    const buildOpenAiComicPrompt = (storyBlock: string) => {
+        const characterDetails = config.characters.map((char) => {
+            if (char.previewUrl) {
+                return `- Character "${char.name || 'Unnamed'}": use the attached reference image and this description: ${char.description || 'Maintain recognizable identity across panels.'}`;
+            }
+            return `- Character "${char.name || 'Unnamed'}": ${char.description || 'Maintain consistent appearance across all panels.'}`;
+        });
+
+        const textInstruction = config.withText
+            ? `Include speech bubbles and place all dialogue in ${config.textLanguage === 'zh-TW' ? 'Traditional Chinese' : config.textLanguage}. Keep text legible, concise, and naturally placed.`
+            : 'Do not include speech bubbles, dialogue, captions, sound effects, or any visible text.';
+
+        return `Generate a polished comic page illustration.
+
+Visual Configuration:
+- Layout Structure: ${config.layout}
+- Art Style: ${config.style}
+- Color Palette: ${config.colorMode}
+- Aspect Ratio: ${config.aspectRatio}
+- Target Quality: ${config.resolution}
+
+Script and Panel Flow:
+${storyBlock}
+
+Character References:
+${characterDetails.length > 0 ? characterDetails.join('\n') : '- No specific character references provided.'}
+
+Technical Requirements:
+- Follow the requested layout exactly and keep panel borders clear.
+- Maintain strong character consistency across all panels.
+- Use cinematic framing, readable storytelling, and high visual clarity.
+- ${textInstruction}
+
+Negative Constraints:
+${config.negativePrompt ? config.negativePrompt : 'blurry, low quality, distorted anatomy, extra limbs, watermark'}
+${!config.withText ? ', text, speech bubbles, letters, words' : ''}`.trim();
+    };
+
     const handleOptimizeTheme = async () => {
         if (!apiKey) {
-            onNeedApiKey();
+            onNeedApiKey(provider);
             return;
         }
         if (!config.theme.trim()) return;
         setIsOptimizing(true);
         try {
-            const optimized = await optimizeStory(apiKey, config.theme, config.layout, config.style);
+            const optimized = provider === 'openai'
+                ? buildFallbackStory(config.theme)
+                : await optimizeStory(apiKey, config.theme, config.layout, config.style);
             setConfig(prev => ({ ...prev, theme: optimized }));
         } catch (e: any) {
             onError(e.message);
@@ -112,7 +204,7 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
 
     const handleGenerate = async () => {
         if (!apiKey) {
-            onNeedApiKey();
+            onNeedApiKey(provider);
             return;
         }
         if (!config.theme.trim()) {
@@ -127,9 +219,21 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
         }
 
         try {
-            const imageUrl = await generateComicImage(apiKey, config);
+            const promptUsed = provider === 'openai'
+                ? buildOpenAiComicPrompt(config.theme)
+                : config.theme;
+            const imageUrl = provider === 'openai'
+                ? await generateOpenAiImage(
+                    apiKey,
+                    promptUsed,
+                    config.characters.map((char) => char.previewUrl).filter(Boolean) as string[],
+                    config.aspectRatio,
+                    OPENAI_MANGA_MODEL,
+                    config.resolution === Resolution.R1K ? 'medium' : 'high',
+                )
+                : await generateComicImage(apiKey, config);
             setGeneratedImage(imageUrl);
-            onSuccess(imageUrl, `Manga: ${config.theme.substring(0, 30)}...`);
+            onSuccess(imageUrl, `Manga: ${promptUsed.substring(0, 30)}...`);
         } catch (error: any) {
             console.error(error);
             onError(error.message || t('generator.errors.general') + "Manga");
@@ -184,6 +288,37 @@ const MangaMasterTab: React.FC<Props> = ({ apiKey, onNeedApiKey, onSuccess, onEr
 
             {/* LEFT COLUMN: Configuration */}
             <div className="lg:col-span-5 space-y-6">
+
+                <div className="bg-cream border border-cream-dark rounded-[2rem] p-6 backdrop-blur-sm shadow-sm space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                        <h2 className="text-lg font-black text-bronze">Provider</h2>
+                        <button
+                            type="button"
+                            onClick={() => onNeedApiKey(provider)}
+                            className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1"
+                        >
+                            <Key size={14} />
+                            Set API Key
+                        </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                        {(['gemini', 'openai'] as AiProvider[]).map((option) => (
+                            <button
+                                key={option}
+                                type="button"
+                                onClick={() => onProviderChange(option)}
+                                className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option
+                                    ? 'bg-primary text-white border-primary shadow-md'
+                                    : 'bg-white border-cream-dark text-bronze-text hover:bg-white/80'}`}
+                            >
+                                {PROVIDER_LABELS[option]}
+                            </button>
+                        ))}
+                    </div>
+                    <p className="text-[11px] text-bronze-light">
+                        {provider === 'openai' ? `Model: ${OPENAI_MANGA_MODEL}` : `Model: ${GEMINI_MANGA_MODEL}`}
+                    </p>
+                </div>
 
                 {/* 1. Characters Section */}
                 <div className="bg-cream border border-cream-dark rounded-[2rem] p-6 backdrop-blur-sm shadow-sm">

@@ -173,6 +173,31 @@ src/
 - API Key 分開儲存為 `gemini_api_key` 與 `openai_api_key`。
 - 專案仍是純前端 BYOK，OpenAI 目前也沒有後端代理層。
 
+## AI Provider 現況（Updated）
+
+- `AI Image Gen`（`src/pages/Generator/components/ImageGeneratorTab.tsx`）目前支援 **Gemini / OpenAI** 雙 provider 切換。
+- `Holiday Sticker`（`src/pages/Generator/components/HolidayStickerTab.tsx`）目前支援 **Gemini / OpenAI** 雙 provider 切換。
+- `Cinematic Poster`（`src/pages/Generator/components/CinematicPosterTab.tsx`）目前支援 **Gemini / OpenAI** 雙 provider 切換。
+- 其他 AI 功能頁目前仍是 **Gemini-only**。
+- API Key 分開儲存：`gemini_api_key` 與 `openai_api_key`。
+- OpenAI 圖片生成目前走 `api/openai-image.ts` Vercel proxy，避免瀏覽器直接呼叫 Images API。
+- 專案整體仍是 BYOK 架構：Gemini 目前多數功能仍為前端直連；OpenAI 目前主要用於圖片生成 / image edit 路徑。
+
+## AI Provider 現況（2026-05-01）
+
+- `AI Image Gen`（`src/pages/Generator/components/ImageGeneratorTab.tsx`）支援 **Gemini / OpenAI**。
+- `Style Sticker`（`src/pages/Generator/components/StyleStickerTab.tsx`）支援 **Gemini / OpenAI**。
+- `Holiday Sticker`（`src/pages/Generator/components/HolidayStickerTab.tsx`）支援 **Gemini / OpenAI**。
+- `Greeting Card`（`src/pages/Generator/components/GreetingCardTab.tsx`）支援 **Gemini / OpenAI**。
+- `Cinematic Poster`（`src/pages/Generator/components/CinematicPosterTab.tsx`）支援 **Gemini / OpenAI**。
+- `Headshot Generator`（`src/pages/Generator/components/HeadshotGeneratorTab.tsx`）支援 **Gemini / OpenAI**。
+- `Manga Master`（`src/pages/Generator/components/MangaMasterTab.tsx`）支援 **Gemini / OpenAI**。
+- `Portrait Master`（`src/pages/Generator/components/PortraitMasterTab.tsx`）支援 **Gemini / OpenAI**。
+- 其他 AI 頁面目前仍是 **Gemini-only**，例如 `CharacterCreateTab`。
+- API key 分開儲存為 `gemini_api_key` / `openai_api_key`。
+- OpenAI 圖片生成目前走 `api/openai-image.ts` Vercel proxy。
+- 專案整體仍是 BYOK：Gemini 多數流程前端直連；OpenAI 目前主要承接圖片生成 / image edit，部分文字優化使用本地 fallback。
+
 ## Available CLI Tools (OpenCLI)
 
 Run `opencli list` to discover all available CLI tools. Use `opencli <command> -f json` for structured output.

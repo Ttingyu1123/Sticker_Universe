@@ -30,10 +30,14 @@ const App: React.FC = () => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'sticker' | 'holiday' | 'greeting' | 'image-gen' | 'cinematic' | 'headshot' | 'manga' | 'portrait' | 'character-create'>('sticker');
   const [providerKeys, setProviderKeys] = useState<Record<AiProvider, string>>({ gemini: '', openai: '' });
+  const [styleStickerProvider, setStyleStickerProvider] = useState<AiProvider>('gemini');
   const [imageGenProvider, setImageGenProvider] = useState<AiProvider>('gemini');
   const [holidayProvider, setHolidayProvider] = useState<AiProvider>('gemini');
+  const [greetingProvider, setGreetingProvider] = useState<AiProvider>('gemini');
   const [cinematicProvider, setCinematicProvider] = useState<AiProvider>('gemini');
   const [headshotProvider, setHeadshotProvider] = useState<AiProvider>('gemini');
+  const [mangaProvider, setMangaProvider] = useState<AiProvider>('gemini');
+  const [portraitProvider, setPortraitProvider] = useState<AiProvider>('gemini');
   const [keyProvider, setKeyProvider] = useState<AiProvider>('gemini');
   const [tempKey, setTempKey] = useState('');
   const [showKeyModal, setShowKeyModal] = useState(false);
@@ -106,8 +110,14 @@ const App: React.FC = () => {
 
     if (keyProvider === 'openai') {
       setImageGenProvider('openai');
+      if (activeTab === 'sticker') {
+        setStyleStickerProvider('openai');
+      }
       if (activeTab === 'holiday') {
         setHolidayProvider('openai');
+      }
+      if (activeTab === 'greeting') {
+        setGreetingProvider('openai');
       }
       if (activeTab === 'cinematic') {
         setCinematicProvider('openai');
@@ -115,7 +125,23 @@ const App: React.FC = () => {
       if (activeTab === 'headshot') {
         setHeadshotProvider('openai');
       }
-      if (!nextKeys.gemini && activeTab !== 'image-gen' && activeTab !== 'holiday' && activeTab !== 'cinematic' && activeTab !== 'headshot') {
+      if (activeTab === 'manga') {
+        setMangaProvider('openai');
+      }
+      if (activeTab === 'portrait') {
+        setPortraitProvider('openai');
+      }
+      if (
+        !nextKeys.gemini
+        && activeTab !== 'sticker'
+        && activeTab !== 'image-gen'
+        && activeTab !== 'holiday'
+        && activeTab !== 'greeting'
+        && activeTab !== 'cinematic'
+        && activeTab !== 'headshot'
+        && activeTab !== 'manga'
+        && activeTab !== 'portrait'
+      ) {
         setActiveTab('image-gen');
       }
     }
@@ -135,14 +161,26 @@ const App: React.FC = () => {
         if (imageGenProvider === 'openai') {
           setImageGenProvider(nextKeys.gemini ? 'gemini' : 'openai');
         }
+        if (styleStickerProvider === 'openai') {
+          setStyleStickerProvider(nextKeys.gemini ? 'gemini' : 'openai');
+        }
         if (holidayProvider === 'openai') {
           setHolidayProvider(nextKeys.gemini ? 'gemini' : 'openai');
+        }
+        if (greetingProvider === 'openai') {
+          setGreetingProvider(nextKeys.gemini ? 'gemini' : 'openai');
         }
         if (cinematicProvider === 'openai') {
           setCinematicProvider(nextKeys.gemini ? 'gemini' : 'openai');
         }
         if (headshotProvider === 'openai') {
           setHeadshotProvider(nextKeys.gemini ? 'gemini' : 'openai');
+        }
+        if (mangaProvider === 'openai') {
+          setMangaProvider(nextKeys.gemini ? 'gemini' : 'openai');
+        }
+        if (portraitProvider === 'openai') {
+          setPortraitProvider(nextKeys.gemini ? 'gemini' : 'openai');
         }
       }
 
@@ -166,14 +204,22 @@ const App: React.FC = () => {
   };
 
   const handleOpenKeyModal = (provider?: AiProvider) => {
-    const inferredProvider = activeTab === 'image-gen'
+    const inferredProvider = activeTab === 'sticker'
+      ? styleStickerProvider
+      : activeTab === 'image-gen'
       ? imageGenProvider
       : activeTab === 'holiday'
         ? holidayProvider
+        : activeTab === 'greeting'
+          ? greetingProvider
         : activeTab === 'cinematic'
           ? cinematicProvider
           : activeTab === 'headshot'
             ? headshotProvider
+            : activeTab === 'manga'
+              ? mangaProvider
+            : activeTab === 'portrait'
+              ? portraitProvider
         : 'gemini';
     syncKeyModalState(provider || inferredProvider);
     setShowKeyModal(true);
@@ -357,18 +403,26 @@ const App: React.FC = () => {
   const keyModalTitle = keyProvider === 'gemini' ? (t('generator.apiKey.title') || 'Google Gemini API Key') : 'OpenAI API Key';
   const keyModalDescription = keyProvider === 'gemini'
     ? (t('generator.apiKey.desc') || 'We need your Google Gemini API Key to generate stickers.')
-    : 'Use your OpenAI API key for AI Image Gen. It is stored locally in your browser.';
+    : 'Use your OpenAI API key for supported image generation tabs. It is stored locally in your browser.';
   const keyModalPlaceholder = keyProvider === 'gemini'
     ? (t('generator.apiKey.placeholder') || 'Paste your Gemini API key')
     : 'Paste your OpenAI API key';
-  const currentTabProvider = activeTab === 'image-gen'
+  const currentTabProvider = activeTab === 'sticker'
+    ? styleStickerProvider
+    : activeTab === 'image-gen'
     ? imageGenProvider
     : activeTab === 'holiday'
       ? holidayProvider
+      : activeTab === 'greeting'
+        ? greetingProvider
       : activeTab === 'cinematic'
         ? cinematicProvider
         : activeTab === 'headshot'
           ? headshotProvider
+          : activeTab === 'manga'
+            ? mangaProvider
+          : activeTab === 'portrait'
+            ? portraitProvider
       : 'gemini';
   const currentTabKey = providerKeys[currentTabProvider];
 
@@ -558,9 +612,11 @@ const App: React.FC = () => {
           >
             {activeTab === 'sticker' ? (
               <StyleStickerTab
-                apiKey={apiKey}
+                provider={styleStickerProvider}
+                apiKeys={providerKeys}
+                onProviderChange={setStyleStickerProvider}
                 onError={(msg) => setError(msg)}
-                onNeedApiKey={() => handleOpenKeyModal('gemini')}
+                onNeedApiKey={handleOpenKeyModal}
               />
             ) : activeTab === 'holiday' ? (
               <HolidayStickerTab
@@ -573,16 +629,20 @@ const App: React.FC = () => {
               />
             ) : activeTab === 'greeting' ? (
               <GreetingCardTab
-                apiKey={apiKey}
+                provider={greetingProvider}
+                apiKeys={providerKeys}
+                onProviderChange={setGreetingProvider}
                 onError={(msg) => setError(msg)}
-                onNeedApiKey={() => handleOpenKeyModal('gemini')}
+                onNeedApiKey={handleOpenKeyModal}
                 onSuccess={handleImageGenSuccess}
               />
             ) : activeTab === 'manga' ? (
               <MangaMasterTab
-                apiKey={apiKey}
+                provider={mangaProvider}
+                apiKeys={providerKeys}
+                onProviderChange={setMangaProvider}
                 onError={(msg) => setError(msg)}
-                onNeedApiKey={() => handleOpenKeyModal('gemini')}
+                onNeedApiKey={handleOpenKeyModal}
                 onSuccess={handleImageGenSuccess}
               />
             ) : activeTab === 'cinematic' ? (
@@ -605,7 +665,9 @@ const App: React.FC = () => {
               />
             ) : activeTab === 'portrait' ? (
               <PortraitMasterTab
-                apiKey={apiKey}
+                provider={portraitProvider}
+                apiKeys={providerKeys}
+                onProviderChange={setPortraitProvider}
                 onSuccess={handleImageGenSuccess}
                 onError={(msg) => setError(msg)}
                 onNeedApiKey={handleOpenKeyModal}
