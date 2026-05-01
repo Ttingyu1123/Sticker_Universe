@@ -17,6 +17,7 @@ import { GoogleGenAI } from '@google/genai';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { AiProvider } from '../../../shared/geminiApiKey';
 import { generateOpenAiImage } from '../services/openaiImageService';
+import { generateOpenAiJson } from '../services/openaiTextService';
 
 const DRAMA_STYLES = [
     { id: 'k-drama', label: 'KR K-Drama', prompt: 'Korean Drama', titleLang: 'ko', country: 'South Korea' },
@@ -99,6 +100,20 @@ type ThemeData = {
     fontStyle: keyof typeof FONT_STYLES;
     plot: string;
     visualPrompt: string;
+};
+
+const CINEMATIC_THEME_SCHEMA = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['title', 'nativeTitle', 'genre', 'fontStyle', 'plot', 'visualPrompt'],
+    properties: {
+        title: { type: 'string' },
+        nativeTitle: { type: 'string' },
+        genre: { type: 'string' },
+        fontStyle: { type: 'string', enum: Object.keys(FONT_STYLES) },
+        plot: { type: 'string' },
+        visualPrompt: { type: 'string' },
+    },
 };
 
 interface CinematicPosterTabProps {
@@ -250,16 +265,6 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({
             throw new Error(`Please set your ${PROVIDER_LABELS[provider]} API key.`);
         }
 
-        if (provider === 'openai') {
-            return buildFallbackTheme(
-                firstLeadActor,
-                firstLeadCharacter,
-                secondLeadActor,
-                secondLeadCharacter,
-            );
-        }
-
-        const ai = new GoogleGenAI({ apiKey });
         const styleConfig = DRAMA_STYLES.find((style) => style.id === dramaStyle) || DRAMA_STYLES[0];
         const genre = selectedGenre !== 'random' ? selectedGenre : 'Any suitable genre';
 
@@ -289,6 +294,18 @@ Return pure JSON:
   "plot": "Summary in Traditional Chinese. Maximum 150 characters.",
   "visualPrompt": "Detailed visual description in English for image generation."
 }`;
+
+        if (provider === 'openai') {
+            return generateOpenAiJson<ThemeData>(apiKey, prompt, {
+                instructions: 'You are a premium TV poster concept writer. Return JSON only. The plot must be in Traditional Chinese, the visualPrompt must be in English, and the output must strictly follow the requested schema.',
+                schemaName: 'cinematic_poster_theme',
+                schemaDescription: 'Poster title, plot, genre, font choice, and visual prompt for a cinematic poster',
+                schema: CINEMATIC_THEME_SCHEMA,
+                maxOutputTokens: 420,
+            });
+        }
+
+        const ai = new GoogleGenAI({ apiKey });
 
         const result = await ai.models.generateContent({
             model: GEMINI_CINEMATIC_MODEL,

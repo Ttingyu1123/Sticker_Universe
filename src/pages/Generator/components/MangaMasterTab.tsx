@@ -9,6 +9,7 @@ import { generateComicImage, optimizeStory } from '../services/geminiMangaServic
 import { useImageShare } from '../../../hooks/useImageShare';
 import { AiProvider } from '../../../shared/geminiApiKey';
 import { generateOpenAiImage } from '../services/openaiImageService';
+import { generateOpenAiText } from '../services/openaiTextService';
 
 interface Props {
     provider: AiProvider;
@@ -192,7 +193,28 @@ ${!config.withText ? ', text, speech bubbles, letters, words' : ''}`.trim();
         setIsOptimizing(true);
         try {
             const optimized = provider === 'openai'
-                ? buildFallbackStory(config.theme)
+                ? await generateOpenAiText(
+                    apiKey,
+                    `Raw Story: "${config.theme}"`,
+                    {
+                        instructions: `You are a professional comic book editor. Refine the following story idea into a structured visual prompt.
+
+Context:
+- Layout: "${config.layout}"
+- Art Style: "${config.style}"
+
+Goal:
+Break down the story into distinct panel descriptions that match the "${config.layout}" structure.
+The visual descriptions must fit the "${config.style}" aesthetic.
+
+Instructions:
+1. Create a scene description for each panel implied by the layout.
+2. Focus on lighting, camera angles, and details that emphasize the style.
+3. Keep the output as a coherent narrative block or numbered list ready to be used as a prompt.
+4. Return only the refined story block.`,
+                        maxOutputTokens: 420,
+                    },
+                )
                 : await optimizeStory(apiKey, config.theme, config.layout, config.style);
             setConfig(prev => ({ ...prev, theme: optimized }));
         } catch (e: any) {

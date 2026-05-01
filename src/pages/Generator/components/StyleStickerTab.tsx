@@ -14,6 +14,7 @@ import { GalleryPicker } from '../../../components/GalleryPicker';
 import { useImageShare } from '../../../hooks/useImageShare';
 import { AiProvider } from '../../../shared/geminiApiKey';
 import { generateOpenAiImage } from '../services/openaiImageService';
+import { generateOpenAiJson } from '../services/openaiTextService';
 
 // Helper for Theme Icons
 const getThemeIcon = (iconName: string) => {
@@ -69,6 +70,18 @@ const THEME_PROMPT_OPTIONS: PromptOption[] = [
     { id: 'positive', label: '正能量語錄', prompt: 'Positive vibe sticker set: fighting, you can do it, good morning, thumbs up, cheer up.' },
     { id: 'negative', label: '負能量釋放', prompt: 'Negative energy release: social battery dead, soul leaving body, burnout, giving up.' }
 ];
+
+const STICKER_PHRASES_SCHEMA = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['phrases'],
+    properties: {
+        phrases: {
+            type: 'array',
+            items: { type: 'string' },
+        },
+    },
+};
 
 const CUSTOM_THEME_OPTION_ID = 'custom';
 
@@ -410,7 +423,26 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({
         try {
             setIsSuggestingPhrases(true);
             if (provider === 'openai') {
-                setBatchPhrasesText(buildSuggestedBatchPhrases(batchSize).join('\n'));
+                const result = await generateOpenAiJson<{ phrases: string[] }>(
+                    apiKey,
+                    `Theme prompt: ${getThemePromptText()}
+Sticker theme: ${currentTheme.name}
+Requested phrase count: ${batchSize}`,
+                    {
+                        instructions: 'Create short sticker phrases in Traditional Chinese suitable for chat stickers. Keep each line concise, expressive, and distinct. Return JSON only with a "phrases" array.',
+                        schemaName: 'sticker_phrase_suggestions',
+                        schemaDescription: 'Suggested sticker phrases for batch generation',
+                        schema: STICKER_PHRASES_SCHEMA,
+                        maxOutputTokens: 260,
+                    },
+                );
+                const merged = [
+                    ...(Array.isArray(result.phrases) ? result.phrases : []),
+                    ...buildSuggestedBatchPhrases(batchSize),
+                ]
+                    .map((item) => item.trim())
+                    .filter(Boolean);
+                setBatchPhrasesText(merged.slice(0, batchSize).join('\n'));
                 setBatchPhraseMode('custom');
                 return;
             }

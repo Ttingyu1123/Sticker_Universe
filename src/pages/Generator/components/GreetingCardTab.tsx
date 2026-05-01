@@ -6,6 +6,7 @@ import { processImage } from '../../../features/packager-core';
 import { safeLoadFromLocalStorage, safeSaveToLocalStorage } from '../../../shared/localStorage';
 import { AiProvider } from '../../../shared/geminiApiKey';
 import { generateOpenAiImage } from '../services/openaiImageService';
+import { generateOpenAiJson, generateOpenAiText } from '../services/openaiTextService';
 
 import { FESTIVALS, CARD_STYLES, HistoryItem, FONTS } from './GreetingCard/Constants';
 import { CardPreview } from './GreetingCard/CardPreview';
@@ -28,6 +29,23 @@ const PROVIDER_LABELS: Record<AiProvider, string> = {
 
 const GEMINI_GREETING_MODEL = 'gemini-3-pro-image-preview';
 const OPENAI_GREETING_MODEL = 'gpt-image-2';
+
+type GreetingThemeData = {
+    title: string;
+    refinedMessage: string;
+    visualPrompt: string;
+};
+
+const GREETING_THEME_SCHEMA = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['title', 'refinedMessage', 'visualPrompt'],
+    properties: {
+        title: { type: 'string' },
+        refinedMessage: { type: 'string' },
+        visualPrompt: { type: 'string' },
+    },
+};
 
 const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
     provider,
@@ -264,7 +282,17 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
             const styleConfig = CARD_STYLES.find((item) => item.id === style) || CARD_STYLES[0];
 
             if (provider === 'openai') {
-                setCustomPrompt(`Premium ${festivalConfig.label} greeting card, ${styleConfig.label} style, ${customPrompt}, elegant composition, festive details, polished illustration, print-ready`);
+                const optimized = await generateOpenAiText(
+                    apiKey,
+                    `Festival: ${festivalConfig.label}
+Style: ${styleConfig.label}
+User prompt: ${customPrompt}`,
+                    {
+                        instructions: 'You optimize image prompts for premium greeting card illustration. Rewrite the user prompt into one concise, production-ready English image prompt. Return only the optimized prompt text.',
+                        maxOutputTokens: 180,
+                    },
+                );
+                setCustomPrompt(optimized.trim());
                 return;
             }
 
@@ -297,8 +325,22 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
             effectiveUserName ? `Sender name: "${effectiveUserName}".` : 'Do not include sender name on the card.',
         ].join(' ');
 
-        const themeData = provider === 'openai'
-            ? buildFallbackThemeData()
+        const themeData: GreetingThemeData = provider === 'openai'
+            ? await generateOpenAiJson<GreetingThemeData>(
+                apiKey,
+                `Festival: ${festivalConfig.id} (${festivalConfig.label})
+Style: ${styleConfig.id} (${styleConfig.label})
+User message: "${message}"
+Additional visual prompt: "${customPrompt || 'None'}"
+${nameGuidance}`,
+                {
+                    instructions: 'Create a premium greeting card concept. Return JSON only. "refinedMessage" must be in Traditional Chinese and suitable for printing on a card. "visualPrompt" must be in English and optimized for image generation. "title" should be short and fit the selected festival.',
+                    schemaName: 'greeting_card_theme',
+                    schemaDescription: 'Greeting card theme data',
+                    schema: GREETING_THEME_SCHEMA,
+                    maxOutputTokens: 320,
+                },
+            )
             : await (async () => {
                 const ai = new GoogleGenAI({ apiKey });
                 const systemPrompt = `Create a ${festivalConfig.id} greeting card prompt in ${styleConfig.id} style. JSON output: { "visualPrompt": "...", "refinedMessage": "...", "title": "..." }. Refined message should be in Traditional Chinese. Based on user message: "${message}". ${nameGuidance}`;

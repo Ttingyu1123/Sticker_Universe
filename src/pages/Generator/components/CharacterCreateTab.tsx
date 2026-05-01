@@ -15,6 +15,7 @@ import {
 } from '../../../features/character-creator-core';
 import { AiProvider } from '../../../shared/geminiApiKey';
 import { safeSaveToLocalStorage } from '../../../shared/localStorage';
+import { generateOpenAiJson, generateOpenAiText } from '../services/openaiTextService';
 
 interface CharacterCreateTabProps {
   provider: AiProvider;
@@ -68,6 +69,22 @@ const WORLD_MODES: CharacterWorldMode[] = [
 
 const DRAFT_STORAGE_KEY = 'character_create_draft_v1';
 const PROFILE_STORAGE_KEY = 'character_create_profiles_v1';
+
+const CHARACTER_MATRIX_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    character: { type: 'string' },
+    pose: { type: 'string' },
+    outfit: { type: 'string' },
+    env: { type: 'string' },
+    light: { type: 'string' },
+    color: { type: 'string' },
+    style: { type: 'string' },
+    shot: { type: 'string' },
+    rare: { type: 'string' },
+  },
+};
 
 const STARTER_PRESETS: StarterPreset[] = [
   {
@@ -280,6 +297,28 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
 **Visual Traits:** ${visualSeed || tags}`;
   };
 
+  const getOpenAiOptimizeInstruction = (style: 'artistic' | 'photo' | 'anime') => {
+    if (style === 'photo') {
+      return 'You are an expert prompt engineer for premium character photography. Rewrite the prompt as one polished English image prompt with camera, lens, lighting, realism, and composition details. Return only the optimized prompt text.';
+    }
+    if (style === 'anime') {
+      return 'You are an expert prompt engineer for high-end anime key visuals. Rewrite the prompt as one polished English image prompt with clean silhouette, rendering, scene, and expression details. Return only the optimized prompt text.';
+    }
+    return 'You are an expert prompt engineer for character concept art. Rewrite the prompt as one vivid, cohesive English image prompt with strong lighting, styling, and storytelling details. Return only the optimized prompt text.';
+  };
+
+  const getOpenAiStoryInstruction = () => {
+    const outputLang = lang === 'zh-TW' ? 'Traditional Chinese (Taiwan)' : 'English';
+    return `You are a creative writer. Create a concise character card in ${outputLang} for world setting ${worldMode}.
+Use markdown sections exactly:
+## Name
+**Title/Class:**
+**Personality:**
+**Background Story:** (80-140 words)
+**Visual Traits:**
+Return only the markdown card.`;
+  };
+
   const setStatus = (text: string) => {
     if (statusTimerRef.current) {
       window.clearTimeout(statusTimerRef.current);
@@ -327,7 +366,6 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
   };
 
   const ensureApiKey = () => {
-    if (provider === 'openai') return true;
     if (apiKey) return true;
     onNeedApiKey(provider);
     onError(t('generator.characterCreate.messages.needApiKey'));
@@ -345,7 +383,25 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
     setLoadingAction('analyze');
     try {
       const matrix = provider === 'openai'
-        ? buildLocalCharacterMatrix(ideaInput.trim())
+        ? await generateOpenAiJson<Partial<CharacterPromptState>>(
+            apiKey,
+            `Analyze this character idea and return JSON only: "${ideaInput.trim()}"`,
+            {
+              instructions: `You are an expert prompt engineer for AI image generation.
+Analyze the user idea and output a JSON object with these keys:
+character, pose, outfit, env, light, color, style, shot, rare.
+
+Rules:
+- Output language for values: English.
+- Use concise but descriptive comma-separated phrases.
+- Theme context: ${worldMode}.
+- If a key is not explicit in user text, infer a suitable value.`,
+              schemaName: 'character_prompt_matrix',
+              schemaDescription: 'Structured character prompt matrix',
+              schema: CHARACTER_MATRIX_SCHEMA,
+              maxOutputTokens: 320,
+            },
+          )
         : await generateCharacterMatrix(apiKey, ideaInput.trim(), worldMode);
       setPromptState((prev) => {
         const next = { ...prev };
@@ -377,7 +433,16 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
     setLoadingAction('optimize');
     try {
       const text = provider === 'openai'
-        ? buildLocalOptimizedPrompt(rawPrompt, optStyle)
+        ? await generateOpenAiText(
+            apiKey,
+            `Original prompt: "${rawPrompt}"
+Theme: ${worldMode}
+Output only optimized prompt text.`,
+            {
+              instructions: getOpenAiOptimizeInstruction(optStyle),
+              maxOutputTokens: 260,
+            },
+          )
         : await optimizeCharacterPrompt(apiKey, rawPrompt, worldMode, optStyle);
       setOptimizedPrompt(text);
     } catch (e: any) {
@@ -399,7 +464,14 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
     setLoadingAction('story');
     try {
       const text = provider === 'openai'
-        ? buildLocalStoryCard(source)
+        ? await generateOpenAiText(
+            apiKey,
+            `Character tags: "${source}"`,
+            {
+              instructions: getOpenAiStoryInstruction(),
+              maxOutputTokens: 360,
+            },
+          )
         : await generateCharacterStory(apiKey, source, worldMode, lang as 'en' | 'zh-TW');
       setStory(text);
     } catch (e: any) {
@@ -541,7 +613,7 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
         </div>
         <p className="text-[11px] text-bronze-light">
           {provider === 'openai'
-            ? 'OpenAI mode: prompt analysis/optimization/story use local fallback, then you can send the result to AI Image Gen with OpenAI.'
+            ? 'OpenAI mode: idea analysis, prompt optimization, and story card all use the OpenAI text proxy, then you can send the result to AI Image Gen with OpenAI.'
             : 'Gemini mode: idea analysis, prompt optimization, and story card use Gemini prompt helpers.'}
         </p>
       </section>
