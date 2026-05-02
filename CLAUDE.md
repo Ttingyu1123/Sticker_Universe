@@ -222,6 +222,24 @@ src/
   - `api/openai-image.ts`
 - 專案目前仍是前端 BYOK + Vercel proxy 模式，沒有獨立的 OpenAI 後端服務。
 
+## OpenAI Text Proxy Status (2026-05-01)
+
+- OpenAI text generation now goes through:
+  - `api/openai-text.ts`
+  - `src/pages/Generator/services/openaiTextService.ts`
+- The following OpenAI text flows now use the proxy instead of local fallback:
+  - `Greeting Card` prompt optimization + theme JSON
+  - `Cinematic Poster` theme/title/plot JSON
+  - `Manga Master` story optimization
+  - `Style Sticker` AI batch phrase suggestions
+  - `Character Create` analyze / optimize / story
+- OpenAI image generation and image edit still go through:
+  - `api/openai-image.ts`
+- Current architecture:
+  - Gemini provider keeps using existing Gemini services/helpers
+  - OpenAI provider uses Vercel proxies for both image and text requests
+  - Frontend remains BYOK; no dedicated OpenAI backend state is stored server-side
+
 ## Available CLI Tools (OpenCLI)
 
 Run `opencli list` to discover all available CLI tools. Use `opencli <command> -f json` for structured output.

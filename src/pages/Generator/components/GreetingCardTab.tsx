@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import { GoogleGenAI } from '@google/genai';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { CardLayoutId } from '../types';
@@ -128,7 +128,7 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
             handleRawImage(blob);
         } catch (error) {
             console.error('BG Removal failed', error);
-            onError('去背失敗，已改回原始圖片');
+            onError('?餉?憭望?嚗歇?孵?????');
             handleRawImage(file);
         } finally {
             setIsProcessingUploadBg(false);
@@ -152,7 +152,7 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
             const blob = await response.blob();
             await processUploadedImageBg(blob);
         } catch {
-            onError('圖片處理失敗');
+            onError('????憭望?');
         }
     };
 
@@ -180,7 +180,7 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
             setCustomFonts((prev) => [...prev, newFont]);
             setSelectedFont(fontName);
         } catch {
-            onError('字型載入失敗');
+            onError('摮?頛憭望?');
         }
     };
 
@@ -244,25 +244,12 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
             const processedUrl = await smartRemoveBackground(generatedResult.imageUrl);
             setGeneratedResult((prev) => (prev ? { ...prev, imageUrl: processedUrl } : null));
         } catch {
-            onError('去背失敗');
+            onError('?餉?憭望?');
         } finally {
             setIsRemovingBg(false);
         }
     };
 
-    const buildFallbackThemeData = () => {
-        const festivalConfig = FESTIVALS.find((item) => item.id === festival) || FESTIVALS[0];
-        const styleConfig = CARD_STYLES.find((item) => item.id === style) || CARD_STYLES[0];
-        const effectiveRecipientName = showRecipientName ? recipientName.trim() : '';
-        const effectiveUserName = showUserName ? userName.trim() : '';
-        const baseMessage = message.trim() || `祝 ${effectiveRecipientName || '你'} 節日快樂`;
-
-        return {
-            title: festivalConfig.label || 'Greeting Card',
-            refinedMessage: effectiveUserName ? `${baseMessage}\n${effectiveUserName} 敬上` : baseMessage,
-            visualPrompt: `A premium ${festivalConfig.label} greeting card in ${styleConfig.label} style. Warm festive composition, polished illustration details, elegant typography space, ${customPrompt || 'tasteful seasonal decorations'}.`,
-        };
-    };
 
     const optimizePrompt = async () => {
         if (!apiKey) {
@@ -270,7 +257,7 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
             return;
         }
         if (!customPrompt.trim()) {
-            setLocalError('請先輸入提示詞');
+            setLocalError('請先輸入要優化的提示內容。');
             return;
         }
 
@@ -304,7 +291,7 @@ User prompt: ${customPrompt}`,
             const optimized = result.candidates?.[0]?.content?.parts?.[0]?.text;
             if (optimized) setCustomPrompt(optimized.trim());
         } catch (error: any) {
-            setLocalError(error?.message || '提示詞優化失敗');
+            setLocalError(error?.message || '提示優化失敗。');
         } finally {
             setIsOptimizingPrompt(false);
         }
@@ -402,7 +389,7 @@ ${nameGuidance}`,
 
     const handleGenerate = async () => {
         if (!userImage) {
-            setLocalError('請先上傳圖片');
+            setLocalError('隢?銝??');
             return;
         }
 

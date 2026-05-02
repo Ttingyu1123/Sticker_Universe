@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import { Sparkles, Wand2, BookOpen, Shuffle, Lock, Unlock, Search, Copy, Save, Trash2, X, Key } from 'lucide-react';
@@ -231,71 +231,6 @@ const CharacterCreateTab: React.FC<CharacterCreateTabProps> = ({
 
   const displayPrompt = optimizedPrompt || rawPrompt;
 
-  const buildLocalCharacterMatrix = (input: string): Partial<CharacterPromptState> => {
-    const normalized = input
-      .split(/[,\n]/)
-      .map((part) => part.trim())
-      .filter(Boolean);
-
-    const inferFromPool = (pool: { en: string }[]) =>
-      pool.find((tag) => input.toLowerCase().includes(tag.en.toLowerCase()))?.en || pool[0]?.en || '';
-
-    return {
-      character: normalized[0] || inferFromPool(CHARACTER_WORLD_DATA[worldMode].character),
-      pose: normalized[1] || inferFromPool(CHARACTER_WORLD_DATA[worldMode].pose),
-      outfit: normalized[2] || inferFromPool(CHARACTER_WORLD_DATA[worldMode].outfit),
-      env: normalized[3] || inferFromPool(CHARACTER_WORLD_DATA[worldMode].env),
-      color: inferFromPool(CHARACTER_COMMON_TAGS.color),
-      shot: inferFromPool(CHARACTER_COMMON_TAGS.shot),
-      style: inferFromPool(CHARACTER_COMMON_TAGS.style),
-      light: inferFromPool(CHARACTER_COMMON_TAGS.light),
-      rare: normalized[4] || inferFromPool(CHARACTER_WORLD_DATA[worldMode].rare),
-    };
-  };
-
-  const buildLocalOptimizedPrompt = (
-    sourceText: string,
-    style: 'artistic' | 'photo' | 'anime'
-  ) => {
-    const styleInstructions = {
-      artistic: 'highly cohesive character concept art, rich storytelling details, premium illustration finish',
-      photo: 'cinematic photography direction, realistic materials, lens-aware composition, natural skin and fabric detail',
-      anime: 'polished anime rendering, expressive silhouette design, clean linework, high-end key visual finish',
-    };
-
-    return [
-      sourceText.trim(),
-      `world setting: ${worldMode}`,
-      `render direction: ${styleInstructions[style]}`,
-      'focus on identity clarity, costume readability, environment storytelling, and strong lighting hierarchy',
-    ].join(', ');
-  };
-
-  const buildLocalStoryCard = (tags: string) => {
-    const titleSeed = promptState.character || tags.split(',')[0]?.trim() || 'Unknown Character';
-    const personalitySeed = promptState.pose || 'calm but vigilant';
-    const backgroundSeed = promptState.env || 'a world shaped by conflict and wonder';
-    const visualSeed = [
-      promptState.outfit,
-      promptState.style,
-      promptState.light,
-      promptState.rare,
-    ].filter(Boolean).join(', ');
-
-    if (lang === 'zh-TW') {
-      return `## Name
-**Title/Class:** ${titleSeed}
-**Personality:** ${personalitySeed}
-**Background Story:** 生於 ${backgroundSeed} 的角色，逐漸把自身天賦磨成獨特標誌。TA 的行動方式結合了 ${promptState.character || '鮮明角色設定'} 與 ${promptState.pose || '具有戲劇張力的姿態'}，在人群中總能留下強烈印象。隨著旅程推進，TA 開始把過去的傷痕、信念與欲望，轉化成更成熟的判斷與選擇，也讓整體形象更適合延伸為完整世界觀中的核心人物。
-**Visual Traits:** ${visualSeed || tags}`;
-    }
-
-    return `## Name
-**Title/Class:** ${titleSeed}
-**Personality:** ${personalitySeed}
-**Background Story:** Raised within ${backgroundSeed}, this character refined their talent into a signature presence. Their overall identity blends ${promptState.character || 'a distinctive archetype'} with ${promptState.pose || 'a memorable stance'}, making them feel immediately readable in a larger world. As their journey progresses, old scars, beliefs, and ambitions evolve into sharper decisions and stronger emotional weight, positioning them as a central figure who can carry both standalone key art and broader narrative expansion.
-**Visual Traits:** ${visualSeed || tags}`;
-  };
 
   const getOpenAiOptimizeInstruction = (style: 'artistic' | 'photo' | 'anime') => {
     if (style === 'photo') {

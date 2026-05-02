@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Wand2, RefreshCw, Sparkles, Image as ImageIcon, Download, Settings2, MessageSquare, MessageSquareOff, Palette, Lightbulb, Key } from 'lucide-react';
 import { LayoutSelector } from './Manga/LayoutSelector';
@@ -30,52 +30,52 @@ const OPENAI_MANGA_MODEL = 'gpt-image-2';
 
 const STORY_INSPIRATIONS_BY_STYLE: Record<ComicStyle, string[]> = {
     [ComicStyle.Cute]: [
-        '實習魔女與會說話的貓在小鎮開甜點店，每天用甜點解決客人的心事。',
-        '三個性格不同的室友一起經營手作貼圖工作室，意外變成網路爆紅團隊。',
+        '兩個可愛角色在放學後誤闖一間只在黃昏出現的甜點店，必須完成小任務才能回家。',
+        '一隻迷路的小怪獸被一群朋友收留，大家一起幫牠找回失落的笑容與勇氣。',
     ],
     [ComicStyle.American]: [
-        '失敗記者獲得讀心能力，被迫揭發城市英雄聯盟背後的黑幕。',
-        '退休特工重返街頭，只為找回被竊取的超能核心。',
+        '一名落魄英雄在城市停電之夜追查失控武器，必須在黎明前阻止全面崩潰。',
+        '退休警探與年輕搭檔被迫合作，揭開企業陰謀背後的街頭真相。',
     ],
     [ComicStyle.Anime]: [
-        '轉學生其實來自未來，他必須阻止校園裡即將發生的時間災難。',
-        '少年在社團倉庫發現封印古劍，從此與神祕少女共同戰鬥。',
+        '少年劍士在流星雨之夜覺醒禁忌力量，與夥伴踏上改變命運的旅程。',
+        '少女與守護靈簽下契約，在學園與異界之間調查逐漸擴大的裂縫。',
     ],
     [ComicStyle.Horror]: [
-        '社群爆紅的靈異直播主，真的拍到了不該出現的影子。',
-        '小鎮每逢滿月就會重啟同一天，主角必須找出破局方式。',
+        '一群人被困在沒有出口的旅館，每扇門後都藏著不同時空的恐懼。',
+        '深夜廣播主持人接到來自失蹤者的電話，線索一步步把他帶向真相。',
     ],
     [ComicStyle.Webtoon]: [
-        '人氣美食外送員白天送餐、晚上追查失蹤案件，意外捲入財團陰謀。',
-        '看似普通的便利商店，半夜會接待來自不同世界的客人。',
+        '社群小編白天努力上班，晚上偷偷經營神祕帳號，意外爆紅後生活失控。',
+        '多年未見的青梅竹馬在電梯重逢，從尷尬寒暄開始重啟一段未完的關係。',
     ],
     [ComicStyle.Ink]: [
-        '落魄書生在古寺借宿，與畫中仙共同尋找失傳畫卷。',
-        '江湖女俠為查滅門真相，與神祕琴師同行踏上千里路。',
+        '墨色山城裡，一位浪人為了守護古卷，與追兵展開一場雨夜決戰。',
+        '寺院弟子追查失控妖氣，在黑白筆觸的世界中面對自己的心魔。',
     ],
     [ComicStyle.Realistic]: [
-        '考古團隊在古城地下發現會改寫記憶的壁畫。',
-        '颱風夜停電的大樓裡，三位陌生人被迫合作找出失蹤小孩。',
+        '戰地記者回到故鄉採訪一場災後重建，重新面對多年前未解的傷口。',
+        '急診醫師在一個漫長夜班中連續做出艱難抉擇，逐步看見人性的重量。',
     ],
     [ComicStyle.Cyberpunk]: [
-        '地下駭客偷走企業AI主腦備份，整座城市開始出現人格錯亂。',
-        '改造人警探在霓虹雨夜追查器官黑市，卻發現自己也是目標。',
+        '駭客少女潛入霓虹都市的記憶交易市場，試圖偷回被刪除的過去。',
+        '機械義體警探在暴雨和廣告光幕中追捕一名能改寫身份的逃亡者。',
     ],
     [ComicStyle.Watercolor]: [
-        '旅行畫家在海邊小鎮重逢童年好友，兩人一起完成未竟畫展。',
-        '遺忘記憶的女孩透過一本舊日記，拼回自己的家族故事。',
+        '旅人沿著河岸小鎮尋找失落的信件，柔和色彩裡藏著未說出口的思念。',
+        '母女在春日花市裡重修舊好，一場短短散步慢慢化開多年的隔閡。',
     ],
     [ComicStyle.Vintage]: [
-        '1990年代錄影帶店店員，意外在禁播錄影帶裡看見未來犯罪線索。',
-        '老派搖滾樂團最後一場巡演，揭開成員塵封多年的秘密。',
+        '舊唱片行店主在城市改建前最後一夜，決定把珍藏交給真正懂它的人。',
+        '懷舊偵探追查一卷遺失底片，黑膠與霓虹燈下逐步拼出當年的秘密。',
     ],
     [ComicStyle.Flat]: [
-        '新創團隊為了拯救快倒閉的APP，展開一場72小時極限改版。',
-        '城市裡的匿名志工社群，在一次大型停電中完成不可能任務。',
+        '一位新手產品經理在發表日前夕與團隊衝刺修正 bug，過程荒謬又真實。',
+        '兩名室友為了家務分工訂下規則，卻演變成一場節奏明快的生活攻防戰。',
     ],
     [ComicStyle.Photorealism]: [
-        '刑警與法醫搭檔追查連環縱火案，真相指向一場被掩蓋的實驗。',
-        '戰地攝影師回到故鄉後，發現照片中的陌生人竟與自己高度相似。',
+        '登山隊在暴風雪逼近前尋找失聯同伴，每一步都逼近極限與真相。',
+        '特寫鏡頭下的家庭聚會逐步揭露長年壓抑的矛盾，像一部真實電影般展開。',
     ],
 };
 
@@ -114,37 +114,6 @@ const MangaMasterTab: React.FC<Props> = ({
         setConfig(prev => ({ ...prev, theme: pick }));
     };
 
-    const buildFallbackStory = (rawStory: string) => {
-        const panels = (() => {
-            if (config.layout.includes('Eight')) return 8;
-            if (config.layout.includes('Six')) return 6;
-            if (config.layout.includes('Five')) return 5;
-            if (config.layout.includes('Four')) return 4;
-            if (config.layout.includes('Three')) return 3;
-            if (config.layout.includes('Two')) return 2;
-            return 1;
-        })();
-
-        const characterSummary = config.characters.length > 0
-            ? config.characters.map((char) => `${char.name || 'Unnamed character'}: ${char.description || 'use uploaded visual reference'}`).join('; ')
-            : 'No named characters provided.';
-
-        const lines = Array.from({ length: panels }, (_, index) => {
-            const shotType = index === 0
-                ? 'establishing shot'
-                : index === panels - 1
-                    ? 'emotional payoff shot'
-                    : 'character-focused story beat';
-            return `Panel ${index + 1}: ${shotType}. Advance the story "${rawStory}" in ${config.style} with ${config.colorMode.toLowerCase()} rendering, clear composition, and strong continuity.`;
-        });
-
-        return [
-            `Layout: ${config.layout}`,
-            `Style: ${config.style}`,
-            `Characters: ${characterSummary}`,
-            ...lines,
-        ].join('\n');
-    };
 
     const buildOpenAiComicPrompt = (storyBlock: string) => {
         const characterDetails = config.characters.map((char) => {
@@ -456,10 +425,10 @@ Instructions:
                     <button
                         onClick={applyInspiration}
                         className="mb-3 text-xs flex items-center gap-1 bg-white hover:bg-cream-light text-secondary border border-secondary/30 px-3 py-1.5 rounded-lg transition-colors font-bold"
-                        title="沒有靈感？幫我抽一個故事"
+                        title="套用靈感範例"
                     >
                         <Lightbulb className="w-3 h-3" />
-                        靈感一下
+                        套用靈感
                     </button>
                     <textarea
                         value={config.theme}

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Download,
@@ -49,7 +49,7 @@ const GENRE_DB: Record<string, Array<{ value: string; label: string }>> = {
     'k-drama': [
         { value: 'random', label: '隨機 Random' },
         { value: 'Romantic Comedy', label: '浪漫喜劇 Rom-Com' },
-        { value: 'Melodrama', label: '情感劇 Melodrama' },
+        { value: 'Melodrama', label: '狗血情愛 Melodrama' },
         { value: 'Historical', label: '古裝 Historical' },
         { value: 'Thriller', label: '驚悚 Thriller' },
     ],
@@ -217,41 +217,6 @@ const CinematicPosterTab: React.FC<CinematicPosterTabProps> = ({
         setGalleryTarget('first');
     };
 
-    const normalizeGenre = (genre: string) => (genre === 'random' ? 'character drama' : genre);
-
-    const buildFallbackTheme = (
-        firstLeadActor: string,
-        firstLeadCharacter: string,
-        secondLeadActor: string,
-        secondLeadCharacter: string,
-    ): ThemeData => {
-        const styleConfig = DRAMA_STYLES.find((style) => style.id === dramaStyle) || DRAMA_STYLES[0];
-        const genre = normalizeGenre(selectedGenre);
-        const chineseTitle = `${firstLeadCharacter}與${secondLeadCharacter}`;
-        const nativeTitle = styleConfig.titleLang === 'en'
-            ? `${firstLeadCharacter} & ${secondLeadCharacter}`
-            : styleConfig.titleLang === 'ja'
-                ? `${firstLeadCharacter}と${secondLeadCharacter}`
-                : styleConfig.titleLang === 'ko'
-                    ? `${firstLeadCharacter}와 ${secondLeadCharacter}`
-                    : chineseTitle;
-        const fontKeys = Object.keys(FONT_STYLES) as Array<keyof typeof FONT_STYLES>;
-        const indexSeed = `${dramaStyle}:${genre}:${firstLeadCharacter}:${secondLeadCharacter}`
-            .split('')
-            .reduce((sum, char) => sum + char.charCodeAt(0), 0);
-        const fontStyle = fontKeys[indexSeed % fontKeys.length];
-        const plot = `${firstLeadCharacter}與${secondLeadCharacter}在${styleConfig.country}風格的${genre}故事中相遇，命運、秘密與感情在一場高張力事件後逐步交錯。`;
-        const visualPrompt = `A premium ${styleConfig.prompt} poster for a ${genre.toLowerCase()} story. Feature ${firstLeadActor} as ${firstLeadCharacter} and ${secondLeadActor} as ${secondLeadCharacter}. Moody cinematic lighting, emotional tension, polished streaming-poster composition, premium wardrobe styling from ${styleConfig.country}, elegant negative space for title typography, ultra-detailed.`;
-
-        return {
-            title: chineseTitle,
-            nativeTitle,
-            genre,
-            fontStyle,
-            plot,
-            visualPrompt,
-        };
-    };
 
     const generateTheme = async (
         firstLeadActor: string,
@@ -315,7 +280,7 @@ Return pure JSON:
 
         const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
         if (!text) {
-            throw new Error('主題生成失敗');
+            throw new Error('主題設定生成失敗。');
         }
 
         return JSON.parse(text);
@@ -384,7 +349,7 @@ Professional photography, prestige streaming poster quality, highly detailed.`;
 
         const imagePart = result.candidates?.[0]?.content?.parts?.find((part: any) => part.inlineData);
         if (!imagePart?.inlineData?.data) {
-            throw new Error('海報圖片生成失敗');
+            throw new Error('海報圖片生成失敗。');
         }
 
         return `data:image/png;base64,${imagePart.inlineData.data}`;
@@ -467,7 +432,7 @@ ${theme.visualPrompt}
 `.trim();
             onSuccess(imageUrl, savePrompt, fullDescription);
         } catch (error: any) {
-            const message = error?.message || '生成時發生錯誤';
+            const message = error?.message || '生成影劇海報失敗。';
             console.error(error);
             setLocalError(message);
             onError(message);
@@ -516,7 +481,7 @@ ${generatedResult.plot}
 `.trim();
             onSuccess(imageUrl, savePrompt, fullDescription);
         } catch (error: any) {
-            const message = error?.message || '重新生成失敗';
+            const message = error?.message || '重新生成海報失敗。';
             setLocalError(message);
             onError(message);
         } finally {
@@ -546,7 +511,7 @@ ${generatedResult.plot}
             link.click();
             document.body.removeChild(link);
         } catch {
-            onError('下載失敗，請重試');
+            onError('下載海報失敗，請再試一次。');
         }
     };
 
@@ -567,7 +532,7 @@ ${generatedResult.plot}
                                 <div className="space-y-2">
                                     <Upload className="w-10 h-10 text-bronze-light mx-auto" />
                                     <p className="text-bronze-light font-bold">上傳主角照片</p>
-                                    <p className="text-xs text-bronze-light/70">建議半身或清晰正臉</p>
+                                    <p className="text-xs text-bronze-light/70">支援拖放或點擊上傳</p>
                                 </div>
                             )}
                             <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
@@ -580,13 +545,13 @@ ${generatedResult.plot}
                             className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-bronze-text rounded-xl text-sm font-bold transition-colors"
                         >
                             <FolderHeart size={16} />
-                            {t('app.selectFromGallery', { defaultValue: '從作品集選取' })}
+                            {t('app.selectFromGallery', { defaultValue: '從圖庫選擇' })}
                         </button>
 
                         <div className="mt-4 border-t border-cream-dark/60 pt-4 text-left">
                             <label className="text-xs font-bold text-bronze-light mb-2 flex items-center gap-2">
                                 <UserRoundPlus size={14} />
-                                {t('generator.cinematic.secondLeadOptional', { defaultValue: '第二主角（選填）' })}
+                                {t('generator.cinematic.secondLeadOptional', { defaultValue: '第二主角照片（選填）' })}
                             </label>
                             <div
                                 onClick={() => secondFileInputRef.current?.click()}
@@ -602,7 +567,7 @@ ${generatedResult.plot}
                                                 setSecondUserImage(null);
                                             }}
                                             className="absolute top-2 right-2 p-1.5 bg-white/95 rounded-full text-red-500 shadow hover:scale-110 transition-transform"
-                                            title={t('generator.cinematic.removeSecondLead', { defaultValue: '移除第二主角' })}
+                                            title={t('generator.cinematic.removeSecondLead', { defaultValue: '移除第二主角照片' })}
                                         >
                                             <X size={14} />
                                         </button>
@@ -624,7 +589,7 @@ ${generatedResult.plot}
                                 className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-2 bg-secondary/10 hover:bg-secondary/20 text-bronze-text rounded-xl text-xs font-bold transition-colors"
                             >
                                 <FolderHeart size={14} />
-                                {t('generator.cinematic.selectSecondFromGallery', { defaultValue: '從作品集選取第二張照片' })}
+                                {t('generator.cinematic.selectSecondFromGallery', { defaultValue: '從圖庫選第二張照片' })}
                             </button>
                         </div>
                     </div>
@@ -663,13 +628,13 @@ ${generatedResult.plot}
                             <p className="text-[11px] text-bronze-light">Image model: {imageModelLabel}</p>
                             {provider === 'openai' && (
                                 <p className="text-[11px] text-bronze-light">
-                                    OpenAI 路徑會用本地主題文案組裝海報，再走既有 image proxy 生成圖片。
+                                    OpenAI 模式會先用文字 proxy 產生主題設定，再透過 image proxy 生成影劇海報。
                                 </p>
                             )}
                         </div>
 
                         <div>
-                            <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">劇集風格</label>
+                            <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">影劇風格</label>
                             <div className="grid grid-cols-2 gap-2">
                                 {DRAMA_STYLES.map((option) => (
                                     <button
@@ -684,7 +649,7 @@ ${generatedResult.plot}
                         </div>
 
                         <div className="space-y-3 rounded-2xl border border-cream-dark/70 bg-white/40 p-3">
-                            <label className="text-xs font-bold text-bronze-light ml-1 block">第一主角定位</label>
+                            <label className="text-xs font-bold text-bronze-light ml-1 block">第一主角設定</label>
                             <div className="flex bg-white rounded-xl border border-cream-dark p-1">
                                 <button type="button" onClick={() => setRole('male')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${role === 'male' ? 'bg-secondary text-bronze shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>男主角</button>
                                 <button type="button" onClick={() => setRole('female')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${role === 'female' ? 'bg-primary text-white shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>女主角</button>
@@ -693,20 +658,20 @@ ${generatedResult.plot}
                                 type="text"
                                 value={userName}
                                 onChange={(e) => setUserName(e.target.value)}
-                                placeholder={t('generator.cinematic.firstLeadActorPlaceholder', { defaultValue: '第一主角演員藝名，例如：白川澤' })}
+                                placeholder={t('generator.cinematic.firstLeadActorPlaceholder', { defaultValue: '輸入第一主角的演員名稱' })}
                                 className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text placeholder-bronze-light/50"
                             />
                             <input
                                 type="text"
                                 value={firstCharacterName}
                                 onChange={(e) => setFirstCharacterName(e.target.value)}
-                                placeholder={t('generator.cinematic.firstLeadCharacterPlaceholder', { defaultValue: '第一主角色名，例如：沈知夏' })}
+                                placeholder={t('generator.cinematic.firstLeadCharacterPlaceholder', { defaultValue: '輸入第一主角的角色名稱' })}
                                 className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text placeholder-bronze-light/50"
                             />
                         </div>
 
                         <div className="space-y-3 rounded-2xl border border-cream-dark/70 bg-white/40 p-3">
-                            <label className="text-xs font-bold text-bronze-light ml-1 block">第二主角定位</label>
+                            <label className="text-xs font-bold text-bronze-light ml-1 block">第二主角設定</label>
                             <div className="flex bg-white rounded-xl border border-cream-dark p-1">
                                 <button type="button" onClick={() => setSecondRole('male')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${secondRole === 'male' ? 'bg-secondary text-bronze shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>男主角</button>
                                 <button type="button" onClick={() => setSecondRole('female')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${secondRole === 'female' ? 'bg-primary text-white shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>女主角</button>
@@ -715,20 +680,20 @@ ${generatedResult.plot}
                                 type="text"
                                 value={secondActorName}
                                 onChange={(e) => setSecondActorName(e.target.value)}
-                                placeholder={t('generator.cinematic.secondLeadActorPlaceholder', { defaultValue: '第二主角演員藝名，可留空隨機' })}
+                                placeholder={t('generator.cinematic.secondLeadActorPlaceholder', { defaultValue: '輸入第二主角的演員名稱' })}
                                 className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text placeholder-bronze-light/50"
                             />
                             <input
                                 type="text"
                                 value={secondCharacterName}
                                 onChange={(e) => setSecondCharacterName(e.target.value)}
-                                placeholder={t('generator.cinematic.secondLeadCharacterPlaceholder', { defaultValue: '第二主角色名，例如：程亦凡' })}
+                                placeholder={t('generator.cinematic.secondLeadCharacterPlaceholder', { defaultValue: '輸入第二主角的角色名稱' })}
                                 className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text placeholder-bronze-light/50"
                             />
                         </div>
 
                         <div>
-                            <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">故事類型</label>
+                            <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">題材類型</label>
                             <select
                                 value={selectedGenre}
                                 onChange={(e) => setSelectedGenre(e.target.value)}
@@ -779,7 +744,7 @@ ${generatedResult.plot}
 
                                 {!isRegenerating && (
                                     <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <button onClick={handleRegenerateImage} className="bg-white p-3 rounded-full text-blue-500 shadow-lg hover:scale-110 transition-transform" title="重新生成圖片">
+                                        <button onClick={handleRegenerateImage} className="bg-white p-3 rounded-full text-blue-500 shadow-lg hover:scale-110 transition-transform" title="重新生成海報">
                                             <RefreshCw size={20} />
                                         </button>
                                         <button onClick={handleDownload} className="bg-white p-3 rounded-full text-green-500 shadow-lg hover:scale-110 transition-transform" title="下載海報">
@@ -808,7 +773,7 @@ ${generatedResult.plot}
                                 <p className="text-lg font-black text-primary">{generatedResult.title}</p>
 
                                 <div className="text-xs font-bold text-bronze-light uppercase tracking-widest border-t border-cream-dark pt-4 mt-4">
-                                    主演：{generatedResult.firstLeadActor} 飾 {generatedResult.firstLeadCharacter} | {generatedResult.secondLeadActor} 飾 {generatedResult.secondLeadCharacter}
+                                    {generatedResult.firstLeadActor} 飾 {generatedResult.firstLeadCharacter} | {generatedResult.secondLeadActor} 飾 {generatedResult.secondLeadCharacter}
                                 </div>
 
                                 <p className="text-sm text-bronze-text/80 italic bg-white/50 p-4 rounded-xl border border-cream-dark">
@@ -819,7 +784,7 @@ ${generatedResult.plot}
                     ) : (
                         <div className="text-center space-y-4 opacity-50">
                             <Film size={64} className="mx-auto text-bronze-light" />
-                            <p className="text-bronze-light font-bold">你的影劇海報將顯示在這裡</p>
+                            <p className="text-bronze-light font-bold">上傳照片並生成你的影劇海報</p>
                         </div>
                     )}
                 </div>
