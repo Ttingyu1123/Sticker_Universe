@@ -1,0 +1,3 @@
+# Suppress false positives — test fixture keys
+[allowlist]
+paths = ["tests/unit/shared/geminiApiKey\\.test\\.ts"]
