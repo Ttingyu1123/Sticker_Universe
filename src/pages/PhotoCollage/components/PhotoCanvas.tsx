@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useImperativeHandle, forwardRef } from 'react';
-import { calculateFrames, getCanvasDimensions } from '../utils/geometry';
+import { calculateFrames, getCaptionHeight, getCanvasDimensions } from '../utils/geometry';
 import { drawBackgroundPreset } from '../utils/backgroundPresets';
 import { CollageSettings, ImageFrame, UploadedImage } from '../types';
 
@@ -147,6 +147,10 @@ const renderCollageToContext = (
         .map((img, idx) => img.isHero ? idx : -1)
         .filter(idx => idx !== -1);
 
+    const captionPos = settings.captionPosition || 'none';
+    const captionFontSize = settings.captionFontSize || 20;
+    const captionColor = settings.captionColor || '#333333';
+
     const frames = calculateFrames(
         images.length,
         settings.layout,
@@ -154,7 +158,9 @@ const renderCollageToContext = (
         height,
         settings.gap * scaleFactor,
         settings.padding * scaleFactor,
-        heroIndices.length > 0 ? heroIndices : undefined
+        heroIndices.length > 0 ? heroIndices : undefined,
+        captionPos,
+        captionPos !== 'none' ? captionFontSize * scaleFactor : undefined
     );
 
     if (images.length === 0) return frames;
@@ -429,6 +435,40 @@ const renderCollageToContext = (
 
         ctx.restore();
     });
+
+    // 4. Draw Captions
+    if (captionPos !== 'none') {
+        const scaledFontSize = captionFontSize * scaleFactor;
+        const capH = getCaptionHeight(captionFontSize * scaleFactor);
+
+        images.forEach((imgData, index) => {
+            const caption = imgData.caption;
+            if (!caption) return;
+
+            const frame = frames[index];
+            if (!frame) return;
+
+            ctx.save();
+
+            const textX = frame.x + frame.width / 2;
+            let textY: number;
+            if (captionPos === 'top') {
+                textY = frame.y - capH / 2;
+            } else {
+                textY = frame.y + frame.height + capH / 2;
+            }
+
+            ctx.font = `bold ${scaledFontSize}px "Inter", "Noto Sans TC", system-ui, sans-serif`;
+            ctx.fillStyle = captionColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const maxWidth = frame.width - 8 * scaleFactor;
+            ctx.fillText(caption, textX, textY, maxWidth);
+
+            ctx.restore();
+        });
+    }
 
     return frames;
 };

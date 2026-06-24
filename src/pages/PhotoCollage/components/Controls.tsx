@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { AspectRatio, CollageSettings, LayoutType } from '../types';
+import { AspectRatio, CaptionPosition, CollageSettings, LayoutType } from '../types';
 import {
     Grid2X2,
     Columns,
@@ -28,7 +28,8 @@ import {
     SquareSplitVertical,
     SquareSplitHorizontal,
     ALargeSmall,
-    Plus
+    Plus,
+    Type
 } from 'lucide-react';
 import { BACKGROUND_PRESETS } from '../utils/backgroundPresets';
 
@@ -154,6 +155,74 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                         </button>
                     ))}
                 </div>
+            </div>
+
+            {/* Caption / Annotation */}
+            <div>
+                <Label>{t('collage.caption.title', { defaultValue: 'Caption' })}</Label>
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                    {([
+                        { id: 'none' as CaptionPosition, label: t('collage.caption.none', { defaultValue: 'Off' }) },
+                        { id: 'top' as CaptionPosition, label: t('collage.caption.top', { defaultValue: 'Top' }) },
+                        { id: 'bottom' as CaptionPosition, label: t('collage.caption.bottom', { defaultValue: 'Bottom' }) },
+                    ]).map((opt) => (
+                        <button
+                            key={opt.id}
+                            onClick={() => handleChange('captionPosition', opt.id)}
+                            className={`flex flex-col items-center justify-center p-2 rounded-xl text-[10px] font-bold capitalize border transition-all h-14 ${(settings.captionPosition || 'none') === opt.id
+                                ? 'bg-primary text-white border-primary shadow-md'
+                                : 'bg-white border-cream-dark text-bronze-light hover:bg-cream-light hover:text-primary'
+                                }`}
+                        >
+                            <Type size={16} className="mb-1" />
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+
+                {settings.captionPosition && settings.captionPosition !== 'none' && (
+                    <div className="space-y-3 p-3 bg-white border border-cream-dark rounded-xl animate-in fade-in slide-in-from-top-1">
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-xs font-bold text-bronze-light">
+                                <span>{t('collage.caption.fontSize', { defaultValue: 'Font Size' })}</span>
+                                <span>{settings.captionFontSize || 20}px</span>
+                            </div>
+                            <input
+                                type="range" min="12" max="48"
+                                value={settings.captionFontSize || 20}
+                                onChange={(e) => handleChange('captionFontSize', parseInt(e.target.value))}
+                                className="w-full h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary"
+                            />
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-bronze-light">{t('collage.caption.color', { defaultValue: 'Color' })}</span>
+                            <div className="flex gap-2 items-center">
+                                {['#333333', '#ffffff', '#000000'].map(color => (
+                                    <button
+                                        key={color}
+                                        onClick={() => handleChange('captionColor', color)}
+                                        className={`w-6 h-6 rounded-full border-2 transition-all ${(settings.captionColor || '#333333') === color ? 'border-primary ring-2 ring-primary/20 scale-110' : 'border-cream-dark'}`}
+                                        style={{ backgroundColor: color }}
+                                    />
+                                ))}
+                                <label className="w-6 h-6 rounded-full border-2 border-cream-dark overflow-hidden cursor-pointer relative hover:border-primary transition-colors">
+                                    <input
+                                        type="color"
+                                        value={settings.captionColor || '#333333'}
+                                        onChange={(e) => handleChange('captionColor', e.target.value)}
+                                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                                    />
+                                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center">
+                                        <Palette size={10} className="text-white" />
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <p className="text-[10px] text-bronze-light leading-tight">
+                            {t('collage.caption.hint', { defaultValue: 'Select an image and type your caption in the edit panel.' })}
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* Aspect Ratio */}

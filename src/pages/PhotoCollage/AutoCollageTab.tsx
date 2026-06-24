@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { X, Download, Image as ImageIcon, Trash2, ZoomIn, ZoomOut, Edit2, Check, Wand2, RotateCw, Scaling, Plus, FolderHeart, Save, Star, Key, Sparkles } from 'lucide-react';
+import { X, Download, Image as ImageIcon, Trash2, ZoomIn, ZoomOut, Edit2, Check, Wand2, RotateCw, Scaling, Plus, FolderHeart, Save, Star, Key, Sparkles, Type } from 'lucide-react';
 import { AspectRatio, CollageSettings, LayoutType, UploadedImage } from './types';
 import { Controls } from './components/Controls';
 import { PhotoCanvas, PhotoCanvasHandle } from './components/PhotoCanvas';
@@ -829,6 +829,18 @@ export const AutoCollageTab: React.FC = () => {
                                 <span className="text-[10px] font-bold text-bronze-light min-w-[30px]">{t('collage.image.effect')}</span>
                                 <input type="range" min="0" max="100" value={selectedImage.filterIntensity ?? 100} onChange={e => updateImageProperty(selectedImage.id, { filterIntensity: parseInt(e.target.value) })} className="flex-1 h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary" title={t('collage.image.effect')} />
                             </div>
+                            {settings.captionPosition && settings.captionPosition !== 'none' && (
+                                <div className="grid grid-cols-[auto_1fr] items-center gap-2">
+                                    <Type size={13} className="text-bronze-light" />
+                                    <input
+                                        type="text"
+                                        value={selectedImage.caption || ''}
+                                        onChange={e => updateImageProperty(selectedImage.id, { caption: e.target.value })}
+                                        placeholder={t('collage.image.captionPlaceholder', { defaultValue: 'Add caption...' })}
+                                        className="w-full px-2 py-1.5 bg-cream-light border border-cream-dark rounded-lg text-xs font-bold text-bronze-text outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+                                    />
+                                </div>
+                            )}
                             <div className="flex justify-end">
                                 <button onClick={() => removeImage(selectedImage.id)} className="text-xs text-red-500 hover:underline font-bold">{t('collage.remove')}</button>
                             </div>
@@ -944,6 +956,19 @@ export const AutoCollageTab: React.FC = () => {
                                 <input type="range" min="0" max="100" value={selectedImage.filterIntensity ?? 100} onChange={e => updateImageProperty(selectedImage.id, { filterIntensity: parseInt(e.target.value) })} className="flex-1 h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary" title={t('collage.image.effect')} />
                             </div>
                             <p className="text-[10px] text-bronze-light leading-tight">{t('collage.image.effectHint', { defaultValue: 'Adjust color richness and contrast. 100 means neutral.' })}</p>
+                            {/* Caption */}
+                            {settings.captionPosition && settings.captionPosition !== 'none' && (
+                                <div className="grid grid-cols-[auto_1fr] items-center gap-2">
+                                    <Type size={14} className="text-bronze-light" />
+                                    <input
+                                        type="text"
+                                        value={selectedImage.caption || ''}
+                                        onChange={e => updateImageProperty(selectedImage.id, { caption: e.target.value })}
+                                        placeholder={t('collage.image.captionPlaceholder', { defaultValue: 'Add caption...' })}
+                                        className="w-full px-2 py-1.5 bg-cream-light border border-cream-dark rounded-lg text-xs font-bold text-bronze-text outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+                                    />
+                                </div>
+                            )}
                             <div className="flex gap-2 justify-end">
                                 <button onClick={() => removeImage(selectedImage.id)} className="text-xs text-red-500 hover:underline font-bold">{t('collage.remove')}</button>
                             </div>

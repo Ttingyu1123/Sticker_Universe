@@ -27,6 +27,8 @@ export enum AspectRatio {
     CUSTOM = 'CUSTOM',
 }
 
+export type CaptionPosition = 'none' | 'top' | 'bottom';
+
 export interface CollageSettings {
     layout: LayoutType;
     autoAvoidBlank?: boolean;
@@ -45,6 +47,9 @@ export interface CollageSettings {
     customRatioW: number;
     customRatioH: number;
     backgroundId?: string; // New: ID for smart backgrounds (gradients, patterns)
+    captionPosition?: CaptionPosition;
+    captionFontSize?: number; // 12–48, default 20
+    captionColor?: string;
 }
 
 export interface UploadedImage {
@@ -60,6 +65,7 @@ export interface UploadedImage {
     offsetX: number;
     offsetY: number;
     isHero?: boolean; // Hero photo gets 1.5-2x size and prominent placement
+    caption?: string;
 }
 
 // Represents a calculated frame for an image on the canvas

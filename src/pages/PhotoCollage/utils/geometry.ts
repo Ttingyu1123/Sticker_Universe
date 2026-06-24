@@ -1,4 +1,11 @@
-import { AspectRatio, LayoutType, ImageFrame } from '../types';
+import { AspectRatio, CaptionPosition, LayoutType, ImageFrame } from '../types';
+
+export const getCaptionHeight = (
+    fontSize: number,
+    scaleFactor: number = 1
+): number => {
+    return (fontSize * 1.8 + 8) * scaleFactor;
+};
 
 /**
  * Calculates the dimensions of the final canvas based on requested aspect ratio.
@@ -37,6 +44,8 @@ export const getCanvasDimensions = (
 /**
  * Generates rectangle coordinates for each image based on the count and layout mode.
  * @param heroIndices Optional array of indices marking "hero" photos that should get prominent placement
+ * @param captionPosition Where captions appear — shrinks image frames to make room
+ * @param captionFontSize Font size used to compute reserved caption height
  */
 export const calculateFrames = (
     count: number,
@@ -45,7 +54,9 @@ export const calculateFrames = (
     containerHeight: number,
     gap: number,
     padding: number,
-    heroIndices?: number[]
+    heroIndices?: number[],
+    captionPosition?: CaptionPosition,
+    captionFontSize?: number
 ): ImageFrame[] => {
     // Effective area after padding
     const w = containerWidth - padding * 2;
@@ -534,6 +545,17 @@ export const calculateFrames = (
                 }
             }
             break;
+        }
+    }
+
+    if (captionPosition && captionPosition !== 'none' && captionFontSize) {
+        const capH = getCaptionHeight(captionFontSize);
+        for (const frame of frames) {
+            if (frame.height <= capH * 2) continue;
+            frame.height -= capH;
+            if (captionPosition === 'top') {
+                frame.y += capH;
+            }
         }
     }
 

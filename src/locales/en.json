@@ -1512,7 +1512,17 @@
       "rotation": "Rotation",
       "scale": "Scale",
       "effect": "Effect",
-      "effectHint": "Adjust color richness and contrast. 100 means neutral."
+      "effectHint": "Adjust color richness and contrast. 100 means neutral.",
+      "captionPlaceholder": "Add caption..."
+    },
+    "caption": {
+      "title": "Caption",
+      "none": "Off",
+      "top": "Top",
+      "bottom": "Bottom",
+      "fontSize": "Font Size",
+      "color": "Color",
+      "hint": "Select an image and type your caption in the edit panel."
     },
     "setHero": "Set as Hero",
     "removeHero": "Remove Hero",
