@@ -559,7 +559,7 @@ export const AutoCollageTab: React.FC = () => {
     }, [images, settings, exportScale]);
 
     return (
-        <div className="flex flex-col md:flex-row w-full bg-cream-light relative px-4 md:px-0 md:h-full min-h-0 md:overflow-hidden">
+        <div className="flex flex-col md:flex-row w-full bg-cream-light relative px-4 md:px-0 md:h-[calc(100vh-5rem)] min-h-0 md:overflow-hidden md:-m-6">
 
             {showKeyModal && (
                 <div className="fixed inset-0 z-50 bg-bronze-text/30 backdrop-blur-sm flex items-center justify-center p-4">
