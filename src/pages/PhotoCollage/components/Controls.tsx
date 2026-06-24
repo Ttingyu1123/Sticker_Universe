@@ -182,6 +182,33 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
 
                 {settings.captionPosition && settings.captionPosition !== 'none' && (
                     <div className="space-y-3 p-3 bg-white border border-cream-dark rounded-xl animate-in fade-in slide-in-from-top-1">
+                        {/* Font Family */}
+                        <div>
+                            <div className="text-xs font-bold text-bronze-light mb-2">{t('collage.caption.font', { defaultValue: 'Font' })}</div>
+                            <div className="grid grid-cols-3 gap-1.5">
+                                {([
+                                    { id: 'sans', label: t('collage.caption.fontSans', { defaultValue: 'Sans' }), family: '"Inter", "Noto Sans TC", system-ui, sans-serif' },
+                                    { id: 'serif', label: t('collage.caption.fontSerif', { defaultValue: 'Serif' }), family: 'Georgia, "Noto Serif", serif' },
+                                    { id: 'mono', label: t('collage.caption.fontMono', { defaultValue: 'Mono' }), family: '"Courier New", Courier, monospace' },
+                                    { id: 'handwriting', label: t('collage.caption.fontHandwriting', { defaultValue: 'Hand' }), family: '"Segoe Print", "Comic Sans MS", cursive' },
+                                    { id: 'bold', label: t('collage.caption.fontBold', { defaultValue: 'Bold' }), family: 'Impact, "Arial Black", sans-serif' },
+                                    { id: 'elegant', label: t('collage.caption.fontElegant', { defaultValue: 'Elegant' }), family: '"Palatino Linotype", "Book Antiqua", Palatino, serif' },
+                                ]).map((font) => (
+                                    <button
+                                        key={font.id}
+                                        onClick={() => handleChange('captionFont', font.family)}
+                                        className={`flex flex-col items-center justify-center p-1.5 rounded-lg text-[10px] border transition-all h-12 ${(settings.captionFont || '"Inter", "Noto Sans TC", system-ui, sans-serif') === font.family
+                                            ? 'bg-primary/10 border-primary text-primary'
+                                            : 'bg-cream-light border-cream-dark text-bronze-light hover:border-primary/50'
+                                            }`}
+                                    >
+                                        <span style={{ fontFamily: font.family }} className="text-sm leading-none mb-0.5">Aa</span>
+                                        <span className="truncate w-full text-center">{font.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         <div className="space-y-2">
                             <div className="flex justify-between text-xs font-bold text-bronze-light">
                                 <span>{t('collage.caption.fontSize', { defaultValue: 'Font Size' })}</span>

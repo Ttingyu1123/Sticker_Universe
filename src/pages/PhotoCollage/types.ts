@@ -50,6 +50,7 @@ export interface CollageSettings {
     captionPosition?: CaptionPosition;
     captionFontSize?: number; // 12–48, default 20
     captionColor?: string;
+    captionFont?: string; // font-family CSS value
 }
 
 export interface UploadedImage {

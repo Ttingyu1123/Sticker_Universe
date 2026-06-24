@@ -150,6 +150,7 @@ const renderCollageToContext = (
     const captionPos = settings.captionPosition || 'none';
     const captionFontSize = settings.captionFontSize || 20;
     const captionColor = settings.captionColor || '#333333';
+    const captionFont = settings.captionFont || '"Inter", "Noto Sans TC", system-ui, sans-serif';
 
     const frames = calculateFrames(
         images.length,
@@ -458,7 +459,7 @@ const renderCollageToContext = (
                 textY = frame.y + frame.height + capH / 2;
             }
 
-            ctx.font = `bold ${scaledFontSize}px "Inter", "Noto Sans TC", system-ui, sans-serif`;
+            ctx.font = `bold ${scaledFontSize}px ${captionFont}`;
             ctx.fillStyle = captionColor;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';

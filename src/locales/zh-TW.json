@@ -1628,6 +1628,13 @@
       "none": "關閉",
       "top": "上方",
       "bottom": "下方",
+      "font": "字型",
+      "fontSans": "無襯線",
+      "fontSerif": "襯線",
+      "fontMono": "等寬",
+      "fontHandwriting": "手寫",
+      "fontBold": "粗黑",
+      "fontElegant": "典雅",
       "fontSize": "文字大小",
       "color": "文字顏色",
       "hint": "選擇圖片後，在編輯面板輸入標注文字。"
