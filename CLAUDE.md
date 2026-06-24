@@ -34,7 +34,7 @@ npm run e2e              # Playwright E2E 測試
 | `/` | Landing | 功能入口首頁 |
 | `/generator/*` | Generator | AI 圖像生成，9 個子功能 Tab |
 | `/image-editor/*` | ImageEditor | 圖像編輯套件，8 個子功能 Tab |
-| `/photo-collage/*` | PhotoCollage | 照片拼貼，含 AI 自動排版 |
+| `/photo-collage/*` | PhotoCollage | 照片拼貼，含 AI 自動排版、文字標注（字型/大小/顏色） |
 | `/drawing-studio/*` | DrawingStudio | 手繪畫布，含筆刷/圖層 |
 | `/print-sheet` | PrintSheet | 貼紙/證件照列印版面 |
 | `/gallery` | Gallery | IndexedDB 作品瀏覽庫 |
