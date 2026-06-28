@@ -1641,7 +1641,15 @@
     },
     "copyright": "自動拼貼人工智慧 © 2026",
     "heroHint": "標星相片在聚焦版型會優先排版（最多 2 張）。",
-    "heroBadge": "Hero"
+    "heroBadge": "Hero",
+    "export": {
+      "title": "輸出設定",
+      "custom": "自訂",
+      "customWidthTitle": "自訂輸出寬度",
+      "widthHint": "寬度(px)，高度依比例自動計算",
+      "warnUpscaleHigh": "警示：原圖需大幅放大 ({{factor}}x)，輸出可能明顯模糊",
+      "warnUpscaleMild": "提醒：原圖需放大 ({{factor}}x)，輸出可能較模糊"
+    }
   },
   "headshot": {
     "step1_upload": "第一步：上傳照片",

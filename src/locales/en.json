@@ -1536,7 +1536,15 @@
     "maxHeroLimit": "Maximum 2 hero photos allowed",
     "heroPhoto": "Hero Photo",
     "heroHint": "Star-marked photos are prioritized in focus layouts (max 2).",
-    "heroBadge": "Hero"
+    "heroBadge": "Hero",
+    "export": {
+      "title": "Export Settings",
+      "custom": "Custom",
+      "customWidthTitle": "Custom output width",
+      "widthHint": "Width (px), height auto-calculated by ratio",
+      "warnUpscaleHigh": "Warning: source images need significant upscaling ({{factor}}x), output may be noticeably blurry",
+      "warnUpscaleMild": "Note: source images need upscaling ({{factor}}x), output may be slightly blurry"
+    }
   },
   "headshot": {
     "step1_upload": "Step 1: Upload Photo",

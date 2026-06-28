@@ -980,7 +980,7 @@ export const AutoCollageTab: React.FC = () => {
 
                 <div className="px-4 pt-4">
                     <div className="bg-white border border-cream-dark rounded-xl p-3 space-y-2">
-                        <div className="text-xs font-black text-bronze uppercase tracking-wide">輸出設定</div>
+                        <div className="text-xs font-black text-bronze uppercase tracking-wide">{t('collage.export.title')}</div>
                         <div className="grid grid-cols-2 gap-2">
                             <select
                                 value={selectedExportPreset}
@@ -1001,7 +1001,7 @@ export const AutoCollageTab: React.FC = () => {
                                 {EXPORT_SIZE_OPTIONS.map((option) => (
                                     <option key={option.width} value={option.width}>{option.label}</option>
                                 ))}
-                                <option value="custom">自訂</option>
+                                <option value="custom">{t('collage.export.custom')}</option>
                             </select>
                             <input
                                 ref={customWidthRef}
@@ -1016,15 +1016,15 @@ export const AutoCollageTab: React.FC = () => {
                                 }}
                                 onBlur={() => setExportWidth((prev) => clampExportWidth(prev))}
                                 className={`border rounded-lg px-2 py-1.5 text-xs font-bold text-bronze transition-all ${selectedExportPreset === 'custom' ? 'bg-white border-primary ring-2 ring-primary/30' : 'bg-cream-light border-cream-dark'}`}
-                                title="自訂輸出寬度"
+                                title={t('collage.export.customWidthTitle')}
                             />
                         </div>
-                        <div className="text-[10px] text-bronze-light leading-tight">寬度(px)，高度依比例自動計算</div>
+                        <div className="text-[10px] text-bronze-light leading-tight">{t('collage.export.widthHint')}</div>
                         {maxUpscaleFactor > 1.5 && (
-                            <div className="text-[10px] text-red-600 leading-tight font-bold">警示：原圖需大幅放大 ({maxUpscaleFactor.toFixed(2)}x)，輸出可能明顯模糊</div>
+                            <div className="text-[10px] text-red-600 leading-tight font-bold">{t('collage.export.warnUpscaleHigh', { factor: maxUpscaleFactor.toFixed(2) })}</div>
                         )}
                         {maxUpscaleFactor > 1.02 && maxUpscaleFactor <= 1.5 && (
-                            <div className="text-[10px] text-orange-600 leading-tight font-bold">提醒：原圖需放大 ({maxUpscaleFactor.toFixed(2)}x)，輸出可能較模糊</div>
+                            <div className="text-[10px] text-orange-600 leading-tight font-bold">{t('collage.export.warnUpscaleMild', { factor: maxUpscaleFactor.toFixed(2) })}</div>
                         )}
                     </div>
                 </div>
