@@ -74,6 +74,7 @@ export const AutoCollageTab: React.FC = () => {
     const [showGalleryPicker, setShowGalleryPicker] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [exportWidth, setExportWidth] = useState<number>(1200);
+    const [isCustomExport, setIsCustomExport] = useState(false);
 
     // Zoom State
     const [zoomLevel, setZoomLevel] = useState(1);
@@ -217,8 +218,9 @@ export const AutoCollageTab: React.FC = () => {
 
     // Image Processing
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const customWidthRef = useRef<HTMLInputElement>(null);
     const exportScale = Math.max(0.25, exportWidth / BASE_EXPORT_WIDTH);
-    const selectedExportPreset = EXPORT_SIZE_OPTIONS.some((opt) => opt.width === exportWidth) ? String(exportWidth) : 'custom';
+    const selectedExportPreset = isCustomExport ? 'custom' : (EXPORT_SIZE_OPTIONS.some((opt) => opt.width === exportWidth) ? String(exportWidth) : 'custom');
 
     const loadImageDimensions = (url: string): Promise<{ width: number; height: number } | null> =>
         new Promise((resolve) => {
@@ -983,7 +985,15 @@ export const AutoCollageTab: React.FC = () => {
                             <select
                                 value={selectedExportPreset}
                                 onChange={(e) => {
-                                    if (e.target.value === 'custom') return;
+                                    if (e.target.value === 'custom') {
+                                        setIsCustomExport(true);
+                                        requestAnimationFrame(() => {
+                                            customWidthRef.current?.focus();
+                                            customWidthRef.current?.select();
+                                        });
+                                        return;
+                                    }
+                                    setIsCustomExport(false);
                                     setExportWidth(parseInt(e.target.value, 10));
                                 }}
                                 className="bg-cream-light border border-cream-dark rounded-lg px-2 py-1.5 text-xs font-bold text-bronze"
@@ -994,6 +1004,7 @@ export const AutoCollageTab: React.FC = () => {
                                 <option value="custom">自訂</option>
                             </select>
                             <input
+                                ref={customWidthRef}
                                 type="number"
                                 min={MIN_EXPORT_WIDTH}
                                 max={MAX_EXPORT_WIDTH}
@@ -1004,7 +1015,7 @@ export const AutoCollageTab: React.FC = () => {
                                     if (!Number.isNaN(parsed)) setExportWidth(parsed);
                                 }}
                                 onBlur={() => setExportWidth((prev) => clampExportWidth(prev))}
-                                className="bg-cream-light border border-cream-dark rounded-lg px-2 py-1.5 text-xs font-bold text-bronze"
+                                className={`border rounded-lg px-2 py-1.5 text-xs font-bold text-bronze transition-all ${selectedExportPreset === 'custom' ? 'bg-white border-primary ring-2 ring-primary/30' : 'bg-cream-light border-cream-dark'}`}
                                 title="自訂輸出寬度"
                             />
                         </div>
