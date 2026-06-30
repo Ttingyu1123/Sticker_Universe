@@ -831,7 +831,7 @@ export const AutoCollageTab: React.FC = () => {
                                 <span className="text-[10px] font-bold text-bronze-light min-w-[30px]">{t('collage.image.effect')}</span>
                                 <input type="range" min="0" max="100" value={selectedImage.filterIntensity ?? 100} onChange={e => updateImageProperty(selectedImage.id, { filterIntensity: parseInt(e.target.value) })} className="flex-1 h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary" title={t('collage.image.effect')} />
                             </div>
-                            {settings.captionPosition && settings.captionPosition !== 'none' && (
+                            {(settings.captionPosition === 'top' || settings.captionPosition === 'both') && (
                                 <div className="grid grid-cols-[auto_1fr] items-center gap-2">
                                     <Type size={13} className="text-bronze-light" />
                                     <input
@@ -959,7 +959,7 @@ export const AutoCollageTab: React.FC = () => {
                             </div>
                             <p className="text-[10px] text-bronze-light leading-tight">{t('collage.image.effectHint', { defaultValue: 'Adjust color richness and contrast. 100 means neutral.' })}</p>
                             {/* Caption */}
-                            {settings.captionPosition && settings.captionPosition !== 'none' && (
+                            {(settings.captionPosition === 'top' || settings.captionPosition === 'both') && (
                                 <div className="grid grid-cols-[auto_1fr] items-center gap-2">
                                     <Type size={14} className="text-bronze-light" />
                                     <input

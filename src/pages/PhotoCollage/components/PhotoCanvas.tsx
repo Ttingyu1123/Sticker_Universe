@@ -152,11 +152,15 @@ const renderCollageToContext = (
     const captionColor = settings.captionColor || '#333333';
     const captionFont = settings.captionFont || '"Inter", "Noto Sans TC", system-ui, sans-serif';
 
+    const hasBottomGlobal = captionPos === 'bottom' || captionPos === 'both';
+    const globalCapH = hasBottomGlobal ? getCaptionHeight(captionFontSize * scaleFactor) : 0;
+    const effectiveHeight = height - globalCapH;
+
     const frames = calculateFrames(
         images.length,
         settings.layout,
         width,
-        height,
+        effectiveHeight,
         settings.gap * scaleFactor,
         settings.padding * scaleFactor,
         heroIndices.length > 0 ? heroIndices : undefined,
@@ -442,32 +446,34 @@ const renderCollageToContext = (
         const scaledFontSize = captionFontSize * scaleFactor;
         const capH = getCaptionHeight(captionFontSize * scaleFactor);
 
-        images.forEach((imgData, index) => {
-            const caption = imgData.caption;
-            if (!caption) return;
+        // 4a. Per-image captions (top)
+        if (captionPos === 'top' || captionPos === 'both') {
+            images.forEach((imgData, index) => {
+                const caption = imgData.caption;
+                if (!caption) return;
+                const frame = frames[index];
+                if (!frame) return;
 
-            const frame = frames[index];
-            if (!frame) return;
+                ctx.save();
+                ctx.font = `bold ${scaledFontSize}px ${captionFont}`;
+                ctx.fillStyle = captionColor;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(caption, frame.x + frame.width / 2, frame.y - capH / 2, frame.width - 8 * scaleFactor);
+                ctx.restore();
+            });
+        }
 
+        // 4b. Global caption (bottom) — single text for the entire collage
+        if (hasBottomGlobal && settings.globalCaption) {
             ctx.save();
-
-            const textX = frame.x + frame.width / 2;
-            const maxWidth = frame.width - 8 * scaleFactor;
-
             ctx.font = `bold ${scaledFontSize}px ${captionFont}`;
             ctx.fillStyle = captionColor;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-
-            if (captionPos === 'top' || captionPos === 'both') {
-                ctx.fillText(caption, textX, frame.y - capH / 2, maxWidth);
-            }
-            if (captionPos === 'bottom' || captionPos === 'both') {
-                ctx.fillText(caption, textX, frame.y + frame.height + capH / 2, maxWidth);
-            }
-
+            ctx.fillText(settings.globalCaption, width / 2, effectiveHeight + globalCapH / 2, width - 32 * scaleFactor);
             ctx.restore();
-        });
+        }
     }
 
     return frames;

@@ -1638,7 +1638,9 @@
       "fontElegant": "典雅",
       "fontSize": "文字大小",
       "color": "文字顏色",
-      "hint": "選擇圖片後，在編輯面板輸入標注文字。"
+      "hintPerImage": "選擇圖片後，在編輯面板輸入各別標注。",
+      "globalLabel": "拼貼標注",
+      "globalPlaceholder": "整張拼貼圖的標注文字..."
     },
     "copyright": "自動拼貼人工智慧 © 2026",
     "heroHint": "標星相片在聚焦版型會優先排版（最多 2 張）。",

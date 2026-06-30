@@ -51,6 +51,7 @@ export interface CollageSettings {
     captionFontSize?: number; // 12–48, default 20
     captionColor?: string;
     captionFont?: string; // font-family CSS value
+    globalCaption?: string; // bottom caption for the entire collage
 }
 
 export interface UploadedImage {

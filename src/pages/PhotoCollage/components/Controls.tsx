@@ -246,9 +246,23 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                                 </label>
                             </div>
                         </div>
-                        <p className="text-[10px] text-bronze-light leading-tight">
-                            {t('collage.caption.hint', { defaultValue: 'Select an image and type your caption in the edit panel.' })}
-                        </p>
+                        {(settings.captionPosition === 'top' || settings.captionPosition === 'both') && (
+                            <p className="text-[10px] text-bronze-light leading-tight">
+                                {t('collage.caption.hintPerImage', { defaultValue: 'Select an image and type its label in the edit panel.' })}
+                            </p>
+                        )}
+                        {(settings.captionPosition === 'bottom' || settings.captionPosition === 'both') && (
+                            <div>
+                                <div className="text-xs font-bold text-bronze-light mb-1">{t('collage.caption.globalLabel', { defaultValue: 'Collage Caption' })}</div>
+                                <input
+                                    type="text"
+                                    value={settings.globalCaption || ''}
+                                    onChange={(e) => handleChange('globalCaption', e.target.value)}
+                                    placeholder={t('collage.caption.globalPlaceholder', { defaultValue: 'Caption for the entire collage...' })}
+                                    className="w-full px-2.5 py-2 bg-cream-light border border-cream-dark rounded-lg text-xs font-bold text-bronze-text outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+                                />
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
