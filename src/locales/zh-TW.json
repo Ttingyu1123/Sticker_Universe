@@ -1628,6 +1628,7 @@
       "none": "關閉",
       "top": "上方",
       "bottom": "下方",
+      "both": "上+下",
       "font": "字型",
       "fontSans": "無襯線",
       "fontSerif": "襯線",

@@ -160,11 +160,12 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
             {/* Caption / Annotation */}
             <div>
                 <Label>{t('collage.caption.title', { defaultValue: 'Caption' })}</Label>
-                <div className="grid grid-cols-3 gap-2 mb-3">
+                <div className="grid grid-cols-4 gap-2 mb-3">
                     {([
                         { id: 'none' as CaptionPosition, label: t('collage.caption.none', { defaultValue: 'Off' }) },
                         { id: 'top' as CaptionPosition, label: t('collage.caption.top', { defaultValue: 'Top' }) },
                         { id: 'bottom' as CaptionPosition, label: t('collage.caption.bottom', { defaultValue: 'Bottom' }) },
+                        { id: 'both' as CaptionPosition, label: t('collage.caption.both', { defaultValue: 'Both' }) },
                     ]).map((opt) => (
                         <button
                             key={opt.id}

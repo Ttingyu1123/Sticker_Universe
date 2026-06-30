@@ -550,10 +550,11 @@ export const calculateFrames = (
 
     if (captionPosition && captionPosition !== 'none' && captionFontSize) {
         const capH = getCaptionHeight(captionFontSize);
+        const totalCapH = captionPosition === 'both' ? capH * 2 : capH;
         for (const frame of frames) {
-            if (frame.height <= capH * 2) continue;
-            frame.height -= capH;
-            if (captionPosition === 'top') {
+            if (frame.height <= totalCapH * 2) continue;
+            frame.height -= totalCapH;
+            if (captionPosition === 'top' || captionPosition === 'both') {
                 frame.y += capH;
             }
         }

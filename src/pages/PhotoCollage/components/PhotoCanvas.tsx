@@ -452,20 +452,19 @@ const renderCollageToContext = (
             ctx.save();
 
             const textX = frame.x + frame.width / 2;
-            let textY: number;
-            if (captionPos === 'top') {
-                textY = frame.y - capH / 2;
-            } else {
-                textY = frame.y + frame.height + capH / 2;
-            }
+            const maxWidth = frame.width - 8 * scaleFactor;
 
             ctx.font = `bold ${scaledFontSize}px ${captionFont}`;
             ctx.fillStyle = captionColor;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
-            const maxWidth = frame.width - 8 * scaleFactor;
-            ctx.fillText(caption, textX, textY, maxWidth);
+            if (captionPos === 'top' || captionPos === 'both') {
+                ctx.fillText(caption, textX, frame.y - capH / 2, maxWidth);
+            }
+            if (captionPos === 'bottom' || captionPos === 'both') {
+                ctx.fillText(caption, textX, frame.y + frame.height + capH / 2, maxWidth);
+            }
 
             ctx.restore();
         });

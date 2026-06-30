@@ -27,7 +27,7 @@ export enum AspectRatio {
     CUSTOM = 'CUSTOM',
 }
 
-export type CaptionPosition = 'none' | 'top' | 'bottom';
+export type CaptionPosition = 'none' | 'top' | 'bottom' | 'both';
 
 export interface CollageSettings {
     layout: LayoutType;

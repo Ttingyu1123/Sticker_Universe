@@ -1520,6 +1520,7 @@
       "none": "Off",
       "top": "Top",
       "bottom": "Bottom",
+      "both": "Both",
       "font": "Font",
       "fontSans": "Sans",
       "fontSerif": "Serif",
