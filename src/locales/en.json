@@ -1531,6 +1531,8 @@
       "fontSize": "Font Size",
       "fontSizeTop": "Top Font Size",
       "fontSizeBottom": "Bottom Font Size",
+      "heightTop": "Top Area Height",
+      "heightBottom": "Bottom Area Height",
       "align": "Alignment",
       "color": "Color",
       "hintPerImage": "Select an image and type its label in the edit panel.",

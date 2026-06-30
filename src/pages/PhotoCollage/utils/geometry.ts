@@ -2,9 +2,10 @@ import { AspectRatio, CaptionPosition, LayoutType, ImageFrame } from '../types';
 
 export const getCaptionHeight = (
     fontSize: number,
-    scaleFactor: number = 1
+    scaleFactor: number = 1,
+    heightRatio: number = 1.8
 ): number => {
-    return (fontSize * 1.8 + 8) * scaleFactor;
+    return (fontSize * heightRatio + 8) * scaleFactor;
 };
 
 /**
@@ -56,7 +57,8 @@ export const calculateFrames = (
     padding: number,
     heroIndices?: number[],
     captionPosition?: CaptionPosition,
-    captionFontSize?: number
+    captionFontSize?: number,
+    captionHeightRatio: number = 1.8
 ): ImageFrame[] => {
     // Effective area after padding
     const w = containerWidth - padding * 2;
@@ -549,7 +551,7 @@ export const calculateFrames = (
     }
 
     if (captionPosition && captionPosition !== 'none' && captionFontSize) {
-        const capH = getCaptionHeight(captionFontSize);
+        const capH = getCaptionHeight(captionFontSize, 1, captionHeightRatio);
         if (captionPosition === 'top' || captionPosition === 'both') {
             for (const frame of frames) {
                 if (frame.height <= capH * 2) continue;

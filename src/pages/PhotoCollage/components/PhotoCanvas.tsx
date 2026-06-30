@@ -150,12 +150,14 @@ const renderCollageToContext = (
     const captionPos = settings.captionPosition || 'none';
     const topFontSize = settings.captionFontSize || 20;
     const bottomFontSize = settings.globalCaptionFontSize || 20;
+    const topHR = settings.captionHeightRatio ?? 1.8;
+    const bottomHR = settings.globalCaptionHeightRatio ?? 1.8;
     const captionColor = settings.captionColor || '#333333';
     const captionFont = settings.captionFont || '"Inter", "Noto Sans TC", system-ui, sans-serif';
     const globalAlign = settings.globalCaptionAlign || 'center';
 
     const hasBottomGlobal = captionPos === 'bottom' || captionPos === 'both';
-    const globalCapH = hasBottomGlobal ? getCaptionHeight(bottomFontSize * scaleFactor) : 0;
+    const globalCapH = hasBottomGlobal ? getCaptionHeight(bottomFontSize * scaleFactor, 1, bottomHR) : 0;
     const effectiveHeight = height - globalCapH;
 
     const hasTopCaption = captionPos === 'top' || captionPos === 'both';
@@ -168,7 +170,8 @@ const renderCollageToContext = (
         settings.padding * scaleFactor,
         heroIndices.length > 0 ? heroIndices : undefined,
         captionPos,
-        hasTopCaption ? topFontSize * scaleFactor : undefined
+        hasTopCaption ? topFontSize * scaleFactor : undefined,
+        topHR
     );
 
     if (images.length === 0) return frames;
@@ -449,7 +452,7 @@ const renderCollageToContext = (
         // 4a. Per-image captions (top)
         if (hasTopCaption) {
             const scaledTop = topFontSize * scaleFactor;
-            const capH = getCaptionHeight(scaledTop);
+            const capH = getCaptionHeight(scaledTop, 1, topHR);
             images.forEach((imgData, index) => {
                 const caption = imgData.caption;
                 if (!caption) return;

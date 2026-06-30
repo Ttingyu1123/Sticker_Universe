@@ -49,10 +49,12 @@ export interface CollageSettings {
     backgroundId?: string; // New: ID for smart backgrounds (gradients, patterns)
     captionPosition?: CaptionPosition;
     captionFontSize?: number; // 12–48, default 20
+    captionHeightRatio?: number; // 1.0–3.0, default 1.8
     captionColor?: string;
     captionFont?: string; // font-family CSS value
     globalCaption?: string;
     globalCaptionFontSize?: number; // 12–48, default 20
+    globalCaptionHeightRatio?: number; // 1.0–3.0, default 1.8
     globalCaptionAlign?: 'left' | 'center' | 'right';
 }
 

@@ -213,7 +213,7 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                             </div>
                         </div>
 
-                        {/* Top font size */}
+                        {/* Top font size + height */}
                         {(settings.captionPosition === 'top' || settings.captionPosition === 'both') && (
                             <div className="space-y-2">
                                 <div className="flex justify-between text-xs font-bold text-bronze-light">
@@ -226,9 +226,19 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                                     onChange={(e) => handleChange('captionFontSize', parseInt(e.target.value))}
                                     className="w-full h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary"
                                 />
+                                <div className="flex justify-between text-xs font-bold text-bronze-light">
+                                    <span>{t('collage.caption.heightTop', { defaultValue: 'Top Area Height' })}</span>
+                                    <span>{((settings.captionHeightRatio ?? 1.8) * 100 | 0)}%</span>
+                                </div>
+                                <input
+                                    type="range" min="1.0" max="3.0" step="0.1"
+                                    value={settings.captionHeightRatio ?? 1.8}
+                                    onChange={(e) => handleChange('captionHeightRatio', parseFloat(e.target.value))}
+                                    className="w-full h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary"
+                                />
                             </div>
                         )}
-                        {/* Bottom font size + alignment */}
+                        {/* Bottom font size + height + alignment */}
                         {(settings.captionPosition === 'bottom' || settings.captionPosition === 'both') && (
                             <>
                                 <div className="space-y-2">
@@ -240,6 +250,16 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                                         type="range" min="12" max="48"
                                         value={settings.globalCaptionFontSize || 20}
                                         onChange={(e) => handleChange('globalCaptionFontSize', parseInt(e.target.value))}
+                                        className="w-full h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary"
+                                    />
+                                    <div className="flex justify-between text-xs font-bold text-bronze-light">
+                                        <span>{t('collage.caption.heightBottom', { defaultValue: 'Bottom Area Height' })}</span>
+                                        <span>{((settings.globalCaptionHeightRatio ?? 1.8) * 100 | 0)}%</span>
+                                    </div>
+                                    <input
+                                        type="range" min="1.0" max="3.0" step="0.1"
+                                        value={settings.globalCaptionHeightRatio ?? 1.8}
+                                        onChange={(e) => handleChange('globalCaptionHeightRatio', parseFloat(e.target.value))}
                                         className="w-full h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary"
                                     />
                                 </div>

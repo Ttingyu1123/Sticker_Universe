@@ -1639,6 +1639,8 @@
       "fontSize": "文字大小",
       "fontSizeTop": "上方文字大小",
       "fontSizeBottom": "下方文字大小",
+      "heightTop": "上方區域高度",
+      "heightBottom": "下方區域高度",
       "align": "對齊方式",
       "color": "文字顏色",
       "hintPerImage": "選擇圖片後，在編輯面板輸入各別標注。",
