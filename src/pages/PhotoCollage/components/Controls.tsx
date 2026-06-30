@@ -29,7 +29,10 @@ import {
     SquareSplitHorizontal,
     ALargeSmall,
     Plus,
-    Type
+    Type,
+    AlignLeft,
+    AlignCenter,
+    AlignRight
 } from 'lucide-react';
 import { BACKGROUND_PRESETS } from '../utils/backgroundPresets';
 
@@ -210,18 +213,59 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-xs font-bold text-bronze-light">
-                                <span>{t('collage.caption.fontSize', { defaultValue: 'Font Size' })}</span>
-                                <span>{settings.captionFontSize || 20}px</span>
+                        {/* Top font size */}
+                        {(settings.captionPosition === 'top' || settings.captionPosition === 'both') && (
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-xs font-bold text-bronze-light">
+                                    <span>{t('collage.caption.fontSizeTop', { defaultValue: 'Top Font Size' })}</span>
+                                    <span>{settings.captionFontSize || 20}px</span>
+                                </div>
+                                <input
+                                    type="range" min="12" max="48"
+                                    value={settings.captionFontSize || 20}
+                                    onChange={(e) => handleChange('captionFontSize', parseInt(e.target.value))}
+                                    className="w-full h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary"
+                                />
                             </div>
-                            <input
-                                type="range" min="12" max="48"
-                                value={settings.captionFontSize || 20}
-                                onChange={(e) => handleChange('captionFontSize', parseInt(e.target.value))}
-                                className="w-full h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary"
-                            />
-                        </div>
+                        )}
+                        {/* Bottom font size + alignment */}
+                        {(settings.captionPosition === 'bottom' || settings.captionPosition === 'both') && (
+                            <>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-xs font-bold text-bronze-light">
+                                        <span>{t('collage.caption.fontSizeBottom', { defaultValue: 'Bottom Font Size' })}</span>
+                                        <span>{settings.globalCaptionFontSize || 20}px</span>
+                                    </div>
+                                    <input
+                                        type="range" min="12" max="48"
+                                        value={settings.globalCaptionFontSize || 20}
+                                        onChange={(e) => handleChange('globalCaptionFontSize', parseInt(e.target.value))}
+                                        className="w-full h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary"
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-bold text-bronze-light">{t('collage.caption.align', { defaultValue: 'Alignment' })}</span>
+                                    <div className="flex gap-1">
+                                        {([
+                                            { id: 'left' as const, Icon: AlignLeft },
+                                            { id: 'center' as const, Icon: AlignCenter },
+                                            { id: 'right' as const, Icon: AlignRight },
+                                        ]).map(({ id, Icon }) => (
+                                            <button
+                                                key={id}
+                                                onClick={() => handleChange('globalCaptionAlign', id)}
+                                                className={`p-1.5 rounded-lg border transition-all ${(settings.globalCaptionAlign || 'center') === id
+                                                    ? 'bg-primary/10 border-primary text-primary'
+                                                    : 'border-cream-dark text-bronze-light hover:border-primary/50'
+                                                    }`}
+                                            >
+                                                <Icon size={14} />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        )}
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-bronze-light">{t('collage.caption.color', { defaultValue: 'Color' })}</span>
                             <div className="flex gap-2 items-center">

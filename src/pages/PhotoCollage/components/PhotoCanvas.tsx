@@ -148,14 +148,17 @@ const renderCollageToContext = (
         .filter(idx => idx !== -1);
 
     const captionPos = settings.captionPosition || 'none';
-    const captionFontSize = settings.captionFontSize || 20;
+    const topFontSize = settings.captionFontSize || 20;
+    const bottomFontSize = settings.globalCaptionFontSize || 20;
     const captionColor = settings.captionColor || '#333333';
     const captionFont = settings.captionFont || '"Inter", "Noto Sans TC", system-ui, sans-serif';
+    const globalAlign = settings.globalCaptionAlign || 'center';
 
     const hasBottomGlobal = captionPos === 'bottom' || captionPos === 'both';
-    const globalCapH = hasBottomGlobal ? getCaptionHeight(captionFontSize * scaleFactor) : 0;
+    const globalCapH = hasBottomGlobal ? getCaptionHeight(bottomFontSize * scaleFactor) : 0;
     const effectiveHeight = height - globalCapH;
 
+    const hasTopCaption = captionPos === 'top' || captionPos === 'both';
     const frames = calculateFrames(
         images.length,
         settings.layout,
@@ -165,7 +168,7 @@ const renderCollageToContext = (
         settings.padding * scaleFactor,
         heroIndices.length > 0 ? heroIndices : undefined,
         captionPos,
-        captionPos !== 'none' ? captionFontSize * scaleFactor : undefined
+        hasTopCaption ? topFontSize * scaleFactor : undefined
     );
 
     if (images.length === 0) return frames;
@@ -443,11 +446,10 @@ const renderCollageToContext = (
 
     // 4. Draw Captions
     if (captionPos !== 'none') {
-        const scaledFontSize = captionFontSize * scaleFactor;
-        const capH = getCaptionHeight(captionFontSize * scaleFactor);
-
         // 4a. Per-image captions (top)
-        if (captionPos === 'top' || captionPos === 'both') {
+        if (hasTopCaption) {
+            const scaledTop = topFontSize * scaleFactor;
+            const capH = getCaptionHeight(scaledTop);
             images.forEach((imgData, index) => {
                 const caption = imgData.caption;
                 if (!caption) return;
@@ -455,7 +457,7 @@ const renderCollageToContext = (
                 if (!frame) return;
 
                 ctx.save();
-                ctx.font = `bold ${scaledFontSize}px ${captionFont}`;
+                ctx.font = `bold ${scaledTop}px ${captionFont}`;
                 ctx.fillStyle = captionColor;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -464,14 +466,25 @@ const renderCollageToContext = (
             });
         }
 
-        // 4b. Global caption (bottom) — single text for the entire collage
+        // 4b. Global caption (bottom)
         if (hasBottomGlobal && settings.globalCaption) {
+            const scaledBottom = bottomFontSize * scaleFactor;
+            const pad = 16 * scaleFactor;
+            let textX: number;
+            if (globalAlign === 'left') {
+                textX = pad;
+            } else if (globalAlign === 'right') {
+                textX = width - pad;
+            } else {
+                textX = width / 2;
+            }
+
             ctx.save();
-            ctx.font = `bold ${scaledFontSize}px ${captionFont}`;
+            ctx.font = `bold ${scaledBottom}px ${captionFont}`;
             ctx.fillStyle = captionColor;
-            ctx.textAlign = 'center';
+            ctx.textAlign = globalAlign;
             ctx.textBaseline = 'middle';
-            ctx.fillText(settings.globalCaption, width / 2, effectiveHeight + globalCapH / 2, width - 32 * scaleFactor);
+            ctx.fillText(settings.globalCaption, textX, effectiveHeight + globalCapH / 2, width - pad * 2);
             ctx.restore();
         }
     }
