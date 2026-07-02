@@ -67,8 +67,8 @@ export const useImageShare = () => {
             const blob = await response.blob();
 
             // 檢查是否支援 Web Share API（且可分享檔案）
-            const canShare = navigator.share &&
-                navigator.canShare &&
+            const canShare = typeof navigator.share === 'function' &&
+                typeof navigator.canShare === 'function' &&
                 navigator.canShare({ files: [new File([blob], filename, { type: blob.type })] });
 
             if (canShare) {

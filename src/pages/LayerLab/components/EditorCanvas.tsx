@@ -79,6 +79,7 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
         // Edges (Optional, simple rect check for body move?)
         // if (x > cx && x < cx + cw && y > cy && y < cy + ch) return 'body';
 
+        return null;
     };
 
     const getGuideHandle = (x: number, y: number, zoom: number): string | null => {

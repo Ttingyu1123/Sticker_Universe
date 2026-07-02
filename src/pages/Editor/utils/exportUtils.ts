@@ -20,7 +20,7 @@ export const generateCanvasDataUrl = async (layers: Layer[], config: CanvasConfi
 
   if (!ctx) {
     console.error('Could not get canvas context');
-    return;
+    return null;
   }
 
   // 1. Pre-load all images
@@ -34,8 +34,7 @@ export const generateCanvasDataUrl = async (layers: Layer[], config: CanvasConfi
     }));
   } catch (err) {
     console.error("Failed to load images for export", err);
-    alert("Some images could not be loaded for export.");
-    return;
+    return null;
   }
 
   // 2. Clear and Prepare

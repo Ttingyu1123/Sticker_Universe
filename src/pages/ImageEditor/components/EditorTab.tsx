@@ -299,6 +299,8 @@ const EditorTab: React.FC = () => {
                 console.error("Failed to save", err);
                 showToast(t('common.toast.saveFailed', { defaultValue: 'Failed to save. Please try again.' }), 'error');
             }
+        } else {
+            showToast(t('common.toast.exportFailed', { reason: t('generator.errors.unknown', { defaultValue: 'Unknown error' }) }), 'error');
         }
     };
 
@@ -308,6 +310,8 @@ const EditorTab: React.FC = () => {
         if (dataUrl) {
             setPreviewImage(dataUrl);
             setShowLinePreview(true);
+        } else {
+            showToast(t('common.toast.previewFailed', { reason: t('generator.errors.unknown', { defaultValue: 'Unknown error' }) }), 'error');
         }
     };
 

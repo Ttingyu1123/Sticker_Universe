@@ -610,9 +610,7 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
                 // Update Cursor UI Pos
                 const rect = containerRef.current?.getBoundingClientRect();
                 if (rect) {
-                    const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
-                    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
-                    setCursorPos({ x: clientX - rect.left, y: clientY - rect.top });
+                    setCursorPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
                 }
             }}
             onMouseUp={handleMouseUp}

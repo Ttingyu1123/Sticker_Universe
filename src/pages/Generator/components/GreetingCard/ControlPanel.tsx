@@ -33,7 +33,7 @@ interface ControlPanelProps {
     isRegenerating: boolean;
     loadingStep: number;
     localError: string | null;
-    fileInputRef: React.RefObject<HTMLInputElement>;
+    fileInputRef: React.RefObject<HTMLInputElement | null>;
     onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onManualBgRemoval: () => void;
     onShowGallery: () => void;

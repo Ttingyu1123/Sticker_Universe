@@ -7,7 +7,7 @@ interface LayerCanvasProps {
     selectedLayerId: string | null;
     onSelectLayer: (id: string | null) => void;
     onUpdateLayer: (id: string, updates: Partial<Layer>) => void;
-    canvasRef: React.RefObject<HTMLDivElement>;
+    canvasRef: React.RefObject<HTMLDivElement | null>;
     zoom?: number;
     width?: number;
     height?: number;

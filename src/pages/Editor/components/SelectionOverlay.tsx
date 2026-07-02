@@ -53,6 +53,8 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
 
     const coords = getCoords(e);
 
+    if (!containerRef.current) return;
+
     // Calculate reliable center based on the overlay element's screen position
     // This accounts for Zoom, Scroll, and Parent offsets automatically
     const rect = containerRef.current.getBoundingClientRect();
