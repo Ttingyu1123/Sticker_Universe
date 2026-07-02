@@ -6,9 +6,6 @@ import { Button } from '../../../components/ui/Button';
 import { useTranslation } from 'react-i18next';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 
-// Add missing types for imagetracerjs since it likely doesn't have them
-declare module 'imagetracerjs';
-
 export default function SvgConverterTab() {
     const [image, setImage] = useState<string | null>(null);
     const [svgContent, setSvgContent] = useState<string | null>(null);

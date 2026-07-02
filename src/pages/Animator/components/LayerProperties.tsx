@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layer, AnimationType } from '../types';
-import { Activity, RotateCw, Move, Type, Trash2, Maximize, RotateCcw, Upload } from 'lucide-react';
+import { Activity, RotateCw, Move, Type, Trash2, Maximize, Upload } from 'lucide-react';
 import '../animations.css';
 
 interface LayerPropertiesProps {

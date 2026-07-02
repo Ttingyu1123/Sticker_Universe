@@ -89,13 +89,6 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
     onSaveHistory(canvas.toDataURL());
 
     // Add non-passive event listeners to ensure we can prevent default
-    const preventDefault = (e: TouchEvent) => {
-      // We handle prevention in the React handlers now, but we need this listener to be non-passive
-      // to allow preventDefault() to work there? No, React's event system might be passive.
-      // Actually providing non-passive listeners here is safer for `touchmove`.
-      if (e.cancelable) e.preventDefault();
-    };
-
     // We can't attach directly to React events with passive:false easily.
     // So we attach native listeners.
     const handleTouchStart = (e: TouchEvent) => {

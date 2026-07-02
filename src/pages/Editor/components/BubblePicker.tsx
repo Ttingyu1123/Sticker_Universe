@@ -63,7 +63,7 @@ export const BubblePicker: React.FC<BubblePickerProps> = ({ onSelect, onClose })
 
                 {/* Grid */}
                 <div className="grid grid-cols-2 gap-4 p-6 bg-slate-50/50 max-h-[60vh] overflow-y-auto">
-                    {bubbles.map((bubble, index) => (
+                    {bubbles.map((bubble) => (
                         <button
                             key={bubble.name}
                             onClick={() => onSelect(bubble.svg)}

@@ -30,7 +30,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
   toolMode,
   setToolMode,
   magicToolMode,
-  setMagicToolMode,
   brushSize,
   setBrushSize,
   tolerance,

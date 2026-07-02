@@ -128,7 +128,6 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({
     provider,
     apiKeys,
     onProviderChange,
-    onError,
     onNeedApiKey,
 }) => {
     const { shareImage } = useImageShare();

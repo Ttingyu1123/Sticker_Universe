@@ -1,7 +1,4 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import {
-    Home
-} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { CanvasEditor, ImageUploader, Toolbar } from '../../../features/eraser-core';
 import type { ToolMode } from '../../../features/eraser-core';

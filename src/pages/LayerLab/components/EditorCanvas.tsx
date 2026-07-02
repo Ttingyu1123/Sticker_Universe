@@ -51,7 +51,6 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
 }) => {
     // 3 Layers
     const previewCanvasRef = useRef<HTMLCanvasElement>(null); // Layer 1: Image + Mask + Crop Dimming
-    const brushCanvasRef = useRef<HTMLCanvasElement>(null);   // Layer 2: Active Brush Strokes
     const overlayCanvasRef = useRef<HTMLCanvasElement>(null); // Layer 3: UI (Crop Frame, Guides, Cursor)
     const containerRef = useRef<HTMLDivElement>(null);
 

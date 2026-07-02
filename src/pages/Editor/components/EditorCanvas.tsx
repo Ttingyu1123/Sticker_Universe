@@ -26,7 +26,7 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
   const selectedLayer = layers.find(l => l.id === selectedLayerId);
 
   // Deselect when clicking empty background
-  const handleBackgroundClick = (e: React.MouseEvent) => {
+  const handleBackgroundClick = () => {
     // If clicking the gray area (container) or the artboard itself directly (not a layer)
     // We deselect.
     // Note: Layers stopPropagation, so this only fires for background.

@@ -14,7 +14,7 @@ export const processImage = async (
         const blob = await removeBackground(image, {
             publicPath: fullUrl,
             model: 'medium',
-            progress: (key: string, current: number, total: number) => {
+            progress: (_key: string, current: number, total: number) => {
                 if (onProgress) {
                     onProgress(current / total);
                 }

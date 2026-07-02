@@ -8,7 +8,7 @@ interface MaskCanvasProps {
     brushHardness: number; // 0 to 1
     zoom?: number;
     pan?: { x: number, y: number };
-    bgColor?: 'checkerboard' | 'white' | 'black';
+    bgColor?: 'checkerboard' | 'white' | 'black' | 'green';
     tolerance?: number;
     magicToolMode?: 'fill' | 'brush'; // New prop
     onPanChange?: (newPan: { x: number, y: number }) => void;
@@ -56,8 +56,6 @@ export const MaskCanvas: React.FC<MaskCanvasProps> = ({
     // Magic Brush Refs
     const magicStartColor = useRef<[number, number, number, number] | null>(null);
     const cachedOriginalData = useRef<Uint8ClampedArray | null>(null);
-
-    const requestRef = useRef<number | null>(null);
 
     // Initial Setup & Redraw Loop
     useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import { Layer } from '../types';
 import { SelectionOverlay } from '../../../features/editor-core';
 
@@ -103,7 +103,7 @@ export const LayerCanvas: React.FC<LayerCanvasProps> = ({
     height = 270
 }) => {
     // When clicking the background (not a layer), deselect.
-    const handleBackgroundClick = (e: React.MouseEvent) => {
+    const handleBackgroundClick = () => {
         onSelectLayer(null);
     };
 

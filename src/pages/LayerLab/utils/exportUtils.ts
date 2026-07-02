@@ -100,9 +100,7 @@ export const downloadZip = async (images: SplitImage[]) => {
 export const exportCroppedImage = async (
     sourceCanvas: HTMLCanvasElement,
     originalImage: HTMLImageElement,
-    cropRect: CropRect | null,
-    strokeConfig?: { enabled: boolean; color: string; size: number; },
-    shadowConfig?: { enabled: boolean; color: string; blur: number; offset: { x: number, y: number }; }
+    cropRect: CropRect | null
 ): Promise<string | null> => {
     // 1. Create Composition
     const compCanvas = await composeImage(originalImage, sourceCanvas, null, null);

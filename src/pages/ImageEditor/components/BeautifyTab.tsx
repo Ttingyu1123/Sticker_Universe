@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Upload, Download, Sparkles, Palette, Sun, CheckCircle2, AlertCircle, Trash2, FileArchive, Plus, Image as ImageIcon, Ruler, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { Download, Sparkles, Palette, Sun, CheckCircle2, AlertCircle, Trash2, FileArchive, Plus, Image as ImageIcon, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 import JSZip from 'jszip';
 import saveAs from 'file-saver';
 import { useTranslation } from 'react-i18next';

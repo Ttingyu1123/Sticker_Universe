@@ -1,7 +1,6 @@
 import React from 'react';
 import { X, Download, Grid } from 'lucide-react';
 import { SplitImage, downloadZip } from '../utils/exportUtils';
-import { useTranslation } from 'react-i18next';
 
 interface SplitPreviewModalProps {
     isOpen: boolean;
@@ -10,8 +9,6 @@ interface SplitPreviewModalProps {
 }
 
 export const SplitPreviewModal: React.FC<SplitPreviewModalProps> = ({ isOpen, onClose, images }) => {
-    const { t } = useTranslation();
-
     if (!isOpen) return null;
 
     return (

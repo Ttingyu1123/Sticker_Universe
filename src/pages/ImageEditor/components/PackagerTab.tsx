@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { AlertCircle, Check, CheckCircle2, ChevronRight, Coins, Crop, Download, Eraser, FileArchive, FileDown, Grip, Image as ImageIcon, Layers, LayoutGrid, Maximize, Maximize2, Minus, Move, Palette, Plus, RefreshCcw, RefreshCw, RotateCcw, Ruler, Save, Settings, Settings2, Share2, ShieldCheck, Sparkles, Star, Sun, Trash2, Type, Undo2, Upload, Redo2, Wand2, X, Zap, ZoomIn, ZoomOut } from 'lucide-react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { AlertCircle, Check, CheckCircle2, ChevronRight, Crop, Download, FileArchive, Image as ImageIcon, Layers, Maximize, Maximize2, Minus, Move, Palette, Plus, RefreshCcw, RefreshCw, RotateCcw, Ruler, Settings2, ShieldCheck, Sparkles, Sun, Trash2, Type, Undo2, Upload, Redo2, Wand2, ZoomIn, ZoomOut } from 'lucide-react';
 import { processImage, loadImage } from '../../../features/packager-core';
 import JSZip from 'jszip';
 import saveAs from 'file-saver';
@@ -275,7 +275,6 @@ const PackagerTab: React.FC = () => {
             const clientX = 'touches' in moveEvent ? moveEvent.touches[0].clientX : (moveEvent as MouseEvent).clientX;
             const clientY = 'touches' in moveEvent ? moveEvent.touches[0].clientY : (moveEvent as MouseEvent).clientY;
             if (type === 'row') {
-                const isOuter = index === 0 || index === config.rowLines.length - 1;
                 // If it's an outer line, update it based on allowOuterCrop constraint
                 // Actually constraint logic is handled by the UI interactions preventing drag of disabled lines
                 // Here we just ensure values are valid (0-1) and correctly ordered relative to neighbors

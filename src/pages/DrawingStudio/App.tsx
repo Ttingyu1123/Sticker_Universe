@@ -8,7 +8,7 @@ import { useBrushPresets } from './hooks/useBrushPresets';
 import { CanvasToolbar } from './components/CanvasToolbar';
 import { BrushSettingsPanel } from './components/BrushSettingsPanel';
 import { LayerPanel } from './components/LayerPanel';
-import type { BrushType, BlendMode, InteractionMode, VectorStroke, LayerMeta, Point, LayerImageObject, Snapshot, SelectionRect, TransformRect, BrushPreset } from './types';
+import type { BrushType, InteractionMode, VectorStroke, LayerMeta, Point, LayerImageObject, Snapshot, SelectionRect, TransformRect } from './types';
 
 const MAX_HISTORY = 25;
 const MAX_LAYERS = 30;

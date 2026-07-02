@@ -11,7 +11,7 @@ const ImageResizerTab: React.FC = () => {
     // Resize State
     const [targetWidth, setTargetWidth] = useState<number>(0);
     const [targetHeight, setTargetHeight] = useState<number>(0);
-    const [lockAspectRatio, setLockAspectRatio] = useState(true);
+    const [lockAspectRatio] = useState(true);
     const [scalePercent, setScalePercent] = useState<number>(100);
 
     const [resizedImage, setResizedImage] = useState<string | null>(null);

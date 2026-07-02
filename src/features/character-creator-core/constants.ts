@@ -1,4 +1,4 @@
-﻿import { CharacterTag, CharacterWorldData } from './types';
+﻿import { CharacterTag, CharacterWorldData, CharacterCategoryKey, CharacterWorldMode } from './types';
 
 export const CHARACTER_COMMON_TAGS: Record<
   'shot' | 'style' | 'light' | 'color',

@@ -1,4 +1,3 @@
-import React from 'react';
 import { AutoCollageTab } from './AutoCollageTab';
 
 export const PhotoCollageApp = () => {

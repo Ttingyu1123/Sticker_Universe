@@ -51,17 +51,6 @@ const expandRect = (rect: Rect, ratio: number, maxWidth: number, maxHeight: numb
   };
 };
 
-const gcd = (a: number, b: number): number => {
-  let x = Math.abs(Math.round(a));
-  let y = Math.abs(Math.round(b));
-  while (y !== 0) {
-    const t = y;
-    y = x % y;
-    x = t;
-  }
-  return x || 1;
-};
-
 const SUPPORTED_ASPECT_RATIOS = [
   '1:1', '1:4', '1:8', '2:3', '3:2', '3:4', '4:1', '4:3',
   '4:5', '5:4', '8:1', '9:16', '16:9', '21:9'

@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Sparkles, Palette, Home, FolderHeart, Printer, ArrowLeft, BookOpen, Grid, PenTool } from 'lucide-react';
 import clsx from 'clsx';

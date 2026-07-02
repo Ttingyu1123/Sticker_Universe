@@ -53,7 +53,7 @@ const OutpaintTab: React.FC = () => {
   const [showGallery, setShowGallery] = useState(false);
   const [sourceImage, setSourceImage] = useState<string | null>(null);
   const [sourceSize, setSourceSize] = useState({ width: 0, height: 0 });
-  const [customSize, setCustomSize] = useState({ width: ratioPresets[0].width, height: ratioPresets[0].height });
+  const [customSize, setCustomSize] = useState<{ width: number; height: number }>({ width: ratioPresets[0].width, height: ratioPresets[0].height });
   const [lockAspectRatio, setLockAspectRatio] = useState(true);
   const [fixedMode, setFixedMode] = useState<FixedMode>('width');
   const [fixedPx, setFixedPx] = useState(1024);

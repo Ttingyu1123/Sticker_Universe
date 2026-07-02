@@ -1,4 +1,4 @@
-import { AppConfig, CropArea, LayoutMode, PhotoSize, PhotoAsset } from '../../types/idPrint';
+import { AppConfig, CropArea, PhotoAsset } from '../../types/idPrint';
 import { mmToPx, PAPER_DIMENSIONS, PHOTO_DIMENSIONS_MM } from './constants';
 
 const createImage = (url: string): Promise<HTMLImageElement> =>

@@ -38,13 +38,13 @@ describe('loadGeminiApiKey', () => {
     it('loads from localStorage with remember=true', () => {
         localStorage.setItem(KEY, TEST_KEY);
         const result = loadGeminiApiKey();
-        expect(result).toEqual({ key: TEST_KEY, remember: true });
+        expect(result).toEqual({ key: TEST_KEY, remember: true, provider: 'gemini' });
     });
 
     it('loads from sessionStorage with remember=false', () => {
         sessionStorage.setItem(KEY, TEST_KEY);
         const result = loadGeminiApiKey();
-        expect(result).toEqual({ key: TEST_KEY, remember: false });
+        expect(result).toEqual({ key: TEST_KEY, remember: false, provider: 'gemini' });
     });
 
     it('prefers localStorage over sessionStorage', () => {

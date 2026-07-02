@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Layer } from '../types';
-import { Maximize, RotateCw } from 'lucide-react';
+import { RotateCw } from 'lucide-react';
 
 interface SelectionOverlayProps {
   layer: Layer;
