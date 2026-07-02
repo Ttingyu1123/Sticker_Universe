@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { Layout } from './layouts/Layout';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
+import { ToastProvider } from './components/shared/ToastProvider';
 
 // Lazy load pages for better performance
 const LandingApp = React.lazy(() => import('./pages/Landing/App'));
@@ -50,6 +51,7 @@ function App() {
     const location = useLocation();
 
     return (
+        <ToastProvider>
         <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
                 <Route element={<Layout />}>
@@ -103,6 +105,7 @@ function App() {
                 </Route>
             </Routes>
         </AnimatePresence>
+        </ToastProvider>
     );
 }
 

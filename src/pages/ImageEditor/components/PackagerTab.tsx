@@ -8,6 +8,7 @@ import type { ProcessingStatus, SplitConfig } from '../../../features/packager-c
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { saveStickerToDB } from '../../../db';
 import { useLocation } from 'react-router-dom';
+import { useToast } from '../../../components/shared/ToastProvider';
 
 const blobToBase64 = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -103,6 +104,7 @@ const normalizeImage = async (file: File): Promise<Blob> => {
 
 const PackagerTab: React.FC = () => {
     const { t } = useTranslation();
+    const { showToast } = useToast();
     const [fileQueue, setFileQueue] = useState<FileItem[]>([]);
     const [activeFileId, setActiveFileId] = useState<string | null>(null);
     const [status, setStatus] = useState<ProcessingStatus>('idle');
@@ -1008,10 +1010,10 @@ const PackagerTab: React.FC = () => {
                                                     });
                                                     savedCount++;
                                                 }
-                                                alert(`${t('packager.status.savedToCollection') || 'Saved'} (${savedCount})`);
+                                                showToast(`${t('packager.status.savedToCollection') || 'Saved'} (${savedCount})`, 'success');
                                             } catch (err) {
                                                 console.error("Failed to save", err);
-                                                alert("Failed to save some stickers");
+                                                showToast(t('common.toast.saveSomeFailed', { defaultValue: 'Failed to save some images.' }), 'error');
                                             }
                                         }}
                                         className="w-full bg-gradient-to-r from-secondary to-accent hover:brightness-110 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-secondary/20 active:scale-95 transition-all"

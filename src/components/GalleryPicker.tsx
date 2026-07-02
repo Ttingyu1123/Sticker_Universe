@@ -4,6 +4,7 @@ import { getAllStickersFromDB } from '../db';
 import { Sticker } from '../pages/Generator/types';
 import { X, Image as ImageIcon, Loader2, CheckCircle2, Circle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useToast } from './shared/ToastProvider';
 
 interface GalleryPickerProps {
     onSelect: (blobs: Blob[]) => void;
@@ -12,6 +13,7 @@ interface GalleryPickerProps {
 
 export const GalleryPicker: React.FC<GalleryPickerProps> = ({ onSelect, onClose }) => {
     const { t } = useTranslation();
+    const { showToast } = useToast();
     const [stickers, setStickers] = useState<Sticker[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -80,7 +82,7 @@ export const GalleryPicker: React.FC<GalleryPickerProps> = ({ onSelect, onClose 
             onClose();
         } catch (e) {
             console.error("[GalleryPicker] Failed to process selection:", e);
-            alert('Failed to import images. Error: ' + (e as Error).message);
+            showToast(t('gallery.toast.importFailed', { error: (e as Error).message }), 'error');
         } finally {
             setProcessing(false);
         }

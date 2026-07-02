@@ -7,6 +7,7 @@ import 'cropperjs/dist/cropper.css';
 import { Upload, Camera, Download, Loader2, Sparkles, Scissors, Trash2, Image as ImageIcon, Briefcase, User, FolderHeart, Printer, Key } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
+import { ProviderSwitcher } from '../../../components/shared/ProviderSwitcher';
 import { AiProvider } from '../../../shared/geminiApiKey';
 import { generateOpenAiImage } from '../services/openaiImageService';
 
@@ -106,11 +107,6 @@ interface HeadshotGeneratorTabProps {
     onError?: (msg: string) => void;
     onNeedApiKey?: (provider: AiProvider) => void;
 }
-
-const PROVIDER_LABELS: Record<AiProvider, string> = {
-    gemini: 'Gemini',
-    openai: 'OpenAI',
-};
 
 const GEMINI_HEADSHOT_MODEL = 'gemini-3-pro-image-preview';
 const OPENAI_HEADSHOT_MODEL = 'gpt-image-2';
@@ -462,7 +458,7 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                 const file = new File([blob], filename, { type: blob.type });
                 await navigator.share({
                     files: [file],
-                    title: '形象照',
+                    title: t('headshot.shareTitle'),
                     text: `${imageData.style} - ${preset?.nameKey ? t(preset.nameKey) : ''}`,
                 });
             } else {
@@ -560,20 +556,7 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
                                     Set API Key
                                 </button>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                {(['gemini', 'openai'] as AiProvider[]).map((option) => (
-                                    <button
-                                        key={option}
-                                        type="button"
-                                        onClick={() => onProviderChange(option)}
-                                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option
-                                            ? 'bg-primary text-white border-primary shadow-md'
-                                            : 'bg-white border-cream-dark text-bronze-text hover:bg-white/80'}`}
-                                    >
-                                        {PROVIDER_LABELS[option]}
-                                    </button>
-                                ))}
-                            </div>
+                            <ProviderSwitcher value={provider} onChange={onProviderChange} />
                             <p className="text-[11px] text-bronze-light">
                                 {provider === 'openai' ? `Model: ${OPENAI_HEADSHOT_MODEL}` : `Model: ${GEMINI_HEADSHOT_MODEL}`}
                             </p>

@@ -5,6 +5,7 @@ import { CropArea, PhotoSize } from '../../types/idPrint';
 import { PHOTO_DIMENSIONS_MM } from '../../utils/IDPrint/constants';
 import { getCroppedImg } from '../../utils/IDPrint/canvasUtils';
 import { Check, X } from 'lucide-react';
+import { useToast } from '../../../../components/shared/ToastProvider';
 
 interface PhotoCropperProps {
   imageSrc: string;
@@ -41,6 +42,7 @@ const PhotoCropper: React.FC<PhotoCropperProps> = ({
   onComplete,
 }) => {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const imgRef = useRef<HTMLImageElement>(null);
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
@@ -84,7 +86,7 @@ const PhotoCropper: React.FC<PhotoCropperProps> = ({
       onComplete(croppedImage);
     } catch (e) {
       console.error(e);
-      alert('Error cropping image');
+      showToast(t('printSheet.idPrint.cropper.error'), 'error');
     } finally {
       setIsProcessing(false);
     }

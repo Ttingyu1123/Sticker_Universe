@@ -2,9 +2,11 @@ import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload, Download, Expand, Shrink, ImageIcon, RotateCw, FolderOpen } from 'lucide-react';
 import { GalleryPicker } from '../../../components/GalleryPicker';
+import { useToast } from '../../../components/shared/ToastProvider';
 
 const ImageResizerTab: React.FC = () => {
     const { t } = useTranslation();
+    const { showToast } = useToast();
     const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [originalDimensions, setOriginalDimensions] = useState({ width: 0, height: 0 });
 
@@ -138,13 +140,13 @@ const ImageResizerTab: React.FC = () => {
 
     const handleEstimateScaleByFileSize = () => {
         if (!originalImage || originalFileSize <= 0) {
-            setEstimatedScaleHint('請先上傳圖片');
+            setEstimatedScaleHint(t('editor.resize.estimateNoImage', { defaultValue: '請先上傳圖片' }));
             return;
         }
 
         const targetMb = Number(targetFileSizeMB);
         if (!Number.isFinite(targetMb) || targetMb <= 0) {
-            setEstimatedScaleHint('請輸入有效的目標檔案大小（MB）');
+            setEstimatedScaleHint(t('editor.resize.estimateInvalidSize', { defaultValue: '請輸入有效的目標檔案大小（MB）' }));
             return;
         }
 
@@ -152,7 +154,7 @@ const ImageResizerTab: React.FC = () => {
         const ratio = targetBytes / originalFileSize;
 
         if (ratio >= 1) {
-            setEstimatedScaleHint('原檔已小於目標大小，不需縮小');
+            setEstimatedScaleHint(t('editor.resize.estimateAlreadySmaller', { defaultValue: '原檔已小於目標大小，不需縮小' }));
             return;
         }
 
@@ -160,7 +162,12 @@ const ImageResizerTab: React.FC = () => {
         handleScaleChange(estimatedPercent);
         const estWidth = Math.round(originalDimensions.width * (estimatedPercent / 100));
         const estHeight = Math.round(originalDimensions.height * (estimatedPercent / 100));
-        setEstimatedScaleHint(`估算縮放約 ${estimatedPercent}%（${estWidth} x ${estHeight}）`);
+        setEstimatedScaleHint(t('editor.resize.estimateResult', {
+            percent: estimatedPercent,
+            width: estWidth,
+            height: estHeight,
+            defaultValue: `估算縮放約 ${estimatedPercent}%（${estWidth} x ${estHeight}）`
+        }));
     };
 
     // Process Resize
@@ -250,13 +257,13 @@ const ImageResizerTab: React.FC = () => {
         console.log("Starting traditional upscale with factor:", factor);
         if (!originalImage) {
             console.error("No original image found!");
-            alert("請先上傳圖片！");
+            showToast(t('editor.resize.noImageError', { defaultValue: '請先上傳圖片！' }), 'error');
             return;
         }
 
         setIsUpscaling(true);
         setUpscaleProgress(0);
-        setUpscaleStatus('準備放大圖片...');
+        setUpscaleStatus(t('editor.resize.upscalePreparing', { defaultValue: '準備放大圖片...' }));
 
         try {
             // Create source image
@@ -268,7 +275,7 @@ const ImageResizerTab: React.FC = () => {
                 img.onerror = reject;
             });
 
-            setUpscaleStatus(`正在使用高質量插值放大 ${factor}x...`);
+            setUpscaleStatus(t('editor.resize.upscaleProcessing', { factor, defaultValue: `正在使用高質量插值放大 ${factor}x...` }));
             setUpscaleProgress(30);
 
             // Multi-stage upscaling for better quality
@@ -306,7 +313,7 @@ const ImageResizerTab: React.FC = () => {
                 setUpscaleProgress(30 + (60 * (i + 1) / stages.length));
             }
 
-            setUpscaleStatus('完成放大，正在生成預覽...');
+            setUpscaleStatus(t('editor.resize.upscaleFinalizing', { defaultValue: '完成放大，正在生成預覽...' }));
             setUpscaleProgress(95);
 
             const upscaledDataUrl = currentCanvas.toDataURL('image/png');
@@ -319,13 +326,13 @@ const ImageResizerTab: React.FC = () => {
             setOriginalDimensions({ width: newWidth, height: newHeight });
 
             setUpscaleProgress(100);
-            setUpscaleStatus(`完成！圖片已放大至 ${factor}x`);
+            setUpscaleStatus(t('editor.resize.upscaleDone', { factor, defaultValue: `完成！圖片已放大至 ${factor}x` }));
 
         } catch (error) {
             console.error("Traditional upscale failed:", error);
             const errorMessage = error instanceof Error ? error.message : String(error);
-            setUpscaleStatus(`錯誤: ${errorMessage}`);
-            alert(`放大失敗\n\n${errorMessage}`);
+            setUpscaleStatus(t('editor.resize.upscaleError', { reason: errorMessage, defaultValue: `錯誤: ${errorMessage}` }));
+            showToast(t('editor.resize.upscaleFailed', { reason: errorMessage, defaultValue: `放大失敗：${errorMessage}` }), 'error');
         } finally {
             setTimeout(() => setIsUpscaling(false), 500);
         }
@@ -427,7 +434,7 @@ const ImageResizerTab: React.FC = () => {
                                     onClick={handleReset}
                                     className="px-4 py-3 bg-white hover:bg-cream-light border border-cream-dark text-bronze-light hover:text-bronze-text rounded-xl font-bold text-sm transition-all flex-shrink-0"
                                 >
-                                    重置
+                                    {t('common.reset', { defaultValue: '重置' })}
                                 </button>
                             </div>
 

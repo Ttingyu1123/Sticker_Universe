@@ -164,7 +164,8 @@
         "cancel": "Cancel",
         "done": "Done",
         "processing": "Processing...",
-        "dragHint": "Drag corners to resize"
+        "dragHint": "Drag corners to resize",
+        "error": "Error cropping image"
       },
       "preview": {
         "updating": "Updating Layout...",
@@ -174,7 +175,9 @@
         "format": "Format",
         "download": "Download Sheet",
         "zoom": "Zoom",
-        "saveToGallery": "Save to Gallery"
+        "saveToGallery": "Save to Gallery",
+        "generateFailed": "Failed to generate preview",
+        "saveFailed": "Failed to save to collection"
       }
     },
     "description": "Arrange your stickers on an A4 canvas and export as PDF.",
@@ -259,7 +262,18 @@
     "items": "Items",
     "saved": "Saved to Gallery!",
     "share": "Share",
-    "upload": "Upload"
+    "upload": "Upload",
+    "toast": {
+      "copied": "Copied to clipboard!",
+      "copyFailed": "Copy failed",
+      "httpsRequired": "Share requires HTTPS on iPhone Safari. Please use your Vercel URL (https://...) for sharing tests.",
+      "sharedToClipboard": "Copied to clipboard! (Your device doesn't support native file sharing)",
+      "shareFailed": "Share failed on this browser context. Try HTTPS (Vercel) and Safari.",
+      "zipCreatedIOSHint": "ZIP created. If the filename shows as unknown.zip, please test with your HTTPS URL, or rename it in the Files app after downloading.",
+      "downloadFailed": "Download failed",
+      "uploadFailed": "Upload failed. Please try again.",
+      "importFailed": "Failed to import images: {{error}}"
+    }
   },
   "landing": {
     "tagline": "The Ultimate Creative Suite",
@@ -554,7 +568,11 @@
       "rememberKey": "Remember Key",
       "rememberKeyDesc": "When checked, the key will be saved for future sessions.",
       "settings": "Settings Complete",
-      "clearConfirm": "Are you sure you want to clear your API Key?"
+      "clearConfirm": "Are you sure you want to clear your API Key?",
+      "saved": "API key saved.",
+      "rememberKeyWarning": "Do not enable this on shared or public computers.",
+      "securityOpenSource": "Open source - the code is publicly auditable, so you can verify how your key is used.",
+      "securitySelfControl": "Full control - you can clear your key from this browser at any time."
     },
     "mode": {
       "textToSticker": "Text to Sticker",
@@ -633,7 +651,8 @@
       "general": "Generation failed: ",
       "bgRemoval": "Background removal failed: ",
       "noStickers": "No stickers to download",
-      "zipFailed": "Failed to create ZIP"
+      "zipFailed": "Failed to create ZIP",
+      "unknown": "Unknown error"
     },
     "themes": {
       "taiwanese": {
@@ -1101,7 +1120,14 @@
       "modGuide": "Modification Guide",
       "settings": "Settings",
       "prompt": "Prompt",
-      "promptPlaceholder": "Enter prompt..."
+      "promptPlaceholder": "Enter prompt...",
+      "pasteFailed": "Failed to paste image. Please upload instead.",
+      "needPromptOrImage": "Please enter a prompt or upload a reference image first.",
+      "needApiKey": "Please set your {{provider}} API Key first.",
+      "modelBusy": "{{provider}} image model is currently busy, please try again later.",
+      "apiKeyInvalid": "{{provider}} API Key is invalid, please reset it.",
+      "modelHintGemini": "Gemini keeps the original built-in model pipeline.",
+      "modelHintOpenai": "OpenAI uses the official GPT Image API; automatically switches to image edit when a reference image is provided."
     },
     "result": {
       "emptyTitle": "Ready to create?",
@@ -1188,7 +1214,137 @@
     "cinematic": {
       "secondLeadOptional": "Second Lead (Optional)",
       "uploadSecondPhoto": "Upload second photo",
-      "removeSecondLead": "Remove second lead"
+      "removeSecondLead": "Remove second lead",
+      "uploadTitle": "Upload lead photo",
+      "uploadHint": "Drag & drop or click to upload",
+      "settingsTitle": "Poster Settings",
+      "openaiHint": "OpenAI mode first uses the text proxy to generate the theme, then the image proxy to generate the drama poster.",
+      "dramaStyleLabel": "Drama Style",
+      "firstLeadTitle": "First Lead Settings",
+      "secondLeadTitle": "Second Lead Settings",
+      "roleMale": "Male Lead",
+      "roleFemale": "Female Lead",
+      "genreLabel": "Genre",
+      "aspectRatioLabel": "Aspect Ratio",
+      "generateButton": "Generate Drama Poster",
+      "generatingButton": "Generating...",
+      "regenerateTooltip": "Regenerate Poster",
+      "downloadTooltip": "Download Poster",
+      "regeneratingStatus": "Regenerating...",
+      "creditPair": "{{actor}} as {{character}}",
+      "emptyStateHint": "Upload a photo and generate your drama poster",
+      "themeFailedError": "Theme generation failed.",
+      "imageFailedError": "Poster image generation failed.",
+      "generateFailedError": "Failed to generate drama poster.",
+      "regenerateFailedError": "Failed to regenerate poster.",
+      "downloadFailedError": "Failed to download poster, please try again."
+    },
+    "holidaySticker": {
+      "labels": {
+        "step1Upload": "1. Upload Reference Photo",
+        "reselect": "Reselect",
+        "uploadHint": "Use a clear, front-facing portrait for best results",
+        "customTextLabel": "Extra Text (Optional)",
+        "step2Holiday": "2. Holiday Theme",
+        "step3Style": "3. Style",
+        "step4BatchSize": "4. Number to Generate",
+        "autoRemoveBg": "Auto Remove Background",
+        "autoRemoveBgDesc": "Automatically removes the green-screen background after generation",
+        "placeholderSlot": "Sticker Slot {{index}}",
+        "emptyTitle": "Upload a Photo to Start",
+        "emptyDesc": "This page generates multiple downloadable holiday stickers based on your reference photo, holiday theme, and style."
+      },
+      "placeholders": {
+        "customText": "e.g. Happy New Year, John Doe",
+        "customHoliday": "Enter a custom holiday, e.g. Grand Opening, Baby Shower"
+      },
+      "actions": {
+        "generating": "Generating...",
+        "generate": "Generate Holiday Stickers"
+      }
+    },
+    "greetingCard": {
+      "toast": {
+        "bgRemovalUploadFailed": "Background removal failed. Using the original photo instead.",
+        "bgRemovalFailed": "Background removal failed. Please try again later.",
+        "fontUploadFailed": "Failed to load the custom font. Please check the file format.",
+        "smartBgRemovalFailed": "Smart background removal failed. Please try again.",
+        "needCustomPrompt": "Please enter the prompt you want to optimize first.",
+        "optimizePromptFailed": "Prompt optimization failed.",
+        "needUploadPhoto": "Please upload a photo first."
+      },
+      "upload": {
+        "title": "Click to upload photo (main subject)",
+        "hint": "(A clear portrait photo is recommended)",
+        "removingBg": "Removing background...",
+        "removeBgTooltip": "Remove background (portrait cutout)",
+        "fromGallery": "Select from Gallery",
+        "autoRemoveBg": "Auto-remove background after upload"
+      },
+      "settings": {
+        "title": "Card Settings",
+        "festival": "Festival Theme",
+        "festivalTooltip": "Select festival theme",
+        "style": "Art Style",
+        "styleTooltip": "Select art style",
+        "bgColor": "Card Background Color",
+        "aspectRatio": "Card Size (Ratio)",
+        "aspectRatioTooltip": "Select card size ratio",
+        "layout": "Card Layout",
+        "advanced": "Advanced Options",
+        "faceSwap": "🎭 Face Swap Mode",
+        "faceSwapHint": "Keep facial features, change to festive attire",
+        "autoExpand": "🖼️ AI Smart Outpaint",
+        "autoExpandHint": "Smartly fills in background for mismatched ratios",
+        "styleIntensity": "🎨 Style Intensity",
+        "styleIntensityTooltip": "Adjust style intensity",
+        "negativePrompt": "🚫 Negative Prompt",
+        "negativePromptPlaceholder": "Things you don't want to see...",
+        "showText": "💬 Show Greeting Text",
+        "fontColor": "Font & Color",
+        "uploadFont": "Upload",
+        "customPrompt": "✨ Custom Prompt",
+        "customPromptPlaceholder": "Describe the visual details you want to see...",
+        "optimizePrompt": "AI Optimize Prompt",
+        "showRecipient": "Show Recipient",
+        "showSender": "Show Your Name",
+        "recipientPlaceholder": "Recipient (To)",
+        "senderPlaceholder": "Your Name (From)",
+        "messagePlaceholder": "The greeting you want to say (AI will polish it)",
+        "generating": "AI is drawing...",
+        "generate": "Generate My Card",
+        "loadingSteps": [
+          "Sketching the card composition...",
+          "AI artist is painting...",
+          "Choosing the best color palette...",
+          "Writing your greeting...",
+          "Final touches..."
+        ]
+      },
+      "preview": {
+        "emptyHint": "Your exclusive card will appear here",
+        "regenerate": "Regenerate",
+        "shareTitle": "Share / Save to...",
+        "copyTitle": "Copy to clipboard",
+        "removeBgTooltip": "Smart background removal (green screen)",
+        "downloadFull": "Download full card",
+        "downloadRaw": "Download raw image",
+        "removingBg": "Removing background...",
+        "regenerating": "Regenerating..."
+      },
+      "history": {
+        "title": "Recent Creations",
+        "emptyTitle": "No cards generated yet",
+        "emptyHint": "Generated cards will be automatically saved here"
+      }
+    },
+    "styleSticker": {
+      "errors": {
+        "suggestPhrasesFailed": "Failed to generate phrases: {{message}}",
+        "generateFailed": "Generation failed: {{message}}",
+        "rerollFailed": "Re-roll failed: {{message}}",
+        "zipFailed": "Failed to create ZIP, please try again later"
+      }
     }
   },
   "packager": {
@@ -1306,11 +1462,24 @@
       "redo": "Redo",
       "resetImage": "Reset Image",
       "saveToGallery": "Save to Gallery",
-      "export": "Export PNG"
+      "export": "Export PNG",
+      "crop": "Crop",
+      "originalImageAlt": "Original image",
+      "aiProcessing": "AI processing...",
+      "currentTool": "Current tool: ",
+      "moreTools": "More tools",
+      "noExtraSettings": "This tool has no extra settings"
     },
     "magic": {
       "fill": "Flood Fill",
       "brush": "Magic Brush"
+    },
+    "toast": {
+      "aiRemoveFailed": "AI removal failed",
+      "saveFailed": "Failed to save"
+    },
+    "smartRemove": {
+      "defaultPhrase": "Smart Background Removal"
     }
   },
   "editor": {
@@ -1447,7 +1616,21 @@
       "height": "Height",
       "applyResize": "Apply Resize",
       "upscaleNote": "Runs locally in your browser.",
-      "qualityWarning": "Upscaling over 100% may reduce quality."
+      "qualityWarning": "Upscaling over 100% may reduce quality.",
+      "noImageError": "Please upload an image first.",
+      "upscalePreparing": "Preparing to upscale image...",
+      "upscaleProcessing": "Upscaling with high-quality interpolation {{factor}}x...",
+      "upscaleFinalizing": "Finishing up, generating preview...",
+      "upscaleDone": "Done! Image upscaled to {{factor}}x",
+      "upscaleError": "Error: {{reason}}",
+      "upscaleFailed": "Upscale failed: {{reason}}",
+      "estimateNoImage": "Please upload an image first",
+      "estimateInvalidSize": "Please enter a valid target file size (MB)",
+      "estimateAlreadySmaller": "Original file is already smaller than the target size",
+      "estimateResult": "Estimated scale ~{{percent}}% ({{width}} x {{height}})"
+    },
+    "toast": {
+      "fontLoadFailed": "Failed to load font file."
     }
   },
   "collage": {
@@ -1506,7 +1689,18 @@
     "background": {
       "title": "Background",
       "transparent": "Transparent",
-      "smart": "Smart Background"
+      "smart": "Smart Background",
+      "gradient2Color": "2-Color Gradient",
+      "enabled": "On",
+      "disabled": "Off",
+      "gradientStart": "Start",
+      "gradientEnd": "End",
+      "gradientDirection": "Direction",
+      "directionDiagonal": "Diagonal",
+      "directionHorizontal": "Horizontal",
+      "directionVertical": "Vertical",
+      "autoAvoidBlank": "Auto Avoid Blank",
+      "autoAvoidBlankHint": "Automatically switch to a tighter layout when blank space exceeds the threshold"
     },
     "image": {
       "rotation": "Rotation",
@@ -1552,6 +1746,19 @@
       "widthHint": "Width (px), height auto-calculated by ratio",
       "warnUpscaleHigh": "Warning: source images need significant upscaling ({{factor}}x), output may be noticeably blurry",
       "warnUpscaleMild": "Note: source images need upscaling ({{factor}}x), output may be slightly blurry"
+    },
+    "toast": {
+      "downloadFailed": "Download failed",
+      "saveFailed": "Failed to save to gallery",
+      "apiKeyIssue": "API Key issue. Please check your key.",
+      "generateFailed": "Generation failed: {{message}}"
+    },
+    "single": {
+      "emptyTitle": "Single Frame Export",
+      "emptyDesc": "Upload one photo, choose polaroid or film frame, then download.",
+      "editTitle": "Single Edit",
+      "modeCollage": "Collage",
+      "modeSingle": "Single Frame"
     }
   },
   "headshot": {
@@ -1718,7 +1925,8 @@
       "high_angle": "High Angle (Upper Body)",
       "sitting_side": "Sitting Side (Chair)",
       "lying_side": "Lying Side (Half Body)"
-    }
+    },
+    "shareTitle": "Headshot Photo"
   },
   "drawing": {
     "brush": "Brush",
@@ -1785,7 +1993,9 @@
     "maskToggle": "Toggle mask",
     "importProject": "Import Project",
     "exportProject": "Export Project",
-    "projectLoadFailed": "Failed to load project file."
+    "projectLoadFailed": "Failed to load project file.",
+    "copied": "Copied",
+    "copyHexHint": "Click to copy HEX"
   },
   "common": {
     "cancel": "Cancel",
@@ -1801,6 +2011,19 @@
     "resetZoom": "Reset Zoom",
     "undo": "Undo",
     "zoomIn": "Zoom In",
-    "zoomOut": "Zoom Out"
+    "zoomOut": "Zoom Out",
+    "errorBoundary": {
+      "title": "Something went wrong",
+      "unknownError": "Unknown error",
+      "retry": "Retry"
+    },
+    "toast": {
+      "exportFailed": "Export failed: {{reason}}",
+      "previewFailed": "Preview failed: {{reason}}",
+      "saveFailed": "Failed to save. Please try again.",
+      "saveSomeFailed": "Failed to save some images.",
+      "copied": "Copied to clipboard!",
+      "copyFailed": "Copy failed"
+    }
   }
 }

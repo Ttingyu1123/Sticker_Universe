@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AlertCircle, Check, Download, FolderHeart, Key, Loader2, Sparkles, Upload, X } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import { Button } from '../../../components/ui/Button';
@@ -90,6 +91,7 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({
   onError,
   onSuccess,
 }) => {
+  const { t } = useTranslation();
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedHoliday, setSelectedHoliday] = useState(HOLIDAYS[0].id);
   const [selectedStyle, setSelectedStyle] = useState(STYLES[0].id);
@@ -466,7 +468,7 @@ TEXT INSTRUCTION:
 
           <div className="space-y-3">
             <label className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest">
-              <Upload size={18} className="text-primary" /> 1. 上傳參考照片
+              <Upload size={18} className="text-primary" /> {t('generator.holidaySticker.labels.step1Upload')}
             </label>
             <div
               className={`group border-3 border-dashed rounded-[2rem] p-6 text-center cursor-pointer transition-all duration-300 min-h-[200px] flex flex-col items-center justify-center ${uploadedImage
@@ -480,7 +482,7 @@ TEXT INSTRUCTION:
                 <div className="relative w-full h-full">
                   <img src={uploadedImage} alt="Preview" className="max-w-full max-h-48 object-contain mx-auto rounded-3xl shadow-md" />
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-3xl backdrop-blur-sm">
-                    <span className="bg-white px-3 py-1 rounded-full text-xs font-bold text-bronze-text">重新選擇</span>
+                    <span className="bg-white px-3 py-1 rounded-full text-xs font-bold text-bronze-text">{t('generator.holidaySticker.labels.reselect')}</span>
                   </div>
                 </div>
               ) : (
@@ -488,8 +490,8 @@ TEXT INSTRUCTION:
                   <div className="bg-white p-4 rounded-full inline-block mb-3 shadow-md shadow-primary/10 group-hover:scale-110 transition-transform text-primary">
                     <Upload size={24} />
                   </div>
-                  <span className="text-sm font-bold block">點擊或拖曳圖片到這裡</span>
-                  <span className="text-[10px] opacity-70 mt-1 block">建議使用正面清楚的人像照片</span>
+                  <span className="text-sm font-bold block">{t('generator.upload.dragDrop')}</span>
+                  <span className="text-[10px] opacity-70 mt-1 block">{t('generator.holidaySticker.labels.uploadHint')}</span>
                 </div>
               )}
             </div>
@@ -502,27 +504,27 @@ TEXT INSTRUCTION:
               className="mt-3 flex items-center gap-2 px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-bronze-text rounded-xl text-sm font-bold transition-colors mx-auto"
             >
               <FolderHeart size={16} />
-              從圖庫選擇
+              {t('app.selectFromGallery')}
             </button>
             <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
           </div>
 
           <div className="space-y-3">
             <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">
-              額外文字（選填）
+              {t('generator.holidaySticker.labels.customTextLabel')}
             </label>
             <input
               type="text"
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
-              placeholder="例如：Happy New Year、王小明"
+              placeholder={t('generator.holidaySticker.placeholders.customText')}
               className="w-full px-4 py-3 bg-cream-light border border-cream-dark rounded-2xl font-bold text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light"
             />
           </div>
 
           <div className="space-y-3">
             <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">
-              2. 節慶主題
+              {t('generator.holidaySticker.labels.step2Holiday')}
             </label>
             <div className="relative">
               <select
@@ -545,7 +547,7 @@ TEXT INSTRUCTION:
                 type="text"
                 value={customHoliday}
                 onChange={(e) => setCustomHoliday(e.target.value)}
-                placeholder="輸入自訂節慶，例如：開幕誌慶、寶寶滿月"
+                placeholder={t('generator.holidaySticker.placeholders.customHoliday')}
                 className="w-full px-4 py-3 mt-2 bg-cream-light border border-cream-dark rounded-2xl font-bold text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 text-bronze-text shadow-inner placeholder-bronze-light animate-in fade-in slide-in-from-top-1"
               />
             )}
@@ -553,7 +555,7 @@ TEXT INSTRUCTION:
 
           <div className="space-y-3">
             <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">
-              3. 風格
+              {t('generator.holidaySticker.labels.step3Style')}
             </label>
             <div className="relative">
               <select
@@ -575,7 +577,7 @@ TEXT INSTRUCTION:
 
           <div className="space-y-3">
             <label className="text-xs font-black text-bronze-light uppercase tracking-widest pl-1">
-              4. 產生張數
+              {t('generator.holidaySticker.labels.step4BatchSize')}
             </label>
             <div className="flex gap-2">
               {[1, 2, 3, 4].map((num) => (
@@ -604,10 +606,10 @@ TEXT INSTRUCTION:
             </div>
             <div className="flex-1">
               <div className={`text-sm font-bold ${autoRemoveBg ? 'text-primary' : 'text-bronze-text'}`}>
-                自動去背
+                {t('generator.holidaySticker.labels.autoRemoveBg')}
               </div>
               <div className="text-[10px] text-bronze-light">
-                生成後自動移除外圈綠幕背景
+                {t('generator.holidaySticker.labels.autoRemoveBgDesc')}
               </div>
             </div>
           </div>
@@ -618,9 +620,9 @@ TEXT INSTRUCTION:
             className="w-full h-16 mt-4 text-lg shadow-xl shadow-primary/20 bg-primary hover:bg-primary-hover active:scale-[0.99] transition-all rounded-2xl border-none"
           >
             {isGenerating ? (
-              <><Loader2 className="mr-2 h-6 w-6 animate-spin" /> 生成中...</>
+              <><Loader2 className="mr-2 h-6 w-6 animate-spin" /> {t('generator.holidaySticker.actions.generating')}</>
             ) : (
-              <><Sparkles className="mr-2 h-6 w-6" /> 產生節慶貼圖</>
+              <><Sparkles className="mr-2 h-6 w-6" /> {t('generator.holidaySticker.actions.generate')}</>
             )}
           </Button>
 
@@ -630,7 +632,7 @@ TEXT INSTRUCTION:
                 <X size={14} className="text-red-600" />
               </div>
               <div className="flex-1">
-                <h4 className="text-xs font-bold text-red-700 mb-0.5">生成失敗</h4>
+                <h4 className="text-xs font-bold text-red-700 mb-0.5">{t('generator.action.failed')}</h4>
                 <p className="text-xs text-red-600 leading-relaxed">{errorMessage}</p>
               </div>
             </div>
@@ -640,7 +642,7 @@ TEXT INSTRUCTION:
         <div className="lg:col-span-2 space-y-6 bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-8">
           <div className="flex items-center justify-between border-b border-cream-dark/50 pb-4">
             <h2 className="text-sm font-black flex items-center gap-2 text-bronze-light uppercase tracking-widest">
-              <Sparkles size={18} className="text-yellow-400" /> 生成結果
+              <Sparkles size={18} className="text-yellow-400" /> {t('generator.action.results')}
             </h2>
             {results.some((result) => result) && (
               <span className="text-[10px] font-bold bg-cream-light px-3 py-1 rounded-full text-bronze-light border border-cream-dark">
@@ -658,7 +660,7 @@ TEXT INSTRUCTION:
                       <div className="absolute inset-0 border-4 border-cream-dark rounded-full"></div>
                       <div className="absolute inset-0 border-4 border-primary rounded-full border-t-transparent animate-spin"></div>
                     </div>
-                    <span className="text-xs font-bold text-bronze-light animate-pulse">生成中...</span>
+                    <span className="text-xs font-bold text-bronze-light animate-pulse">{t('generator.holidaySticker.actions.generating')}</span>
                   </div>
                 ) : results[index] ? (
                   <div className="relative w-full h-full p-4" style={{ backgroundImage: 'radial-gradient(#d6d3d1 1px, transparent 1px)', backgroundSize: '8px 8px' }}>
@@ -670,21 +672,21 @@ TEXT INSTRUCTION:
                         className="bg-white text-primary px-6 py-3 rounded-2xl text-sm font-bold hover:bg-cream-light flex items-center gap-2 shadow-xl transform hover:scale-105 transition-all"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Download size={18} /> 下載
+                        <Download size={18} /> {t('generator.action.download')}
                       </a>
                     </div>
                   </div>
                 ) : generationErrors[index] ? (
                   <div className="flex flex-col items-center justify-center h-full text-center p-4 bg-red-50/50">
                     <AlertCircle className="mx-auto mb-2 text-red-400" size={32} />
-                    <span className="text-xs font-bold text-red-500">生成失敗</span>
+                    <span className="text-xs font-bold text-red-500">{t('generator.action.failed')}</span>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-bronze-light/30 bg-cream-light/20">
                     <div className="bg-cream-dark/20 p-4 rounded-full mb-2">
                       <Sparkles size={24} />
                     </div>
-                    <span className="text-xs font-bold">貼圖預留位 {index + 1}</span>
+                    <span className="text-xs font-bold">{t('generator.holidaySticker.labels.placeholderSlot', { index: index + 1 })}</span>
                   </div>
                 )}
               </div>
@@ -693,9 +695,9 @@ TEXT INSTRUCTION:
 
           {!uploadedImage && !isGenerating && !results.some((result) => result) && (
             <div className="text-center py-12 px-6 rounded-3xl border-2 border-dashed border-cream-dark bg-cream-light/30">
-              <h3 className="text-bronze text-sm font-black mb-2">先上傳一張人物照片</h3>
+              <h3 className="text-bronze text-sm font-black mb-2">{t('generator.holidaySticker.labels.emptyTitle')}</h3>
               <p className="text-xs text-bronze-light">
-                這一頁會根據你的參考照、節慶主題和風格，生成多張可下載的節慶貼圖。
+                {t('generator.holidaySticker.labels.emptyDesc')}
               </p>
             </div>
           )}

@@ -15,7 +15,8 @@ import {
 } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import { GalleryPicker } from '../../../components/GalleryPicker';
-import { AiProvider } from '../../../shared/geminiApiKey';
+import { ProviderSwitcher } from '../../../components/shared/ProviderSwitcher';
+import { AiProvider, PROVIDER_LABELS } from '../../../shared/geminiApiKey';
 import { generateOpenAiImage } from '../services/openaiImageService';
 import { generateOpenAiJson } from '../services/openaiTextService';
 
@@ -84,11 +85,6 @@ const FONT_STYLES = {
     modern: { fontFamily: "'Do Hyeon', sans-serif", className: 'tracking-wide', shadow: 'drop-shadow-[1px_1px_2px_rgba(0,0,0,0.5)]' },
     retro: { fontFamily: "'Song Myung', serif", className: 'italic', shadow: 'drop-shadow-[2px_2px_0px_#8B0000]' },
 } as const;
-
-const PROVIDER_LABELS: Record<AiProvider, string> = {
-    gemini: 'Gemini',
-    openai: 'OpenAI',
-};
 
 const GEMINI_CINEMATIC_MODEL = 'gemini-3-pro-image-preview';
 const OPENAI_CINEMATIC_MODEL = 'gpt-image-2';
@@ -280,7 +276,7 @@ Return pure JSON:
 
         const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
         if (!text) {
-            throw new Error('主題設定生成失敗。');
+            throw new Error(t('generator.cinematic.themeFailedError', { defaultValue: '主題設定生成失敗。' }));
         }
 
         return JSON.parse(text);
@@ -349,7 +345,7 @@ Professional photography, prestige streaming poster quality, highly detailed.`;
 
         const imagePart = result.candidates?.[0]?.content?.parts?.find((part: any) => part.inlineData);
         if (!imagePart?.inlineData?.data) {
-            throw new Error('海報圖片生成失敗。');
+            throw new Error(t('generator.cinematic.imageFailedError', { defaultValue: '海報圖片生成失敗。' }));
         }
 
         return `data:image/png;base64,${imagePart.inlineData.data}`;
@@ -432,7 +428,7 @@ ${theme.visualPrompt}
 `.trim();
             onSuccess(imageUrl, savePrompt, fullDescription);
         } catch (error: any) {
-            const message = error?.message || '生成影劇海報失敗。';
+            const message = error?.message || t('generator.cinematic.generateFailedError', { defaultValue: '生成影劇海報失敗。' });
             console.error(error);
             setLocalError(message);
             onError(message);
@@ -481,7 +477,7 @@ ${generatedResult.plot}
 `.trim();
             onSuccess(imageUrl, savePrompt, fullDescription);
         } catch (error: any) {
-            const message = error?.message || '重新生成海報失敗。';
+            const message = error?.message || t('generator.cinematic.regenerateFailedError', { defaultValue: '重新生成海報失敗。' });
             setLocalError(message);
             onError(message);
         } finally {
@@ -511,7 +507,7 @@ ${generatedResult.plot}
             link.click();
             document.body.removeChild(link);
         } catch {
-            onError('下載海報失敗，請再試一次。');
+            onError(t('generator.cinematic.downloadFailedError', { defaultValue: '下載海報失敗，請再試一次。' }));
         }
     };
 
@@ -531,8 +527,8 @@ ${generatedResult.plot}
                             ) : (
                                 <div className="space-y-2">
                                     <Upload className="w-10 h-10 text-bronze-light mx-auto" />
-                                    <p className="text-bronze-light font-bold">上傳主角照片</p>
-                                    <p className="text-xs text-bronze-light/70">支援拖放或點擊上傳</p>
+                                    <p className="text-bronze-light font-bold">{t('generator.cinematic.uploadTitle', { defaultValue: '上傳主角照片' })}</p>
+                                    <p className="text-xs text-bronze-light/70">{t('generator.cinematic.uploadHint', { defaultValue: '支援拖放或點擊上傳' })}</p>
                                 </div>
                             )}
                             <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
@@ -596,7 +592,7 @@ ${generatedResult.plot}
 
                     <div className="bg-cream backdrop-blur-md border border-cream-dark shadow-sm rounded-[2rem] p-6 space-y-4">
                         <h2 className="text-sm font-black text-bronze-light uppercase tracking-widest flex items-center gap-2">
-                            <Settings size={16} /> 海報設定
+                            <Settings size={16} /> {t('generator.cinematic.settingsTitle', { defaultValue: '海報設定' })}
                         </h2>
 
                         <div className="space-y-3">
@@ -611,30 +607,17 @@ ${generatedResult.plot}
                                     Set API Key
                                 </button>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                {(['gemini', 'openai'] as AiProvider[]).map((option) => (
-                                    <button
-                                        key={option}
-                                        type="button"
-                                        onClick={() => onProviderChange(option)}
-                                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option
-                                            ? 'bg-primary text-white border-primary shadow-md'
-                                            : 'bg-white border-cream-dark text-bronze-text hover:bg-white/80'}`}
-                                    >
-                                        {PROVIDER_LABELS[option]}
-                                    </button>
-                                ))}
-                            </div>
+                            <ProviderSwitcher value={provider} onChange={onProviderChange} />
                             <p className="text-[11px] text-bronze-light">Image model: {imageModelLabel}</p>
                             {provider === 'openai' && (
                                 <p className="text-[11px] text-bronze-light">
-                                    OpenAI 模式會先用文字 proxy 產生主題設定，再透過 image proxy 生成影劇海報。
+                                    {t('generator.cinematic.openaiHint', { defaultValue: 'OpenAI 模式會先用文字 proxy 產生主題設定，再透過 image proxy 生成影劇海報。' })}
                                 </p>
                             )}
                         </div>
 
                         <div>
-                            <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">影劇風格</label>
+                            <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">{t('generator.cinematic.dramaStyleLabel', { defaultValue: '影劇風格' })}</label>
                             <div className="grid grid-cols-2 gap-2">
                                 {DRAMA_STYLES.map((option) => (
                                     <button
@@ -649,10 +632,10 @@ ${generatedResult.plot}
                         </div>
 
                         <div className="space-y-3 rounded-2xl border border-cream-dark/70 bg-white/40 p-3">
-                            <label className="text-xs font-bold text-bronze-light ml-1 block">第一主角設定</label>
+                            <label className="text-xs font-bold text-bronze-light ml-1 block">{t('generator.cinematic.firstLeadTitle', { defaultValue: '第一主角設定' })}</label>
                             <div className="flex bg-white rounded-xl border border-cream-dark p-1">
-                                <button type="button" onClick={() => setRole('male')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${role === 'male' ? 'bg-secondary text-bronze shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>男主角</button>
-                                <button type="button" onClick={() => setRole('female')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${role === 'female' ? 'bg-primary text-white shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>女主角</button>
+                                <button type="button" onClick={() => setRole('male')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${role === 'male' ? 'bg-secondary text-bronze shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>{t('generator.cinematic.roleMale', { defaultValue: '男主角' })}</button>
+                                <button type="button" onClick={() => setRole('female')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${role === 'female' ? 'bg-primary text-white shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>{t('generator.cinematic.roleFemale', { defaultValue: '女主角' })}</button>
                             </div>
                             <input
                                 type="text"
@@ -671,10 +654,10 @@ ${generatedResult.plot}
                         </div>
 
                         <div className="space-y-3 rounded-2xl border border-cream-dark/70 bg-white/40 p-3">
-                            <label className="text-xs font-bold text-bronze-light ml-1 block">第二主角設定</label>
+                            <label className="text-xs font-bold text-bronze-light ml-1 block">{t('generator.cinematic.secondLeadTitle', { defaultValue: '第二主角設定' })}</label>
                             <div className="flex bg-white rounded-xl border border-cream-dark p-1">
-                                <button type="button" onClick={() => setSecondRole('male')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${secondRole === 'male' ? 'bg-secondary text-bronze shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>男主角</button>
-                                <button type="button" onClick={() => setSecondRole('female')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${secondRole === 'female' ? 'bg-primary text-white shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>女主角</button>
+                                <button type="button" onClick={() => setSecondRole('male')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${secondRole === 'male' ? 'bg-secondary text-bronze shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>{t('generator.cinematic.roleMale', { defaultValue: '男主角' })}</button>
+                                <button type="button" onClick={() => setSecondRole('female')} className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all ${secondRole === 'female' ? 'bg-primary text-white shadow-sm' : 'text-bronze-light hover:bg-cream-light'}`}>{t('generator.cinematic.roleFemale', { defaultValue: '女主角' })}</button>
                             </div>
                             <input
                                 type="text"
@@ -693,7 +676,7 @@ ${generatedResult.plot}
                         </div>
 
                         <div>
-                            <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">題材類型</label>
+                            <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">{t('generator.cinematic.genreLabel', { defaultValue: '題材類型' })}</label>
                             <select
                                 value={selectedGenre}
                                 onChange={(e) => setSelectedGenre(e.target.value)}
@@ -706,7 +689,7 @@ ${generatedResult.plot}
                         </div>
 
                         <div>
-                            <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">比例</label>
+                            <label className="text-xs font-bold text-bronze-light ml-2 mb-1 block">{t('generator.cinematic.aspectRatioLabel', { defaultValue: '比例' })}</label>
                             <div className="grid grid-cols-3 gap-2">
                                 {['2:3', '3:4', '1:1'].map((ratio) => (
                                     <button
@@ -729,7 +712,9 @@ ${generatedResult.plot}
                             className={`w-full py-4 rounded-xl font-black text-lg shadow-lg transform transition-all active:scale-95 flex items-center justify-center gap-2 ${isGenerating ? 'bg-cream-dark text-bronze-light cursor-not-allowed' : 'bg-primary hover:bg-primary-hover text-white shadow-primary/30'}`}
                         >
                             {isGenerating ? <RefreshCw className="animate-spin" /> : <Sparkles />}
-                            {isGenerating ? '生成中...' : '生成影劇海報'}
+                            {isGenerating
+                                ? t('generator.cinematic.generatingButton', { defaultValue: '生成中...' })
+                                : t('generator.cinematic.generateButton', { defaultValue: '生成影劇海報' })}
                         </button>
 
                         {localError && <div className="text-red-500 text-xs font-bold text-center animate-pulse">{localError}</div>}
@@ -744,10 +729,10 @@ ${generatedResult.plot}
 
                                 {!isRegenerating && (
                                     <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <button onClick={handleRegenerateImage} className="bg-white p-3 rounded-full text-blue-500 shadow-lg hover:scale-110 transition-transform" title="重新生成海報">
+                                        <button onClick={handleRegenerateImage} className="bg-white p-3 rounded-full text-blue-500 shadow-lg hover:scale-110 transition-transform" title={t('generator.cinematic.regenerateTooltip', { defaultValue: '重新生成海報' })}>
                                             <RefreshCw size={20} />
                                         </button>
-                                        <button onClick={handleDownload} className="bg-white p-3 rounded-full text-green-500 shadow-lg hover:scale-110 transition-transform" title="下載海報">
+                                        <button onClick={handleDownload} className="bg-white p-3 rounded-full text-green-500 shadow-lg hover:scale-110 transition-transform" title={t('generator.cinematic.downloadTooltip', { defaultValue: '下載海報' })}>
                                             <Download size={20} />
                                         </button>
                                     </div>
@@ -757,7 +742,7 @@ ${generatedResult.plot}
                                     <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center">
                                         <div className="bg-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
                                             <RefreshCw className="animate-spin text-primary" size={16} />
-                                            <span className="text-xs font-bold text-bronze">重新生成中...</span>
+                                            <span className="text-xs font-bold text-bronze">{t('generator.cinematic.regeneratingStatus', { defaultValue: '重新生成中...' })}</span>
                                         </div>
                                     </div>
                                 )}
@@ -773,7 +758,17 @@ ${generatedResult.plot}
                                 <p className="text-lg font-black text-primary">{generatedResult.title}</p>
 
                                 <div className="text-xs font-bold text-bronze-light uppercase tracking-widest border-t border-cream-dark pt-4 mt-4">
-                                    {generatedResult.firstLeadActor} 飾 {generatedResult.firstLeadCharacter} | {generatedResult.secondLeadActor} 飾 {generatedResult.secondLeadCharacter}
+                                    {t('generator.cinematic.creditPair', {
+                                        actor: generatedResult.firstLeadActor,
+                                        character: generatedResult.firstLeadCharacter,
+                                        defaultValue: '{{actor}} 飾 {{character}}',
+                                    })}
+                                    {' | '}
+                                    {t('generator.cinematic.creditPair', {
+                                        actor: generatedResult.secondLeadActor,
+                                        character: generatedResult.secondLeadCharacter,
+                                        defaultValue: '{{actor}} 飾 {{character}}',
+                                    })}
                                 </div>
 
                                 <p className="text-sm text-bronze-text/80 italic bg-white/50 p-4 rounded-xl border border-cream-dark">
@@ -784,7 +779,7 @@ ${generatedResult.plot}
                     ) : (
                         <div className="text-center space-y-4 opacity-50">
                             <Film size={64} className="mx-auto text-bronze-light" />
-                            <p className="text-bronze-light font-bold">上傳照片並生成你的影劇海報</p>
+                            <p className="text-bronze-light font-bold">{t('generator.cinematic.emptyStateHint', { defaultValue: '上傳照片並生成你的影劇海報' })}</p>
                         </div>
                     )}
                 </div>

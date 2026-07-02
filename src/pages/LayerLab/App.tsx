@@ -5,9 +5,11 @@ import { MaskCanvas } from './components/MaskCanvas';
 import { generateMaskFromAI, processMask, AISettings } from './utils/maskUtils';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { saveStickerToDB } from '../../db';
+import { useToast } from '../../components/shared/ToastProvider';
 
 export const LayerLabApp = () => {
     const { t } = useTranslation();
+    const { showToast } = useToast();
     const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
     const [maskCanvas, setMaskCanvas] = useState<HTMLCanvasElement | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -136,7 +138,7 @@ export const LayerLabApp = () => {
 
         } catch (e) {
             console.error(e);
-            alert("AI Removal Failed");
+            showToast(t('eraser.toast.aiRemoveFailed'), 'error');
         } finally {
             setIsProcessing(false);
         }
@@ -277,10 +279,10 @@ export const LayerLabApp = () => {
                 timestamp: Date.now(),
                 phrase: 'Smart Eraser Edit'
             });
-            alert(t('packager.status.complete') || 'Saved to Gallery!');
+            showToast(t('packager.status.complete') || 'Saved to Gallery!', 'success');
         } catch (error) {
             console.error(error);
-            alert('Failed to save');
+            showToast(t('eraser.toast.saveFailed'), 'error');
         } finally {
             setIsSaving(false);
         }

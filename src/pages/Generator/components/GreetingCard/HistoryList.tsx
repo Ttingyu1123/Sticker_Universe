@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { History as HistoryIcon, Clock } from 'lucide-react';
 import { HistoryItem } from './Constants';
 
@@ -10,10 +11,11 @@ interface HistoryListProps {
 }
 
 export const HistoryList: React.FC<HistoryListProps> = ({ history, currentId, onSelect }) => {
+    const { t } = useTranslation();
     return (
         <div className="col-span-1 lg:col-span-2 pt-8 border-t border-cream-dark/30">
             <h3 className="text-sm font-black text-bronze-light uppercase tracking-widest mb-6 flex items-center gap-2">
-                <HistoryIcon size={16} /> 最近的創作
+                <HistoryIcon size={16} /> {t('generator.greetingCard.history.title')}
             </h3>
             {history.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -37,8 +39,8 @@ export const HistoryList: React.FC<HistoryListProps> = ({ history, currentId, on
             ) : (
                 <div className="text-center py-10 opacity-50 border-2 border-dashed border-cream-dark rounded-xl">
                     <HistoryIcon size={48} className="mx-auto text-bronze-light mb-2" />
-                    <p className="text-bronze-light font-bold">還沒有生成的賀卡紀錄</p>
-                    <p className="text-xs text-bronze-light/70">生成後的賀卡會自動儲存在這裡</p>
+                    <p className="text-bronze-light font-bold">{t('generator.greetingCard.history.emptyTitle')}</p>
+                    <p className="text-xs text-bronze-light/70">{t('generator.greetingCard.history.emptyHint')}</p>
                 </div>
             )}
         </div>

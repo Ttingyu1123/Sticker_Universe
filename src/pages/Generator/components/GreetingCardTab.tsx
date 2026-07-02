@@ -1,10 +1,12 @@
 ﻿import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GoogleGenAI } from '@google/genai';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { CardLayoutId } from '../types';
 import { processImage } from '../../../features/packager-core';
 import { safeLoadFromLocalStorage, safeSaveToLocalStorage } from '../../../shared/localStorage';
-import { AiProvider } from '../../../shared/geminiApiKey';
+import { AiProvider, PROVIDER_LABELS } from '../../../shared/geminiApiKey';
+import { ProviderSwitcher } from '../../../components/shared/ProviderSwitcher';
 import { generateOpenAiImage } from '../services/openaiImageService';
 import { generateOpenAiJson, generateOpenAiText } from '../services/openaiTextService';
 
@@ -21,11 +23,6 @@ interface GreetingCardTabProps {
     onNeedApiKey: (provider: AiProvider) => void;
     onSuccess: (imageUrl: string, prompt: string, description?: string) => void;
 }
-
-const PROVIDER_LABELS: Record<AiProvider, string> = {
-    gemini: 'Gemini',
-    openai: 'OpenAI',
-};
 
 const GEMINI_GREETING_MODEL = 'gemini-3-pro-image-preview';
 const OPENAI_GREETING_MODEL = 'gpt-image-2';
@@ -55,6 +52,7 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
     onNeedApiKey,
     onSuccess,
 }) => {
+    const { t } = useTranslation();
     const apiKey = apiKeys[provider];
 
     const [userImage, setUserImage] = useState<string | null>(null);
@@ -128,7 +126,7 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
             handleRawImage(blob);
         } catch (error) {
             console.error('BG Removal failed', error);
-            onError('?餉?憭望?嚗歇?孵?????');
+            onError(t('generator.greetingCard.toast.bgRemovalUploadFailed'));
             handleRawImage(file);
         } finally {
             setIsProcessingUploadBg(false);
@@ -152,7 +150,7 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
             const blob = await response.blob();
             await processUploadedImageBg(blob);
         } catch {
-            onError('????憭望?');
+            onError(t('generator.greetingCard.toast.bgRemovalFailed'));
         }
     };
 
@@ -180,7 +178,7 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
             setCustomFonts((prev) => [...prev, newFont]);
             setSelectedFont(fontName);
         } catch {
-            onError('摮?頛憭望?');
+            onError(t('generator.greetingCard.toast.fontUploadFailed'));
         }
     };
 
@@ -244,7 +242,7 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
             const processedUrl = await smartRemoveBackground(generatedResult.imageUrl);
             setGeneratedResult((prev) => (prev ? { ...prev, imageUrl: processedUrl } : null));
         } catch {
-            onError('?餉?憭望?');
+            onError(t('generator.greetingCard.toast.smartBgRemovalFailed'));
         } finally {
             setIsRemovingBg(false);
         }
@@ -257,7 +255,7 @@ const GreetingCardTab: React.FC<GreetingCardTabProps> = ({
             return;
         }
         if (!customPrompt.trim()) {
-            setLocalError('請先輸入要優化的提示內容。');
+            setLocalError(t('generator.greetingCard.toast.needCustomPrompt'));
             return;
         }
 
@@ -291,7 +289,7 @@ User prompt: ${customPrompt}`,
             const optimized = result.candidates?.[0]?.content?.parts?.[0]?.text;
             if (optimized) setCustomPrompt(optimized.trim());
         } catch (error: any) {
-            setLocalError(error?.message || '提示優化失敗。');
+            setLocalError(error?.message || t('generator.greetingCard.toast.optimizePromptFailed'));
         } finally {
             setIsOptimizingPrompt(false);
         }
@@ -389,7 +387,7 @@ ${nameGuidance}`,
 
     const handleGenerate = async () => {
         if (!userImage) {
-            setLocalError('隢?銝??');
+            setLocalError(t('generator.greetingCard.toast.needUploadPhoto'));
             return;
         }
 
@@ -479,19 +477,8 @@ ${nameGuidance}`,
                         Set {PROVIDER_LABELS[provider]} API Key
                     </button>
                 </div>
-                <div className="grid grid-cols-2 gap-2 mt-3">
-                    {(['gemini', 'openai'] as AiProvider[]).map((option) => (
-                        <button
-                            key={option}
-                            type="button"
-                            onClick={() => onProviderChange(option)}
-                            className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option
-                                ? 'bg-primary text-white border-primary shadow-md'
-                                : 'bg-white border-cream-dark text-bronze-text hover:bg-white/80'}`}
-                        >
-                            {PROVIDER_LABELS[option]}
-                        </button>
-                    ))}
+                <div className="mt-3">
+                    <ProviderSwitcher value={provider} onChange={onProviderChange} />
                 </div>
             </div>
 

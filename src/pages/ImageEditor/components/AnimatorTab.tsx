@@ -5,6 +5,7 @@ import '../../../features/animator-core/animations.css';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { LinePreviewModal } from '../../../components/LinePreviewModal';
 import { BubblePicker } from '../../../features/editor-core';
+import { useToast } from '../../../components/shared/ToastProvider';
 // @ts-ignore
 import UPNG from 'upng-js';
 import GIF from 'gif.js';
@@ -15,6 +16,7 @@ import type { Layer, AnimationType } from '../../../features/animator-core';
 
 const AnimatorTab = () => {
     const { t } = useTranslation();
+    const { showToast } = useToast();
     const [layers, setLayers] = useState<Layer[]>([]);
     const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
     const [isExporting, setIsExporting] = useState(false);
@@ -249,7 +251,10 @@ const AnimatorTab = () => {
         try {
             const url = await generateAnimation(format);
             if (url) downloadFile(url, `sticker-animated-${Date.now()}.${format === 'apng' ? 'png' : 'gif'}`);
-        } catch (e) { alert("Export failed: " + e); }
+        } catch (e) {
+            const reason = e instanceof Error ? e.message : String(e);
+            showToast(t('common.toast.exportFailed', { reason, defaultValue: `Export failed: ${reason}` }), 'error');
+        }
         finally { setIsExporting(false); }
     };
 
@@ -262,7 +267,10 @@ const AnimatorTab = () => {
                 setPreviewImage(url);
                 setShowLinePreview(true);
             }
-        } catch (e) { alert("Preview failed: " + e); }
+        } catch (e) {
+            const reason = e instanceof Error ? e.message : String(e);
+            showToast(t('common.toast.previewFailed', { reason, defaultValue: `Preview failed: ${reason}` }), 'error');
+        }
         finally { setIsPreviewLoading(false); }
     };
 

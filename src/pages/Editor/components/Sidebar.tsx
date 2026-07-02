@@ -10,6 +10,7 @@ import {
   FlipHorizontal, ArrowRight, MessageCircle
 } from 'lucide-react';
 import { ColorPickerInput } from './ColorPickerInput';
+import { useToast } from '../../../components/shared/ToastProvider';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -54,6 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<'settings' | 'layers'>('settings');
   const { t } = useTranslation();
+  const { showToast } = useToast();
 
   // Renaming state
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
@@ -83,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         onAddFont(fontName);
       } catch (err) {
         console.error("Failed to load font", err);
-        alert("Failed to load font file.");
+        showToast(t('editor.toast.fontLoadFailed'), 'error');
       }
     }
   };

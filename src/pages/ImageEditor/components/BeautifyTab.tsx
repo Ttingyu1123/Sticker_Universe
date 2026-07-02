@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { saveStickerToDB } from '../../../db';
 import { loadImage } from '../../../features/packager-core';
+import { useToast } from '../../../components/shared/ToastProvider';
 
 const blobToBase64 = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -39,6 +40,7 @@ interface ProcessedFile {
 
 const BeautifyTab: React.FC = () => {
     const { t } = useTranslation();
+    const { showToast } = useToast();
     const [fileQueue, setFileQueue] = useState<ProcessedFile[]>([]);
     const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
     const [statusMsg, setStatusMsg] = useState('');
@@ -527,10 +529,10 @@ const BeautifyTab: React.FC = () => {
                                                     });
                                                     savedCount++;
                                                 }
-                                                alert(`${t('packager.status.savedToCollection') || 'Saved'} (${savedCount})`);
+                                                showToast(`${t('packager.status.savedToCollection') || 'Saved'} (${savedCount})`, 'success');
                                             } catch (err) {
                                                 console.error("Failed to save", err);
-                                                alert("Failed to save some stickers");
+                                                showToast(t('common.toast.saveSomeFailed', { defaultValue: 'Failed to save some images.' }), 'error');
                                             }
                                         }}
                                         className="w-full bg-gradient-to-r from-secondary to-accent hover:brightness-110 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-secondary/20 active:scale-95 transition-all"

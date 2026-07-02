@@ -19,9 +19,11 @@ import { useLocation } from 'react-router-dom';
 import { saveStickerToDB } from '../../../db';
 
 import { LinePreviewModal } from '../../../components/LinePreviewModal';
+import { useToast } from '../../../components/shared/ToastProvider';
 
 const EditorTab: React.FC = () => {
     const { t } = useTranslation();
+    const { showToast } = useToast();
     const [layers, setLayers] = useState<Layer[]>([]);
     const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
     const [showGallery, setShowGallery] = useState(false);
@@ -292,10 +294,10 @@ const EditorTab: React.FC = () => {
                     phrase: 'Editor Composition',
                     timestamp: Date.now()
                 });
-                alert(t('packager.status.savedToCollection') || 'Saved to Collection');
+                showToast(t('packager.status.savedToCollection') || 'Saved to Collection', 'success');
             } catch (err) {
                 console.error("Failed to save", err);
-                alert("Failed to save to gallery");
+                showToast(t('common.toast.saveFailed', { defaultValue: 'Failed to save. Please try again.' }), 'error');
             }
         }
     };

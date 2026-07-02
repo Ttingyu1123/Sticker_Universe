@@ -7,6 +7,7 @@ import type { Sticker } from '../../shared/types/sticker';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import ReactMarkdown from 'react-markdown';
+import { useToast } from '../../components/shared/ToastProvider';
 
 interface StickerCardProps {
     sticker: Sticker;
@@ -75,7 +76,7 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
                                 onClick={(e) => { e.stopPropagation(); navigate('/image-editor', { state: { image: sticker.imageUrl, tab: 'smart-remove' } }); }}
                                 className="px-3 py-1.5 bg-white/10 hover:bg-white text-white hover:text-bronze-text rounded-lg text-[10px] font-bold backdrop-blur-md transition-all border border-white/20 flex items-center gap-1.5 w-full justify-center"
                             >
-                                <Palette size={12} /> {t('editor.tabs.smartRemove') || '智慧去背'}
+                                <Palette size={12} /> {t('editor.tabs.smartRemove')}
                             </button>
                         </div>
                         <div className="flex items-center gap-2">
@@ -83,7 +84,7 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
                                 onClick={(e) => { e.stopPropagation(); navigate('/image-editor', { state: { image: sticker.imageUrl, tab: 'packager' } }); }}
                                 className="px-3 py-1.5 bg-white/10 hover:bg-white text-white hover:text-bronze-text rounded-lg text-[10px] font-bold backdrop-blur-md transition-all border border-white/20 flex items-center gap-1.5"
                             >
-                                <Layers size={12} /> {t('editor.tabs.packager') || '批量裁切'}
+                                <Layers size={12} /> {t('editor.tabs.packager')}
                             </button>
                         </div>
 
@@ -176,6 +177,7 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
 
 const App = () => {
     const { t } = useTranslation();
+    const { showToast } = useToast();
     const [stickers, setStickers] = useState<Sticker[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -247,7 +249,7 @@ const App = () => {
     const handleShare = async (sticker: Sticker) => {
         try {
             if (!window.isSecureContext) {
-                alert('Share requires HTTPS on iPhone Safari. Please use your Vercel URL (https://...) for sharing tests.');
+                showToast(t('gallery.toast.httpsRequired'), 'error');
                 return;
             }
 
@@ -274,12 +276,12 @@ const App = () => {
                 // Fallback to clipboard
                 const clipboardItem = new ClipboardItem({ [file.type]: file });
                 await navigator.clipboard.write([clipboardItem]);
-                alert("Copied to clipboard! (Your device doesn't support native file sharing)");
+                showToast(t('gallery.toast.sharedToClipboard'), 'success');
             }
         } catch (error) {
             console.error("Share failed:", error);
             if (!(error instanceof DOMException && error.name === 'AbortError')) {
-                alert('Share failed on this browser context. Try HTTPS (Vercel) and Safari.');
+                showToast(t('gallery.toast.shareFailed'), 'error');
             }
         }
     };
@@ -288,10 +290,10 @@ const App = () => {
         const textToCopy = `${sticker.phrase}\n\n${sticker.description || ''}`;
         try {
             await navigator.clipboard.writeText(textToCopy);
-            alert("文字已複製到剪貼簿！");
+            showToast(t('gallery.toast.copied'), 'success');
         } catch (err) {
             console.error('Failed to copy text: ', err);
-            alert("複製失敗");
+            showToast(t('gallery.toast.copyFailed'), 'error');
         }
     };
 
@@ -414,7 +416,7 @@ const App = () => {
                 // Ignore and continue to manual fallback.
             }
 
-            alert('ZIP 已建立。若檔名顯示 unknown.zip，請改用 HTTPS 網址測試，或下載後於檔案 App 重新命名。');
+            showToast(t('gallery.toast.zipCreatedIOSHint'), 'info');
             window.location.assign(url);
             setTimeout(() => URL.revokeObjectURL(url), 60_000);
             return;
@@ -457,7 +459,7 @@ const App = () => {
             setIsSelectionMode(false);
         } catch (error) {
             console.error("Batch download failed:", error);
-            alert(t('gallery.download') + " failed");
+            showToast(t('gallery.toast.downloadFailed'), 'error');
         }
     };
 
@@ -511,7 +513,7 @@ const App = () => {
             await loadStickers();
         } catch (error) {
             console.error("Upload failed", error);
-            alert("Upload failed. Please try again.");
+            showToast(t('gallery.toast.uploadFailed'), 'error');
         } finally {
             setIsLoading(false);
             if (fileInputRef.current) {
@@ -714,29 +716,29 @@ const App = () => {
                                     <button
                                         onClick={() => handleCopyText(viewingSticker)}
                                         className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition-all flex items-center gap-2"
-                                        title="複製文字"
+                                        title={t('generator.action.copyPrompt')}
                                     >
-                                        <Copy size={16} /> <span className="hidden sm:inline">複製文字</span>
+                                        <Copy size={16} /> <span className="hidden sm:inline">{t('generator.action.copyPrompt')}</span>
                                     </button>
                                     <button
                                         onClick={() => handleDownloadText(viewingSticker)}
                                         className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition-all flex items-center gap-2"
-                                        title="下載文字檔"
+                                        title={t('generator.action.downloadPrompt')}
                                     >
-                                        <FileText size={16} /> <span className="hidden sm:inline">下載文字</span>
+                                        <FileText size={16} /> <span className="hidden sm:inline">{t('generator.action.downloadPrompt')}</span>
                                     </button>
                                     <div className="w-px h-8 bg-gray-300 mx-1 hidden sm:block"></div>
                                     <button
                                         onClick={() => handleShare(viewingSticker)}
                                         className="px-4 py-2 bg-pink-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-pink-500/20 hover:bg-pink-600 transition-all flex items-center gap-2"
                                     >
-                                        <Share2 size={16} /> 分享
+                                        <Share2 size={16} /> {t('gallery.share')}
                                     </button>
                                     <button
                                         onClick={() => handleDownload(viewingSticker.imageUrl, viewingSticker.phrase)}
                                         className="px-4 py-2 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all flex items-center gap-2"
                                     >
-                                        <Download size={16} /> 下載圖片
+                                        <Download size={16} /> {t('common.download')}
                                     </button>
                                 </div>
                             </div>

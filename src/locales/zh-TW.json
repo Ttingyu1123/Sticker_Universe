@@ -82,7 +82,20 @@
     "redo": "重做",
     "done": "完畢",
     "save": "節省",
-    "close": "關閉"
+    "close": "關閉",
+    "errorBoundary": {
+      "title": "頁面發生錯誤",
+      "unknownError": "未知錯誤",
+      "retry": "重試"
+    },
+    "toast": {
+      "exportFailed": "匯出失敗：{{reason}}",
+      "previewFailed": "預覽失敗：{{reason}}",
+      "saveFailed": "儲存失敗，請再試一次。",
+      "saveSomeFailed": "部分圖片儲存失敗。",
+      "copied": "已複製到剪貼簿！",
+      "copyFailed": "複製失敗"
+    }
   },
   "linePreview": {
     "title": "LINE 預覽 (Preview)",
@@ -211,7 +224,8 @@
         "cancel": "取消",
         "dragHint": "拖曳調整裁切區域",
         "processing": "處理中...",
-        "done": "完成"
+        "done": "完成",
+        "error": "裁切圖片時發生錯誤"
       },
       "preview": {
         "updating": "更新中...",
@@ -221,7 +235,9 @@
         "format": "格式",
         "download": "下載",
         "saveToGallery": "儲存至作品集",
-        "zoom": "縮放"
+        "zoom": "縮放",
+        "generateFailed": "預覽產生失敗",
+        "saveFailed": "儲存到作品集失敗"
       }
     },
     "exportFailed": "匯出失敗，請重試。",
@@ -277,7 +293,18 @@
     "addSelected": "添加選取項目",
     "items": "項目",
     "share": "分享",
-    "saved": "已儲存到圖庫！"
+    "saved": "已儲存到圖庫！",
+    "toast": {
+      "copied": "文字已複製到剪貼簿！",
+      "copyFailed": "複製失敗",
+      "httpsRequired": "iPhone Safari 分享需要 HTTPS 連線，請改用 Vercel 網址（https://...）測試分享功能。",
+      "sharedToClipboard": "已複製到剪貼簿！（此裝置不支援原生檔案分享）",
+      "shareFailed": "此瀏覽器環境分享失敗，請改用 HTTPS（Vercel）網址並使用 Safari 測試。",
+      "zipCreatedIOSHint": "ZIP 已建立。若檔名顯示 unknown.zip，請改用 HTTPS 網址測試，或下載後於檔案 App 重新命名。",
+      "downloadFailed": "下載失敗",
+      "uploadFailed": "上傳失敗，請再試一次。",
+      "importFailed": "匯入圖片失敗：{{error}}"
+    }
   },
   "landing": {
     "tagline": "AI 創作工具",
@@ -520,7 +547,11 @@
       "securityDirect": "直接傳輸 - 請求透過 HTTPS 加密從您的瀏覽器直接傳送到 Google API。",
       "settings": "設定完成",
       "rememberKey": "記住鑰匙",
-      "rememberKeyDesc": "選中後，密鑰將被保存以供將來的會話使用。"
+      "rememberKeyDesc": "選中後，密鑰將被保存以供將來的會話使用。",
+      "saved": "API 金鑰已儲存。",
+      "rememberKeyWarning": "共用或公共電腦請勿勾選。",
+      "securityOpenSource": "開放原始碼 - 程式碼公開可稽核，您可以驗證金鑰的使用方式。",
+      "securitySelfControl": "完全掌控 - 您可以隨時從瀏覽器中清除金鑰。"
     },
     "mode": {
       "textToSticker": "文字轉貼圖",
@@ -617,7 +648,8 @@
       "general": "生成失敗：",
       "bgRemoval": "背景移除失敗：",
       "noStickers": "沒有貼圖可以下載",
-      "zipFailed": "壓縮檔案失敗"
+      "zipFailed": "壓縮檔案失敗",
+      "unknown": "未知錯誤"
     },
     "themes": {
       "taiwanese": {
@@ -887,7 +919,14 @@
       "modGuide": "改圖與進階提示詞指南",
       "settings": "設定",
       "prompt": "提示詞",
-      "promptPlaceholder": "輸入提示..."
+      "promptPlaceholder": "輸入提示...",
+      "pasteFailed": "貼上圖片失敗，請改用上傳。",
+      "needPromptOrImage": "請先輸入提示詞或上傳參考圖。",
+      "needApiKey": "請先設定 {{provider}} API Key。",
+      "modelBusy": "{{provider}} 圖片模型目前繁忙，請稍後再試。",
+      "apiKeyInvalid": "{{provider}} API Key 無效，請重新設定。",
+      "modelHintGemini": "Gemini 保留原本既有模型流程。",
+      "modelHintOpenai": "OpenAI 使用官方 GPT Image API；有參考圖時會自動改走 image edit。"
     },
     "manga": {
       "labels": {
@@ -1286,7 +1325,137 @@
     "cinematic": {
       "secondLeadOptional": "第二主角（可選）",
       "uploadSecondPhoto": "上傳第二張照片",
-      "removeSecondLead": "移除第二主角"
+      "removeSecondLead": "移除第二主角",
+      "uploadTitle": "上傳主角照片",
+      "uploadHint": "支援拖放或點擊上傳",
+      "settingsTitle": "海報設定",
+      "openaiHint": "OpenAI 模式會先用文字 proxy 產生主題設定，再透過 image proxy 生成影劇海報。",
+      "dramaStyleLabel": "影劇風格",
+      "firstLeadTitle": "第一主角設定",
+      "secondLeadTitle": "第二主角設定",
+      "roleMale": "男主角",
+      "roleFemale": "女主角",
+      "genreLabel": "題材類型",
+      "aspectRatioLabel": "比例",
+      "generateButton": "生成影劇海報",
+      "generatingButton": "生成中...",
+      "regenerateTooltip": "重新生成海報",
+      "downloadTooltip": "下載海報",
+      "regeneratingStatus": "重新生成中...",
+      "creditPair": "{{actor}} 飾 {{character}}",
+      "emptyStateHint": "上傳照片並生成你的影劇海報",
+      "themeFailedError": "主題設定生成失敗。",
+      "imageFailedError": "海報圖片生成失敗。",
+      "generateFailedError": "生成影劇海報失敗。",
+      "regenerateFailedError": "重新生成海報失敗。",
+      "downloadFailedError": "下載海報失敗，請再試一次。"
+    },
+    "holidaySticker": {
+      "labels": {
+        "step1Upload": "1. 上傳參考照片",
+        "reselect": "重新選擇",
+        "uploadHint": "建議使用正面清楚的人像照片",
+        "customTextLabel": "額外文字（選填）",
+        "step2Holiday": "2. 節慶主題",
+        "step3Style": "3. 風格",
+        "step4BatchSize": "4. 產生張數",
+        "autoRemoveBg": "自動去背",
+        "autoRemoveBgDesc": "生成後自動移除外圈綠幕背景",
+        "placeholderSlot": "貼圖預留位 {{index}}",
+        "emptyTitle": "先上傳一張人物照片",
+        "emptyDesc": "這一頁會根據你的參考照、節慶主題和風格，生成多張可下載的節慶貼圖。"
+      },
+      "placeholders": {
+        "customText": "例如：Happy New Year、王小明",
+        "customHoliday": "輸入自訂節慶，例如：開幕誌慶、寶寶滿月"
+      },
+      "actions": {
+        "generating": "生成中...",
+        "generate": "產生節慶貼圖"
+      }
+    },
+    "greetingCard": {
+      "toast": {
+        "bgRemovalUploadFailed": "去背失敗，已改用原始照片。",
+        "bgRemovalFailed": "去背失敗，請稍後再試。",
+        "fontUploadFailed": "字型上傳失敗，請確認檔案格式。",
+        "smartBgRemovalFailed": "智慧去背失敗，請稍後再試。",
+        "needCustomPrompt": "請先輸入要優化的提示內容。",
+        "optimizePromptFailed": "提示優化失敗。",
+        "needUploadPhoto": "請先上傳照片。"
+      },
+      "upload": {
+        "title": "點擊上傳照片 (主角)",
+        "hint": "(建議清晰的人像照)",
+        "removingBg": "正在移除背景...",
+        "removeBgTooltip": "移除背景 (人像去背)",
+        "fromGallery": "從作品集選取",
+        "autoRemoveBg": "上傳後自動去背"
+      },
+      "settings": {
+        "title": "賀卡設定",
+        "festival": "節日主題",
+        "festivalTooltip": "選擇節日主題",
+        "style": "繪圖風格",
+        "styleTooltip": "選擇繪圖風格",
+        "bgColor": "賀卡底色",
+        "aspectRatio": "卡片尺寸 (比例)",
+        "aspectRatioTooltip": "選擇卡片尺寸比例",
+        "layout": "卡片版型",
+        "advanced": "進階選項",
+        "faceSwap": "🎭 換臉模式",
+        "faceSwapHint": "保持臉部特徵，更換符合節日服裝",
+        "autoExpand": "🖼️ AI 智慧擴圖",
+        "autoExpandHint": "智慧補全比例不符的背景",
+        "styleIntensity": "🎨 風格強度",
+        "styleIntensityTooltip": "風格強度調整",
+        "negativePrompt": "🚫 負向提示詞",
+        "negativePromptPlaceholder": "不想看到的內容...",
+        "showText": "💬 顯示祝福語",
+        "fontColor": "字體與顏色",
+        "uploadFont": "上傳",
+        "customPrompt": "✨ 自定義提示詞",
+        "customPromptPlaceholder": "描述你想要看到的畫面細節...",
+        "optimizePrompt": "AI 優化提示詞",
+        "showRecipient": "顯示收件人",
+        "showSender": "顯示你的名字",
+        "recipientPlaceholder": "收件人 (To)",
+        "senderPlaceholder": "你的名字 (From)",
+        "messagePlaceholder": "想要說的祝福語 (AI 會幫你潤飾)",
+        "generating": "AI 繪製中...",
+        "generate": "生成專屬賀卡",
+        "loadingSteps": [
+          "正在構思賀卡構圖...",
+          "AI 畫家正在揮毫...",
+          "正在挑選最適合的配色...",
+          "正在為您寫下祝福...",
+          "最後修飾中..."
+        ]
+      },
+      "preview": {
+        "emptyHint": "你的專屬賀卡將會出現在這裡",
+        "regenerate": "重新生成",
+        "shareTitle": "分享 / 存到...",
+        "copyTitle": "複製到剪貼簿",
+        "removeBgTooltip": "智慧去背 (移除綠幕)",
+        "downloadFull": "下載完整賀卡",
+        "downloadRaw": "下載純圖片",
+        "removingBg": "智慧去背中...",
+        "regenerating": "重新繪製中..."
+      },
+      "history": {
+        "title": "最近的創作",
+        "emptyTitle": "還沒有生成的賀卡紀錄",
+        "emptyHint": "生成後的賀卡會自動儲存在這裡"
+      }
+    },
+    "styleSticker": {
+      "errors": {
+        "suggestPhrasesFailed": "AI 產生台詞失敗：{{message}}",
+        "generateFailed": "生成失敗：{{message}}",
+        "rerollFailed": "重抽失敗：{{message}}",
+        "zipFailed": "ZIP 打包失敗，請稍後再試"
+      }
     }
   },
   "packager": {
@@ -1396,7 +1565,13 @@
       "protectClosed": "保護封閉區 (補洞)",
       "enhanceText": "增強文字細節",
       "enableStroke": "啟用物件描邊",
-      "enableShadow": "啟用物件陰影"
+      "enableShadow": "啟用物件陰影",
+      "crop": "裁切",
+      "originalImageAlt": "原圖",
+      "aiProcessing": "AI 處理中...",
+      "currentTool": "目前工具：",
+      "moreTools": "更多工具",
+      "noExtraSettings": "此工具目前沒有額外設定"
     },
     "magic": {
       "fill": "連通填充",
@@ -1409,6 +1584,13 @@
       "packager": "批次工具",
       "animator": "動畫師",
       "svg": "SVG 魔法"
+    },
+    "toast": {
+      "aiRemoveFailed": "AI 去背失敗",
+      "saveFailed": "儲存失敗"
+    },
+    "smartRemove": {
+      "defaultPhrase": "智慧去背編輯"
     }
   },
   "editor": {
@@ -1440,7 +1622,18 @@
       "downloadingModel": "下載模型中 (~20MB)... 僅需一次",
       "downloading": "下載模型中",
       "modelReady": "模型已就緒！開始放大...",
-      "processing": "處理中..."
+      "processing": "處理中...",
+      "noImageError": "請先上傳圖片！",
+      "upscalePreparing": "準備放大圖片...",
+      "upscaleProcessing": "正在使用高質量插值放大 {{factor}}x...",
+      "upscaleFinalizing": "完成放大，正在生成預覽...",
+      "upscaleDone": "完成！圖片已放大至 {{factor}}x",
+      "upscaleError": "錯誤: {{reason}}",
+      "upscaleFailed": "放大失敗：{{reason}}",
+      "estimateNoImage": "請先上傳圖片",
+      "estimateInvalidSize": "請輸入有效的目標檔案大小（MB）",
+      "estimateAlreadySmaller": "原檔已小於目標大小，不需縮小",
+      "estimateResult": "估算縮放約 {{percent}}%（{{width}} x {{height}}）"
     },
     "bubblePicker": {
       "chooseStyle": "選擇氣泡樣式",
@@ -1553,6 +1746,9 @@
     },
     "aiRemoval": {
       "error": "AI刪除失敗。請再試一次。"
+    },
+    "toast": {
+      "fontLoadFailed": "字型檔案載入失敗。"
     }
   },
   "collage": {
@@ -1614,7 +1810,18 @@
     "background": {
       "title": "背景",
       "transparent": "透明",
-      "smart": "智慧背景"
+      "smart": "智慧背景",
+      "gradient2Color": "雙色漸層",
+      "enabled": "啟用中",
+      "disabled": "關閉",
+      "gradientStart": "起始",
+      "gradientEnd": "結束",
+      "gradientDirection": "方向",
+      "directionDiagonal": "斜向",
+      "directionHorizontal": "左右",
+      "directionVertical": "上下",
+      "autoAvoidBlank": "自動避空白",
+      "autoAvoidBlankHint": "留白超過門檻時自動切換為較緊湊版型"
     },
     "image": {
       "rotation": "旋轉",
@@ -1657,6 +1864,19 @@
       "widthHint": "寬度(px)，高度依比例自動計算",
       "warnUpscaleHigh": "警示：原圖需大幅放大 ({{factor}}x)，輸出可能明顯模糊",
       "warnUpscaleMild": "提醒：原圖需放大 ({{factor}}x)，輸出可能較模糊"
+    },
+    "toast": {
+      "downloadFailed": "下載失敗",
+      "saveFailed": "儲存到作品集失敗",
+      "apiKeyIssue": "API 金鑰有誤，請確認金鑰是否正確。",
+      "generateFailed": "生成失敗：{{message}}"
+    },
+    "single": {
+      "emptyTitle": "單張邊框輸出",
+      "emptyDesc": "上傳一張圖，選擇拍立得或底片框後下載。",
+      "editTitle": "單張編輯",
+      "modeCollage": "拼貼",
+      "modeSingle": "單張邊框"
     }
   },
   "headshot": {
@@ -1823,7 +2043,8 @@
       "high_angle": "高角度俯拍（胸上半身）",
       "sitting_side": "坐姿側拍（椅子）",
       "lying_side": "躺姿側拍半身"
-    }
+    },
+    "shareTitle": "形象照"
   },
   "drawing": {
     "brush": "筆刷",
@@ -1890,6 +2111,8 @@
     "maskToggle": "切換遮色片",
     "importProject": "匯入專案",
     "exportProject": "匯出專案",
-    "projectLoadFailed": "載入專案檔失敗。"
+    "projectLoadFailed": "載入專案檔失敗。",
+    "copied": "已複製",
+    "copyHexHint": "點擊複製 HEX"
   }
 }

@@ -5,6 +5,7 @@ import { generatePhotoSheet } from '../../utils/IDPrint/canvasUtils';
 import { Download, AlertCircle, FileCheck, FolderHeart, Minus, Plus } from 'lucide-react';
 import { PAPER_DIMENSIONS } from '../../utils/IDPrint/constants';
 import { saveStickerToDB } from '../../../../db';
+import { useToast } from '../../../../components/shared/ToastProvider';
 import jsPDF from 'jspdf';
 
 interface LayoutPreviewProps {
@@ -14,6 +15,7 @@ interface LayoutPreviewProps {
 
 const LayoutPreview: React.FC<LayoutPreviewProps> = ({ assets, config }) => {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [photoCount, setPhotoCount] = useState<number>(0);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -34,6 +36,7 @@ const LayoutPreview: React.FC<LayoutPreviewProps> = ({ assets, config }) => {
         }
       } catch (e) {
         console.error("Failed to generate preview", e);
+        if (active) showToast(t('printSheet.idPrint.preview.generateFailed'), 'error');
       } finally {
         if (active) setIsGenerating(false);
       }
@@ -101,10 +104,10 @@ const LayoutPreview: React.FC<LayoutPreviewProps> = ({ assets, config }) => {
         phrase: `ID Print (${config.photoSize})`,
         timestamp: Date.now()
       });
-      alert(t('packager.status.savedToCollection') || 'Saved to Collection');
+      showToast(t('packager.status.savedToCollection') || 'Saved to Collection', 'success');
     } catch (e) {
       console.error(e);
-      alert('Failed to save to collection');
+      showToast(t('printSheet.idPrint.preview.saveFailed'), 'error');
     } finally {
       setIsSaving(false);
     }

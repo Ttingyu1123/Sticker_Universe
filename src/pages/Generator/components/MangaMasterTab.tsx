@@ -10,6 +10,7 @@ import { useImageShare } from '../../../hooks/useImageShare';
 import { AiProvider } from '../../../shared/geminiApiKey';
 import { generateOpenAiImage } from '../services/openaiImageService';
 import { generateOpenAiText } from '../services/openaiTextService';
+import { ProviderSwitcher } from '../../../components/shared/ProviderSwitcher';
 
 interface Props {
     provider: AiProvider;
@@ -19,11 +20,6 @@ interface Props {
     onSuccess: (imageUrl: string, prompt: string) => void;
     onError: (msg: string) => void;
 }
-
-const PROVIDER_LABELS: Record<AiProvider, string> = {
-    gemini: 'Gemini',
-    openai: 'OpenAI',
-};
 
 const GEMINI_MANGA_MODEL = 'gemini-3-pro-image-preview';
 const OPENAI_MANGA_MODEL = 'gpt-image-2';
@@ -292,20 +288,7 @@ Instructions:
                             Set API Key
                         </button>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                        {(['gemini', 'openai'] as AiProvider[]).map((option) => (
-                            <button
-                                key={option}
-                                type="button"
-                                onClick={() => onProviderChange(option)}
-                                className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option
-                                    ? 'bg-primary text-white border-primary shadow-md'
-                                    : 'bg-white border-cream-dark text-bronze-text hover:bg-white/80'}`}
-                            >
-                                {PROVIDER_LABELS[option]}
-                            </button>
-                        ))}
-                    </div>
+                    <ProviderSwitcher value={provider} onChange={onProviderChange} />
                     <p className="text-[11px] text-bronze-light">
                         {provider === 'openai' ? `Model: ${OPENAI_MANGA_MODEL}` : `Model: ${GEMINI_MANGA_MODEL}`}
                     </p>
@@ -425,10 +408,10 @@ Instructions:
                     <button
                         onClick={applyInspiration}
                         className="mb-3 text-xs flex items-center gap-1 bg-white hover:bg-cream-light text-secondary border border-secondary/30 px-3 py-1.5 rounded-lg transition-colors font-bold"
-                        title="套用靈感範例"
+                        title={t('generator.action.luckyPrompt')}
                     >
                         <Lightbulb className="w-3 h-3" />
-                        套用靈感
+                        {t('generator.action.luckyPrompt')}
                     </button>
                     <textarea
                         value={config.theme}

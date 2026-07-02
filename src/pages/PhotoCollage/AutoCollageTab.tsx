@@ -9,7 +9,8 @@ import { calculateFrames, getCanvasDimensions } from './utils/geometry';
 import { useTranslation } from 'react-i18next';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { saveStickerToDB } from '../../db';
-import { AiProvider, clearApiKey, getApiKeyUrl, isValidApiKey, loadApiKey, saveApiKey } from '../../shared/geminiApiKey';
+import { AiProvider, clearApiKey, getApiKeyUrl, isApiKeyError, isValidApiKey, loadApiKey, saveApiKey } from '../../shared/geminiApiKey';
+import { useToast } from '../../components/shared/ToastProvider';
 
 const BASE_EXPORT_WIDTH = 1200;
 const EXPORT_SIZE_OPTIONS = [
@@ -43,6 +44,7 @@ const OPENAI_COLLAGE_MODEL = 'gpt-image-2';
 
 export const AutoCollageTab: React.FC = () => {
     const { t } = useTranslation();
+    const { showToast } = useToast();
     const [images, setImages] = useState<UploadedImage[]>([]);
     const [editorMode, setEditorMode] = useState<'collage' | 'single'>('collage');
     const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
@@ -313,7 +315,7 @@ export const AutoCollageTab: React.FC = () => {
             saveCheckpoint();
             updateImageProperty(id, { isHero: !targetImage?.isHero });
         } else {
-            alert(t('collage.maxHeroLimit'));
+            showToast(t('collage.maxHeroLimit'), 'error');
         }
     };
 
@@ -350,6 +352,7 @@ export const AutoCollageTab: React.FC = () => {
                 link.click();
             } catch (e) {
                 console.error("Download failed", e);
+                showToast(t('collage.toast.downloadFailed'), 'error');
             }
         }
     };
@@ -369,10 +372,10 @@ export const AutoCollageTab: React.FC = () => {
             };
 
             await saveStickerToDB(newSticker);
-            alert(t('gallery.saved') || 'Saved to Gallery!');
+            showToast(t('gallery.saved') || 'Saved to Gallery!', 'success');
         } catch (error) {
             console.error("Failed to save to gallery:", error);
-            alert("Failed to save to gallery");
+            showToast(t('collage.toast.saveFailed'), 'error');
         } finally {
             setIsSaving(false);
         }
@@ -505,12 +508,12 @@ export const AutoCollageTab: React.FC = () => {
             setPrompt('');
         } catch (err: any) {
             console.error(err);
-            if (err.message?.includes("403") || err.message?.includes("401")) { // Check for auth errors
-                alert("API Key issue. Please check your key.");
+            if (isApiKeyError(err)) {
+                showToast(t('collage.toast.apiKeyIssue'), 'error');
                 syncKeyModalState(provider);
                 setShowKeyModal(true);
             } else {
-                alert("Generation failed: " + err.message);
+                showToast(t('collage.toast.generateFailed', { message: err.message }), 'error');
             }
         } finally {
             setIsAiLoading(false);
@@ -773,10 +776,10 @@ export const AutoCollageTab: React.FC = () => {
                                 <ImageIcon size={32} />
                             </div>
                             <h2 className="text-lg md:text-xl font-black text-bronze mb-2">
-                                {editorMode === 'single' ? '單張邊框輸出' : t('collage.create')}
+                                {editorMode === 'single' ? t('collage.single.emptyTitle') : t('collage.create')}
                             </h2>
                             <p className="text-xs md:text-sm text-bronze-light mb-6">
-                                {editorMode === 'single' ? '上傳一張圖，選擇拍立得或底片框後下載。' : t('collage.dragDrop')}
+                                {editorMode === 'single' ? t('collage.single.emptyDesc') : t('collage.dragDrop')}
                             </p>
                             <div className="flex gap-3 justify-center">
                                 <button onClick={() => fileInputRef.current?.click()} className="px-4 md:px-6 py-2.5 bg-white border border-cream-dark shadow-sm rounded-xl font-bold text-xs md:text-sm text-bronze-text hover:bg-cream-light transition-colors">{t('collage.upload')}</button>
@@ -857,7 +860,7 @@ export const AutoCollageTab: React.FC = () => {
                     <div className="flex justify-between items-center mb-4">
                         <div className="flex flex-col gap-2">
                             <h2 className="font-black text-bronze text-sm md:text-base">
-                                {editorMode === 'single' ? '單張編輯' : t('collage.photos')} ({images.length}/{editorMode === 'single' ? 1 : 12})
+                                {editorMode === 'single' ? t('collage.single.editTitle') : t('collage.photos')} ({images.length}/{editorMode === 'single' ? 1 : 12})
                             </h2>
                             {editorMode === 'collage' && (
                                 <p className="text-[10px] text-bronze-light">{t('collage.heroHint', { defaultValue: 'Star marks Hero photos: prioritized in focus layouts (max 2).' })}</p>
@@ -867,13 +870,13 @@ export const AutoCollageTab: React.FC = () => {
                                     onClick={() => handleModeChange('collage')}
                                     className={`px-2.5 py-1 text-xs font-black rounded-md transition-colors ${editorMode === 'collage' ? 'bg-primary text-white' : 'text-bronze-light hover:text-primary'}`}
                                 >
-                                    拼貼
+                                    {t('collage.single.modeCollage')}
                                 </button>
                                 <button
                                     onClick={() => handleModeChange('single')}
                                     className={`px-2.5 py-1 text-xs font-black rounded-md transition-colors ${editorMode === 'single' ? 'bg-primary text-white' : 'text-bronze-light hover:text-primary'}`}
                                 >
-                                    單張邊框
+                                    {t('collage.single.modeSingle')}
                                 </button>
                             </div>
                         </div>

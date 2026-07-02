@@ -6,9 +6,11 @@ import { MaskCanvas, generateMaskFromAI, processMask } from '../../../features/m
 import type { AISettings } from '../../../features/mask-core';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { saveStickerToDB } from '../../../db';
+import { useToast } from '../../../components/shared/ToastProvider';
 
 const SmartRemoveTab = () => {
     const { t } = useTranslation();
+    const { showToast } = useToast();
     const location = useLocation();
     const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
     const [maskCanvas, setMaskCanvas] = useState<HTMLCanvasElement | null>(null);
@@ -168,9 +170,10 @@ const SmartRemoveTab = () => {
         } catch (e) {
             console.error('AI Background Removal Error:', e);
             const errorMsg = e instanceof Error ? e.message : String(e);
-            alert(
+            showToast(
                 t('editor.aiRemoval.error') ||
-                `AI 去背失敗。\n\n錯誤詳情：${errorMsg}`
+                `AI 去背失敗。\n\n錯誤詳情：${errorMsg}`,
+                'error'
             );
         } finally {
             setIsProcessing(false);
@@ -251,7 +254,7 @@ const SmartRemoveTab = () => {
                     id: `smartremove_auto_${Date.now()}`,
                     imageUrl: url,
                     timestamp: Date.now(),
-                    phrase: '智慧去背編輯'
+                    phrase: t('eraser.smartRemove.defaultPhrase', { defaultValue: '智慧去背編輯' })
                 });
             } catch (error) {
                 console.error('Auto-save on export failed', error);
@@ -310,12 +313,12 @@ const SmartRemoveTab = () => {
                 id: crypto.randomUUID(),
                 imageUrl: url,
                 timestamp: Date.now(),
-                phrase: '智慧去背編輯'
+                phrase: t('eraser.smartRemove.defaultPhrase', { defaultValue: '智慧去背編輯' })
             });
-            alert(t('packager.status.complete') || '已儲存到作品集！');
+            showToast(t('packager.status.complete') || '已儲存到作品集！', 'success');
         } catch (error) {
             console.error(error);
-            alert('儲存失敗');
+            showToast(t('common.toast.saveFailed', { defaultValue: '儲存失敗，請再試一次。' }), 'error');
         } finally {
             setIsSaving(false);
         }
@@ -324,15 +327,15 @@ const SmartRemoveTab = () => {
     const getToolShortLabel = (value: typeof tool) => {
         switch (value) {
             case 'erase':
-                return '橡皮擦';
+                return t('eraser.toolbar.eraser');
             case 'restore':
-                return '還原筆刷';
+                return t('eraser.toolbar.restore');
             case 'magic-wand':
-                return '魔術棒';
+                return t('eraser.toolbar.magic');
             case 'move':
-                return '移動';
+                return t('eraser.toolbar.move');
             case 'crop':
-                return '裁切';
+                return t('eraser.toolbar.crop', { defaultValue: '裁切' });
             default:
                 return '';
         }
@@ -445,7 +448,7 @@ const SmartRemoveTab = () => {
                                     >
                                         <img
                                             src={originalImage.src}
-                                            alt="原圖"
+                                            alt={t('eraser.toolbar.originalImageAlt', { defaultValue: '原圖' })}
                                             className="w-full h-full object-contain block"
                                             draggable={false}
                                         />
@@ -458,7 +461,7 @@ const SmartRemoveTab = () => {
                                     <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-20">
                                         <div className="flex flex-col items-center">
                                             <Loader2 size={40} className="text-primary animate-spin mb-2" />
-                                            <span className="font-bold text-primary-dark">AI 處理中...</span>
+                                            <span className="font-bold text-primary-dark">{t('eraser.toolbar.aiProcessing', { defaultValue: 'AI 處理中...' })}</span>
                                         </div>
                                     </div>
                                 )}
@@ -491,14 +494,14 @@ const SmartRemoveTab = () => {
                     {originalImage && (
                         <div className="lg:hidden absolute left-3 right-3 bottom-3 z-10 rounded-2xl border border-cream-dark bg-white/95 backdrop-blur-sm shadow-xl p-2 space-y-2">
                             <div className="flex items-center justify-between px-1">
-                                <span className="text-[11px] font-bold text-bronze-light">目前工具：<span className="text-bronze-text">{getToolShortLabel(tool)}</span></span>
+                                <span className="text-[11px] font-bold text-bronze-light">{t('eraser.toolbar.currentTool', { defaultValue: '目前工具：' })}<span className="text-bronze-text">{getToolShortLabel(tool)}</span></span>
                                 <button
                                     onClick={() => setShowMobileMoreTools(true)}
                                     className="px-2 py-1 rounded-md bg-cream-light border border-cream-dark text-[11px] font-bold text-bronze-text inline-flex items-center gap-1"
-                                    title="更多工具"
+                                    title={t('eraser.toolbar.moreTools', { defaultValue: '更多工具' })}
                                 >
                                     <Settings size={12} />
-                                    更多工具
+                                    {t('eraser.toolbar.moreTools', { defaultValue: '更多工具' })}
                                 </button>
                             </div>
                             <div className="grid grid-cols-4 gap-1">
@@ -509,7 +512,7 @@ const SmartRemoveTab = () => {
                                     aria-label={t('eraser.toolbar.eraser') || '\u6a61\u76ae\u64e6'}
                                 >
                                     <Eraser size={16} />
-                                    <span className="text-[10px] font-bold leading-none">橡皮擦</span>
+                                    <span className="text-[10px] font-bold leading-none">{t('eraser.toolbar.eraser')}</span>
                                 </button>
                                 <button
                                     onClick={() => setTool('restore')}
@@ -518,7 +521,7 @@ const SmartRemoveTab = () => {
                                     aria-label={t('eraser.toolbar.restore') || '\u9084\u539f\u7b46\u5237'}
                                 >
                                     <Brush size={16} />
-                                    <span className="text-[10px] font-bold leading-none">還原筆刷</span>
+                                    <span className="text-[10px] font-bold leading-none">{t('eraser.toolbar.restore')}</span>
                                 </button>
                                 <button
                                     onClick={() => setTool('magic-wand')}
@@ -527,7 +530,7 @@ const SmartRemoveTab = () => {
                                     aria-label={t('eraser.toolbar.magic') || '\u9b54\u8853\u68d2'}
                                 >
                                     <Sparkles size={16} />
-                                    <span className="text-[10px] font-bold leading-none">魔術棒</span>
+                                    <span className="text-[10px] font-bold leading-none">{t('eraser.toolbar.magic')}</span>
                                 </button>
                                 <button
                                     onClick={() => setTool('move')}
@@ -536,7 +539,7 @@ const SmartRemoveTab = () => {
                                     aria-label={t('eraser.toolbar.move') || '??'}
                                 >
                                     <Hand size={16} />
-                                    <span className="text-[10px] font-bold leading-none">移動</span>
+                                    <span className="text-[10px] font-bold leading-none">{t('eraser.toolbar.move')}</span>
                                 </button>
                             </div>
                             <div className="grid grid-cols-2 gap-1">
@@ -547,7 +550,7 @@ const SmartRemoveTab = () => {
                                     title={t('eraser.toolbar.undo') || '??'}
                                 >
                                     <Undo size={14} />
-                                    <span className="text-[11px] font-bold">復原</span>
+                                    <span className="text-[11px] font-bold">{t('eraser.toolbar.undo')}</span>
                                 </button>
                                 <button
                                     onClick={handleRedo}
@@ -556,7 +559,7 @@ const SmartRemoveTab = () => {
                                     title={t('eraser.toolbar.redo') || '??'}
                                 >
                                     <Redo size={14} />
-                                    <span className="text-[11px] font-bold">重做</span>
+                                    <span className="text-[11px] font-bold">{t('eraser.toolbar.redo')}</span>
                                 </button>
                             </div>
                             <div className="flex items-center gap-2">
@@ -788,7 +791,7 @@ const SmartRemoveTab = () => {
                                     </div>
                                 </>
                             ) : (
-                                <div className="text-xs text-bronze-light italic">此工具目前沒有額外設定</div>
+                                <div className="text-xs text-bronze-light italic">{t('eraser.toolbar.noExtraSettings', { defaultValue: '此工具目前沒有額外設定' })}</div>
                             )
                         }
                     </div>
@@ -924,11 +927,11 @@ const SmartRemoveTab = () => {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="mb-3 flex items-center justify-between">
-                            <h3 className="text-sm font-bold text-bronze-text">更多工具</h3>
+                            <h3 className="text-sm font-bold text-bronze-text">{t('eraser.toolbar.moreTools', { defaultValue: '更多工具' })}</h3>
                             <button
                                 onClick={() => setShowMobileMoreTools(false)}
                                 className="h-8 w-8 rounded-lg border border-cream-dark bg-cream-light text-bronze-text flex items-center justify-center"
-                                title="關閉"
+                                title={t('common.close', { defaultValue: '關閉' })}
                             >
                                 <X size={16} />
                             </button>
@@ -1123,7 +1126,7 @@ const SmartRemoveTab = () => {
                                     </div>
                                 </>
                             ) : (
-                                <div className="text-xs text-bronze-light italic">此工具目前沒有額外設定</div>
+                                <div className="text-xs text-bronze-light italic">{t('eraser.toolbar.noExtraSettings', { defaultValue: '此工具目前沒有額外設定' })}</div>
                             )}
                         </div>
 

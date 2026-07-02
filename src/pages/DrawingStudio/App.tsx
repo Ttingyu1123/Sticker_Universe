@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Lock } from 'lucide-react';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { saveStickerToDB } from '../../db';
+import { useToast } from '../../components/shared/ToastProvider';
 import { useBrushPresets } from './hooks/useBrushPresets';
 import { CanvasToolbar } from './components/CanvasToolbar';
 import { BrushSettingsPanel } from './components/BrushSettingsPanel';
@@ -25,6 +26,7 @@ const fileToDataUrl = async (file: Blob) => new Promise<string>((resolve, reject
 
 export const DrawingStudioApp: React.FC = () => {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const brushTypeLabel = (id: BrushType) => t(`drawing.brushTypes.${id}`, { defaultValue: id });
 
   const [canvasSize, setCanvasSize] = useState({ width: 1200, height: 1200 });
@@ -1029,10 +1031,10 @@ export const DrawingStudioApp: React.FC = () => {
     });
     try {
       await saveStickerToDB({ id: `drawing_${Date.now()}`, imageUrl: c.toDataURL('image/png'), phrase: 'Drawing Studio', timestamp: Date.now() });
-      alert(t('packager.status.savedToCollection', { defaultValue: '\u5df2\u5132\u5b58\u81f3\u4f5c\u54c1\u96c6' }));
+      showToast(t('packager.status.savedToCollection', { defaultValue: '\u5df2\u5132\u5b58\u81f3\u4f5c\u54c1\u96c6' }), 'success');
     } catch (error) {
       console.error(error);
-      alert(t('packager.status.saveFailed', { defaultValue: '\u5132\u5b58\u5931\u6557' }));
+      showToast(t('packager.status.saveFailed', { defaultValue: '\u5132\u5b58\u5931\u6557' }), 'error');
     }
   };
 

@@ -456,7 +456,7 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                 <Label>{t('collage.background.title')}</Label>
                 <div className="mb-3 p-3 bg-white border border-cream-dark rounded-xl">
                     <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-black text-bronze-light uppercase">2 色漸層</span>
+                        <span className="text-[11px] font-black text-bronze-light uppercase">{t('collage.background.gradient2Color')}</span>
                         <button
                             onClick={() => onUpdate({ ...settings, backgroundId: undefined, customGradientEnabled: !settings.customGradientEnabled })}
                             className={`px-2 py-1 rounded-md text-[11px] font-bold border transition-colors ${settings.customGradientEnabled
@@ -464,12 +464,12 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                                 : 'bg-cream-light text-bronze-light border-cream-dark'
                                 }`}
                         >
-                            {settings.customGradientEnabled ? '啟用中' : '關閉'}
+                            {settings.customGradientEnabled ? t('collage.background.enabled') : t('collage.background.disabled')}
                         </button>
                     </div>
                     <div className="mt-2 grid grid-cols-2 gap-2">
                         <label className="flex items-center gap-2 text-[11px] font-bold text-bronze-light">
-                            起始
+                            {t('collage.background.gradientStart')}
                             <input
                                 type="color"
                                 value={settings.customGradientStart || '#ff9a9e'}
@@ -483,7 +483,7 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                             />
                         </label>
                         <label className="flex items-center gap-2 text-[11px] font-bold text-bronze-light">
-                            結束
+                            {t('collage.background.gradientEnd')}
                             <input
                                 type="color"
                                 value={settings.customGradientEnd || '#fecfef'}
@@ -498,7 +498,7 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                         </label>
                     </div>
                     <div className="mt-2">
-                        <label className="text-[11px] font-bold text-bronze-light mr-2">方向</label>
+                        <label className="text-[11px] font-bold text-bronze-light mr-2">{t('collage.background.gradientDirection')}</label>
                         <select
                             value={settings.customGradientDirection || 'diagonal'}
                             onChange={(e) => onUpdate({
@@ -509,9 +509,9 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                             })}
                             className="bg-cream-light border border-cream-dark rounded-lg px-2 py-1 text-[11px] font-bold text-bronze"
                         >
-                            <option value="diagonal">斜向</option>
-                            <option value="horizontal">左右</option>
-                            <option value="vertical">上下</option>
+                            <option value="diagonal">{t('collage.background.directionDiagonal')}</option>
+                            <option value="horizontal">{t('collage.background.directionHorizontal')}</option>
+                            <option value="vertical">{t('collage.background.directionVertical')}</option>
                         </select>
                     </div>
                 </div>
@@ -578,8 +578,8 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
 
                     <div className="mt-3 p-2 rounded-lg border border-primary/15 bg-primary/5 flex items-center justify-between">
                         <div>
-                            <div className="text-[11px] font-black text-primary">自動避空白</div>
-                            <div className="text-[10px] text-bronze-light">留白超過門檻時自動切換為較緊湊版型</div>
+                            <div className="text-[11px] font-black text-primary">{t('collage.background.autoAvoidBlank')}</div>
+                            <div className="text-[10px] text-bronze-light">{t('collage.background.autoAvoidBlankHint')}</div>
                         </div>
                         <button
                             onClick={() => handleChange('autoAvoidBlank', !settings.autoAvoidBlank)}
@@ -588,7 +588,7 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                                 : 'bg-white text-bronze-light border-cream-dark'
                                 }`}
                         >
-                            {settings.autoAvoidBlank ? '開啟' : '關閉'}
+                            {settings.autoAvoidBlank ? t('collage.background.enabled') : t('collage.background.disabled')}
                         </button>
                     </div>
                 </div>

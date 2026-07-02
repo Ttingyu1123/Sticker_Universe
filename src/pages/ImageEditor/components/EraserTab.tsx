@@ -6,11 +6,13 @@ import type { ToolMode } from '../../../features/eraser-core';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { useLocation } from 'react-router-dom';
 import { saveStickerToDB } from '../../../db';
+import { useToast } from '../../../components/shared/ToastProvider';
 
 const MAX_HISTORY_STEPS = 20;
 
 const EraserTab: React.FC = () => {
     const { t } = useTranslation();
+    const { showToast } = useToast();
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [showGallery, setShowGallery] = useState(false);
     const location = useLocation();
@@ -160,10 +162,10 @@ const EraserTab: React.FC = () => {
                 phrase: 'Eraser Edit',
                 timestamp: Date.now()
             });
-            alert(t('packager.status.savedToCollection') || 'Saved to Collection');
+            showToast(t('packager.status.savedToCollection') || 'Saved to Collection', 'success');
         } catch (e) {
             console.error(e);
-            alert('Failed to save to collection');
+            showToast(t('common.toast.saveFailed', { defaultValue: 'Failed to save. Please try again.' }), 'error');
         }
     };
 

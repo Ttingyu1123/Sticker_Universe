@@ -7,6 +7,7 @@ import 'cropperjs/dist/cropper.css';
 import { Upload, Camera, Sparkles, Scissors, Trash2, Image as ImageIcon, Download, User, FolderHeart, Wand2, Zap, ZoomIn, Edit3, Key } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
+import { ProviderSwitcher } from '../../../components/shared/ProviderSwitcher';
 import { AiProvider } from '../../../shared/geminiApiKey';
 import { generateOpenAiImage } from '../services/openaiImageService';
 
@@ -41,11 +42,6 @@ interface PortraitMasterTabProps {
     onError?: (msg: string) => void;
     onNeedApiKey?: (provider: AiProvider) => void;
 }
-
-const PROVIDER_LABELS: Record<AiProvider, string> = {
-    gemini: 'Gemini',
-    openai: 'OpenAI',
-};
 
 const GEMINI_PORTRAIT_MODEL = 'gemini-3-pro-image-preview';
 const OPENAI_PORTRAIT_MODEL = 'gpt-image-2';
@@ -797,20 +793,7 @@ ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
                                     Set API Key
                                 </button>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                {(['gemini', 'openai'] as AiProvider[]).map((option) => (
-                                    <button
-                                        key={option}
-                                        type="button"
-                                        onClick={() => onProviderChange(option)}
-                                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option
-                                            ? 'bg-primary text-white border-primary shadow-md'
-                                            : 'bg-white border-cream-dark text-bronze-text hover:bg-white/80'}`}
-                                    >
-                                        {PROVIDER_LABELS[option]}
-                                    </button>
-                                ))}
-                            </div>
+                            <ProviderSwitcher value={provider} onChange={onProviderChange} />
                             <p className="text-[11px] text-bronze-light">
                                 {provider === 'openai' ? `Model: ${OPENAI_PORTRAIT_MODEL}` : `Model: ${GEMINI_PORTRAIT_MODEL}`}
                             </p>

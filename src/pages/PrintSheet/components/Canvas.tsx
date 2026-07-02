@@ -5,6 +5,7 @@ import jsPDF from 'jspdf';
 import { Download, Grid, Loader2, Check, Minus, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { saveStickerToDB } from '../../../db';
+import { useToast } from '../../../components/shared/ToastProvider';
 
 interface StickerImage {
     id: string;
@@ -48,6 +49,7 @@ const SHEET_SPECS: Record<SheetSize, { label: string; widthPx: number; heightPx:
 
 export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
     const { t } = useTranslation();
+    const { showToast } = useToast();
     const getSheetLabel = (key: SheetSize, fallback: string) =>
         t(`printSheet.sheetSizes.${key}`, { defaultValue: fallback });
     const canvasRef = useRef<HTMLDivElement>(null);
@@ -140,7 +142,7 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
         } catch (err: any) {
             console.error('PNG Export failed:', err);
             const errorMessage = err?.message || 'Unknown error';
-            alert(`${t('printSheet.exportFailed') || 'Export failed.'}\n(${errorMessage})`);
+            showToast(`${t('printSheet.exportFailed') || 'Export failed.'} (${errorMessage})`, 'error');
         } finally {
             setIsExporting(false);
         }
@@ -181,7 +183,7 @@ export const Canvas: React.FC<CanvasProps> = ({ images, setImages }) => {
         } catch (err: any) {
             console.error('Export failed:', err);
             const errorMessage = err?.message || 'Unknown error';
-            alert(`${t('printSheet.exportFailed') || 'Export failed.'}\n(${errorMessage})`);
+            showToast(`${t('printSheet.exportFailed') || 'Export failed.'} (${errorMessage})`, 'error');
         } finally {
             setIsExporting(false);
         }

@@ -13,6 +13,7 @@ import {
   generateCharacterStory,
   optimizeCharacterPrompt,
 } from '../../../features/character-creator-core';
+import { ProviderSwitcher } from '../../../components/shared/ProviderSwitcher';
 import { AiProvider } from '../../../shared/geminiApiKey';
 import { safeSaveToLocalStorage } from '../../../shared/localStorage';
 import { generateOpenAiJson, generateOpenAiText } from '../services/openaiTextService';
@@ -25,11 +26,6 @@ interface CharacterCreateTabProps {
   onNeedApiKey: (provider: AiProvider) => void;
   onSendToImageGen: (prompt: string, provider: AiProvider) => void;
 }
-
-const PROVIDER_LABELS: Record<AiProvider, string> = {
-  gemini: 'Gemini',
-  openai: 'OpenAI',
-};
 
 interface CharacterProfile {
   id: string;
@@ -532,20 +528,7 @@ Output only optimized prompt text.`,
             Set API Key
           </button>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          {(['gemini', 'openai'] as AiProvider[]).map((option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => onProviderChange(option)}
-              className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option
-                ? 'bg-primary text-white border-primary shadow-md'
-                : 'bg-white border-cream-dark text-bronze-text hover:bg-white/80'}`}
-            >
-              {PROVIDER_LABELS[option]}
-            </button>
-          ))}
-        </div>
+        <ProviderSwitcher value={provider} onChange={onProviderChange} />
         <p className="text-[11px] text-bronze-light">
           {provider === 'openai'
             ? 'OpenAI mode: idea analysis, prompt optimization, and story card all use the OpenAI text proxy, then you can send the result to AI Image Gen with OpenAI.'

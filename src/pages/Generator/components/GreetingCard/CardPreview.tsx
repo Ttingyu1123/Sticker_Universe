@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { RefreshCw, Share2, Scissors, Download, Image as ImageIcon } from 'lucide-react';
 import { CardLayoutId } from '../../types';
 import { FONTS, HistoryItem } from './Constants';
@@ -47,6 +48,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
     onDownload,
     onDownloadRaw
 }) => {
+    const { t } = useTranslation();
     const activeFont = [...FONTS, ...customFonts].find(f => f.id === selectedFont);
     const toText = showRecipientName ? (recipientName || "You") : "";
     const fromText = showUserName ? (userName || "Me") : "";
@@ -60,7 +62,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
             >
                 <div className="text-center space-y-4 opacity-50">
                     <ImageIcon size={64} className="mx-auto text-bronze-light" />
-                    <p className="text-bronze-light font-bold">你的專屬賀卡將會出現在這裡</p>
+                    <p className="text-bronze-light font-bold">{t('generator.greetingCard.preview.emptyHint')}</p>
                 </div>
             </div>
         );
@@ -161,20 +163,20 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
                 {/* Hover Actions */}
                 {!isRegenerating && !isRemovingBg && (
                     <div className="absolute top-4 right-4 flex flex-col gap-2 z-[60]">
-                        <button onClick={onRegenerate} className="bg-white/90 backdrop-blur p-3 rounded-full text-blue-500 shadow-lg hover:scale-110 transition-transform" title="重新生成">
+                        <button onClick={onRegenerate} className="bg-white/90 backdrop-blur p-3 rounded-full text-blue-500 shadow-lg hover:scale-110 transition-transform" title={t('generator.greetingCard.preview.regenerate')}>
                             <RefreshCw size={20} />
                         </button>
-                        <button onClick={onShare} className="bg-white/90 backdrop-blur p-3 rounded-full text-pink-500 shadow-lg hover:scale-110 transition-transform" title={canShare ? "分享 / 存到..." : "複製到剪貼簿"}>
+                        <button onClick={onShare} className="bg-white/90 backdrop-blur p-3 rounded-full text-pink-500 shadow-lg hover:scale-110 transition-transform" title={canShare ? t('generator.greetingCard.preview.shareTitle') : t('generator.greetingCard.preview.copyTitle')}>
                             <Share2 size={20} />
                         </button>
-                        <button onClick={onRemoveBg} className="bg-white/90 backdrop-blur p-3 rounded-full text-amber-500 shadow-lg hover:scale-110 transition-transform" title="智慧去背 (移除綠幕)">
+                        <button onClick={onRemoveBg} className="bg-white/90 backdrop-blur p-3 rounded-full text-amber-500 shadow-lg hover:scale-110 transition-transform" title={t('generator.greetingCard.preview.removeBgTooltip')}>
                             <Scissors size={20} />
                         </button>
                         <div className="flex flex-col gap-2 group/menu">
-                            <button onClick={onDownload} className="bg-white/90 backdrop-blur p-3 rounded-full text-green-600 shadow-lg hover:scale-110 transition-transform flex items-center justify-center gap-1 group/btn" title="下載完整賀卡">
+                            <button onClick={onDownload} className="bg-white/90 backdrop-blur p-3 rounded-full text-green-600 shadow-lg hover:scale-110 transition-transform flex items-center justify-center gap-1 group/btn" title={t('generator.greetingCard.preview.downloadFull')}>
                                 <Download size={20} />
                             </button>
-                            <button onClick={onDownloadRaw} className="flex bg-white/90 backdrop-blur p-3 rounded-full text-teal-500 shadow-lg hover:scale-110 transition-transform items-center justify-center gap-1" title="下載純圖片">
+                            <button onClick={onDownloadRaw} className="flex bg-white/90 backdrop-blur p-3 rounded-full text-teal-500 shadow-lg hover:scale-110 transition-transform items-center justify-center gap-1" title={t('generator.greetingCard.preview.downloadRaw')}>
                                 <ImageIcon size={20} />
                             </button>
                         </div>
@@ -186,7 +188,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
                     <div className="absolute inset-0 z-[70] bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-[2rem]">
                         <div className="bg-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
                             {isRemovingBg ? <Scissors className="animate-bounce text-amber-500" size={16} /> : <RefreshCw className="animate-spin text-primary" size={16} />}
-                            <span className="text-xs font-bold text-bronze">{isRemovingBg ? "智慧去背中..." : "重新繪製中..."}</span>
+                            <span className="text-xs font-bold text-bronze">{isRemovingBg ? t('generator.greetingCard.preview.removingBg') : t('generator.greetingCard.preview.regenerating')}</span>
                         </div>
                     </div>
                 )}

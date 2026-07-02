@@ -14,7 +14,7 @@ import { generateImage as generateGeminiImage } from '../services/geminiService'
 import { generateOpenAiImage } from '../services/openaiImageService';
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
-import { AiProvider } from '../../../shared/geminiApiKey';
+import { AiProvider, isApiKeyError, PROVIDER_LABELS } from '../../../shared/geminiApiKey';
 
 interface ImageGeneratorTabProps {
     provider: AiProvider;
@@ -106,7 +106,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
             }
         } catch (err) {
             console.error('Failed to paste image:', err);
-            onError('貼上圖片失敗，請改用上傳。');
+            onError(t('generator.imageGen.pasteFailed'));
         }
     };
 
@@ -124,13 +124,13 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
 
     const handleGenerate = async () => {
         if (!prompt && !referenceImage) {
-            onError('請先輸入提示詞或上傳參考圖。');
+            onError(t('generator.imageGen.needPromptOrImage'));
             return;
         }
 
         if (!activeApiKey) {
             onNeedApiKey(provider);
-            onError(provider === 'gemini' ? '請先設定 Gemini API Key。' : '請先設定 OpenAI API Key。');
+            onError(t('generator.imageGen.needApiKey', { provider: PROVIDER_LABELS[provider] }));
             return;
         }
 
@@ -159,13 +159,9 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
             let nextErrorMessage = err.message || 'Generation failed.';
 
             if (nextErrorMessage.includes('503') || nextErrorMessage.includes('overloaded')) {
-                nextErrorMessage = provider === 'gemini'
-                    ? 'Gemini 圖片模型目前繁忙，請稍後再試。'
-                    : 'OpenAI 圖片模型目前繁忙，請稍後再試。';
-            } else if (nextErrorMessage.includes('KEY_NOT_FOUND')) {
-                nextErrorMessage = provider === 'gemini'
-                    ? 'Gemini API Key 無效，請重新設定。'
-                    : 'OpenAI API Key 無效，請重新設定。';
+                nextErrorMessage = t('generator.imageGen.modelBusy', { provider: PROVIDER_LABELS[provider] });
+            } else if (isApiKeyError(err)) {
+                nextErrorMessage = t('generator.imageGen.apiKeyInvalid', { provider: PROVIDER_LABELS[provider] });
             }
 
             setErrorMessage(nextErrorMessage);
@@ -463,8 +459,8 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({
                         </div>
                         <p className="text-[11px] text-bronze-light px-1">
                             {provider === 'gemini'
-                                ? 'Gemini 保留原本既有模型流程。'
-                                : 'OpenAI 使用官方 GPT Image API；有參考圖時會自動改走 image edit。'}
+                                ? t('generator.imageGen.modelHintGemini')
+                                : t('generator.imageGen.modelHintOpenai')}
                         </p>
                     </div>
 

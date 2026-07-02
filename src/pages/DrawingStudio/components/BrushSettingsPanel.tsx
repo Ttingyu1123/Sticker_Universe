@@ -83,10 +83,10 @@ export const BrushSettingsPanel: React.FC<BrushSettingsPanelProps> = ({
                         <button
                             type="button"
                             onClick={onCopyHex}
-                            title={hexCopied ? '已複製' : '點擊複製 HEX'}
+                            title={hexCopied ? t('drawing.copied', { defaultValue: '已複製' }) : t('drawing.copyHexHint', { defaultValue: '點擊複製 HEX' })}
                             className="rounded border border-cream-dark bg-cream-light px-1.5 py-0.5 text-[10px] font-black tracking-wide text-bronze-text hover:border-primary hover:text-primary"
                         >
-                            {hexCopied ? '已複製' : brushColor.toUpperCase()}
+                            {hexCopied ? t('drawing.copied', { defaultValue: '已複製' }) : brushColor.toUpperCase()}
                         </button>
                     </span>
                 </label>

@@ -12,9 +12,11 @@ import { generateSticker, suggestStickerPhrases } from '../services/geminiServic
 import { Button } from '../../../components/ui/Button';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { useImageShare } from '../../../hooks/useImageShare';
-import { AiProvider } from '../../../shared/geminiApiKey';
+import { AiProvider, isApiKeyError } from '../../../shared/geminiApiKey';
 import { generateOpenAiImage } from '../services/openaiImageService';
 import { generateOpenAiJson } from '../services/openaiTextService';
+import { useToast } from '../../../components/shared/ToastProvider';
+import { ProviderSwitcher } from '../../../components/shared/ProviderSwitcher';
 
 // Helper for Theme Icons
 const getThemeIcon = (iconName: string) => {
@@ -45,11 +47,6 @@ type PromptOption = {
 
 type PriorityMode = 'style' | 'semantic';
 type BatchPhraseMode = 'same' | 'theme' | 'custom';
-
-const PROVIDER_LABELS: Record<AiProvider, string> = {
-    gemini: 'Gemini',
-    openai: 'OpenAI',
-};
 
 const THEME_PROMPT_OPTIONS: PromptOption[] = [
     { id: 'office', label: '社畜日常 (預設)', prompt: 'Corporate slave daily office life. tired, fake smile, coffee, deadline, overtime, salary day, want to go home.' },
@@ -132,6 +129,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({
 }) => {
     const { shareImage } = useImageShare();
     const { t } = useTranslation();
+    const { showToast } = useToast();
     const apiKey = apiKeys[provider];
     const [currentTheme, setCurrentTheme] = useState<StickerTheme>(THEMES[0]);
     const [image, setImage] = useState<string | null>(null);
@@ -449,11 +447,14 @@ Requested phrase count: ${batchSize}`,
             setBatchPhrasesText(phrases.join('\n'));
             setBatchPhraseMode('custom');
         } catch (err: any) {
-            if (err.message === "KEY_NOT_FOUND" || err.message?.includes("403") || err.message?.includes("401")) {
+            if (isApiKeyError(err)) {
                 onNeedApiKey(provider);
                 return;
             }
-            setErrorMessage(`AI 產生台詞失敗：${err.message || '未知錯誤'}`);
+            setErrorMessage(t('generator.styleSticker.errors.suggestPhrasesFailed', {
+                message: err.message || t('generator.errors.unknown', { defaultValue: '未知錯誤' }),
+                defaultValue: `AI 產生台詞失敗：${err.message || '未知錯誤'}`,
+            }));
         } finally {
             setIsSuggestingPhrases(false);
         }
@@ -657,10 +658,13 @@ Requested phrase count: ${batchSize}`,
             }
         } catch (err: any) {
             console.error(err);
-            if (err.message === "KEY_NOT_FOUND" || err.message?.includes("403") || err.message?.includes("401")) {
+            if (isApiKeyError(err)) {
                 onNeedApiKey(provider);
             } else {
-                setErrorMessage(`生成失敗：${err.message || '未知錯誤'}`);
+                setErrorMessage(t('generator.styleSticker.errors.generateFailed', {
+                    message: err.message || t('generator.errors.unknown', { defaultValue: '未知錯誤' }),
+                    defaultValue: `生成失敗：${err.message || '未知錯誤'}`,
+                }));
             }
         } finally {
             setIsGenerating(false);
@@ -732,11 +736,14 @@ Requested phrase count: ${batchSize}`,
                 };
             }));
         } catch (err: any) {
-            if (err.message === "KEY_NOT_FOUND" || err.message?.includes("403") || err.message?.includes("401")) {
+            if (isApiKeyError(err)) {
                 onNeedApiKey(provider);
                 return;
             }
-            setErrorMessage(`重抽失敗：${err.message || '未知錯誤'}`);
+            setErrorMessage(t('generator.styleSticker.errors.rerollFailed', {
+                message: err.message || t('generator.errors.unknown', { defaultValue: '未知錯誤' }),
+                defaultValue: `重抽失敗：${err.message || '未知錯誤'}`,
+            }));
         } finally {
             setIsGenerating(false);
         }
@@ -838,7 +845,7 @@ Requested phrase count: ${batchSize}`,
             })
             .catch(err => {
                 console.error("Failed to generate zip:", err);
-                setErrorMessage('ZIP 打包失敗，請稍後再試');
+                showToast(t('generator.styleSticker.errors.zipFailed', { defaultValue: 'ZIP 打包失敗，請稍後再試' }), 'error');
             })
             .finally(() => {
                 setIsZipping(false);
@@ -884,20 +891,7 @@ Requested phrase count: ${batchSize}`,
                                     Set API Key
                                 </button>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                {(['gemini', 'openai'] as AiProvider[]).map((option) => (
-                                    <button
-                                        key={option}
-                                        type="button"
-                                        onClick={() => onProviderChange(option)}
-                                        className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${provider === option
-                                            ? 'bg-primary text-white border-primary shadow-md'
-                                            : 'bg-white border-cream-dark text-bronze-text hover:bg-white/80'}`}
-                                    >
-                                        {PROVIDER_LABELS[option]}
-                                    </button>
-                                ))}
-                            </div>
+                            <ProviderSwitcher value={provider} onChange={onProviderChange} />
                             <p className="text-[11px] text-bronze-light">
                                 {provider === 'openai' ? `Model: ${OPENAI_STICKER_MODEL}` : `Model: ${GEMINI_STICKER_MODEL}`}
                             </p>

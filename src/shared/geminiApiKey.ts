@@ -57,6 +57,24 @@ export const isValidApiKey = (provider: AiProvider, key: string) => {
     return trimmedKey.startsWith('sk-') && trimmedKey.length >= 20;
 };
 
+export const PROVIDER_LABELS: Record<AiProvider, string> = {
+    gemini: 'Gemini',
+    openai: 'OpenAI',
+};
+
+export const AI_PROVIDERS: AiProvider[] = ['gemini', 'openai'];
+
+// Treats missing-key sentinels and auth-shaped HTTP failures from either
+// provider as "user must (re)enter an API key".
+export const isApiKeyError = (err: unknown): boolean => {
+    const message = err instanceof Error ? err.message : String(err ?? '');
+    return message === 'KEY_NOT_FOUND'
+        || message.includes('401')
+        || message.includes('403')
+        || message.toLowerCase().includes('api key not valid')
+        || message.toLowerCase().includes('invalid api key');
+};
+
 export const getApiKeyUrl = (provider: AiProvider) => (
     provider === 'gemini'
         ? 'https://aistudio.google.com/app/apikey'
