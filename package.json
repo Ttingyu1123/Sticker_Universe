@@ -14,7 +14,8 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "test:coverage": "vitest run --coverage",
-        "postinstall": "node copy-imgly-assets.js"
+        "postinstall": "node copy-imgly-assets.js",
+        "typecheck": "tsc -b --noEmit --force"
     },
     "dependencies": {
         "@google/genai": "^1.38.0",
@@ -22,7 +23,6 @@
         "@imgly/background-removal-data": "1.4.5",
         "@tailwindcss/postcss": "^4.1.18",
         "@tailwindcss/vite": "^4.1.18",
-        "@xenova/transformers": "^2.17.2",
         "clsx": "^2.1.1",
         "cropperjs": "^1.6.2",
         "dompurify": "^3.3.1",
