@@ -1,4 +1,11 @@
+import { rejectBadOrigin, clampNumber, exceedsLength } from './_guard';
+
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
+
+const ALLOWED_MODELS = new Set(['gpt-5-mini', 'gpt-5-nano']);
+const MAX_INPUT_LENGTH = 64_000;
+const MAX_INSTRUCTIONS_LENGTH = 16_000;
+const MAX_OUTPUT_TOKENS_CAP = 4096;
 
 const getErrorPayload = async (response: Response) => {
     try {
@@ -47,6 +54,8 @@ export default async function handler(req: any, res: any) {
         return;
     }
 
+    if (rejectBadOrigin(req, res)) return;
+
     try {
         const body = await parseJsonBody(req);
         const {
@@ -68,10 +77,25 @@ export default async function handler(req: any, res: any) {
             return;
         }
 
+        if (!ALLOWED_MODELS.has(model)) {
+            res.status(400).json({ error: { message: `Unsupported model: ${String(model)}` } });
+            return;
+        }
+
+        if (exceedsLength(input, MAX_INPUT_LENGTH)) {
+            res.status(400).json({ error: { message: 'Input too long.' } });
+            return;
+        }
+
+        if (exceedsLength(instructions, MAX_INSTRUCTIONS_LENGTH)) {
+            res.status(400).json({ error: { message: 'Instructions too long.' } });
+            return;
+        }
+
         const requestBody: Record<string, any> = {
             model,
             input,
-            max_output_tokens: maxOutputTokens,
+            max_output_tokens: clampNumber(maxOutputTokens, 800, MAX_OUTPUT_TOKENS_CAP),
             text: {
                 format: { type: 'text' },
             },

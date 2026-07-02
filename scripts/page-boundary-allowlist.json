@@ -1,1 +1,7 @@
-[]
+[
+  "src/pages/ImageEditor/components/LocalRedrawTab.tsx => ../../Generator/services/geminiService",
+  "src/pages/ImageEditor/components/LocalRedrawTab.tsx => ../../Generator/services/openaiImageService",
+  "src/pages/ImageEditor/components/OutpaintTab.tsx => ../../Generator/services/geminiService",
+  "src/pages/ImageEditor/components/OutpaintTab.tsx => ../../Generator/services/openaiImageService",
+  "src/pages/PhotoCollage/AutoCollageTab.tsx => ../Generator/services/openaiImageService"
+]

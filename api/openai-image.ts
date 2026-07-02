@@ -1,5 +1,13 @@
+import { rejectBadOrigin, exceedsLength } from './_guard';
+
 const OPENAI_IMAGE_GENERATIONS_URL = 'https://api.openai.com/v1/images/generations';
 const OPENAI_IMAGE_EDITS_URL = 'https://api.openai.com/v1/images/edits';
+
+const ALLOWED_MODELS = new Set(['gpt-image-2', 'gpt-image-1']);
+const ALLOWED_QUALITIES = new Set(['low', 'medium', 'high', 'auto']);
+const MAX_PROMPT_LENGTH = 8000;
+const MAX_REFERENCE_IMAGES = 6;
+const MAX_IMAGE_DATA_URL_LENGTH = 8_000_000; // ~6MB binary per reference image
 
 const MIN_TOTAL_PIXELS = 655360;
 const MAX_EDGE = 3840;
@@ -86,6 +94,8 @@ export default async function handler(req: any, res: any) {
         return;
     }
 
+    if (rejectBadOrigin(req, res)) return;
+
     try {
         const body = await parseJsonBody(req);
         const {
@@ -102,22 +112,46 @@ export default async function handler(req: any, res: any) {
             return;
         }
 
+        if (!ALLOWED_MODELS.has(model)) {
+            res.status(400).json({ error: { message: `Unsupported model: ${String(model)}` } });
+            return;
+        }
+
+        if (!ALLOWED_QUALITIES.has(quality)) {
+            res.status(400).json({ error: { message: `Unsupported quality: ${String(quality)}` } });
+            return;
+        }
+
+        if (exceedsLength(prompt, MAX_PROMPT_LENGTH)) {
+            res.status(400).json({ error: { message: 'Prompt too long.' } });
+            return;
+        }
+
         const size = resolveOpenAiSize(aspectRatio);
 
         let response: Response;
 
         if (base64Image) {
+            const images = (Array.isArray(base64Image) ? base64Image : [base64Image])
+                .filter((value) => typeof value === 'string' && value.length > 0);
+
+            if (images.length > MAX_REFERENCE_IMAGES) {
+                res.status(400).json({ error: { message: `Too many reference images (max ${MAX_REFERENCE_IMAGES}).` } });
+                return;
+            }
+            if (images.some((image) => image.length > MAX_IMAGE_DATA_URL_LENGTH)) {
+                res.status(400).json({ error: { message: 'Reference image too large.' } });
+                return;
+            }
+
             const formData = new FormData();
             formData.append('model', model);
             formData.append('prompt', prompt || 'Generate an image based on the reference image.');
             formData.append('size', size);
             formData.append('quality', quality);
-            const images = Array.isArray(base64Image) ? base64Image : [base64Image];
-            images
-                .filter((value) => typeof value === 'string' && value.length > 0)
-                .forEach((image, index) => {
-                    formData.append('image[]', dataUrlToFile(image, `reference-image-${index + 1}`));
-                });
+            images.forEach((image, index) => {
+                formData.append('image[]', dataUrlToFile(image, `reference-image-${index + 1}`));
+            });
 
             response = await fetch(OPENAI_IMAGE_EDITS_URL, {
                 method: 'POST',
