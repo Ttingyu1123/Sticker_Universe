@@ -13,7 +13,7 @@ Tech stack: React 19, Vite 6, TypeScript 5.9, Tailwind CSS v4, i18next, IndexedD
 ```bash
 npm run dev              # 開發伺服器
 npm run build            # 生產建置
-npx tsc --noEmit         # TypeScript 型別檢查（改完必跑）
+npm run typecheck        # TypeScript 型別檢查（改完必跑；勿用 npx tsc --noEmit，該指令在本 repo 是 no-op）
 npm run validate:i18n    # 驗證 i18n 翻譯鍵完整性
 npm run check:boundaries # 檢查頁面模組邊界
 npm run test             # Vitest 單元測試
@@ -21,7 +21,7 @@ npm run test:coverage    # 單元測試 + 覆蓋率報告
 npm run e2e              # Playwright E2E 測試
 ```
 
-**每次修改後必跑：** `npx tsc --noEmit`
+**每次修改後必跑：** `npm run typecheck`（底層是 `tsc -b --noEmit --force`；root tsconfig 是 solution-style references，不帶 `-b` 的 `tsc --noEmit` 什麼都不會檢查）
 
 ---
 

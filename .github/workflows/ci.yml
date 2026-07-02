@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Plain `tsc --noEmit` is a no-op here (solution-style tsconfig) — must use -b.
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Validate i18n keys
+        run: npm run validate:i18n
+
+      - name: Check page boundaries
+        run: npm run check:boundaries
+
+      - name: Build
+        run: npm run build
