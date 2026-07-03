@@ -21,6 +21,7 @@
         "@google/genai": "^1.38.0",
         "@imgly/background-removal": "1.4.5",
         "@imgly/background-removal-data": "1.4.5",
+        "@sentry/react": "^10.63.0",
         "@tailwindcss/postcss": "^4.1.18",
         "@tailwindcss/vite": "^4.1.18",
         "@vercel/analytics": "^2.0.1",

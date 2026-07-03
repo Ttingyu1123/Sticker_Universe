@@ -1,4 +1,5 @@
 import React from 'react';
+import * as Sentry from '@sentry/react';
 import i18n from '../../i18n';
 
 interface Props {
@@ -31,6 +32,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
     componentDidCatch(error: Error, info: React.ErrorInfo) {
         console.error('[ErrorBoundary] Uncaught error:', error, info.componentStack);
+        Sentry.captureException(error, { contexts: { react: { componentStack: info.componentStack } } });
 
         // Detect stale chunk errors caused by new deployments invalidating old hashed filenames.
         // Auto-reload once to fetch the fresh index.html and updated chunks.
