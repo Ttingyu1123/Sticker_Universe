@@ -23,6 +23,7 @@
         "@imgly/background-removal-data": "1.4.5",
         "@tailwindcss/postcss": "^4.1.18",
         "@tailwindcss/vite": "^4.1.18",
+        "@vercel/analytics": "^2.0.1",
         "clsx": "^2.1.1",
         "cropperjs": "^1.6.2",
         "dompurify": "^3.3.1",
