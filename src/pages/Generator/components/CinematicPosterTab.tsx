@@ -46,34 +46,34 @@ const ACTOR_DB: Record<string, { men: string[]; women: string[] }> = {
     },
 };
 
-const GENRE_DB: Record<string, Array<{ value: string; label: string }>> = {
+const GENRE_DB: Record<string, Array<{ value: string; labelKey: string }>> = {
     'k-drama': [
-        { value: 'random', label: '隨機 Random' },
-        { value: 'Romantic Comedy', label: '浪漫喜劇 Rom-Com' },
-        { value: 'Melodrama', label: '狗血情愛 Melodrama' },
-        { value: 'Historical', label: '古裝 Historical' },
-        { value: 'Thriller', label: '驚悚 Thriller' },
+        { value: 'random', labelKey: 'generator.cinematic.genreDb.random' },
+        { value: 'Romantic Comedy', labelKey: 'generator.cinematic.genreDb.kDrama.romCom' },
+        { value: 'Melodrama', labelKey: 'generator.cinematic.genreDb.kDrama.melodrama' },
+        { value: 'Historical', labelKey: 'generator.cinematic.genreDb.kDrama.historical' },
+        { value: 'Thriller', labelKey: 'generator.cinematic.genreDb.kDrama.thriller' },
     ],
     'j-drama': [
-        { value: 'random', label: '隨機 Random' },
-        { value: 'Slice of Life', label: '日常 Slice of Life' },
-        { value: 'Workplace', label: '職場 Workplace' },
-        { value: 'Detective Mystery', label: '推理 Detective' },
-        { value: 'Suspense', label: '懸疑 Suspense' },
+        { value: 'random', labelKey: 'generator.cinematic.genreDb.random' },
+        { value: 'Slice of Life', labelKey: 'generator.cinematic.genreDb.jDrama.sliceOfLife' },
+        { value: 'Workplace', labelKey: 'generator.cinematic.genreDb.jDrama.workplace' },
+        { value: 'Detective Mystery', labelKey: 'generator.cinematic.genreDb.jDrama.detective' },
+        { value: 'Suspense', labelKey: 'generator.cinematic.genreDb.jDrama.suspense' },
     ],
     'c-drama': [
-        { value: 'random', label: '隨機 Random' },
-        { value: 'Wuxia', label: '武俠 Wuxia' },
-        { value: 'Xianxia', label: '仙俠 Xianxia' },
-        { value: 'Palace', label: '宮廷 Palace' },
-        { value: 'Modern Romance', label: '現代愛情 Modern Romance' },
+        { value: 'random', labelKey: 'generator.cinematic.genreDb.random' },
+        { value: 'Wuxia', labelKey: 'generator.cinematic.genreDb.cDrama.wuxia' },
+        { value: 'Xianxia', labelKey: 'generator.cinematic.genreDb.cDrama.xianxia' },
+        { value: 'Palace', labelKey: 'generator.cinematic.genreDb.cDrama.palace' },
+        { value: 'Modern Romance', labelKey: 'generator.cinematic.genreDb.cDrama.modernRomance' },
     ],
     'us-drama': [
-        { value: 'random', label: '隨機 Random' },
-        { value: 'Sci-Fi', label: '科幻 Sci-Fi' },
-        { value: 'Superhero', label: '超級英雄 Superhero' },
-        { value: 'Crime Thriller', label: '犯罪驚悚 Crime Thriller' },
-        { value: 'Teen Mystery', label: '青春懸疑 Teen Mystery' },
+        { value: 'random', labelKey: 'generator.cinematic.genreDb.random' },
+        { value: 'Sci-Fi', labelKey: 'generator.cinematic.genreDb.usDrama.sciFi' },
+        { value: 'Superhero', labelKey: 'generator.cinematic.genreDb.usDrama.superhero' },
+        { value: 'Crime Thriller', labelKey: 'generator.cinematic.genreDb.usDrama.crimeThriller' },
+        { value: 'Teen Mystery', labelKey: 'generator.cinematic.genreDb.usDrama.teenMystery' },
     ],
 };
 
@@ -683,7 +683,7 @@ ${generatedResult.plot}
                                 className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary text-bronze-text"
                             >
                                 {currentGenres.map((option) => (
-                                    <option key={option.value} value={option.value}>{option.label}</option>
+                                    <option key={option.value} value={option.value}>{t(option.labelKey)}</option>
                                 ))}
                             </select>
                         </div>

@@ -328,7 +328,7 @@ Instructions:
                                 `}
                             >
                                 {option.id === ColorMode.Color && <Palette className="w-3 h-3" />}
-                                {t(`generator.manga.labels.options.colors.${option.id}`)}
+                                {t(option.labelKey)}
                             </button>
                         ))}
                     </div>
@@ -345,9 +345,9 @@ Instructions:
                                         : 'border-cream-dark bg-white text-bronze-light hover:bg-cream-light hover:text-bronze-text'
                                     }
                                 `}
-                                title={t(`generator.manga.labels.options.styles.${option.id}`)}
+                                title={t(option.labelKey)}
                             >
-                                {t(`generator.manga.labels.options.styles.${option.id}`)}
+                                {t(option.labelKey)}
                             </button>
                         ))}
                     </div>
@@ -374,7 +374,7 @@ Instructions:
                                             : 'text-bronze-light hover:text-bronze-text hover:bg-white/50'
                                         }
                                     `}
-                                    title={ratio.label}
+                                    title={t(ratio.labelKey)}
                                 >
                                     {ratio.id}
                                 </button>
@@ -484,7 +484,7 @@ Instructions:
                                                 }
                             `}
                                         >
-                                            {t(`generator.manga.labels.options.resolutions.${opt.id}`)}
+                                            {t(opt.labelKey)}
                                         </button>
                                     ))}
                                 </div>

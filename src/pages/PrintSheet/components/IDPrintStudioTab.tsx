@@ -542,7 +542,7 @@ const IDPrintStudioTab: React.FC = () => {
                                     aria-label={t('printSheet.idPrint.settings.photoSize')}
                                 >
                                     {Object.entries(PHOTO_DIMENSIONS_MM).map(([key, spec]) => (
-                                        <option key={key} value={key}>{spec.label.split('(')[0]}</option>
+                                        <option key={key} value={key}>{t(spec.labelKey)}</option>
                                     ))}
                                 </select>
                             </div>
@@ -694,7 +694,7 @@ const IDPrintStudioTab: React.FC = () => {
                                 <h2 className="text-lg md:text-2xl font-bold text-bronze">
                                     {t('printSheet.idPrint.workspace.cropTitle')}
                                 </h2>
-                                <p className="text-bronze-text/60 text-xs md:text-sm hidden sm:block">{t('printSheet.idPrint.workspace.cropSubtitle')}: {PHOTO_DIMENSIONS_MM[config.photoSize].label}</p>
+                                <p className="text-bronze-text/60 text-xs md:text-sm hidden sm:block">{t('printSheet.idPrint.workspace.cropSubtitle')}: {t(PHOTO_DIMENSIONS_MM[config.photoSize].labelKey)} ({PHOTO_DIMENSIONS_MM[config.photoSize].width}x{PHOTO_DIMENSIONS_MM[config.photoSize].height}mm)</p>
                             </div>
                         </header>
                         <div className="flex-1 min-h-0 bg-white rounded-xl shadow-lg border border-cream-dark/20 overflow-hidden relative">

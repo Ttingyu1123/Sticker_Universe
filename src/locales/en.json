@@ -205,6 +205,15 @@
         },
         "title": "Pre-print Check",
         "warn": "Warning"
+      },
+      "photoSizes": {
+        "oneInchStd": "1-inch - Standard",
+        "oneInchTw": "1-inch - Taiwan Driver's License",
+        "twoInch": "2-inch - ID Card / Passport",
+        "usVisa": "US Visa",
+        "resume": "Business Resume 4:5",
+        "social": "Social Avatar 1:1",
+        "cover": "Cover Photo 16:9"
       }
     },
     "description": "Arrange your stickers on an A4 canvas and export as PDF.",
@@ -576,6 +585,48 @@
       "placeholders": {
         "story": "Describe your manga scene: A cyberpunk detective walking in rain...",
         "negative": "low quality, bad anatomy, text, watermark..."
+      },
+      "layouts": {
+        "grid1Full": "1 Panel: Full",
+        "grid2Vertical": "2 Panels: V",
+        "grid3Vertical": "3 Panels: V",
+        "grid3Split": "3 Panels: Split",
+        "grid4Vertical": "4 Panels: V",
+        "grid4Grid": "4 Panels: Grid",
+        "grid5Mix": "5 Panels: Mix",
+        "grid6Grid": "6 Panels: Grid",
+        "grid8Grid": "8 Panels: Grid"
+      },
+      "styles": {
+        "cute": "Cute Manga",
+        "american": "American Comic",
+        "anime": "Japanese Anime",
+        "horror": "Japanese Horror",
+        "webtoon": "Korean Webtoon",
+        "ink": "Chinese Ink",
+        "realistic": "Realistic",
+        "cyberpunk": "Cyberpunk",
+        "watercolor": "Watercolor",
+        "vintage": "Vintage 90s",
+        "flat": "Modern Flat",
+        "photorealism": "Photorealism"
+      },
+      "colorModes": {
+        "full": "Full Color",
+        "blackWhite": "B&W",
+        "bit8": "8-Bit"
+      },
+      "aspectRatios": {
+        "square": "Square (1:1)",
+        "comicPage": "Comic Page (3:4)",
+        "banner": "Banner (4:3)",
+        "verticalStrip": "Vertical Strip (9:16)",
+        "cinematic": "Cinematic (16:9)"
+      },
+      "resolutions": {
+        "r1k": "1K Standard",
+        "r2k": "2K High",
+        "r4k": "4K Ultra HD"
       }
     },
     "apiKey": {
@@ -1269,7 +1320,34 @@
       "firstLeadCharacterPlaceholder": "Enter the first lead's character name",
       "secondLeadActorPlaceholder": "Enter the second lead's actor name",
       "secondLeadCharacterPlaceholder": "Enter the second lead's character name",
-      "selectSecondFromGallery": "Pick a second photo from the gallery"
+      "selectSecondFromGallery": "Pick a second photo from the gallery",
+      "genreDb": {
+        "random": "Random",
+        "kDrama": {
+          "romCom": "Rom-Com",
+          "melodrama": "Melodrama",
+          "historical": "Historical",
+          "thriller": "Thriller"
+        },
+        "jDrama": {
+          "sliceOfLife": "Slice of Life",
+          "workplace": "Workplace",
+          "detective": "Detective",
+          "suspense": "Suspense"
+        },
+        "cDrama": {
+          "wuxia": "Wuxia",
+          "xianxia": "Xianxia",
+          "palace": "Palace",
+          "modernRomance": "Modern Romance"
+        },
+        "usDrama": {
+          "sciFi": "Sci-Fi",
+          "superhero": "Superhero",
+          "crimeThriller": "Crime Thriller",
+          "teenMystery": "Teen Mystery"
+        }
+      }
     },
     "holidaySticker": {
       "labels": {
@@ -1284,7 +1362,9 @@
         "autoRemoveBgDesc": "Automatically removes the green-screen background after generation",
         "placeholderSlot": "Sticker Slot {{index}}",
         "emptyTitle": "Upload a Photo to Start",
-        "emptyDesc": "This page generates multiple downloadable holiday stickers based on your reference photo, holiday theme, and style."
+        "emptyDesc": "This page generates multiple downloadable holiday stickers based on your reference photo, holiday theme, and style.",
+        "fallbackHoliday": "Holiday",
+        "fallbackStyle": "Sticker"
       },
       "placeholders": {
         "customText": "e.g. Happy New Year, John Doe",
@@ -1293,6 +1373,49 @@
       "actions": {
         "generating": "Generating...",
         "generate": "Generate Holiday Stickers"
+      },
+      "holidays": {
+        "lunarNewYear": "Lunar New Year",
+        "lanternFestival": "Lantern Festival",
+        "dragonBoat": "Dragon Boat Festival",
+        "moonFestival": "Mid-Autumn Festival",
+        "qixi": "Qixi Festival",
+        "doubleNinth": "Double Ninth Festival",
+        "winterSolstice": "Winter Solstice",
+        "christmas": "Christmas",
+        "halloween": "Halloween",
+        "newYear": "New Year",
+        "valentines": "Valentine's Day",
+        "mothersDay": "Mother's Day",
+        "fathersDay": "Father's Day",
+        "easter": "Easter",
+        "thanksgiving": "Thanksgiving",
+        "tombSweeping": "Tomb Sweeping Day",
+        "birthday": "Birthday",
+        "wedding": "Wedding",
+        "graduation": "Graduation",
+        "getWell": "Get Well Soon",
+        "thankYou": "Thank You",
+        "goodLuck": "Good Luck",
+        "teachersDay": "Teacher's Day",
+        "childrensDay": "Children's Day",
+        "housewarming": "Housewarming",
+        "newJob": "New Job",
+        "custom": "Custom Theme"
+      },
+      "styles": {
+        "cute": "Cute Sticker",
+        "threeD": "3D Render",
+        "anime": "Anime",
+        "pixel": "Pixel Art",
+        "oil": "Oil Painting",
+        "line": "Line Art",
+        "vintage": "Vintage Poster",
+        "realistic": "Realism",
+        "realisticCosplay": "Realism Cosplay",
+        "illustration": "Flat Illustration",
+        "comic": "American Comic",
+        "watercolor": "Watercolor"
       }
     },
     "greetingCard": {
@@ -1368,6 +1491,67 @@
         "title": "Recent Creations",
         "emptyTitle": "No cards generated yet",
         "emptyHint": "Generated cards will be automatically saved here"
+      },
+      "festivals": {
+        "newYear": "🧧 Lunar New Year (2026 Year of the Horse 🐎)",
+        "christmas": "🎄 Christmas",
+        "birthday": "🎂 Birthday",
+        "valentine": "❤️ Valentine's Day",
+        "mother": "💐 Mother's Day",
+        "father": "👔 Father's Day",
+        "graduation": "🎓 Graduation",
+        "thankYou": "🙏 Thank You",
+        "general": "✨ General Greeting"
+      },
+      "cardStyles": {
+        "realisticPhoto": "📸 Realistic Photo",
+        "vintagePhoto": "📷 Vintage Photo",
+        "polaroid": "📱 Polaroid",
+        "magazineCover": "📰 Magazine Cover",
+        "watercolor": "🎨 Watercolor",
+        "oilPainting": "🖼️ Oil Painting",
+        "illustration": "✨ Modern Illustration",
+        "chinesePainting": "🖌️ Chinese Ink",
+        "threeDCartoon": "🧸 3D Cartoon",
+        "ghibli": "🍃 Anime Style",
+        "chibi": "🎀 Chibi Style",
+        "comic": "💥 Comic Book",
+        "paperCut": "✂️ Paper Cutout",
+        "collage": "🎨 Collage Art",
+        "minimalist": "✏️ Minimalist",
+        "pixelArt": "👾 Pixel Art",
+        "fantasy": "🌟 Fantasy Art"
+      },
+      "fonts": {
+        "serif": "Classic Serif",
+        "sans": "Modern Sans",
+        "mono": "Agent Typewriter (Mono)",
+        "cursive": "Handwritten (Cursive)"
+      },
+      "textColors": {
+        "classicBlack": "Classic Black",
+        "antiqueGold": "Antique Gold",
+        "deepSeaBlue": "Deep Sea Blue",
+        "wineRed": "Wine Red",
+        "forestGreen": "Forest Green",
+        "pureWhite": "Pure White"
+      },
+      "aspectRatios": {
+        "square": "1:1 (Square / IG Post)",
+        "portraitCard": "3:4 (Portrait Card)",
+        "landscapeCard": "4:3 (Landscape Card)",
+        "story": "9:16 (Story / Phone Wallpaper)",
+        "desktop": "16:9 (Desktop Wallpaper)",
+        "portraitPostcard": "2:3 (Portrait Postcard)",
+        "landscapePostcard": "3:2 (Landscape Postcard)"
+      },
+      "cardBackgrounds": {
+        "cream": "Cream White (Default)",
+        "white": "Pure White",
+        "pink": "Cherry Blossom Pink",
+        "blue": "Sky Blue",
+        "green": "Mint Green",
+        "stone": "Charcoal Black"
       }
     },
     "styleSticker": {
@@ -1376,6 +1560,47 @@
         "generateFailed": "Generation failed: {{message}}",
         "rerollFailed": "Re-roll failed: {{message}}",
         "zipFailed": "Failed to create ZIP, please try again later"
+      },
+      "themeOptions": {
+        "office": "Office Life (Default)",
+        "daily": "Daily Life",
+        "emotion": "Emotions",
+        "japan": "Japan Travel",
+        "couple": "Couple PDA",
+        "lazy": "Lazy Life",
+        "foodie": "Foodie Life",
+        "fitness": "Fitness",
+        "cat": "Cat Parent Life",
+        "dog": "Dog Parent Life",
+        "parents": "New Parents",
+        "school": "School Life",
+        "festival": "Festival Celebration",
+        "slang": "Internet Slang",
+        "meme": "Meme Energy",
+        "positive": "Positive Vibes",
+        "negative": "Negative Energy Release"
+      },
+      "styleOptions": {
+        "original": "Original Style",
+        "realisticLighting": "Realistic Lighting",
+        "japaneseAnime": "Japanese Manga",
+        "americanComic": "American Comic",
+        "koreanWebtoon": "Korean Webtoon",
+        "inkPainting": "Chinese Ink Painting",
+        "chibi": "Cute Chibi",
+        "disney": "Disney-Style Animation",
+        "pixel": "Pixel Art",
+        "cgi3d": "3D Render"
+      },
+      "fontOptions": {
+        "heiti": "Sans-Serif (Default)",
+        "rounded": "Rounded (Cute & Soft)",
+        "handwrite": "Handwritten (Casual Doodle)",
+        "calligraphy": "Calligraphy (Bold Brush)",
+        "pop": "POP (Playful Poster)",
+        "pixelFont": "Pixel Font (Retro Game)",
+        "variety": "Variety Show (Bold & Eye-Catching)",
+        "kids": "Kids (Playful & Cute)"
       }
     }
   },
@@ -1662,7 +1887,29 @@
       "estimateNoImage": "Please upload an image first",
       "estimateInvalidSize": "Please enter a valid target file size (MB)",
       "estimateAlreadySmaller": "Original file is already smaller than the target size",
-      "estimateResult": "Estimated scale ~{{percent}}% ({{width}} x {{height}})"
+      "estimateResult": "Estimated scale ~{{percent}}% ({{width}} x {{height}})",
+      "originalSize": "Original Size",
+      "fileSize": "File Size",
+      "processedSize": "Processed Size",
+      "commonSizes": "Common Sizes",
+      "presets": {
+        "lineSticker": "LINE Sticker",
+        "igSquare": "IG Square",
+        "standard": "Standard"
+      },
+      "targetFileSize": "Target File Size (MB)",
+      "targetFileSizePlaceholder": "e.g. 1",
+      "aiEstimate": "AI Estimate",
+      "resizeModeLabel": "Resize Mode",
+      "modeCrop": "Crop",
+      "modeContain": "Fit",
+      "modeStretch": "Stretch",
+      "modeCropDesc": "Keep aspect ratio, crop excess",
+      "modeContainDesc": "Keep aspect ratio, fill with white background",
+      "modeStretchDesc": "Force scale (may distort)",
+      "upscaleSectionTitle": "High-Quality Upscale (Traditional Interpolation)",
+      "upscale2x": "Fast Upscale",
+      "upscale4x": "Multi-stage Upscale"
     },
     "toast": {
       "fontLoadFailed": "Failed to load font file."
@@ -2101,7 +2348,8 @@
     "renameLayerPrompt": "Rename layer",
     "renameShort": "Rename",
     "transparent": "Transparent",
-    "uploadImage": "Upload Image"
+    "uploadImage": "Upload Image",
+    "moreTools": "More Tools"
   },
   "common": {
     "cancel": "Cancel",

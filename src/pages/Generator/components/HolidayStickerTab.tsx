@@ -10,60 +10,58 @@ import { generateOpenAiImage } from '../services/openaiImageService';
 type HolidayOption = {
   id: string;
   prompt: string;
-  zh: string;
-  en: string;
+  labelKey: string;
 };
 
 type StyleOption = {
   id: string;
   prompt: string;
-  zh: string;
-  en: string;
+  labelKey: string;
 };
 
 const HOLIDAYS: HolidayOption[] = [
-  { id: 'lunar_new_year', prompt: 'Lunar New Year', zh: '農曆新年', en: 'Lunar New Year' },
-  { id: 'lantern_festival', prompt: 'Lantern Festival', zh: '元宵節', en: 'Lantern Festival' },
-  { id: 'dragon_boat', prompt: 'Dragon Boat Festival', zh: '端午節', en: 'Dragon Boat Festival' },
-  { id: 'moon_festival', prompt: 'Mid-Autumn Festival', zh: '中秋節', en: 'Mid-Autumn Festival' },
-  { id: 'qixi', prompt: 'Qixi Festival, Chinese Valentines Day', zh: '七夕情人節', en: 'Qixi Festival' },
-  { id: 'double_ninth', prompt: 'Double Ninth Festival', zh: '重陽節', en: 'Double Ninth Festival' },
-  { id: 'winter_solstice', prompt: 'Winter Solstice family gathering', zh: '冬至', en: 'Winter Solstice' },
-  { id: 'christmas', prompt: 'Christmas', zh: '聖誕節', en: 'Christmas' },
-  { id: 'halloween', prompt: 'Halloween', zh: '萬聖節', en: 'Halloween' },
-  { id: 'new_year', prompt: 'New Year celebration', zh: '跨年', en: 'New Year' },
-  { id: 'valentines', prompt: "Valentine's Day", zh: '西洋情人節', en: "Valentine's Day" },
-  { id: 'mothers_day', prompt: "Mother's Day with carnations and love", zh: '母親節', en: "Mother's Day" },
-  { id: 'fathers_day', prompt: "Father's Day", zh: '父親節', en: "Father's Day" },
-  { id: 'easter', prompt: 'Easter', zh: '復活節', en: 'Easter' },
-  { id: 'thanksgiving', prompt: 'Thanksgiving', zh: '感恩節', en: 'Thanksgiving' },
-  { id: 'tomb_sweeping', prompt: 'Tomb Sweeping Day', zh: '清明節', en: 'Tomb Sweeping Day' },
-  { id: 'birthday', prompt: 'Happy Birthday celebration', zh: '生日快樂', en: 'Birthday' },
-  { id: 'wedding', prompt: 'Happy Wedding celebration', zh: '新婚快樂', en: 'Wedding' },
-  { id: 'graduation', prompt: 'Graduation ceremony', zh: '畢業快樂', en: 'Graduation' },
-  { id: 'get_well', prompt: 'Get well soon, wishing a speedy recovery', zh: '早日康復', en: 'Get Well Soon' },
-  { id: 'thank_you', prompt: 'A heartfelt thank you', zh: '謝謝你', en: 'Thank You' },
-  { id: 'good_luck', prompt: 'Wishing good luck', zh: '祝你好運', en: 'Good Luck' },
-  { id: 'teachers_day', prompt: "Teacher's Day", zh: '教師節', en: "Teacher's Day" },
-  { id: 'childrens_day', prompt: "Children's Day", zh: '兒童節', en: "Children's Day" },
-  { id: 'housewarming', prompt: 'Housewarming celebration', zh: '入厝', en: 'Housewarming' },
-  { id: 'new_job', prompt: 'Celebrating a new job', zh: '新工作', en: 'New Job' },
-  { id: 'custom', prompt: 'Custom theme', zh: '自訂主題', en: 'Custom Theme' },
+  { id: 'lunar_new_year', prompt: 'Lunar New Year', labelKey: 'generator.holidaySticker.holidays.lunarNewYear' },
+  { id: 'lantern_festival', prompt: 'Lantern Festival', labelKey: 'generator.holidaySticker.holidays.lanternFestival' },
+  { id: 'dragon_boat', prompt: 'Dragon Boat Festival', labelKey: 'generator.holidaySticker.holidays.dragonBoat' },
+  { id: 'moon_festival', prompt: 'Mid-Autumn Festival', labelKey: 'generator.holidaySticker.holidays.moonFestival' },
+  { id: 'qixi', prompt: 'Qixi Festival, Chinese Valentines Day', labelKey: 'generator.holidaySticker.holidays.qixi' },
+  { id: 'double_ninth', prompt: 'Double Ninth Festival', labelKey: 'generator.holidaySticker.holidays.doubleNinth' },
+  { id: 'winter_solstice', prompt: 'Winter Solstice family gathering', labelKey: 'generator.holidaySticker.holidays.winterSolstice' },
+  { id: 'christmas', prompt: 'Christmas', labelKey: 'generator.holidaySticker.holidays.christmas' },
+  { id: 'halloween', prompt: 'Halloween', labelKey: 'generator.holidaySticker.holidays.halloween' },
+  { id: 'new_year', prompt: 'New Year celebration', labelKey: 'generator.holidaySticker.holidays.newYear' },
+  { id: 'valentines', prompt: "Valentine's Day", labelKey: 'generator.holidaySticker.holidays.valentines' },
+  { id: 'mothers_day', prompt: "Mother's Day with carnations and love", labelKey: 'generator.holidaySticker.holidays.mothersDay' },
+  { id: 'fathers_day', prompt: "Father's Day", labelKey: 'generator.holidaySticker.holidays.fathersDay' },
+  { id: 'easter', prompt: 'Easter', labelKey: 'generator.holidaySticker.holidays.easter' },
+  { id: 'thanksgiving', prompt: 'Thanksgiving', labelKey: 'generator.holidaySticker.holidays.thanksgiving' },
+  { id: 'tomb_sweeping', prompt: 'Tomb Sweeping Day', labelKey: 'generator.holidaySticker.holidays.tombSweeping' },
+  { id: 'birthday', prompt: 'Happy Birthday celebration', labelKey: 'generator.holidaySticker.holidays.birthday' },
+  { id: 'wedding', prompt: 'Happy Wedding celebration', labelKey: 'generator.holidaySticker.holidays.wedding' },
+  { id: 'graduation', prompt: 'Graduation ceremony', labelKey: 'generator.holidaySticker.holidays.graduation' },
+  { id: 'get_well', prompt: 'Get well soon, wishing a speedy recovery', labelKey: 'generator.holidaySticker.holidays.getWell' },
+  { id: 'thank_you', prompt: 'A heartfelt thank you', labelKey: 'generator.holidaySticker.holidays.thankYou' },
+  { id: 'good_luck', prompt: 'Wishing good luck', labelKey: 'generator.holidaySticker.holidays.goodLuck' },
+  { id: 'teachers_day', prompt: "Teacher's Day", labelKey: 'generator.holidaySticker.holidays.teachersDay' },
+  { id: 'childrens_day', prompt: "Children's Day", labelKey: 'generator.holidaySticker.holidays.childrensDay' },
+  { id: 'housewarming', prompt: 'Housewarming celebration', labelKey: 'generator.holidaySticker.holidays.housewarming' },
+  { id: 'new_job', prompt: 'Celebrating a new job', labelKey: 'generator.holidaySticker.holidays.newJob' },
+  { id: 'custom', prompt: 'Custom theme', labelKey: 'generator.holidaySticker.holidays.custom' },
 ];
 
 const STYLES: StyleOption[] = [
-  { id: 'cute', prompt: 'Cute sticker style', zh: '可愛貼圖', en: 'Cute Sticker' },
-  { id: '3d', prompt: '3D render style', zh: '3D 渲染', en: '3D Render' },
-  { id: 'anime', prompt: 'A vibrant anime manga style', zh: '動漫風', en: 'Anime' },
-  { id: 'pixel', prompt: 'Pixel art style', zh: '像素風', en: 'Pixel Art' },
-  { id: 'oil', prompt: 'Oil painting style', zh: '油畫風', en: 'Oil Painting' },
-  { id: 'line', prompt: 'Line art style', zh: '線稿風', en: 'Line Art' },
-  { id: 'vintage', prompt: 'Vintage poster style', zh: '復古海報', en: 'Vintage Poster' },
-  { id: 'realistic', prompt: 'Photorealistic style, identical to the original photo', zh: '寫實風', en: 'Realism' },
-  { id: 'realistic-cosplay', prompt: 'Photorealistic style with themed costume', zh: '寫實 Cosplay', en: 'Realism Cosplay' },
-  { id: 'illustration', prompt: 'Modern flat vector illustration', zh: '扁平插畫', en: 'Flat Illustration' },
-  { id: 'comic', prompt: 'American comic book style', zh: '美漫風', en: 'American Comic' },
-  { id: 'watercolor', prompt: 'Soft watercolor painting style', zh: '水彩風', en: 'Watercolor' },
+  { id: 'cute', prompt: 'Cute sticker style', labelKey: 'generator.holidaySticker.styles.cute' },
+  { id: '3d', prompt: '3D render style', labelKey: 'generator.holidaySticker.styles.threeD' },
+  { id: 'anime', prompt: 'A vibrant anime manga style', labelKey: 'generator.holidaySticker.styles.anime' },
+  { id: 'pixel', prompt: 'Pixel art style', labelKey: 'generator.holidaySticker.styles.pixel' },
+  { id: 'oil', prompt: 'Oil painting style', labelKey: 'generator.holidaySticker.styles.oil' },
+  { id: 'line', prompt: 'Line art style', labelKey: 'generator.holidaySticker.styles.line' },
+  { id: 'vintage', prompt: 'Vintage poster style', labelKey: 'generator.holidaySticker.styles.vintage' },
+  { id: 'realistic', prompt: 'Photorealistic style, identical to the original photo', labelKey: 'generator.holidaySticker.styles.realistic' },
+  { id: 'realistic-cosplay', prompt: 'Photorealistic style with themed costume', labelKey: 'generator.holidaySticker.styles.realisticCosplay' },
+  { id: 'illustration', prompt: 'Modern flat vector illustration', labelKey: 'generator.holidaySticker.styles.illustration' },
+  { id: 'comic', prompt: 'American comic book style', labelKey: 'generator.holidaySticker.styles.comic' },
+  { id: 'watercolor', prompt: 'Soft watercolor painting style', labelKey: 'generator.holidaySticker.styles.watercolor' },
 ];
 
 const PROVIDER_LABELS: Record<AiProvider, string> = {
@@ -301,10 +299,12 @@ const HolidayStickerTab: React.FC<HolidayStickerTabProps> = ({
       }
 
       markResult(index, imageUrl);
+      const holidayOption = HOLIDAYS.find((holiday) => holiday.id === selectedHoliday);
+      const styleOption = STYLES.find((style) => style.id === selectedStyle);
       const holidayLabel = selectedHoliday === 'custom'
         ? customHoliday
-        : HOLIDAYS.find((holiday) => holiday.id === selectedHoliday)?.zh || '節慶';
-      const styleLabel = STYLES.find((style) => style.id === selectedStyle)?.zh || '貼圖';
+        : (holidayOption ? t(holidayOption.labelKey) : t('generator.holidaySticker.labels.fallbackHoliday'));
+      const styleLabel = styleOption ? t(styleOption.labelKey) : t('generator.holidaySticker.labels.fallbackStyle');
       const stickerTitle = `[${holidayLabel}] ${styleLabel} Sticker`;
       onSuccess(imageUrl, stickerTitle, prompt);
     } catch (error: any) {
@@ -534,7 +534,7 @@ TEXT INSTRUCTION:
               >
                 {HOLIDAYS.map((holiday) => (
                   <option key={holiday.id} value={holiday.id}>
-                    {holiday.zh} ({holiday.en})
+                    {t(holiday.labelKey)}
                   </option>
                 ))}
               </select>
@@ -565,7 +565,7 @@ TEXT INSTRUCTION:
               >
                 {STYLES.map((style) => (
                   <option key={style.id} value={style.id}>
-                    {style.zh}
+                    {t(style.labelKey)}
                   </option>
                 ))}
               </select>

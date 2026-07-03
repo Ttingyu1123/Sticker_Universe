@@ -1,7 +1,7 @@
 ﻿
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Lock } from 'lucide-react';
+import { Lock, Undo2, Redo2, Brush, Eraser, Save, Download, Palette, Wrench, Layers } from 'lucide-react';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { saveStickerToDB } from '../../db';
 import { useToast } from '../../components/shared/ToastProvider';
@@ -9,6 +9,7 @@ import { useBrushPresets } from './hooks/useBrushPresets';
 import { CanvasToolbar } from './components/CanvasToolbar';
 import { BrushSettingsPanel } from './components/BrushSettingsPanel';
 import { LayerPanel } from './components/LayerPanel';
+import { MobileDrawer } from './components/MobileDrawer';
 import type { BrushType, InteractionMode, VectorStroke, LayerMeta, Point, LayerImageObject, Snapshot, SelectionRect, TransformRect } from './types';
 
 const MAX_HISTORY = 25;
@@ -50,6 +51,9 @@ export const DrawingStudioApp: React.FC = () => {
   const [maskPaintMode, setMaskPaintMode] = useState(false);
   const [hoverCursor, setHoverCursor] = useState<'default' | 'move' | 'nwse-resize' | 'crosshair'>('default');
   const [showGalleryPicker, setShowGalleryPicker] = useState(false);
+  const [showMobileToolsDrawer, setShowMobileToolsDrawer] = useState(false);
+  const [showMobileBrushDrawer, setShowMobileBrushDrawer] = useState(false);
+  const [showMobileLayersDrawer, setShowMobileLayersDrawer] = useState(false);
   const [fitCanvasToImport, setFitCanvasToImport] = useState(false);
   const [selectionRect, setSelectionRect] = useState<SelectionRect | null>(null);
   const [vectorStrokesByLayer, setVectorStrokesByLayer] = useState<Record<string, VectorStroke[]>>({});
@@ -1047,27 +1051,106 @@ export const DrawingStudioApp: React.FC = () => {
   const layerLimitReached = layers.length >= MAX_LAYERS;
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100dvh-120px)] min-h-[640px] bg-cream-light">
-      <main className="flex-1 min-w-0 p-4 md:p-6 border-b md:border-b-0 md:border-r border-cream-dark/50">
-        <CanvasToolbar
-          historyIndex={historyIndex}
-          historyLength={history.length}
-          activeLocked={activeLocked}
-          mode={mode}
-          eyedropper={eyedropper}
-          brushSummary={brushSummary}
-          onUndo={() => void undo()}
-          onRedo={() => void redo()}
-          onClearLayer={clearActiveLayer}
-          onImportFile={(f) => void importToActiveLayer(f)}
-          onOpenGallery={() => setShowGalleryPicker(true)}
-          onToggleEyedropper={() => setEyedropper((v) => !v)}
-          onSetMode={setMode}
-          onClearSelection={() => setSelectionRect(null)}
-          onSaveToGallery={() => void saveToGallery()}
-          onExportPng={exportPng}
-        />
-        <div className="w-full h-[calc(100%-52px)] bg-[#dbe7e8] rounded-2xl border border-cream-dark/50 overflow-auto">
+    <div className="flex flex-col lg:flex-row h-[calc(100dvh-120px)] min-h-[640px] bg-cream-light">
+      <main className="flex-1 min-w-0 flex flex-col lg:block p-4 lg:p-6 border-b lg:border-b-0 lg:border-r border-cream-dark/50">
+        <div className="hidden lg:block">
+          <CanvasToolbar
+            historyIndex={historyIndex}
+            historyLength={history.length}
+            activeLocked={activeLocked}
+            mode={mode}
+            eyedropper={eyedropper}
+            brushSummary={brushSummary}
+            onUndo={() => void undo()}
+            onRedo={() => void redo()}
+            onClearLayer={clearActiveLayer}
+            onImportFile={(f) => void importToActiveLayer(f)}
+            onOpenGallery={() => setShowGalleryPicker(true)}
+            onToggleEyedropper={() => setEyedropper((v) => !v)}
+            onSetMode={setMode}
+            onClearSelection={() => setSelectionRect(null)}
+            onSaveToGallery={() => void saveToGallery()}
+            onExportPng={exportPng}
+          />
+        </div>
+
+        {/* Mobile compact toolbar: primary actions reachable without opening a drawer */}
+        <div className="lg:hidden shrink-0 mb-3 space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="inline-flex rounded-lg border overflow-hidden bg-white">
+              <button
+                onClick={() => void undo()}
+                disabled={historyIndex <= 0}
+                className="p-2.5 disabled:opacity-40"
+                aria-label={t('common.undo', { defaultValue: '復原' })}
+              >
+                <Undo2 size={16} />
+              </button>
+              <button
+                onClick={() => void redo()}
+                disabled={historyIndex >= history.length - 1}
+                className="p-2.5 border-l disabled:opacity-40"
+                aria-label={t('common.redo', { defaultValue: '重做' })}
+              >
+                <Redo2 size={16} />
+              </button>
+            </div>
+            <div className="inline-flex rounded-lg border overflow-hidden bg-white">
+              <button
+                onClick={() => setBrushType('pen')}
+                className={`p-2.5 ${brushType !== 'eraser' ? 'bg-primary text-white' : ''}`}
+                aria-pressed={brushType !== 'eraser'}
+                aria-label={brushTypeLabel('pen')}
+              >
+                <Brush size={16} />
+              </button>
+              <button
+                onClick={() => setBrushType('eraser')}
+                className={`p-2.5 border-l ${brushType === 'eraser' ? 'bg-primary text-white' : ''}`}
+                aria-pressed={brushType === 'eraser'}
+                aria-label={brushTypeLabel('eraser')}
+              >
+                <Eraser size={16} />
+              </button>
+            </div>
+            <button
+              onClick={() => void saveToGallery()}
+              className="p-2.5 rounded-lg border bg-white"
+              aria-label={t('drawing.saveToGallery', { defaultValue: '儲存至作品集' })}
+            >
+              <Save size={16} />
+            </button>
+            <button
+              onClick={exportPng}
+              className="p-2.5 rounded-lg border bg-primary text-white ml-auto"
+              aria-label={t('drawing.downloadPng', { defaultValue: '下載 PNG' })}
+            >
+              <Download size={16} />
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => setShowMobileToolsDrawer(true)}
+              className="px-2 py-2 rounded-lg border border-cream-dark bg-white text-[11px] font-bold text-bronze-text inline-flex items-center justify-center gap-1"
+            >
+              <Wrench size={13} />{t('drawing.moreTools', { defaultValue: '更多工具' })}
+            </button>
+            <button
+              onClick={() => setShowMobileBrushDrawer(true)}
+              className="px-2 py-2 rounded-lg border border-cream-dark bg-white text-[11px] font-bold text-bronze-text inline-flex items-center justify-center gap-1"
+            >
+              <Palette size={13} />{t('drawing.brush', { defaultValue: '筆刷' })}
+            </button>
+            <button
+              onClick={() => setShowMobileLayersDrawer(true)}
+              className="px-2 py-2 rounded-lg border border-cream-dark bg-white text-[11px] font-bold text-bronze-text inline-flex items-center justify-center gap-1"
+            >
+              <Layers size={13} />{t('drawing.layers', { defaultValue: '圖層' })}
+            </button>
+          </div>
+        </div>
+
+        <div className="w-full flex-1 min-h-0 lg:h-[calc(100%-52px)] bg-[#dbe7e8] rounded-2xl border border-cream-dark/50 overflow-auto">
           <div className="sticky top-0 z-10 px-3 py-2">
             <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-white/85 backdrop-blur px-2.5 py-1.5 text-[11px] font-bold text-bronze-text shadow-sm">
               <span className="text-primary">{t('drawing.activeLayer', { defaultValue: '\u76ee\u524d' })}:</span>
@@ -1086,7 +1169,7 @@ export const DrawingStudioApp: React.FC = () => {
         </div>
       </main>
 
-      <aside className="w-full md:w-[360px] bg-white/80 backdrop-blur-md p-4 overflow-y-auto border-l border-cream-dark/50 space-y-4">
+      <aside className="hidden lg:block lg:w-[360px] bg-white/80 backdrop-blur-md p-4 overflow-y-auto border-l border-cream-dark/50 space-y-4">
         <BrushSettingsPanel
           brushType={brushType}
           brushColor={brushColor}
@@ -1159,6 +1242,117 @@ export const DrawingStudioApp: React.FC = () => {
         />
       </aside>
       {showGalleryPicker && <GalleryPicker onSelect={(blobs) => void handleGallerySelect(blobs)} onClose={() => setShowGalleryPicker(false)} />}
+
+      <MobileDrawer
+        isOpen={showMobileToolsDrawer}
+        onClose={() => setShowMobileToolsDrawer(false)}
+        titleId="drawing-mobile-tools-title"
+        title={t('drawing.moreTools', { defaultValue: '更多工具' })}
+      >
+        <CanvasToolbar
+          historyIndex={historyIndex}
+          historyLength={history.length}
+          activeLocked={activeLocked}
+          mode={mode}
+          eyedropper={eyedropper}
+          brushSummary={brushSummary}
+          onUndo={() => void undo()}
+          onRedo={() => void redo()}
+          onClearLayer={clearActiveLayer}
+          onImportFile={(f) => void importToActiveLayer(f)}
+          onOpenGallery={() => setShowGalleryPicker(true)}
+          onToggleEyedropper={() => setEyedropper((v) => !v)}
+          onSetMode={setMode}
+          onClearSelection={() => setSelectionRect(null)}
+          onSaveToGallery={() => void saveToGallery()}
+          onExportPng={exportPng}
+        />
+      </MobileDrawer>
+
+      <MobileDrawer
+        isOpen={showMobileBrushDrawer}
+        onClose={() => setShowMobileBrushDrawer(false)}
+        titleId="drawing-mobile-brush-title"
+        title={t('drawing.brush', { defaultValue: '筆刷' })}
+      >
+        <BrushSettingsPanel
+          brushType={brushType}
+          brushColor={brushColor}
+          brushSize={brushSize}
+          brushOpacity={brushOpacity}
+          pressureEnabled={pressureEnabled}
+          pressureCurve={pressureCurve}
+          smoothing={smoothing}
+          spacing={spacing}
+          vectorBrushEnabled={vectorBrushEnabled}
+          vectorStabilizer={vectorStabilizer}
+          maskPaintMode={maskPaintMode}
+          hexCopied={hexCopied}
+          customPresets={customPresets}
+          setBrushType={setBrushType}
+          setBrushColor={setBrushColor}
+          setBrushSize={setBrushSize}
+          setBrushOpacity={setBrushOpacity}
+          setPressureEnabled={setPressureEnabled}
+          setPressureCurve={setPressureCurve}
+          setSmoothing={setSmoothing}
+          setSpacing={setSpacing}
+          setVectorBrushEnabled={setVectorBrushEnabled}
+          setVectorStabilizer={setVectorStabilizer}
+          setMaskPaintMode={setMaskPaintMode}
+          onSavePreset={saveBrushPreset}
+          onApplyPreset={applyBrushPreset}
+          onRemovePreset={removeBrushPreset}
+          onCopyHex={copyBrushHex}
+        />
+      </MobileDrawer>
+
+      <MobileDrawer
+        isOpen={showMobileLayersDrawer}
+        onClose={() => setShowMobileLayersDrawer(false)}
+        titleId="drawing-mobile-layers-title"
+        title={t('drawing.layers', { defaultValue: '圖層' })}
+      >
+        <LayerPanel
+          layers={layers}
+          activeLayerId={activeLayerId}
+          layerImages={layerImages}
+          canvasSize={canvasSize}
+          activeLayer={activeLayer}
+          activeLayerImage={activeLayerImage}
+          activeLayerHasFill={activeLayerHasFill}
+          activeLayerFillRect={activeLayerFillRect}
+          layerLimitReached={layerLimitReached}
+          customLayerWidth={customLayerWidth}
+          customLayerHeight={customLayerHeight}
+          customCanvasWidth={customCanvasWidth}
+          customCanvasHeight={customCanvasHeight}
+          zoom={zoom}
+          fitCanvasToImport={fitCanvasToImport}
+          layerCanvasesRef={layerCanvasesRef}
+          setLayers={setLayers}
+          setActiveLayerId={setActiveLayerId}
+          setCanvasSize={setCanvasSize}
+          setCustomLayerWidth={setCustomLayerWidth}
+          setCustomLayerHeight={setCustomLayerHeight}
+          setCustomCanvasWidth={setCustomCanvasWidth}
+          setCustomCanvasHeight={setCustomCanvasHeight}
+          setZoom={setZoom}
+          setFitCanvasToImport={setFitCanvasToImport}
+          onAddLayer={addLayer}
+          onDeleteLayer={deleteLayer}
+          onDuplicateLayer={duplicateLayer}
+          onRenameLayer={renameLayer}
+          onMoveLayer={moveLayer}
+          onUpdateActiveImageScale={updateActiveImageScale}
+          onUpdateActiveImageWidth={updateActiveImageWidth}
+          onUpdateActiveImageHeight={updateActiveImageHeight}
+          onUpdateActiveImageBgColor={updateActiveImageBgColor}
+          onApplyCustomLayerSize={applyCustomLayerSize}
+          onApplyCustomCanvasSize={applyCustomCanvasSize}
+          onApplyFitCanvasToActiveImage={() => void applyFitCanvasToActiveImage()}
+        />
+      </MobileDrawer>
     </div>
   );
 };

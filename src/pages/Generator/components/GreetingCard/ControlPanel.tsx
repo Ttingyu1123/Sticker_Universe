@@ -135,7 +135,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = (props) => {
                             title={t('generator.greetingCard.settings.festivalTooltip')}
                         >
                             {FESTIVALS.map(opt => (
-                                <option key={opt.id} value={opt.id}>{opt.label}</option>
+                                <option key={opt.id} value={opt.id}>{t(opt.labelKey)}</option>
                             ))}
                         </select>
                     </div>
@@ -150,7 +150,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = (props) => {
                             title={t('generator.greetingCard.settings.styleTooltip')}
                         >
                             {CARD_STYLES.map(opt => (
-                                <option key={opt.id} value={opt.id}>{opt.label}</option>
+                                <option key={opt.id} value={opt.id}>{t(opt.labelKey)}</option>
                             ))}
                         </select>
                     </div>
@@ -164,7 +164,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = (props) => {
                                     key={bg.id}
                                     onClick={() => props.onSetCardBgColor(bg.value)}
                                     className={`w-10 h-10 rounded-full shadow-sm transition-all flex items-center justify-center ${bg.class} ${props.cardBgColor === bg.value ? 'ring-2 ring-primary scale-110' : 'hover:scale-105'}`}
-                                    title={bg.label}
+                                    title={t(bg.labelKey)}
                                 >
                                     {props.cardBgColor === bg.value && <div className="w-2 h-2 rounded-full bg-primary" />}
                                 </button>
@@ -182,7 +182,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = (props) => {
                             title={t('generator.greetingCard.settings.aspectRatioTooltip')}
                         >
                             {ASPECT_RATIOS.map(opt => (
-                                <option key={opt.id} value={opt.value}>{opt.label}</option>
+                                <option key={opt.id} value={opt.value}>{t(opt.labelKey)}</option>
                             ))}
                         </select>
                     </div>
@@ -303,7 +303,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = (props) => {
                                             className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all truncate ${props.selectedFont === f.id ? 'bg-white border-primary text-primary' : 'bg-transparent border-cream-dark/50'}`}
                                             style={{ fontFamily: f.family }}
                                         >
-                                            {f.label}
+                                            {'labelKey' in f ? t(f.labelKey) : f.label}
                                         </button>
                                     ))}
                                 </div>
@@ -313,7 +313,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = (props) => {
                                             key={c.id}
                                             onClick={() => props.onSetTextColor(c.value)}
                                             className={`w-8 h-8 rounded-full transition-transform hover:scale-110 flex items-center justify-center ${c.class} ${props.textColor === c.value ? 'ring-2 ring-primary ring-offset-2' : ''}`}
-                                            title={c.label}
+                                            title={t(c.labelKey)}
                                         >
                                             {props.textColor === c.value && <div className="w-2 h-2 bg-white rounded-full shadow-sm" />}
                                         </button>

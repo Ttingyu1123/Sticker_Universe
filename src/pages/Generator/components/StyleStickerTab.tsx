@@ -42,7 +42,7 @@ interface StyleStickerTabProps {
 
 type PromptOption = {
     id: string;
-    label: string;
+    labelKey: string;
     prompt: string;
 };
 
@@ -50,23 +50,23 @@ type PriorityMode = 'style' | 'semantic';
 type BatchPhraseMode = 'same' | 'theme' | 'custom';
 
 const THEME_PROMPT_OPTIONS: PromptOption[] = [
-    { id: 'office', label: '社畜日常 (預設)', prompt: 'Corporate slave daily office life. tired, fake smile, coffee, deadline, overtime, salary day, want to go home.' },
-    { id: 'daily', label: '日常生活', prompt: 'Daily life interactions, greeting stickers, sleeping, eating, commuting, checking phone, tiny daily struggles.' },
-    { id: 'emotion', label: '喜怒哀樂', prompt: 'Exaggerated emotional expressions: happy, angry, sad, joyful, crying, laughing, shocked, eye-roll.' },
-    { id: 'japan', label: '日本旅遊', prompt: 'Japan travel vibe: ramen, hot spring, kimono, shopping, taking photos, airport and luggage.' },
-    { id: 'couple', label: '情侶放閃', prompt: 'Romantic couple gestures: hugging, kissing, missing you, heart eyes, sweet date moments.' },
-    { id: 'lazy', label: '耍廢人生', prompt: 'Lazy life: lying in bed, couch potato, sleepy face, messy hair, snack mode, do-not-disturb.' },
-    { id: 'foodie', label: '美食吃貨', prompt: 'Foodie life: drooling, huge meals, bubble tea, hungry mode, satisfied mode, midnight snack.' },
-    { id: 'fitness', label: '運動健身', prompt: 'Workout and fitness: gym, running, yoga, sweat, muscles, protein shake, motivation.' },
-    { id: 'cat', label: '貓奴日常', prompt: 'Cat lover life: feeding cat, litter cleaning, ignored by cat, meow, cat ears, cute paws.' },
-    { id: 'dog', label: '狗派生活', prompt: 'Dog lover life: walk dog, fetch game, tail wagging, puppy eyes, loyal companion, woof.' },
-    { id: 'parents', label: '新手爸媽', prompt: 'New parents life: feeding baby, changing diapers, tired eyes, baby crying, happy family.' },
-    { id: 'school', label: '校園生活', prompt: 'School life: exam stress, homework, classmate interaction, graduation, teacher scolding.' },
-    { id: 'festival', label: '節日慶祝', prompt: 'Festival celebration: birthday, new year, christmas, red envelope, cake, fireworks, congrats.' },
-    { id: 'slang', label: '網路用語', prompt: 'Internet slang expression set: LOL, OMG, facepalm, +1, keyboard-warrior vibe.' },
-    { id: 'meme', label: '迷因梗圖', prompt: 'Trending meme energy: funny pose, ironic humor, viral expression, playful sarcasm.' },
-    { id: 'positive', label: '正能量語錄', prompt: 'Positive vibe sticker set: fighting, you can do it, good morning, thumbs up, cheer up.' },
-    { id: 'negative', label: '負能量釋放', prompt: 'Negative energy release: social battery dead, soul leaving body, burnout, giving up.' }
+    { id: 'office', labelKey: 'generator.styleSticker.themeOptions.office', prompt: 'Corporate slave daily office life. tired, fake smile, coffee, deadline, overtime, salary day, want to go home.' },
+    { id: 'daily', labelKey: 'generator.styleSticker.themeOptions.daily', prompt: 'Daily life interactions, greeting stickers, sleeping, eating, commuting, checking phone, tiny daily struggles.' },
+    { id: 'emotion', labelKey: 'generator.styleSticker.themeOptions.emotion', prompt: 'Exaggerated emotional expressions: happy, angry, sad, joyful, crying, laughing, shocked, eye-roll.' },
+    { id: 'japan', labelKey: 'generator.styleSticker.themeOptions.japan', prompt: 'Japan travel vibe: ramen, hot spring, kimono, shopping, taking photos, airport and luggage.' },
+    { id: 'couple', labelKey: 'generator.styleSticker.themeOptions.couple', prompt: 'Romantic couple gestures: hugging, kissing, missing you, heart eyes, sweet date moments.' },
+    { id: 'lazy', labelKey: 'generator.styleSticker.themeOptions.lazy', prompt: 'Lazy life: lying in bed, couch potato, sleepy face, messy hair, snack mode, do-not-disturb.' },
+    { id: 'foodie', labelKey: 'generator.styleSticker.themeOptions.foodie', prompt: 'Foodie life: drooling, huge meals, bubble tea, hungry mode, satisfied mode, midnight snack.' },
+    { id: 'fitness', labelKey: 'generator.styleSticker.themeOptions.fitness', prompt: 'Workout and fitness: gym, running, yoga, sweat, muscles, protein shake, motivation.' },
+    { id: 'cat', labelKey: 'generator.styleSticker.themeOptions.cat', prompt: 'Cat lover life: feeding cat, litter cleaning, ignored by cat, meow, cat ears, cute paws.' },
+    { id: 'dog', labelKey: 'generator.styleSticker.themeOptions.dog', prompt: 'Dog lover life: walk dog, fetch game, tail wagging, puppy eyes, loyal companion, woof.' },
+    { id: 'parents', labelKey: 'generator.styleSticker.themeOptions.parents', prompt: 'New parents life: feeding baby, changing diapers, tired eyes, baby crying, happy family.' },
+    { id: 'school', labelKey: 'generator.styleSticker.themeOptions.school', prompt: 'School life: exam stress, homework, classmate interaction, graduation, teacher scolding.' },
+    { id: 'festival', labelKey: 'generator.styleSticker.themeOptions.festival', prompt: 'Festival celebration: birthday, new year, christmas, red envelope, cake, fireworks, congrats.' },
+    { id: 'slang', labelKey: 'generator.styleSticker.themeOptions.slang', prompt: 'Internet slang expression set: LOL, OMG, facepalm, +1, keyboard-warrior vibe.' },
+    { id: 'meme', labelKey: 'generator.styleSticker.themeOptions.meme', prompt: 'Trending meme energy: funny pose, ironic humor, viral expression, playful sarcasm.' },
+    { id: 'positive', labelKey: 'generator.styleSticker.themeOptions.positive', prompt: 'Positive vibe sticker set: fighting, you can do it, good morning, thumbs up, cheer up.' },
+    { id: 'negative', labelKey: 'generator.styleSticker.themeOptions.negative', prompt: 'Negative energy release: social battery dead, soul leaving body, burnout, giving up.' }
 ];
 
 const STICKER_PHRASES_SCHEMA = {
@@ -84,27 +84,27 @@ const STICKER_PHRASES_SCHEMA = {
 const CUSTOM_THEME_OPTION_ID = 'custom';
 
 const STYLE_PROMPT_OPTIONS: PromptOption[] = [
-    { id: 'original', label: '原版風格', prompt: 'Keep the original style of the input character and keep design consistency.' },
-    { id: 'realistic-lighting', label: '寫實光影', prompt: 'Photorealistic lighting, highly detailed textures, realistic shadows, depth of field.' },
-    { id: 'japanese-anime', label: '日式漫畫', prompt: 'Japanese anime illustration, vibrant cel shading, bloom, rim light, polished finish.' },
-    { id: 'american-comic', label: '美式漫畫', prompt: 'American comic style, bold outlines, heavy inking, high contrast, halftone dots.' },
-    { id: 'korean-webtoon', label: '韓式漫畫', prompt: 'Korean webtoon style, smooth coloring, clean lineart, pastel volumetric lighting.' },
-    { id: 'ink-painting', label: '中式水墨畫', prompt: 'Traditional Chinese ink wash painting with expressive brush strokes and negative space.' },
-    { id: 'chibi', label: '可愛Q版漫畫', prompt: 'Chibi super-deformed, big head small body, soft pastel, cute sticker-ready emotion.' },
-    { id: 'disney', label: '迪士尼風格動畫', prompt: 'Stylized Disney/Pixar-like animation render, appealing shape language, warm cinematic color.' },
-    { id: 'pixel', label: '像素風格', prompt: '8-bit/16-bit pixel art, visible grid, limited palette, retro game sprite aesthetic.' },
-    { id: 'cgi-3d', label: '3D渲染風格', prompt: 'CGI 3D render with PBR textures, volumetric light, high detail and clean render pass.' }
+    { id: 'original', labelKey: 'generator.styleSticker.styleOptions.original', prompt: 'Keep the original style of the input character and keep design consistency.' },
+    { id: 'realistic-lighting', labelKey: 'generator.styleSticker.styleOptions.realisticLighting', prompt: 'Photorealistic lighting, highly detailed textures, realistic shadows, depth of field.' },
+    { id: 'japanese-anime', labelKey: 'generator.styleSticker.styleOptions.japaneseAnime', prompt: 'Japanese anime illustration, vibrant cel shading, bloom, rim light, polished finish.' },
+    { id: 'american-comic', labelKey: 'generator.styleSticker.styleOptions.americanComic', prompt: 'American comic style, bold outlines, heavy inking, high contrast, halftone dots.' },
+    { id: 'korean-webtoon', labelKey: 'generator.styleSticker.styleOptions.koreanWebtoon', prompt: 'Korean webtoon style, smooth coloring, clean lineart, pastel volumetric lighting.' },
+    { id: 'ink-painting', labelKey: 'generator.styleSticker.styleOptions.inkPainting', prompt: 'Traditional Chinese ink wash painting with expressive brush strokes and negative space.' },
+    { id: 'chibi', labelKey: 'generator.styleSticker.styleOptions.chibi', prompt: 'Chibi super-deformed, big head small body, soft pastel, cute sticker-ready emotion.' },
+    { id: 'disney', labelKey: 'generator.styleSticker.styleOptions.disney', prompt: 'Stylized Disney/Pixar-like animation render, appealing shape language, warm cinematic color.' },
+    { id: 'pixel', labelKey: 'generator.styleSticker.styleOptions.pixel', prompt: '8-bit/16-bit pixel art, visible grid, limited palette, retro game sprite aesthetic.' },
+    { id: 'cgi-3d', labelKey: 'generator.styleSticker.styleOptions.cgi3d', prompt: 'CGI 3D render with PBR textures, volumetric light, high detail and clean render pass.' }
 ];
 
 const FONT_STYLE_OPTIONS: PromptOption[] = [
-    { id: 'heiti', label: '黑體 (預設)', prompt: 'Bold sans-serif, modern and clean, high legibility sticker typography.' },
-    { id: 'rounded', label: '圓體 (可愛柔和)', prompt: 'Rounded sans-serif, soft edge, cute and friendly kawaii typography.' },
-    { id: 'handwrite', label: '手寫體 (隨性塗鴉)', prompt: 'Handwritten marker style, casual doodle texture, personal and playful.' },
-    { id: 'calligraphy', label: '書法體 (氣勢磅礡)', prompt: 'Chinese calligraphy brush style, energetic strokes and strong traditional rhythm.' },
-    { id: 'pop', label: 'POP體 (活潑海報)', prompt: 'POP style bubble letters, heavy outline, vivid and bouncy poster feeling.' },
-    { id: 'pixel-font', label: '像素體 (復古遊戲)', prompt: 'Pixel font, retro game-like block text with jagged digital edge.' },
-    { id: 'variety', label: '綜藝體 (誇張醒目)', prompt: 'Variety-show subtitle style, extra bold, exaggerated and attention-grabbing.' },
-    { id: 'kids', label: '娃娃體 (童趣可愛)', prompt: 'Childlike crayon typography, playful irregular size, naive and cute.' }
+    { id: 'heiti', labelKey: 'generator.styleSticker.fontOptions.heiti', prompt: 'Bold sans-serif, modern and clean, high legibility sticker typography.' },
+    { id: 'rounded', labelKey: 'generator.styleSticker.fontOptions.rounded', prompt: 'Rounded sans-serif, soft edge, cute and friendly kawaii typography.' },
+    { id: 'handwrite', labelKey: 'generator.styleSticker.fontOptions.handwrite', prompt: 'Handwritten marker style, casual doodle texture, personal and playful.' },
+    { id: 'calligraphy', labelKey: 'generator.styleSticker.fontOptions.calligraphy', prompt: 'Chinese calligraphy brush style, energetic strokes and strong traditional rhythm.' },
+    { id: 'pop', labelKey: 'generator.styleSticker.fontOptions.pop', prompt: 'POP style bubble letters, heavy outline, vivid and bouncy poster feeling.' },
+    { id: 'pixel-font', labelKey: 'generator.styleSticker.fontOptions.pixelFont', prompt: 'Pixel font, retro game-like block text with jagged digital edge.' },
+    { id: 'variety', labelKey: 'generator.styleSticker.fontOptions.variety', prompt: 'Variety-show subtitle style, extra bold, exaggerated and attention-grabbing.' },
+    { id: 'kids', labelKey: 'generator.styleSticker.fontOptions.kids', prompt: 'Childlike crayon typography, playful irregular size, naive and cute.' }
 ];
 
 const THEME_CONFLICT_KEYWORDS: Record<string, string[]> = {
@@ -179,7 +179,10 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({
         return `free-${currentTheme.id}-${styleId}-${index + 1}`;
     };
 
-    const getThemeOptionLabel = (id: string) => THEME_PROMPT_OPTIONS.find(opt => opt.id === id)?.label || id;
+    const getThemeOptionLabel = (id: string) => {
+        const option = THEME_PROMPT_OPTIONS.find(opt => opt.id === id);
+        return option ? t(option.labelKey) : id;
+    };
 
     const buildStickerPrompt = (
         phrase: string,
@@ -962,7 +965,7 @@ Requested phrase count: ${batchSize}`,
                                     className="mt-2 w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary text-bronze-text"
                                 >
                                     {THEME_PROMPT_OPTIONS.map((opt) => (
-                                        <option key={opt.id} value={opt.id}>{opt.label}</option>
+                                        <option key={opt.id} value={opt.id}>{t(opt.labelKey)}</option>
                                     ))}
                                     <option value={CUSTOM_THEME_OPTION_ID}>自訂</option>
                                 </select>
@@ -984,7 +987,7 @@ Requested phrase count: ${batchSize}`,
                                     className="mt-2 w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary text-bronze-text"
                                 >
                                     {STYLE_PROMPT_OPTIONS.map((opt) => (
-                                        <option key={opt.id} value={opt.id}>{opt.label}</option>
+                                        <option key={opt.id} value={opt.id}>{t(opt.labelKey)}</option>
                                     ))}
                                 </select>
                             </div>
@@ -1107,7 +1110,7 @@ Requested phrase count: ${batchSize}`,
                                     className="w-full px-4 py-3 bg-white border border-cream-dark rounded-xl font-bold text-sm outline-none focus:border-primary text-bronze-text"
                                 >
                                     {FONT_STYLE_OPTIONS.map((opt) => (
-                                        <option key={opt.id} value={opt.id}>{opt.label}</option>
+                                        <option key={opt.id} value={opt.id}>{t(opt.labelKey)}</option>
                                     ))}
                                 </select>
                             </div>

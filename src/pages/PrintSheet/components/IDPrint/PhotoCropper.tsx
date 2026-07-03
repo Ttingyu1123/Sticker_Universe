@@ -123,7 +123,7 @@ const PhotoCropper: React.FC<PhotoCropperProps> = ({
 
           <div className="text-center hidden sm:block">
             <div className="text-sm text-bronze font-bold">
-              {dims.label}
+              {t(dims.labelKey)} ({dims.width}x{dims.height}mm)
             </div>
             <p className="text-xs text-bronze-text/60">{t('printSheet.idPrint.cropper.dragHint')}</p>
           </div>

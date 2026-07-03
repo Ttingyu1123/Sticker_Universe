@@ -12,7 +12,7 @@ export default defineConfig({
         tailwindcss(),
         VitePWA({
             registerType: 'autoUpdate',
-            includeAssets: ['icon.svg'],
+            includeAssets: ['icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png'],
             workbox: {
                 maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
                 globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
@@ -22,17 +22,34 @@ export default defineConfig({
             manifest: {
                 name: 'CreativeOS',
                 short_name: 'CreativeOS',
-                description: 'Taiwanese-style Anime Sticker Generator',
+                description: 'AI creative suite: sticker generation, photo collage, image editing, drawing, and print layouts',
                 theme_color: '#ffffff',
                 icons: [
                     {
-                        src: 'icon.svg',
+                        src: 'icon-192.png',
                         sizes: '192x192',
-                        type: 'image/svg+xml'
+                        type: 'image/png'
+                    },
+                    {
+                        src: 'icon-512.png',
+                        sizes: '512x512',
+                        type: 'image/png'
+                    },
+                    {
+                        src: 'icon-maskable-192.png',
+                        sizes: '192x192',
+                        type: 'image/png',
+                        purpose: 'maskable'
+                    },
+                    {
+                        src: 'icon-maskable-512.png',
+                        sizes: '512x512',
+                        type: 'image/png',
+                        purpose: 'maskable'
                     },
                     {
                         src: 'icon.svg',
-                        sizes: '512x512',
+                        sizes: 'any',
                         type: 'image/svg+xml'
                     }
                 ]

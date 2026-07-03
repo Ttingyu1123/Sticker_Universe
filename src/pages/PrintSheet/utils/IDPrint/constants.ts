@@ -47,15 +47,15 @@ export const PAPER_DIMENSIONS: Record<PaperSize, Spec> = {
 interface PhotoSpec {
     width: number;
     height: number;
-    label: string;
+    labelKey: string; // i18n key for display name; render sites append "(WxHmm)" from width/height
 }
 
 export const PHOTO_DIMENSIONS_MM: Record<PhotoSize, PhotoSpec> = {
-    [PhotoSize.OneInchStd]: { width: 25, height: 35, label: '1吋 - 一般 (25x35mm)' },
-    [PhotoSize.OneInchTw]: { width: 28, height: 35, label: '1吋 - 台灣駕照 (28x35mm)' },
-    [PhotoSize.TwoInch]: { width: 35, height: 45, label: '2吋 - 身分證/護照 (35x45mm)' },
-    [PhotoSize.USVisa]: { width: 51, height: 51, label: '美國簽證 (51x51mm)' },
-    [PhotoSize.Resume]: { width: 40, height: 50, label: '商務履歷 4:5 (40x50mm)' },
-    [PhotoSize.Social]: { width: 50, height: 50, label: '社群頭像 1:1 (50x50mm)' },
-    [PhotoSize.Cover]: { width: 89, height: 50, label: '封面照 16:9 (89x50mm)' },
+    [PhotoSize.OneInchStd]: { width: 25, height: 35, labelKey: 'printSheet.idPrint.photoSizes.oneInchStd' },
+    [PhotoSize.OneInchTw]: { width: 28, height: 35, labelKey: 'printSheet.idPrint.photoSizes.oneInchTw' },
+    [PhotoSize.TwoInch]: { width: 35, height: 45, labelKey: 'printSheet.idPrint.photoSizes.twoInch' },
+    [PhotoSize.USVisa]: { width: 51, height: 51, labelKey: 'printSheet.idPrint.photoSizes.usVisa' },
+    [PhotoSize.Resume]: { width: 40, height: 50, labelKey: 'printSheet.idPrint.photoSizes.resume' },
+    [PhotoSize.Social]: { width: 50, height: 50, labelKey: 'printSheet.idPrint.photoSizes.social' },
+    [PhotoSize.Cover]: { width: 89, height: 50, labelKey: 'printSheet.idPrint.photoSizes.cover' },
 };

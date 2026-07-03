@@ -118,7 +118,7 @@ export const LayoutSelector: React.FC<Props> = ({ selected, onSelect }) => {
                         {renderLayoutIcon(option.id)}
                     </div>
                     <span className={`text-xs font-bold text-center ${selected === option.id ? 'text-primary' : 'text-bronze-light group-hover:text-bronze'}`}>
-                        {t(`generator.manga.labels.options.layouts.${option.id}`)}
+                        {t(option.labelKey)}
                     </span>
                 </button>
             ))}

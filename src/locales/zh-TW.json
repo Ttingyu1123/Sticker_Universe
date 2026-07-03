@@ -265,6 +265,15 @@
         },
         "title": "列印前檢查",
         "warn": "注意"
+      },
+      "photoSizes": {
+        "oneInchStd": "1吋 - 一般",
+        "oneInchTw": "1吋 - 台灣駕照",
+        "twoInch": "2吋 - 身分證/護照",
+        "usVisa": "美國簽證",
+        "resume": "商務履歷 4:5",
+        "social": "社群頭像 1:1",
+        "cover": "封面照 16:9"
       }
     },
     "exportFailed": "匯出失敗，請重試。",
@@ -1062,6 +1071,48 @@
           "High Resolution (2K) with detailed textures": "2K 高",
           "Ultra High Resolution (4K), incredibly detailed, sharp focus": "4K超高清"
         }
+      },
+      "layouts": {
+        "grid1Full": "1格:滿版",
+        "grid2Vertical": "2格:上下",
+        "grid3Vertical": "3格:上下",
+        "grid3Split": "3格:上1下2",
+        "grid4Vertical": "4格:上下",
+        "grid4Grid": "4格:田字",
+        "grid5Mix": "5格:任意",
+        "grid6Grid": "6格:三排",
+        "grid8Grid": "8格:四排"
+      },
+      "styles": {
+        "cute": "可愛漫畫風格",
+        "american": "美式漫畫風格",
+        "anime": "日式動漫風格",
+        "horror": "日式恐怖漫畫風格",
+        "webtoon": "韓式Webtoon風格",
+        "ink": "中式水墨風格",
+        "realistic": "寫實光影風格",
+        "cyberpunk": "賽博龐克風格",
+        "watercolor": "柔美水彩風格",
+        "vintage": "復古90s動畫",
+        "flat": "現代扁平插畫",
+        "photorealism": "真人寫實風格"
+      },
+      "colorModes": {
+        "full": "全彩",
+        "blackWhite": "黑白",
+        "bit8": "8位元"
+      },
+      "aspectRatios": {
+        "square": "正方形 (1:1)",
+        "comicPage": "漫畫頁 (3:4)",
+        "banner": "橫幅 (4:3)",
+        "verticalStrip": "條漫 (9:16)",
+        "cinematic": "電影感 (16:9)"
+      },
+      "resolutions": {
+        "r1k": "1K 標準畫質",
+        "r2k": "2K 高畫質",
+        "r4k": "4K 超高清"
       }
     },
     "portrait": {
@@ -1380,7 +1431,34 @@
       "firstLeadCharacterPlaceholder": "輸入第一主角的角色名稱",
       "secondLeadActorPlaceholder": "輸入第二主角的演員名稱",
       "secondLeadCharacterPlaceholder": "輸入第二主角的角色名稱",
-      "selectSecondFromGallery": "從圖庫選第二張照片"
+      "selectSecondFromGallery": "從圖庫選第二張照片",
+      "genreDb": {
+        "random": "隨機",
+        "kDrama": {
+          "romCom": "浪漫喜劇",
+          "melodrama": "狗血情愛",
+          "historical": "古裝",
+          "thriller": "驚悚"
+        },
+        "jDrama": {
+          "sliceOfLife": "日常",
+          "workplace": "職場",
+          "detective": "推理",
+          "suspense": "懸疑"
+        },
+        "cDrama": {
+          "wuxia": "武俠",
+          "xianxia": "仙俠",
+          "palace": "宮廷",
+          "modernRomance": "現代愛情"
+        },
+        "usDrama": {
+          "sciFi": "科幻",
+          "superhero": "超級英雄",
+          "crimeThriller": "犯罪驚悚",
+          "teenMystery": "青春懸疑"
+        }
+      }
     },
     "holidaySticker": {
       "labels": {
@@ -1395,7 +1473,9 @@
         "autoRemoveBgDesc": "生成後自動移除外圈綠幕背景",
         "placeholderSlot": "貼圖預留位 {{index}}",
         "emptyTitle": "先上傳一張人物照片",
-        "emptyDesc": "這一頁會根據你的參考照、節慶主題和風格，生成多張可下載的節慶貼圖。"
+        "emptyDesc": "這一頁會根據你的參考照、節慶主題和風格，生成多張可下載的節慶貼圖。",
+        "fallbackHoliday": "節慶",
+        "fallbackStyle": "貼圖"
       },
       "placeholders": {
         "customText": "例如：Happy New Year、王小明",
@@ -1404,6 +1484,49 @@
       "actions": {
         "generating": "生成中...",
         "generate": "產生節慶貼圖"
+      },
+      "holidays": {
+        "lunarNewYear": "農曆新年",
+        "lanternFestival": "元宵節",
+        "dragonBoat": "端午節",
+        "moonFestival": "中秋節",
+        "qixi": "七夕情人節",
+        "doubleNinth": "重陽節",
+        "winterSolstice": "冬至",
+        "christmas": "聖誕節",
+        "halloween": "萬聖節",
+        "newYear": "跨年",
+        "valentines": "西洋情人節",
+        "mothersDay": "母親節",
+        "fathersDay": "父親節",
+        "easter": "復活節",
+        "thanksgiving": "感恩節",
+        "tombSweeping": "清明節",
+        "birthday": "生日快樂",
+        "wedding": "新婚快樂",
+        "graduation": "畢業快樂",
+        "getWell": "早日康復",
+        "thankYou": "謝謝你",
+        "goodLuck": "祝你好運",
+        "teachersDay": "教師節",
+        "childrensDay": "兒童節",
+        "housewarming": "入厝",
+        "newJob": "新工作",
+        "custom": "自訂主題"
+      },
+      "styles": {
+        "cute": "可愛貼圖",
+        "threeD": "3D 渲染",
+        "anime": "動漫風",
+        "pixel": "像素風",
+        "oil": "油畫風",
+        "line": "線稿風",
+        "vintage": "復古海報",
+        "realistic": "寫實風",
+        "realisticCosplay": "寫實 Cosplay",
+        "illustration": "扁平插畫",
+        "comic": "美漫風",
+        "watercolor": "水彩風"
       }
     },
     "greetingCard": {
@@ -1479,6 +1602,67 @@
         "title": "最近的創作",
         "emptyTitle": "還沒有生成的賀卡紀錄",
         "emptyHint": "生成後的賀卡會自動儲存在這裡"
+      },
+      "festivals": {
+        "newYear": "🧧 農曆新年（2026 馬年 🐎）",
+        "christmas": "🎄 聖誕節",
+        "birthday": "🎂 生日",
+        "valentine": "❤️ 情人節",
+        "mother": "💐 母親節",
+        "father": "👔 父親節",
+        "graduation": "🎓 畢業季",
+        "thankYou": "🙏 感謝卡",
+        "general": "✨ 日常問候"
+      },
+      "cardStyles": {
+        "realisticPhoto": "📸 真實攝影",
+        "vintagePhoto": "📷 復古照片",
+        "polaroid": "📱 拍立得",
+        "magazineCover": "📰 雜誌封面",
+        "watercolor": "🎨 水彩畫",
+        "oilPainting": "🖼️ 油畫",
+        "illustration": "✨ 現代插畫",
+        "chinesePainting": "🖌️ 國畫水墨",
+        "threeDCartoon": "🧸 3D卡通",
+        "ghibli": "🍃 宮崎駿風",
+        "chibi": "🎀 Q版風格",
+        "comic": "💥 美式漫畫",
+        "paperCut": "✂️ 剪紙藝術",
+        "collage": "🎨 拼貼藝術",
+        "minimalist": "✏️ 極簡線條",
+        "pixelArt": "👾 像素風",
+        "fantasy": "🌟 奇幻藝術"
+      },
+      "fonts": {
+        "serif": "經典襯線",
+        "sans": "現代無襯線",
+        "mono": "特務打字機",
+        "cursive": "手寫風格"
+      },
+      "textColors": {
+        "classicBlack": "經典黑",
+        "antiqueGold": "古銅金",
+        "deepSeaBlue": "深海藍",
+        "wineRed": "酒紅色",
+        "forestGreen": "森林綠",
+        "pureWhite": "純淨白"
+      },
+      "aspectRatios": {
+        "square": "1:1（方形／IG 貼文）",
+        "portraitCard": "3:4（直式賀卡）",
+        "landscapeCard": "4:3（橫式賀卡）",
+        "story": "9:16（限時動態／手機桌布）",
+        "desktop": "16:9（電腦桌布）",
+        "portraitPostcard": "2:3（直式明信片）",
+        "landscapePostcard": "3:2（橫式明信片）"
+      },
+      "cardBackgrounds": {
+        "cream": "奶油白（預設）",
+        "white": "純白",
+        "pink": "櫻花粉",
+        "blue": "天空藍",
+        "green": "薄荷綠",
+        "stone": "質感黑"
       }
     },
     "styleSticker": {
@@ -1487,6 +1671,47 @@
         "generateFailed": "生成失敗：{{message}}",
         "rerollFailed": "重抽失敗：{{message}}",
         "zipFailed": "ZIP 打包失敗，請稍後再試"
+      },
+      "themeOptions": {
+        "office": "社畜日常 (預設)",
+        "daily": "日常生活",
+        "emotion": "喜怒哀樂",
+        "japan": "日本旅遊",
+        "couple": "情侶放閃",
+        "lazy": "耍廢人生",
+        "foodie": "美食吃貨",
+        "fitness": "運動健身",
+        "cat": "貓奴日常",
+        "dog": "狗派生活",
+        "parents": "新手爸媽",
+        "school": "校園生活",
+        "festival": "節日慶祝",
+        "slang": "網路用語",
+        "meme": "迷因梗圖",
+        "positive": "正能量語錄",
+        "negative": "負能量釋放"
+      },
+      "styleOptions": {
+        "original": "原版風格",
+        "realisticLighting": "寫實光影",
+        "japaneseAnime": "日式漫畫",
+        "americanComic": "美式漫畫",
+        "koreanWebtoon": "韓式漫畫",
+        "inkPainting": "中式水墨畫",
+        "chibi": "可愛Q版漫畫",
+        "disney": "迪士尼風格動畫",
+        "pixel": "像素風格",
+        "cgi3d": "3D渲染風格"
+      },
+      "fontOptions": {
+        "heiti": "黑體 (預設)",
+        "rounded": "圓體 (可愛柔和)",
+        "handwrite": "手寫體 (隨性塗鴉)",
+        "calligraphy": "書法體 (氣勢磅礡)",
+        "pop": "POP體 (活潑海報)",
+        "pixelFont": "像素體 (復古遊戲)",
+        "variety": "綜藝體 (誇張醒目)",
+        "kids": "娃娃體 (童趣可愛)"
       }
     }
   },
@@ -1668,7 +1893,28 @@
       "estimateNoImage": "請先上傳圖片",
       "estimateInvalidSize": "請輸入有效的目標檔案大小（MB）",
       "estimateAlreadySmaller": "原檔已小於目標大小，不需縮小",
-      "estimateResult": "估算縮放約 {{percent}}%（{{width}} x {{height}}）"
+      "estimateResult": "估算縮放約 {{percent}}%（{{width}} x {{height}}）",
+      "fileSize": "檔案大小",
+      "processedSize": "處理後尺寸",
+      "commonSizes": "常用尺寸",
+      "presets": {
+        "lineSticker": "LINE 貼圖",
+        "igSquare": "IG 正方形",
+        "standard": "標準"
+      },
+      "targetFileSize": "目標檔案大小（MB）",
+      "targetFileSizePlaceholder": "例如 1",
+      "aiEstimate": "AI估算",
+      "resizeModeLabel": "調整模式",
+      "modeCrop": "裁切",
+      "modeContain": "填充",
+      "modeStretch": "拉伸",
+      "modeCropDesc": "保持比例，裁切多餘部分",
+      "modeContainDesc": "保持比例，白色背景填充",
+      "modeStretchDesc": "強制縮放（可能變形）",
+      "upscaleSectionTitle": "高質量放大（傳統插值）",
+      "upscale2x": "快速放大",
+      "upscale4x": "多階段放大"
     },
     "bubblePicker": {
       "chooseStyle": "選擇氣泡樣式",
@@ -2219,6 +2465,7 @@
     "renameLayerPrompt": "重新命名圖層",
     "renameShort": "重新命名",
     "transparent": "透明",
-    "uploadImage": "上傳圖片"
+    "uploadImage": "上傳圖片",
+    "moreTools": "更多工具"
   }
 }
