@@ -133,6 +133,12 @@ src/
 
 互動元素：Primary 按鈕 `bg-primary text-white hover:bg-primary-hover`；Ghost 按鈕 `text-bronze-light hover:text-primary hover:bg-white/60`
 
+### 共享基礎設施（優先使用，禁止重複造輪）
+- **通知**：`useToast`（`src/components/shared/ToastProvider.tsx`）— **禁用 `alert()`**；錯誤訊息一律 `showToast(t('key'), 'error')`
+- **Provider 切換 UI**：`<ProviderSwitcher />`（`src/components/shared/ProviderSwitcher.tsx`）；key 錯誤判斷用 `isApiKeyError()`（`src/shared/geminiApiKey.ts`）
+- **Modal 無障礙**：所有 `fixed inset-0` 互動 modal 必掛 `useModalA11y`（`src/hooks/useModalA11y.ts`）+ `role="dialog"` / `aria-modal` / `aria-labelledby`
+- **內容選項字典**（主題/風格/節慶等 constant array）：display 欄位用 `labelKey` + `t()`；`prompt` 欄位是 AI 輸入，**永不翻譯、永不因 UI 語言改變**
+
 ### 新功能整合必做清單
 - [ ] 圖片下載/分享一律用 `useImageShare` hook（`src/hooks/useImageShare.ts`）
 - [ ] 成功生成後立即呼叫 `saveStickerToDB()`（`src/db.ts`）自動存入 Gallery
@@ -166,79 +172,13 @@ src/
 
 ---
 
-## AI Provider 現況
+## AI Provider 架構
 
-- `AI Image Gen`（`src/pages/Generator/components/ImageGeneratorTab.tsx`）目前支援 **Gemini / OpenAI** 雙 provider 切換。
-- 其他 AI 功能頁目前仍是 **Gemini-only**。
-- API Key 分開儲存為 `gemini_api_key` 與 `openai_api_key`。
-- 專案仍是純前端 BYOK，OpenAI 目前也沒有後端代理層。
-
-## AI Provider 現況（Updated）
-
-- `AI Image Gen`（`src/pages/Generator/components/ImageGeneratorTab.tsx`）目前支援 **Gemini / OpenAI** 雙 provider 切換。
-- `Holiday Sticker`（`src/pages/Generator/components/HolidayStickerTab.tsx`）目前支援 **Gemini / OpenAI** 雙 provider 切換。
-- `Cinematic Poster`（`src/pages/Generator/components/CinematicPosterTab.tsx`）目前支援 **Gemini / OpenAI** 雙 provider 切換。
-- 其他 AI 功能頁目前仍是 **Gemini-only**。
-- API Key 分開儲存：`gemini_api_key` 與 `openai_api_key`。
-- OpenAI 圖片生成目前走 `api/openai-image.ts` Vercel proxy，避免瀏覽器直接呼叫 Images API。
-- 專案整體仍是 BYOK 架構：Gemini 目前多數功能仍為前端直連；OpenAI 目前主要用於圖片生成 / image edit 路徑。
-
-## AI Provider 現況（2026-05-01）
-
-- `AI Image Gen`（`src/pages/Generator/components/ImageGeneratorTab.tsx`）支援 **Gemini / OpenAI**。
-- `Style Sticker`（`src/pages/Generator/components/StyleStickerTab.tsx`）支援 **Gemini / OpenAI**。
-- `Holiday Sticker`（`src/pages/Generator/components/HolidayStickerTab.tsx`）支援 **Gemini / OpenAI**。
-- `Greeting Card`（`src/pages/Generator/components/GreetingCardTab.tsx`）支援 **Gemini / OpenAI**。
-- `Cinematic Poster`（`src/pages/Generator/components/CinematicPosterTab.tsx`）支援 **Gemini / OpenAI**。
-- `Headshot Generator`（`src/pages/Generator/components/HeadshotGeneratorTab.tsx`）支援 **Gemini / OpenAI**。
-- `Manga Master`（`src/pages/Generator/components/MangaMasterTab.tsx`）支援 **Gemini / OpenAI**。
-- `Portrait Master`（`src/pages/Generator/components/PortraitMasterTab.tsx`）支援 **Gemini / OpenAI**。
-- 其他 AI 頁面目前仍是 **Gemini-only**，例如 `CharacterCreateTab`。
-- API key 分開儲存為 `gemini_api_key` / `openai_api_key`。
-- OpenAI 圖片生成目前走 `api/openai-image.ts` Vercel proxy。
-- 專案整體仍是 BYOK：Gemini 多數流程前端直連；OpenAI 目前主要承接圖片生成 / image edit，部分文字優化使用本地 fallback。
-
-## AI Provider Status (2026-05-01, Latest)
-
-- `Generator` 主分頁目前都支援 `Gemini / OpenAI`：
-  - `AI Image Gen`
-  - `Style Sticker`
-  - `Holiday Sticker`
-  - `Greeting Card`
-  - `Cinematic Poster`
-  - `Headshot Generator`
-  - `Manga Master`
-  - `Portrait Master`
-  - `Character Create`
-- `PhotoCollage` 已支援 `Gemini / OpenAI`：
-  - `src/pages/PhotoCollage/AutoCollageTab.tsx`
-- `ImageEditor` 已支援 `Gemini / OpenAI`：
-  - `src/pages/ImageEditor/components/LocalRedrawTab.tsx`
-  - `src/pages/ImageEditor/components/OutpaintTab.tsx`
-- API key 仍分開存：
-  - `gemini_api_key`
-  - `openai_api_key`
-- OpenAI 圖片生成 / edit 路徑統一走：
-  - `api/openai-image.ts`
-- 專案目前仍是前端 BYOK + Vercel proxy 模式，沒有獨立的 OpenAI 後端服務。
-
-## OpenAI Text Proxy Status (2026-05-01)
-
-- OpenAI text generation now goes through:
-  - `api/openai-text.ts`
-  - `src/pages/Generator/services/openaiTextService.ts`
-- The following OpenAI text flows now use the proxy instead of local fallback:
-  - `Greeting Card` prompt optimization + theme JSON
-  - `Cinematic Poster` theme/title/plot JSON
-  - `Manga Master` story optimization
-  - `Style Sticker` AI batch phrase suggestions
-  - `Character Create` analyze / optimize / story
-- OpenAI image generation and image edit still go through:
-  - `api/openai-image.ts`
-- Current architecture:
-  - Gemini provider keeps using existing Gemini services/helpers
-  - OpenAI provider uses Vercel proxies for both image and text requests
-  - Frontend remains BYOK; no dedicated OpenAI backend state is stored server-side
+- **雙 provider（Gemini / OpenAI）覆蓋範圍**：Generator 全部 9 個 tab、PhotoCollage `AutoCollageTab`、ImageEditor `LocalRedrawTab` / `OutpaintTab`。
+- API key 分開儲存：`gemini_api_key` / `openai_api_key`（localStorage 或 sessionStorage，統一走 `src/shared/geminiApiKey.ts`）。
+- **Gemini**：前端直連（BYOK）。**OpenAI**：一律走 Vercel proxy — 圖片生成/edit 走 `api/openai-image.ts`、文字走 `api/openai-text.ts`。
+- Proxy 有 abuse guard（`api/_guard.ts`）：同源 Origin 檢查、model allowlist、prompt/輸入長度與圖片數量上限。新 model 要先加進 allowlist。
+- Generator 的 per-tab provider 狀態集中在 `Generator/App.tsx` 的 `tabProviders: Record<TabId, AiProvider>`，不要新增獨立 useState。
 
 ## Available CLI Tools (OpenCLI)
 
