@@ -457,6 +457,11 @@
         "title": "Gallery",
         "desc": "Manage Creative Output",
         "features": "Bulk Download • Fast Preview"
+      },
+      "drawingStudio": {
+        "title": "Drawing Studio",
+        "desc": "Freehand canvas with brushes and layers",
+        "features": "Pressure Brushes • Layers • Masks"
       }
     },
     "cta": {

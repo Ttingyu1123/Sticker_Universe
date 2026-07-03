@@ -10,15 +10,17 @@ export default defineConfig({
   retries: 0,
   reporter: 'list',
   use: {
-    baseURL: 'http://127.0.0.1:5173',
+    // Dedicated port: 5173 is often occupied by another project's dev server,
+    // and reusing a foreign server makes every assertion meaningless.
+    baseURL: 'http://127.0.0.1:5199',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 5173',
-    url: 'http://127.0.0.1:5173',
-    reuseExistingServer: true,
+    command: 'npm run dev -- --host 127.0.0.1 --port 5199 --strictPort',
+    url: 'http://127.0.0.1:5199',
+    reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
   projects: [

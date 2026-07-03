@@ -198,6 +198,22 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
                 titleKey: 'landing.tabs.photoCollage.title',
                 descKey: 'landing.tabs.photoCollage.desc',
                 featuresKey: 'landing.tabs.photoCollage.features'
+            },
+            {
+                id: 'drawing-studio',
+                icon: 'Brush',
+                path: '/drawing-studio',
+                titleKey: 'landing.tabs.drawingStudio.title',
+                descKey: 'landing.tabs.drawingStudio.desc',
+                featuresKey: 'landing.tabs.drawingStudio.features'
+            },
+            {
+                id: 'layer-lab',
+                icon: 'Blend',
+                path: '/layer-lab',
+                titleKey: 'landing.tabs.layerLab.title',
+                descKey: 'landing.tabs.layerLab.desc',
+                featuresKey: 'landing.tabs.layerLab.features'
             }
         ]
     },

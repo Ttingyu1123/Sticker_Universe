@@ -7,16 +7,9 @@
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CreativeOS</title>
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval';
-        style-src 'self' 'unsafe-inline';
-        img-src 'self' data: blob: https://generativelanguage.googleapis.com;
-        connect-src 'self' blob: https://generativelanguage.googleapis.com https://o4511669121384448.ingest.us.sentry.io wss: ws:;
-        worker-src 'self' blob:;
-        child-src 'self' blob:;
-        font-src 'self' data:;
-    ">
+    <!-- CSP is enforced via HTTP headers in vercel.json (production only), so the
+         Vite dev server's inline/eval-based tooling keeps working locally. -->
+
 </head>
 
 <body>
