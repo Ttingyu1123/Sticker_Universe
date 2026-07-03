@@ -11,6 +11,7 @@ import { GalleryPicker } from '../../components/GalleryPicker';
 import { saveStickerToDB } from '../../db';
 import { AiProvider, clearApiKey, getApiKeyUrl, isApiKeyError, isValidApiKey, loadApiKey, saveApiKey } from '../../shared/geminiApiKey';
 import { useToast } from '../../components/shared/ToastProvider';
+import { useModalA11y } from '../../hooks/useModalA11y';
 
 const BASE_EXPORT_WIDTH = 1200;
 const EXPORT_SIZE_OPTIONS = [
@@ -93,6 +94,9 @@ export const AutoCollageTab: React.FC = () => {
     const [showKeyModal, setShowKeyModal] = useState(false);
     const [keyProvider, setKeyProvider] = useState<AiProvider>('gemini');
     const [tempKey, setTempKey] = useState('');
+
+    const keyModalRef = useModalA11y<HTMLDivElement>({ isOpen: showKeyModal, onClose: () => setShowKeyModal(false) });
+    const aiModalRef = useModalA11y<HTMLDivElement>({ isOpen: showAiModal, onClose: () => setShowAiModal(false) });
 
     // History State
     const [, setHistory] = useState<{
@@ -568,10 +572,15 @@ export const AutoCollageTab: React.FC = () => {
 
             {showKeyModal && (
                 <div className="fixed inset-0 z-50 bg-bronze-text/30 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="w-full max-w-md bg-white rounded-3xl border border-cream-dark shadow-2xl p-6 space-y-4">
+                    <div
+                        ref={keyModalRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="collage-key-modal-title"
+                        className="w-full max-w-md bg-white rounded-3xl border border-cream-dark shadow-2xl p-6 space-y-4">
                         <div className="flex items-center justify-between gap-3">
                             <div>
-                                <h3 className="text-lg font-black text-bronze">API Key</h3>
+                                <h3 id="collage-key-modal-title" className="text-lg font-black text-bronze">API Key</h3>
                                 <p className="text-xs text-bronze-light">Set a key for the provider you want to use in Photo Collage AI.</p>
                             </div>
                             <button onClick={() => setShowKeyModal(false)} className="text-bronze-light hover:text-bronze">
@@ -640,10 +649,15 @@ export const AutoCollageTab: React.FC = () => {
 
             {showAiModal && (
                 <div className="fixed inset-0 z-50 bg-bronze-text/30 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="w-full max-w-xl bg-white rounded-3xl border border-cream-dark shadow-2xl p-6 space-y-4">
+                    <div
+                        ref={aiModalRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="collage-ai-modal-title"
+                        className="w-full max-w-xl bg-white rounded-3xl border border-cream-dark shadow-2xl p-6 space-y-4">
                         <div className="flex items-center justify-between gap-3">
                             <div>
-                                <h3 className="text-lg font-black text-bronze">AI Generate</h3>
+                                <h3 id="collage-ai-modal-title" className="text-lg font-black text-bronze">AI Generate</h3>
                                 <p className="text-xs text-bronze-light">Create a new image asset and place it into the collage canvas.</p>
                             </div>
                             <button onClick={() => setShowAiModal(false)} className="text-bronze-light hover:text-bronze">

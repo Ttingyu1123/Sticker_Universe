@@ -2,6 +2,7 @@ import React from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
+import { useModalA11y } from '../../../hooks/useModalA11y';
 
 interface BubblePickerProps {
     onSelect: (svgContent: string) => void;
@@ -10,6 +11,7 @@ interface BubblePickerProps {
 
 export const BubblePicker: React.FC<BubblePickerProps> = ({ onSelect, onClose }) => {
     const { t } = useTranslation();
+    const modalRef = useModalA11y<HTMLDivElement>({ isOpen: true, onClose });
 
     const bubbles = [
         {
@@ -45,12 +47,16 @@ export const BubblePicker: React.FC<BubblePickerProps> = ({ onSelect, onClose })
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div
+                ref={modalRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="bubble-picker-modal-title"
                 className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-indigo-50 bg-indigo-50/30">
-                    <h2 className="text-xl font-bold text-indigo-900">
+                    <h2 id="bubble-picker-modal-title" className="text-xl font-bold text-indigo-900">
                         {t('editor.bubblePicker.chooseStyle') || 'Select Bubble Style'}
                     </h2>
                     <button

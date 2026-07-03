@@ -115,7 +115,7 @@ export const LayerCanvas: React.FC<LayerCanvasProps> = ({
 
     return (
         <div
-            className="w-full h-full overflow-auto flex items-center justify-center bg-gray-100/50 p-8 cursor-default select-none relative"
+            className="w-full h-full overflow-auto flex items-center justify-center bg-cream/50 p-8 cursor-default select-none relative"
             onClick={handleBackgroundClick}
         >
             {/* 

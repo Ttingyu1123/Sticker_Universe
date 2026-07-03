@@ -137,12 +137,12 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
                 {/* --- Minimalist Layout --- */}
                 {cardLayout === 'minimalist' && (
                     <div className="w-full h-full bg-white p-12 flex flex-col items-center justify-center shadow-md rounded-sm">
-                        <div className="border border-gray-200 p-1 mb-8 shadow-sm">
+                        <div className="border border-cream-dark p-1 mb-8 shadow-sm">
                             <img src={generatedResult.imageUrl} className="max-w-[80%] max-h-[300px] object-contain mx-auto" alt="Generated Card" />
                         </div>
                         <div className="text-center space-y-4 max-w-sm">
                             {hasNameLine && (
-                                <div className="text-base italic text-gray-400 font-serif">
+                                <div className="text-base italic text-bronze-text/60 font-serif">
                                     {toText || "Dear"}
                                     {toText && fromText ? " / " : ""}
                                     {fromText || ""}
@@ -150,7 +150,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
                             )}
                             {showTextOnCard && generatedResult.message && (
                                 <p
-                                    className={`text-xl leading-relaxed py-4 border-t border-b border-gray-100 ${activeFont?.className || ''}`}
+                                    className={`text-xl leading-relaxed py-4 border-t border-b border-cream-dark ${activeFont?.className || ''}`}
                                     style={{ color: textColor, fontFamily: activeFont?.family }}
                                 >
                                     {generatedResult.message}

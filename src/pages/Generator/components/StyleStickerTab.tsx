@@ -17,6 +17,7 @@ import { generateOpenAiImage } from '../services/openaiImageService';
 import { generateOpenAiJson } from '../services/openaiTextService';
 import { useToast } from '../../../components/shared/ToastProvider';
 import { ProviderSwitcher } from '../../../components/shared/ProviderSwitcher';
+import { useModalA11y } from '../../../hooks/useModalA11y';
 
 // Helper for Theme Icons
 const getThemeIcon = (iconName: string) => {
@@ -159,6 +160,7 @@ const StyleStickerTab: React.FC<StyleStickerTabProps> = ({
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [showGallery, setShowGallery] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const previewModalRef = useModalA11y<HTMLDivElement>({ isOpen: !!previewImage, onClose: () => setPreviewImage(null) });
 
     const GEMINI_STICKER_MODEL = 'gemini-3-pro-image-preview';
     const OPENAI_STICKER_MODEL = 'gpt-image-2';
@@ -1318,7 +1320,13 @@ Requested phrase count: ${batchSize}`,
                     className="fixed inset-0 z-[110] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
                     onClick={() => setPreviewImage(null)}
                 >
-                    <div className="relative max-w-4xl w-full max-h-[90vh] flex items-center justify-center">
+                    <div
+                        ref={previewModalRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Image preview"
+                        className="relative max-w-4xl w-full max-h-[90vh] flex items-center justify-center"
+                    >
                         <img
                             src={previewImage}
                             alt="Preview"
@@ -1326,7 +1334,7 @@ Requested phrase count: ${batchSize}`,
                             onClick={(e) => e.stopPropagation()}
                         />
                         <button
-                            className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+                            className="absolute -top-12 right-0 text-white/70 hover:text-white transition-colors"
                             onClick={() => setPreviewImage(null)}
                         >
                             <Trash2 className="hidden" /> {/* Dummy to keep import used if needed, or use X */}

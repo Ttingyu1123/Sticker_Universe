@@ -63,7 +63,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
                 <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 p-10 text-center">
                     <div className="text-4xl">⚠️</div>
                     <h2 className="text-xl font-semibold text-red-600">{translate('common.errorBoundary.title', 'Something went wrong')}</h2>
-                    <p className="text-sm text-gray-500 max-w-md">
+                    <p className="text-sm text-bronze-text/60 max-w-md">
                         {this.state.error?.message ?? translate('common.errorBoundary.unknownError', 'Unknown error')}
                     </p>
                     <button

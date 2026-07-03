@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Download, Grid } from 'lucide-react';
 import { SplitImage, downloadZip } from '../utils/exportUtils';
+import { useModalA11y } from '../../../hooks/useModalA11y';
 
 interface SplitPreviewModalProps {
     isOpen: boolean;
@@ -9,14 +10,21 @@ interface SplitPreviewModalProps {
 }
 
 export const SplitPreviewModal: React.FC<SplitPreviewModalProps> = ({ isOpen, onClose, images }) => {
+    const modalRef = useModalA11y<HTMLDivElement>({ isOpen, onClose });
+
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            <div
+                ref={modalRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="split-preview-modal-title"
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
                 {/* Header */}
                 <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
-                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <h3 id="split-preview-modal-title" className="text-lg font-bold text-slate-800 flex items-center gap-2">
                         <Grid className="text-violet-600" size={20} />
                         Preview Splits
                         <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-full">{images.length} items</span>

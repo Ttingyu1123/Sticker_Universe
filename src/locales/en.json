@@ -178,6 +178,33 @@
         "saveToGallery": "Save to Gallery",
         "generateFailed": "Failed to generate preview",
         "saveFailed": "Failed to save to collection"
+      },
+      "precheck": {
+        "aspect": {
+          "label": "Aspect Ratio"
+        },
+        "background": {
+          "label": "Solid Background"
+        },
+        "checking": "Checking...",
+        "empty": "Check results appear automatically after adding a photo.",
+        "error": {
+          "detail": "Check could not be completed; re-crop or replace the image.",
+          "label": "Check Status"
+        },
+        "face": {
+          "label": "Face Ratio & Headroom",
+          "manual": "Browser could not run face analysis; please verify manually.",
+          "noFace": "No face detected; verify face ratio and headroom manually."
+        },
+        "fail": "Fail",
+        "manual": "Manual Check",
+        "pass": "Pass",
+        "resolution": {
+          "label": "Resolution"
+        },
+        "title": "Pre-print Check",
+        "warn": "Warning"
       }
     },
     "description": "Arrange your stickers on an A4 canvas and export as PDF.",
@@ -1237,7 +1264,12 @@
       "imageFailedError": "Poster image generation failed.",
       "generateFailedError": "Failed to generate drama poster.",
       "regenerateFailedError": "Failed to regenerate poster.",
-      "downloadFailedError": "Failed to download poster, please try again."
+      "downloadFailedError": "Failed to download poster, please try again.",
+      "firstLeadActorPlaceholder": "Enter the first lead's actor name",
+      "firstLeadCharacterPlaceholder": "Enter the first lead's character name",
+      "secondLeadActorPlaceholder": "Enter the second lead's actor name",
+      "secondLeadCharacterPlaceholder": "Enter the second lead's character name",
+      "selectSecondFromGallery": "Pick a second photo from the gallery"
     },
     "holidaySticker": {
       "labels": {
@@ -1372,7 +1404,8 @@
       "applying": "Applying beautification...",
       "complete": "Processing Complete!",
       "failed": "Processing Failed: ",
-      "savedToCollection": "Saved to Collection"
+      "savedToCollection": "Saved to Collection",
+      "saveFailed": "Failed to save"
     },
     "phase1": {
       "title": "Phase 1: Crop & Remove BG",
@@ -1498,7 +1531,9 @@
       "packager": "Batch Crop",
       "animator": "Animator",
       "resize": "Resize Image",
-      "svg": "SVG Magic"
+      "svg": "SVG Magic",
+      "localRedraw": "Local Redraw",
+      "outpaint": "Magic Outpaint"
     },
     "bubblePicker": {
       "chooseStyle": "Select Bubble Style",
@@ -1631,6 +1666,56 @@
     },
     "toast": {
       "fontLoadFailed": "Failed to load font file."
+    },
+    "localRedraw": {
+      "autoExpand": "Auto-expand selection by 20% (reduces seam artifacts)",
+      "empty": "Upload an image or pick one from your gallery to start local redraw.",
+      "optimizePrompt": "Optimize Prompt",
+      "promptTip": "Tip: select an area at least 1.3x larger than the target object to reduce cropping and seams.",
+      "removeObjectTemplate": "Remove content (auto-fill background)",
+      "resetToOriginal": "Reset to Original",
+      "source": "Canvas Size",
+      "title": "Local Redraw",
+      "upload": "Upload Image"
+    },
+    "outpaint": {
+      "aspect": "Aspect",
+      "brushSize": "Brush Size",
+      "canvas": "Output Ratio",
+      "clearMask": "Clear Protection",
+      "clearSelection": "Clear Selection",
+      "download": "Download (auto-saves to gallery)",
+      "empty": "Upload an image first, or pick one from your gallery",
+      "finalSize": "Final Output Size",
+      "fixedHeight": "Fixed Height",
+      "fixedPx": "Fixed Pixels",
+      "fixedWidth": "Fixed Width",
+      "height": "Output Height",
+      "localEdit": "Local Edit",
+      "localNeedSelection": "Select the area to regenerate first.",
+      "localPrompt": "Local Regeneration Prompt",
+      "localPromptHint": "e.g. Add a complete kitten inside the box, consistent lighting, natural edge blending",
+      "localRegenerate": "Regenerate Selection",
+      "lockAspectOff": "Lock aspect: off",
+      "lockAspectOn": "Lock aspect: on",
+      "modelRawSize": "Raw model output size",
+      "offsetX": "Horizontal Position X",
+      "offsetY": "Vertical Position Y",
+      "prompt": "Background prompt (optional)",
+      "promptHint": "e.g. extend into a classical courtyard with soft natural light",
+      "protectBrush": "Protect Brush",
+      "protecting": "Brush mode: paint areas to protect",
+      "quality": "Output Quality",
+      "scale": "Subject Scale",
+      "selectArea": "Select Area",
+      "selecting": "Selection mode: drag to create redraw area",
+      "sizeControl": "Size Control",
+      "source": "Source Size",
+      "swap": "Swap width/height",
+      "targetSize": "Target Output Size",
+      "title": "Magic Outpaint",
+      "upload": "Upload Image",
+      "width": "Output Width"
     }
   },
   "collage": {
@@ -1806,7 +1891,8 @@
     },
     "variations_hint": "Generate {{count}} variation(s)",
     "action": {
-      "generate": "Generate Headshot"
+      "generate": "Generate Headshot",
+      "applyIdPreset": "Apply ID-photo preset"
     },
     "errors": {
       "noImage": "Please upload and crop an image first.",
@@ -1995,7 +2081,27 @@
     "exportProject": "Export Project",
     "projectLoadFailed": "Failed to load project file.",
     "copied": "Copied",
-    "copyHexHint": "Click to copy HEX"
+    "copyHexHint": "Click to copy HEX",
+    "addLayer": "Add Layer",
+    "applyCanvasSize": "Apply Canvas Size",
+    "applyLayerSize": "Apply Layer Size",
+    "customHeight": "Custom Height",
+    "customWidth": "Custom Width",
+    "imageBgColor": "Layer Image Background",
+    "imageHeight": "Image Height",
+    "imageWidth": "Image Width",
+    "layerFillColor": "Layer Fill Color",
+    "layerHeightPx": "Layer Height (px)",
+    "layerLimitHint": "Recommended within 20 layers; hard limit 30",
+    "layerLimitReached": "Layer limit reached (30)",
+    "layerWidthPx": "Layer Width (px)",
+    "maskPaintHint": "Mask editing: brush = hide, eraser = restore",
+    "maskShort": "Mask",
+    "renameLayer": "Rename Layer",
+    "renameLayerPrompt": "Rename layer",
+    "renameShort": "Rename",
+    "transparent": "Transparent",
+    "uploadImage": "Upload Image"
   },
   "common": {
     "cancel": "Cancel",

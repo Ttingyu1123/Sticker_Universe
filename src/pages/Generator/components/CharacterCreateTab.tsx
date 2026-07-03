@@ -708,7 +708,7 @@ Output only optimized prompt text.`,
                   disabled={lockedKeys.has(key)}
                   className={`w-full h-14 p-2 rounded-xl border text-xs outline-none transition-colors ${
                     lockedKeys.has(key)
-                      ? 'bg-gray-100 border-gray-200 text-gray-400'
+                      ? 'bg-cream border-cream-dark text-bronze-text/60'
                       : 'bg-white border-cream-dark text-bronze-text focus:ring-2 focus:ring-primary/10 focus:border-primary'
                   }`}
                 />

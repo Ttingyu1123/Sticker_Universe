@@ -238,6 +238,33 @@
         "zoom": "縮放",
         "generateFailed": "預覽產生失敗",
         "saveFailed": "儲存到作品集失敗"
+      },
+      "precheck": {
+        "aspect": {
+          "label": "比例"
+        },
+        "background": {
+          "label": "背景純色"
+        },
+        "checking": "檢查中...",
+        "empty": "加入照片後會自動顯示檢查結果。",
+        "error": {
+          "detail": "無法完成檢查，請重新裁切或更換圖片。",
+          "label": "檢查狀態"
+        },
+        "face": {
+          "label": "臉部比例與頭頂留白",
+          "manual": "瀏覽器無法完成臉部分析，請人工確認。",
+          "noFace": "未偵測到臉部，請人工確認臉部比例與頭頂留白。"
+        },
+        "fail": "不符",
+        "manual": "人工確認",
+        "pass": "通過",
+        "resolution": {
+          "label": "解析度"
+        },
+        "title": "列印前檢查",
+        "warn": "注意"
       }
     },
     "exportFailed": "匯出失敗，請重試。",
@@ -1348,7 +1375,12 @@
       "imageFailedError": "海報圖片生成失敗。",
       "generateFailedError": "生成影劇海報失敗。",
       "regenerateFailedError": "重新生成海報失敗。",
-      "downloadFailedError": "下載海報失敗，請再試一次。"
+      "downloadFailedError": "下載海報失敗，請再試一次。",
+      "firstLeadActorPlaceholder": "輸入第一主角的演員名稱",
+      "firstLeadCharacterPlaceholder": "輸入第一主角的角色名稱",
+      "secondLeadActorPlaceholder": "輸入第二主角的演員名稱",
+      "secondLeadCharacterPlaceholder": "輸入第二主角的角色名稱",
+      "selectSecondFromGallery": "從圖庫選第二張照片"
     },
     "holidaySticker": {
       "labels": {
@@ -1483,7 +1515,8 @@
       "applying": "正在套用美化效果...",
       "complete": "處理完成！",
       "failed": "處理失敗：",
-      "savedToCollection": "已儲存至收藏夾"
+      "savedToCollection": "已儲存至收藏夾",
+      "saveFailed": "儲存失敗"
     },
     "phase1": {
       "title": "裁切與去背",
@@ -1604,7 +1637,9 @@
       "beautify": "美化加工",
       "animator": "動態貼圖",
       "svg": "SVG 魔法",
-      "resize": "調整尺寸"
+      "resize": "調整尺寸",
+      "localRedraw": "局部重繪",
+      "outpaint": "魔法擴圖"
     },
     "resize": {
       "title": "調整圖片尺寸",
@@ -1749,6 +1784,56 @@
     },
     "toast": {
       "fontLoadFailed": "字型檔案載入失敗。"
+    },
+    "localRedraw": {
+      "autoExpand": "自動擴框 20%（減少邊界接縫）",
+      "empty": "請先上傳圖片或從作品集選取，開始局部重繪。",
+      "optimizePrompt": "優化提示詞",
+      "promptTip": "建議：框選範圍至少比目標物件大 1.3x，可降低裁切與接縫感。",
+      "removeObjectTemplate": "去除內容（自動補背景）",
+      "resetToOriginal": "還原原圖",
+      "source": "畫布尺寸",
+      "title": "局部重繪",
+      "upload": "上傳圖片"
+    },
+    "outpaint": {
+      "aspect": "比例",
+      "brushSize": "筆刷大小",
+      "canvas": "輸出比例",
+      "clearMask": "清除保護",
+      "clearSelection": "清除框選",
+      "download": "下載（自動匯入作品集）",
+      "empty": "請先上傳圖片，或從作品集選取",
+      "finalSize": "最終輸出尺寸",
+      "fixedHeight": "固定高",
+      "fixedPx": "固定像素",
+      "fixedWidth": "固定寬",
+      "height": "輸出高度",
+      "localEdit": "局部改圖",
+      "localNeedSelection": "請先框選要局部重生成的區域。",
+      "localPrompt": "局部重生成提示詞",
+      "localPromptHint": "例如：在框內加入一隻完整小貓，光線一致，邊緣自然融合",
+      "localRegenerate": "局部重生成",
+      "lockAspectOff": "鎖定比例：關",
+      "lockAspectOn": "鎖定比例：開",
+      "modelRawSize": "模型原始回傳尺寸",
+      "offsetX": "水平位置 X",
+      "offsetY": "垂直位置 Y",
+      "prompt": "補景提示詞（可選）",
+      "promptHint": "例如：延伸成古風庭院、柔和自然光",
+      "protectBrush": "保護筆刷",
+      "protecting": "筆刷模式：塗抹可保護區域",
+      "quality": "輸出品質",
+      "scale": "主圖縮放",
+      "selectArea": "框選區域",
+      "selecting": "框選模式：拖曳建立重繪範圍",
+      "sizeControl": "尺寸控制",
+      "source": "來源尺寸",
+      "swap": "交換寬高",
+      "targetSize": "目標輸出尺寸",
+      "title": "魔法擴圖",
+      "upload": "上傳圖片",
+      "width": "輸出寬度"
     }
   },
   "collage": {
@@ -1924,7 +2009,8 @@
     },
     "variations_hint": "生成 {{count}} 個變化版本",
     "action": {
-      "generate": "生成專業形象照"
+      "generate": "生成專業形象照",
+      "applyIdPreset": "套用證件照推薦設定"
     },
     "errors": {
       "noImage": "請先上傳照片",
@@ -2113,6 +2199,26 @@
     "exportProject": "匯出專案",
     "projectLoadFailed": "載入專案檔失敗。",
     "copied": "已複製",
-    "copyHexHint": "點擊複製 HEX"
+    "copyHexHint": "點擊複製 HEX",
+    "addLayer": "新增圖層",
+    "applyCanvasSize": "套用畫布尺寸",
+    "applyLayerSize": "套用圖層尺寸",
+    "customHeight": "自訂高度",
+    "customWidth": "自訂寬度",
+    "imageBgColor": "圖層圖片底色",
+    "imageHeight": "圖片高度",
+    "imageWidth": "圖片寬度",
+    "layerFillColor": "圖層填色",
+    "layerHeightPx": "圖層高度 (px)",
+    "layerLimitHint": "建議 20 層內，系統上限 30 層",
+    "layerLimitReached": "已達圖層上限 (30 層)",
+    "layerWidthPx": "圖層寬度 (px)",
+    "maskPaintHint": "遮罩編輯：畫筆=隱藏，橡皮擦=還原",
+    "maskShort": "遮罩",
+    "renameLayer": "重新命名圖層",
+    "renameLayerPrompt": "重新命名圖層",
+    "renameShort": "重新命名",
+    "transparent": "透明",
+    "uploadImage": "上傳圖片"
   }
 }

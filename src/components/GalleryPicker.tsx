@@ -5,6 +5,7 @@ import { Sticker } from '../pages/Generator/types';
 import { X, Image as ImageIcon, Loader2, CheckCircle2, Circle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from './shared/ToastProvider';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface GalleryPickerProps {
     onSelect: (blobs: Blob[]) => void;
@@ -14,6 +15,7 @@ interface GalleryPickerProps {
 export const GalleryPicker: React.FC<GalleryPickerProps> = ({ onSelect, onClose }) => {
     const { t } = useTranslation();
     const { showToast } = useToast();
+    const modalRef = useModalA11y<HTMLDivElement>({ isOpen: true, onClose });
     const [stickers, setStickers] = useState<Sticker[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -90,7 +92,13 @@ export const GalleryPicker: React.FC<GalleryPickerProps> = ({ onSelect, onClose 
 
     const content = (
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-4xl h-[92dvh] sm:h-[85vh] sm:max-h-[920px] flex flex-col shadow-2xl overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
+            <div
+                ref={modalRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="gallery-picker-title"
+                className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-4xl h-[92dvh] sm:h-[85vh] sm:max-h-[920px] flex flex-col shadow-2xl overflow-hidden scale-100 animate-in zoom-in-95 duration-200"
+            >
 
                 {/* Header */}
                 <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
@@ -99,7 +107,7 @@ export const GalleryPicker: React.FC<GalleryPickerProps> = ({ onSelect, onClose 
                             <ImageIcon size={20} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-slate-800 tracking-tight">{t('gallery.title') || 'My Collection'}</h2>
+                            <h2 id="gallery-picker-title" className="text-xl font-bold text-slate-800 tracking-tight">{t('gallery.title') || 'My Collection'}</h2>
                             <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">{t('gallery.selectionMode') || 'Select Multiple'}</p>
                         </div>
                     </div>

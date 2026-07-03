@@ -6,6 +6,7 @@ import { GalleryPicker } from '../../../components/GalleryPicker';
 import { LinePreviewModal } from '../../../components/LinePreviewModal';
 import { BubblePicker } from '../../../features/editor-core';
 import { useToast } from '../../../components/shared/ToastProvider';
+import { useModalA11y } from '../../../hooks/useModalA11y';
 // @ts-ignore
 import UPNG from 'upng-js';
 import GIF from 'gif.js';
@@ -22,6 +23,7 @@ const AnimatorTab = () => {
     const [isExporting, setIsExporting] = useState(false);
     const [showGallery, setShowGallery] = useState(false);
     const [showBubblePicker, setShowBubblePicker] = useState(false);
+    const galleryModalRef = useModalA11y<HTMLDivElement>({ isOpen: showGallery, onClose: () => setShowGallery(false) });
 
     // LINE Preview State
     const [showLinePreview, setShowLinePreview] = useState(false);
@@ -581,9 +583,15 @@ const AnimatorTab = () => {
             {
                 showGallery && (
                     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+                        <div
+                            ref={galleryModalRef}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="animator-gallery-modal-title"
+                            className="bg-white rounded-2xl w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col"
+                        >
                             <div className="p-4 border-b flex justify-between items-center">
-                                <h3 className="font-bold">Select from Gallery</h3>
+                                <h3 id="animator-gallery-modal-title" className="font-bold">Select from Gallery</h3>
                                 <button onClick={() => setShowGallery(false)} className="p-2 hover:bg-slate-100 rounded-full">✕</button>
                             </div>
                             <div className="flex-1 overflow-auto p-4">

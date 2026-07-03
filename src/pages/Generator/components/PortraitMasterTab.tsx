@@ -10,6 +10,7 @@ import { GalleryPicker } from '../../../components/GalleryPicker';
 import { ProviderSwitcher } from '../../../components/shared/ProviderSwitcher';
 import { AiProvider } from '../../../shared/geminiApiKey';
 import { generateOpenAiImage } from '../services/openaiImageService';
+import { useModalA11y } from '../../../hooks/useModalA11y';
 
 // Mock types if not available, or import from types.ts
 interface SubStyle {
@@ -624,6 +625,9 @@ ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
         setIsCropping(false);
     };
 
+    const cropModalRef = useModalA11y<HTMLDivElement>({ isOpen: isCropping && !!image, onClose: cancelCrop });
+    const previewModalRef = useModalA11y<HTMLDivElement>({ isOpen: !!previewImage, onClose: () => setPreviewImage(null) });
+
     const generatePortrait = async () => {
         if (!apiKey) {
             onNeedApiKey?.(provider);
@@ -1011,9 +1015,15 @@ ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
             {
                 isCropping && image && (
                     <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-                        <div className="bg-white rounded-3xl p-6 w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+                        <div
+                            ref={cropModalRef}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="portrait-crop-modal-title"
+                            className="bg-white rounded-3xl p-6 w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300"
+                        >
                             <div className="flex justify-between items-center mb-4 px-2">
-                                <h3 className="text-lg font-black text-bronze-text flex items-center gap-2">
+                                <h3 id="portrait-crop-modal-title" className="text-lg font-black text-bronze-text flex items-center gap-2">
                                     <Scissors size={20} className="text-primary" /> {t('generator.portrait.crop_title')}
                                 </h3>
                                 <button onClick={cancelCrop} className="text-bronze-light hover:text-bronze-text font-bold">✕</button>
@@ -1041,7 +1051,13 @@ ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
                         className="fixed inset-0 z-[110] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
                         onClick={() => setPreviewImage(null)}
                     >
-                        <div className="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center justify-center gap-4">
+                        <div
+                            ref={previewModalRef}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label="Image preview"
+                            className="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center justify-center gap-4"
+                        >
                             <img
                                 src={previewImage.src}
                                 alt="Preview"
@@ -1057,7 +1073,7 @@ ${customPrompt ? `Additional User Request (Items/Scene): ${customPrompt}` : ''}
                                 </button>
                             </div>
                             <button
-                                className="absolute top-4 right-4 md:-top-12 md:right-0 text-white hover:text-gray-300 transition-colors bg-black/50 md:bg-transparent p-2 rounded-full"
+                                className="absolute top-4 right-4 md:-top-12 md:right-0 text-white/70 hover:text-white transition-colors bg-black/50 md:bg-transparent p-2 rounded-full"
                                 onClick={() => setPreviewImage(null)}
                             >
                                 <span className="text-xl font-bold">✕</span>

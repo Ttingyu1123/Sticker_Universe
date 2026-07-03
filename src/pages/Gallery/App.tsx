@@ -8,6 +8,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import ReactMarkdown from 'react-markdown';
 import { useToast } from '../../components/shared/ToastProvider';
+import { useModalA11y } from '../../hooks/useModalA11y';
 
 interface StickerCardProps {
     sticker: Sticker;
@@ -186,6 +187,9 @@ const App = () => {
     const [viewingSticker, setViewingSticker] = useState<Sticker | null>(null);
     const [previewSticker, setPreviewSticker] = useState<Sticker | null>(null);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    const detailModalRef = useModalA11y<HTMLDivElement>({ isOpen: !!viewingSticker, onClose: () => setViewingSticker(null) });
+    const lightboxModalRef = useModalA11y<HTMLDivElement>({ isOpen: !!previewSticker, onClose: () => setPreviewSticker(null) });
 
     useEffect(() => {
         loadStickers();
@@ -677,7 +681,12 @@ const App = () => {
             {
                 viewingSticker && (
                     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setViewingSticker(null)}>
-                        <div className="bg-white rounded-3xl max-w-4xl w-full h-[90vh] md:h-auto md:max-h-[90vh] overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+                        <div
+                            ref={detailModalRef}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="gallery-detail-modal-title"
+                            className="bg-white rounded-3xl max-w-4xl w-full h-[90vh] md:h-auto md:max-h-[90vh] overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
 
                             {/* Image Side */}
                             <div className="w-full md:w-1/2 bg-cream-light/30 relative flex items-center justify-center p-8 border-b md:border-b-0 md:border-r border-cream-dark/50" style={{ backgroundImage: 'radial-gradient(#d6ccc2 1px, transparent 1px)', backgroundSize: '16px 16px' }}>
@@ -691,7 +700,7 @@ const App = () => {
                             <div className="w-full md:w-1/2 flex flex-col flex-1 min-h-0 bg-white">
                                 <div className="px-8 py-6 border-b border-cream-dark flex items-center justify-between bg-white shrink-0">
                                     <div>
-                                        <h2 className="text-xl font-black text-bronze-text line-clamp-1">{viewingSticker.phrase}</h2>
+                                        <h2 id="gallery-detail-modal-title" className="text-xl font-black text-bronze-text line-clamp-1">{viewingSticker.phrase}</h2>
                                         <p className="text-xs text-bronze-light font-bold mt-1">{new Date(viewingSticker.timestamp).toLocaleString()}</p>
                                     </div>
                                     <button onClick={() => setViewingSticker(null)} className="p-2 hover:bg-cream-light rounded-full text-bronze-light transition-colors hidden md:block">
@@ -715,19 +724,19 @@ const App = () => {
                                 <div className="p-6 border-t border-cream-dark bg-white shrink-0 flex flex-wrap justify-end gap-3">
                                     <button
                                         onClick={() => handleCopyText(viewingSticker)}
-                                        className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition-all flex items-center gap-2"
+                                        className="px-3 py-2 bg-cream hover:bg-cream-dark text-bronze-text rounded-xl font-bold text-sm transition-all flex items-center gap-2"
                                         title={t('generator.action.copyPrompt')}
                                     >
                                         <Copy size={16} /> <span className="hidden sm:inline">{t('generator.action.copyPrompt')}</span>
                                     </button>
                                     <button
                                         onClick={() => handleDownloadText(viewingSticker)}
-                                        className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition-all flex items-center gap-2"
+                                        className="px-3 py-2 bg-cream hover:bg-cream-dark text-bronze-text rounded-xl font-bold text-sm transition-all flex items-center gap-2"
                                         title={t('generator.action.downloadPrompt')}
                                     >
                                         <FileText size={16} /> <span className="hidden sm:inline">{t('generator.action.downloadPrompt')}</span>
                                     </button>
-                                    <div className="w-px h-8 bg-gray-300 mx-1 hidden sm:block"></div>
+                                    <div className="w-px h-8 bg-cream-dark mx-1 hidden sm:block"></div>
                                     <button
                                         onClick={() => handleShare(viewingSticker)}
                                         className="px-4 py-2 bg-pink-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-pink-500/20 hover:bg-pink-600 transition-all flex items-center gap-2"
@@ -750,7 +759,12 @@ const App = () => {
             {/* Lightbox Modal */}
             {
                 previewSticker && (
-                    <div className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setPreviewSticker(null)}>
+                    <div
+                        ref={lightboxModalRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Sticker image preview"
+                        className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setPreviewSticker(null)}>
                         <button className="absolute top-6 right-6 p-4 text-white/50 hover:text-white transition-colors">
                             <X size={32} />
                         </button>

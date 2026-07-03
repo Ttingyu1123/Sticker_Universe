@@ -6,6 +6,7 @@ import { AiProvider, clearApiKey, getApiKeyUrl, isValidApiKey, loadApiKey, saveA
 import { generateImage } from '../../Generator/services/geminiService';
 import { generateOpenAiImage } from '../../Generator/services/openaiImageService';
 import { saveStickerToDB } from '../../../db';
+import { useModalA11y } from '../../../hooks/useModalA11y';
 
 const ratioPresets = [
   { label: '1:1', width: 1024, height: 1024 },
@@ -72,6 +73,7 @@ const OutpaintTab: React.FC = () => {
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [keyProvider, setKeyProvider] = useState<AiProvider>('gemini');
   const [tempKey, setTempKey] = useState('');
+  const keyModalRef = useModalA11y<HTMLDivElement>({ isOpen: showKeyModal, onClose: () => setShowKeyModal(false) });
 
   const outputSize = useMemo(
     () => ({
@@ -415,10 +417,16 @@ const OutpaintTab: React.FC = () => {
     <div className="h-full min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 md:p-6 overflow-hidden">
       {showKeyModal && (
         <div className="fixed inset-0 z-50 bg-bronze-text/30 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white rounded-3xl border border-cream-dark shadow-2xl p-6 space-y-4">
+          <div
+            ref={keyModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="outpaint-key-modal-title"
+            className="w-full max-w-md bg-white rounded-3xl border border-cream-dark shadow-2xl p-6 space-y-4"
+          >
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h3 className="text-lg font-black text-bronze">API Key</h3>
+                <h3 id="outpaint-key-modal-title" className="text-lg font-black text-bronze">API Key</h3>
                 <p className="text-xs text-bronze-light">Set a key for the provider you want to use in Outpaint.</p>
               </div>
               <button onClick={() => setShowKeyModal(false)} className="text-bronze-light hover:text-bronze">

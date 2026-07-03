@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AiProvider, PROVIDER_LABELS, clearApiKey, getApiKeyUrl, isValidApiKey, loadApiKey, saveApiKey } from '../../shared/geminiApiKey';
 import { safeSaveToLocalStorage, safeLoadFromLocalStorage } from '../../shared/localStorage';
 import { useToast } from '../../components/shared/ToastProvider';
+import { useModalA11y } from '../../hooks/useModalA11y';
 
 import ImageGeneratorTab from './components/ImageGeneratorTab';
 import HolidayStickerTab from './components/HolidayStickerTab';
@@ -42,6 +43,9 @@ const App: React.FC = () => {
   const [isZipping, setIsZipping] = useState(false);
   const [previewSticker, setPreviewSticker] = useState<Sticker | null>(null);
   const [imageGenSeed, setImageGenSeed] = useState<{ prompt: string; token: number }>({ prompt: '', token: 0 });
+
+  const keyModalRef = useModalA11y<HTMLDivElement>({ isOpen: showKeyModal, onClose: () => setShowKeyModal(false) });
+  const previewModalRef = useModalA11y<HTMLDivElement>({ isOpen: !!previewSticker, onClose: () => setPreviewSticker(null) });
 
   const setTabProvider = (tab: TabId, provider: AiProvider) => {
     setTabProviders((prev) => ({ ...prev, [tab]: provider }));
@@ -347,10 +351,16 @@ const App: React.FC = () => {
       {/* Key Modal */}
       {showKeyModal && (
         <div className="fixed inset-0 bg-bronze-text/20 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white rounded-3xl p-8 shadow-2xl border border-cream-dark w-full max-w-md space-y-6 animate-in zoom-in-95 duration-300">
+          <div
+            ref={keyModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="key-modal-title"
+            className="bg-white rounded-3xl p-8 shadow-2xl border border-cream-dark w-full max-w-md space-y-6 animate-in zoom-in-95 duration-300"
+          >
             <div className="text-center">
               <Key size={32} className="text-primary mx-auto mb-4" />
-              <h3 className="text-xl font-black text-bronze mb-2">{keyModalTitle}</h3>
+              <h3 id="key-modal-title" className="text-xl font-black text-bronze mb-2">{keyModalTitle}</h3>
               <p className="text-sm text-bronze-light">{keyModalDescription}</p>
               <div className="grid grid-cols-2 gap-2 mt-4">
                 {(['gemini', 'openai'] as AiProvider[]).map((provider) => (
@@ -677,7 +687,13 @@ const App: React.FC = () => {
           className="fixed inset-0 z-[110] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => setPreviewSticker(null)}
         >
-          <div className="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center justify-center gap-4">
+          <div
+            ref={previewModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Image preview"
+            className="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center justify-center gap-4"
+          >
             <div className="relative">
               <img
                 src={previewSticker.imageUrl}
@@ -713,7 +729,7 @@ const App: React.FC = () => {
             </div>
 
             <button
-              className="absolute top-4 right-4 md:-top-12 md:right-0 text-white hover:text-gray-300 transition-colors bg-black/50 md:bg-transparent p-2 rounded-full"
+              className="absolute top-4 right-4 md:-top-12 md:right-0 text-white/70 hover:text-white transition-colors bg-black/50 md:bg-transparent p-2 rounded-full"
               onClick={() => setPreviewSticker(null)}
             >
               <span className="text-xl font-bold">✕ {t('generator.action.close')}</span>

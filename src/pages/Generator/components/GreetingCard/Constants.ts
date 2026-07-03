@@ -45,7 +45,7 @@ export const TEXT_COLORS = [
     { id: '#1e3a8a', label: '深海藍', value: '#1e3a8a', class: 'bg-blue-900' },
     { id: '#881337', label: '酒紅色', value: '#881337', class: 'bg-rose-900' },
     { id: '#064e3b', label: '森林綠', value: '#064e3b', class: 'bg-emerald-900' },
-    { id: '#ffffff', label: '純淨白', value: '#ffffff', class: 'bg-white border border-gray-300' },
+    { id: '#ffffff', label: '純淨白', value: '#ffffff', class: 'bg-white border border-cream-dark' },
 ];
 
 export const ASPECT_RATIOS = [
@@ -60,7 +60,7 @@ export const ASPECT_RATIOS = [
 
 export const CARD_BACKGROUNDS = [
     { id: 'cream', value: '#FDFCF8', label: '奶油白 (預設)', class: 'bg-[#FDFCF8] border border-stone-200' },
-    { id: 'white', value: '#FFFFFF', label: '純白', class: 'bg-white border border-gray-200' },
+    { id: 'white', value: '#FFFFFF', label: '純白', class: 'bg-white border border-cream-dark' },
     { id: 'pink', value: '#FDF2F8', label: '櫻花粉', class: 'bg-pink-50 border border-pink-200' },
     { id: 'blue', value: '#EFF6FF', label: '天空藍', class: 'bg-blue-50 border border-blue-200' },
     { id: 'green', value: '#F0FDF4', label: '薄荷綠', class: 'bg-green-50 border border-green-200' },

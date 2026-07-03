@@ -10,6 +10,7 @@ import { GalleryPicker } from '../../../components/GalleryPicker';
 import { ProviderSwitcher } from '../../../components/shared/ProviderSwitcher';
 import { AiProvider } from '../../../shared/geminiApiKey';
 import { generateOpenAiImage } from '../services/openaiImageService';
+import { useModalA11y } from '../../../hooks/useModalA11y';
 
 // Types
 interface Preset {
@@ -241,6 +242,8 @@ const HeadshotGeneratorTab: React.FC<HeadshotGeneratorTabProps> = ({
         cropperRef.current?.destroy();
         cropperRef.current = null;
     };
+
+    const cropModalRef = useModalA11y<HTMLDivElement>({ isOpen: isCropping && !!image, onClose: cancelCrop });
 
     const generateHeadshot = async () => {
         if (!apiKey) {
@@ -855,9 +858,15 @@ Strict Compliance: ${isStrictMode ? 'YES' : 'NO'}`;
             {
                 isCropping && image && (
                     <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-                        <div className="bg-white rounded-3xl p-6 w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+                        <div
+                            ref={cropModalRef}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="headshot-crop-modal-title"
+                            className="bg-white rounded-3xl p-6 w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300"
+                        >
                             <div className="flex justify-between items-center mb-4 px-2">
-                                <h3 className="text-lg font-black text-bronze-text flex items-center gap-2">
+                                <h3 id="headshot-crop-modal-title" className="text-lg font-black text-bronze-text flex items-center gap-2">
                                     <Scissors size={20} className="text-primary" /> {t('headshot.cropping.title')}
                                 </h3>
                                 <button onClick={cancelCrop} className="text-bronze-light hover:text-bronze-text font-bold">{t('common.close') || 'Close'}</button>

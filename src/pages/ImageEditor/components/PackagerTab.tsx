@@ -740,8 +740,8 @@ const PackagerTab: React.FC = () => {
                                     </div>
 
                                     <div className="flex bg-white/50 p-1 rounded-xl shadow-sm border border-cream-dark gap-1 shrink-0">
-                                        <button onClick={undo} disabled={historyIdx <= 0} className={`p-2 rounded-lg transition-colors ${historyIdx > 0 ? 'text-primary hover:bg-white' : 'text-gray-400 cursor-not-allowed'}`} title={t('common.undo')}><Undo2 size={18} /></button>
-                                        <button onClick={redo} disabled={historyIdx >= history.length - 1} className={`p-2 rounded-lg transition-colors ${historyIdx < history.length - 1 ? 'text-primary hover:bg-white' : 'text-gray-400 cursor-not-allowed'}`} title={t('common.redo')}><Redo2 size={18} /></button>
+                                        <button onClick={undo} disabled={historyIdx <= 0} className={`p-2 rounded-lg transition-colors ${historyIdx > 0 ? 'text-primary hover:bg-white' : 'text-bronze-text/60 cursor-not-allowed'}`} title={t('common.undo')}><Undo2 size={18} /></button>
+                                        <button onClick={redo} disabled={historyIdx >= history.length - 1} className={`p-2 rounded-lg transition-colors ${historyIdx < history.length - 1 ? 'text-primary hover:bg-white' : 'text-bronze-text/60 cursor-not-allowed'}`} title={t('common.redo')}><Redo2 size={18} /></button>
                                         <button onClick={resetGrid} className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" title={t('packager.actions.restore')}><RefreshCcw size={18} /></button>
                                     </div>
 
@@ -762,8 +762,8 @@ const PackagerTab: React.FC = () => {
                                         </div>
 
                                         <div className="bg-white/90 backdrop-blur-md p-1 rounded-xl shadow-lg border border-white flex flex-col gap-1">
-                                            <button onClick={undo} disabled={historyIdx <= 0} className={`p-2 rounded-lg transition-colors ${historyIdx > 0 ? 'text-primary hover:bg-primary/10' : 'text-gray-300 cursor-not-allowed'}`} title={t('common.undo')}><Undo2 size={16} /></button>
-                                            <button onClick={redo} disabled={historyIdx >= history.length - 1} className={`p-2 rounded-lg transition-colors ${historyIdx < history.length - 1 ? 'text-primary hover:bg-primary/10' : 'text-gray-300 cursor-not-allowed'}`} title={t('common.redo')}><Redo2 size={16} /></button>
+                                            <button onClick={undo} disabled={historyIdx <= 0} className={`p-2 rounded-lg transition-colors ${historyIdx > 0 ? 'text-primary hover:bg-primary/10' : 'text-bronze-text/60 cursor-not-allowed'}`} title={t('common.undo')}><Undo2 size={16} /></button>
+                                            <button onClick={redo} disabled={historyIdx >= history.length - 1} className={`p-2 rounded-lg transition-colors ${historyIdx < history.length - 1 ? 'text-primary hover:bg-primary/10' : 'text-bronze-text/60 cursor-not-allowed'}`} title={t('common.redo')}><Redo2 size={16} /></button>
                                             <button onClick={resetGrid} className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" title={t('packager.actions.restore')}><RefreshCcw size={16} /></button>
                                         </div>
 
@@ -814,7 +814,7 @@ const PackagerTab: React.FC = () => {
                                                 ))}
                                             </div>
                                             {/* Debug Info Overlay */}
-                                            <div className="mt-2 text-[10px] text-gray-400 font-mono bg-black/80 p-2 rounded max-w-lg">
+                                            <div className="mt-2 text-[10px] text-white/70 font-mono bg-black/80 p-2 rounded max-w-lg">
                                                 DEBUG:
                                                 Wrap: {actualImageContainerRef.current?.offsetWidth}x{actualImageContainerRef.current?.offsetHeight} |
                                                 Img: {activeFile?.stats?.width}x{activeFile?.stats?.height} (Nat) |

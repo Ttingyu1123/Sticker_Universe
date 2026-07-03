@@ -41,7 +41,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload, onGalleryS
     <div
       onDragOver={onDragOver}
       onDrop={onDrop}
-      className="flex flex-col items-center justify-center w-full h-full min-h-[50vh] border-2 border-dashed border-gray-300 hover:border-blue-400 rounded-xl bg-white/50 hover:bg-blue-50/50 transition-colors cursor-pointer text-center group"
+      className="flex flex-col items-center justify-center w-full h-full min-h-[50vh] border-2 border-dashed border-cream-dark hover:border-blue-400 rounded-xl bg-white/50 hover:bg-blue-50/50 transition-colors cursor-pointer text-center group"
       onClick={() => document.getElementById('fileInput')?.click()}
     >
       <input
@@ -57,13 +57,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload, onGalleryS
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       </div>
-      <h3 className="text-2xl font-bold text-gray-700 mb-2">{t('eraser.upload.title')}</h3>
-      <p className="text-gray-400 font-medium">{t('eraser.upload.dragDrop')}</p>
+      <h3 className="text-2xl font-bold text-bronze-text mb-2">{t('eraser.upload.title')}</h3>
+      <p className="text-bronze-text/60 font-medium">{t('eraser.upload.dragDrop')}</p>
 
-      <div className="mt-8 flex gap-4 text-xs text-gray-400">
-        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>{t('eraser.upload.smart')}</span>
-        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>{t('eraser.upload.manual')}</span>
-        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>{t('eraser.upload.repair')}</span>
+      <div className="mt-8 flex gap-4 text-xs text-bronze-text/60">
+        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 bg-bronze-text/60 rounded-full"></span>{t('eraser.upload.smart')}</span>
+        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 bg-bronze-text/60 rounded-full"></span>{t('eraser.upload.manual')}</span>
+        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 bg-bronze-text/60 rounded-full"></span>{t('eraser.upload.repair')}</span>
       </div>
 
       <button

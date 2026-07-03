@@ -7,6 +7,7 @@ import type { AISettings } from '../../../features/mask-core';
 import { GalleryPicker } from '../../../components/GalleryPicker';
 import { saveStickerToDB } from '../../../db';
 import { useToast } from '../../../components/shared/ToastProvider';
+import { useModalA11y } from '../../../hooks/useModalA11y';
 
 const SmartRemoveTab = () => {
     const { t } = useTranslation();
@@ -72,6 +73,7 @@ const SmartRemoveTab = () => {
     const [showGalleryPicker, setShowGalleryPicker] = useState(false);
     const [showMobileMoreTools, setShowMobileMoreTools] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const mobileToolsDrawerRef = useModalA11y<HTMLDivElement>({ isOpen: showMobileMoreTools, onClose: () => setShowMobileMoreTools(false) });
 
     // Effects State
     const [strokeConfig, setStrokeConfig] = useState({ enabled: false, color: '#ffffff', size: 10 });
@@ -923,11 +925,15 @@ const SmartRemoveTab = () => {
                 <div className="lg:hidden fixed inset-0 z-40" onClick={() => setShowMobileMoreTools(false)}>
                     <div className="absolute inset-0 bg-black/40" />
                     <div
+                        ref={mobileToolsDrawerRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="smart-remove-mobile-tools-title"
                         className="absolute inset-x-0 bottom-0 max-h-[78dvh] rounded-t-3xl border-t border-cream-dark bg-white p-4 shadow-2xl overflow-y-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="mb-3 flex items-center justify-between">
-                            <h3 className="text-sm font-bold text-bronze-text">{t('eraser.toolbar.moreTools', { defaultValue: '更多工具' })}</h3>
+                            <h3 id="smart-remove-mobile-tools-title" className="text-sm font-bold text-bronze-text">{t('eraser.toolbar.moreTools', { defaultValue: '更多工具' })}</h3>
                             <button
                                 onClick={() => setShowMobileMoreTools(false)}
                                 className="h-8 w-8 rounded-lg border border-cream-dark bg-cream-light text-bronze-text flex items-center justify-center"
