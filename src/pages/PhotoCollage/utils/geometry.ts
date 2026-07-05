@@ -165,7 +165,12 @@ export const calculateFrames = (
                     // Start with square-ish and adjust based on container shape
                     const sqrtCount = Math.sqrt(count);
 
-                    if (aspectRatio > 1.3) {
+                    if (Number.isInteger(sqrtCount)) {
+                        // Perfect square (4, 9, 16...): keep a symmetric NxN grid on every
+                        // canvas ratio, so cells inherit the canvas aspect (16:9 photos on a
+                        // 16:9 canvas land in 16:9 cells — no crop under cover scaling)
+                        cols = sqrtCount;
+                    } else if (aspectRatio > 1.3) {
                         // Wide container: prefer more columns
                         cols = Math.ceil(sqrtCount * 1.2);
                     } else if (aspectRatio < 0.8) {
