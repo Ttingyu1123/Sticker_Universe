@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { calculateFrames, getCaptionHeight, getCanvasDimensions } from '../utils/geometry';
+import { generateTornEdgePoints } from '../utils/tornEdge';
 import { drawBackgroundPreset } from '../utils/backgroundPresets';
 import { CollageSettings, ImageFrame, UploadedImage } from '../types';
 
@@ -124,6 +125,45 @@ const fillFrameSurface = (
     const frameColor = settings.backgroundColor === 'transparent' ? '#ffffff' : settings.backgroundColor;
     ctx.fillStyle = frameColor;
     ctx.fillRect(0, 0, w, h);
+
+    ctx.restore();
+};
+
+// Washi tape strips across two diagonal corners. Deterministic per-frame
+// angles so the tape doesn't shimmer during interactive re-renders.
+const drawTapeDecoration = (
+    ctx: CanvasRenderingContext2D,
+    frame: ImageFrame,
+    index: number
+) => {
+    const { x, y, width: fW, height: fH } = frame;
+    const len = Math.min(fW, fH) * 0.3;
+    const wid = len * 0.34;
+    const rnd = (k: number) => {
+        const s = Math.sin(index * 12.9898 + k * 78.233) * 43758.5453;
+        return s - Math.floor(s);
+    };
+
+    ctx.save();
+    ctx.translate(x + fW / 2, y + fH / 2);
+    if (frame.rotation) {
+        ctx.rotate((frame.rotation * Math.PI) / 180);
+    }
+
+    [
+        { cx: -fW / 2, cy: -fH / 2 },
+        { cx: fW / 2, cy: fH / 2 },
+    ].forEach((corner, i) => {
+        ctx.save();
+        ctx.translate(corner.cx, corner.cy);
+        ctx.rotate(((-45 + (rnd(i) * 14 - 7)) * Math.PI) / 180);
+        ctx.fillStyle = 'rgba(247, 240, 213, 0.75)';
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+        ctx.lineWidth = 1;
+        ctx.fillRect(-len / 2, -wid / 2, len, wid);
+        ctx.strokeRect(-len / 2, -wid / 2, len, wid);
+        ctx.restore();
+    });
 
     ctx.restore();
 };
@@ -292,6 +332,24 @@ const renderCollageToContext = (
             ctx.fillStyle = '#f9fafb'; // faint grey for photo slot
             ctx.fillRect(clipX, clipY, clipW, clipH);
 
+        } else if (settings.frameStyle === 'torn') {
+            // Torn paper: jagged deckle silhouette (inherits the shadow set
+            // above), photo sits inset on the paper scrap
+            const torn = generateTornEdgePoints(fW, fH, index);
+            ctx.beginPath();
+            torn.forEach((p, i) => {
+                if (i === 0) ctx.moveTo(localX + p.x, localY + p.y);
+                else ctx.lineTo(localX + p.x, localY + p.y);
+            });
+            ctx.closePath();
+            ctx.fillStyle = '#fbfaf4';
+            ctx.fill();
+
+            const border = Math.min(fW, fH) * 0.05;
+            clipX = localX + border;
+            clipY = localY + border;
+            clipW = fW - border * 2;
+            clipH = fH - border * 2;
         } else {
             // Normal
             if (radius > 0) {
@@ -326,7 +384,7 @@ const renderCollageToContext = (
                 else ctx.lineTo(px, py);
             });
             ctx.closePath();
-        } else if (settings.frameStyle === 'polaroid' || settings.frameStyle === 'film') {
+        } else if (settings.frameStyle === 'polaroid' || settings.frameStyle === 'film' || settings.frameStyle === 'torn') {
             ctx.rect(clipX, clipY, clipW, clipH);
         } else {
             if (radius > 0) {
@@ -466,6 +524,11 @@ const renderCollageToContext = (
         }
 
         ctx.restore();
+
+        // Tape sits on top of the photo, outside its clip
+        if (settings.tapeDecoration) {
+            drawTapeDecoration(ctx, frame, index);
+        }
     });
 
     // 4. Draw Captions

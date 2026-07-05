@@ -28,6 +28,8 @@ import {
     Palette,
     SquareSplitVertical,
     SquareSplitHorizontal,
+    Scissors,
+    Sticker,
     ALargeSmall,
     Plus,
     Type,
@@ -183,6 +185,7 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                         { id: 'normal', label: t('collage.frameStyle.normal'), icon: null },
                         { id: 'film', label: t('collage.frameStyle.film'), icon: Film },
                         { id: 'polaroid', label: t('collage.frameStyle.polaroid'), icon: StickyNote },
+                        { id: 'torn', label: t('collage.frameStyle.torn'), icon: Scissors },
                     ].map((style) => (
                         <button
                             key={style.id}
@@ -197,6 +200,16 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                         </button>
                     ))}
                 </div>
+                <button
+                    onClick={() => handleChange('tapeDecoration', !settings.tapeDecoration)}
+                    className={`mt-2 w-full flex items-center justify-center gap-2 p-2 rounded-xl text-[10px] font-bold border transition-all h-10 ${settings.tapeDecoration
+                        ? 'bg-primary text-white border-primary shadow-md'
+                        : 'bg-white border-cream-dark text-bronze-light hover:bg-cream-light hover:text-primary'
+                        }`}
+                >
+                    <Sticker size={16} />
+                    {t('collage.frameStyle.tape')}
+                </button>
             </div>
 
             {/* Caption / Annotation */}

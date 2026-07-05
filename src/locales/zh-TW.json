@@ -2133,7 +2133,9 @@
       "title": "邊框樣式",
       "normal": "一般",
       "film": "底片",
-      "polaroid": "拍立得"
+      "polaroid": "拍立得",
+      "torn": "撕紙邊",
+      "tape": "膠帶裝飾"
     },
     "ratio": {
       "title": "比例",

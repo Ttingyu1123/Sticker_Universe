@@ -59,6 +59,7 @@ export const AutoCollageTab: React.FC = () => {
         cornerRadius: 0,
         shadow: 0,
         frameStyle: 'normal',
+        tapeDecoration: false,
         imageFit: 'cover',
         bentoVariant: 0,
         backgroundColor: '#ffffff',

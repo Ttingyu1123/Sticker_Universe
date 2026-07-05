@@ -45,7 +45,8 @@ export interface CollageSettings {
     customGradientDirection?: 'diagonal' | 'horizontal' | 'vertical';
     padding: number;
     cornerRadius: number;
-    frameStyle: 'normal' | 'film' | 'polaroid'; // New: Frame decoration
+    frameStyle: 'normal' | 'film' | 'polaroid' | 'torn'; // Frame decoration; torn = jagged paper deckle
+    tapeDecoration?: boolean; // washi tape strips across two corners of each photo
     imageFit?: 'cover' | 'blur-fill'; // cover: crop to fill; blur-fill: contain + blurred cover underlay
     bentoVariant?: number; // 0-2: base / mirrored-x / mirrored-y BENTO template
     shadow: number; // New: 0 to 100 opacity/blur mix

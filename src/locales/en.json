@@ -2013,7 +2013,9 @@
       "title": "Frame Style",
       "normal": "Normal",
       "film": "Film Strip",
-      "polaroid": "Polaroid"
+      "polaroid": "Polaroid",
+      "torn": "Torn Paper",
+      "tape": "Tape Decor"
     },
     "ratio": {
       "title": "Aspect Ratio",
