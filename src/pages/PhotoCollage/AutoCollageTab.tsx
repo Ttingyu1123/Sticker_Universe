@@ -7,6 +7,7 @@ import { generateImage } from './geminiService';
 import { generateOpenAiImage } from '../Generator/services/openaiImageService';
 import { calculateFrames, getCanvasDimensions } from './utils/geometry';
 import { normalizeFrames, resolveFreeformFrames } from './utils/freeform';
+import { saveDraft, peekDraft, loadDraft, clearDraft } from './utils/draftStore';
 import { useTranslation } from 'react-i18next';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { saveStickerToDB } from '../../db';
@@ -101,6 +102,63 @@ export const AutoCollageTab: React.FC = () => {
 
     const keyModalRef = useModalA11y<HTMLDivElement>({ isOpen: showKeyModal, onClose: () => setShowKeyModal(false) });
     const aiModalRef = useModalA11y<HTMLDivElement>({ isOpen: showAiModal, onClose: () => setShowAiModal(false) });
+
+    // Draft persistence: offer to resume until the user decides (resume,
+    // discard, or implicitly by starting new work); autosave only after that
+    const [draftPrompt, setDraftPrompt] = useState<{ count: number } | null>(null);
+    const draftDecidedRef = useRef(false);
+
+    useEffect(() => {
+        let cancelled = false;
+        peekDraft()
+            .then(d => {
+                if (cancelled) return;
+                if (d) setDraftPrompt({ count: d.count });
+                else draftDecidedRef.current = true;
+            })
+            .catch(() => { draftDecidedRef.current = true; });
+        return () => { cancelled = true; };
+    }, []);
+
+    useEffect(() => {
+        if (editorMode !== 'collage') return;
+        if (!draftDecidedRef.current) {
+            if (images.length === 0) return; // still waiting for resume/discard choice
+            draftDecidedRef.current = true;  // user started fresh work
+            setDraftPrompt(null);
+        }
+        const timer = setTimeout(() => {
+            if (images.length === 0) {
+                clearDraft().catch(() => { });
+            } else {
+                saveDraft(images, settings).catch(err => console.error('Draft autosave failed', err));
+            }
+        }, 1200);
+        return () => clearTimeout(timer);
+    }, [images, settings, editorMode]);
+
+    const handleDraftResume = async () => {
+        try {
+            const draft = await loadDraft();
+            if (draft) {
+                setImages(draft.images);
+                setSettings(draft.settings);
+            } else {
+                showToast(t('collage.draft.loadFailed'), 'error');
+            }
+        } catch (err) {
+            console.error('Draft restore failed', err);
+            showToast(t('collage.draft.loadFailed'), 'error');
+        }
+        draftDecidedRef.current = true;
+        setDraftPrompt(null);
+    };
+
+    const handleDraftDiscard = () => {
+        clearDraft().catch(() => { });
+        draftDecidedRef.current = true;
+        setDraftPrompt(null);
+    };
 
     // History State
     const [, setHistory] = useState<{
@@ -801,6 +859,27 @@ export const AutoCollageTab: React.FC = () => {
                 >
                     {images.length === 0 ? (
                         <div className="text-center p-6 md:p-10 border-4 border-dashed border-cream-dark rounded-3xl bg-cream/60 backdrop-blur-sm max-w-md mx-4">
+                            {draftPrompt && (
+                                <div className="mb-6 p-4 bg-primary/10 border border-primary/30 rounded-2xl text-left">
+                                    <p className="text-sm font-bold text-bronze-text mb-3">
+                                        {t('collage.draft.found', { count: draftPrompt.count })}
+                                    </p>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={handleDraftResume}
+                                            className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-black hover:bg-primary-hover transition-colors"
+                                        >
+                                            {t('collage.draft.resume')}
+                                        </button>
+                                        <button
+                                            onClick={handleDraftDiscard}
+                                            className="px-4 py-2 bg-white border border-cream-dark text-bronze-light rounded-xl text-xs font-bold hover:text-primary transition-colors"
+                                        >
+                                            {t('collage.draft.discard')}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                             <div className="w-16 h-16 md:w-20 md:h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
                                 <ImageIcon size={32} />
                             </div>

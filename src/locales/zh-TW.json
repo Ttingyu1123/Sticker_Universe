@@ -2126,6 +2126,12 @@
       "freeform": "自由排版",
       "freeformHint": "拖曳移動照片，右下圓點縮放，點擊置頂"
     },
+    "draft": {
+      "found": "上次的拼貼還在（{{count}} 張照片）",
+      "resume": "繼續編輯",
+      "discard": "捨棄",
+      "loadFailed": "草稿載入失敗"
+    },
     "fit": {
       "title": "圖片填滿",
       "cover": "裁切填滿",

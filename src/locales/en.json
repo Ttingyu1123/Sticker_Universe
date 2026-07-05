@@ -2006,6 +2006,12 @@
       "freeform": "Freeform",
       "freeformHint": "Drag to move, corner dot to resize, click brings to front"
     },
+    "draft": {
+      "found": "Your last collage is still here ({{count}} photos)",
+      "resume": "Resume",
+      "discard": "Discard",
+      "loadFailed": "Failed to load draft"
+    },
     "fit": {
       "title": "Image Fit",
       "cover": "Crop to Fill",
