@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { X, Download, Image as ImageIcon, Trash2, ZoomIn, ZoomOut, Edit2, Check, Wand2, RotateCw, Scaling, Plus, FolderHeart, Save, Star, Key, Sparkles, Type } from 'lucide-react';
+import { X, Download, Image as ImageIcon, Trash2, ZoomIn, ZoomOut, Edit2, Check, Wand2, RotateCw, Scaling, Plus, FolderHeart, Save, Star, Key, Sparkles, Type, Package } from 'lucide-react';
 import { AspectRatio, CollageSettings, LayoutType, UploadedImage } from './types';
 import { Controls } from './components/Controls';
 import { PhotoCanvas, PhotoCanvasHandle } from './components/PhotoCanvas';
@@ -423,6 +423,39 @@ export const AutoCollageTab: React.FC = () => {
         }
     };
 
+    const [isBatchExporting, setIsBatchExporting] = useState(false);
+
+    const handleExportAllSizes = async () => {
+        if (!canvasRef.current || isBatchExporting || images.length === 0) return;
+        setIsBatchExporting(true);
+        try {
+            const { default: JSZip } = await import('jszip'); // lazy: keep page chunk lean
+            const zip = new JSZip();
+            const targets = [
+                { ratio: AspectRatio.SQUARE, name: 'square-1x1' },
+                { ratio: AspectRatio.STORY, name: 'story-9x16' },
+                { ratio: AspectRatio.CINEMA, name: 'wide-16x9' },
+            ];
+            for (const target of targets) {
+                const dataUrl = await canvasRef.current.exportImage('png', exportScale, { ratio: target.ratio });
+                zip.file(`collage-${target.name}.png`, dataUrl.split(',')[1], { base64: true });
+            }
+            const blob = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `collage-sizes-${Date.now()}.zip`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+            showToast(t('collage.toast.batchExported'), 'success');
+        } catch (e) {
+            console.error('Batch export failed', e);
+            showToast(t('collage.toast.downloadFailed'), 'error');
+        } finally {
+            setIsBatchExporting(false);
+        }
+    };
+
     const handleSaveToGallery = async () => {
         if (!canvasRef.current || isSaving) return;
         setIsSaving(true);
@@ -839,6 +872,15 @@ export const AutoCollageTab: React.FC = () => {
                         >
                             <Save size={16} />
                             <span className="hidden xs:inline">{isSaving ? t('gallery.loading') : t('editor.toolbar.saveToGallery')}</span>
+                        </button>
+                        <button
+                            onClick={handleExportAllSizes}
+                            disabled={isBatchExporting}
+                            className="bg-cream/90 backdrop-blur shadow-sm text-bronze-text px-3 md:px-4 py-2 rounded-xl border border-cream-dark flex items-center gap-2 font-black hover:bg-cream-light transition-colors disabled:opacity-50"
+                            title={t('collage.export.allSizesHint')}
+                        >
+                            <Package size={16} />
+                            <span className="hidden xs:inline">{isBatchExporting ? t('gallery.loading') : t('collage.export.allSizes')}</span>
                         </button>
                         <button
                             onClick={handleDownload}

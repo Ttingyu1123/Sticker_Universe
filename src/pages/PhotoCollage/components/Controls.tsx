@@ -39,6 +39,7 @@ import {
     AlignRight
 } from 'lucide-react';
 import { BACKGROUND_PRESETS } from '../utils/backgroundPresets';
+import { STYLE_PRESETS } from '../utils/stylePresets';
 
 interface ControlsProps {
     settings: CollageSettings;
@@ -79,6 +80,30 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
 
     return (
         <div className="space-y-6 text-bronze-text">
+
+            {/* Quick Style Presets */}
+            {showLayout && (
+                <div>
+                    <Label>{t('collage.presets.title')}</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                        {STYLE_PRESETS.map(preset => (
+                            <button
+                                key={preset.id}
+                                onClick={() => onUpdate({
+                                    ...settings,
+                                    ...preset.apply,
+                                    backgroundId: undefined,
+                                    customGradientEnabled: false,
+                                })}
+                                className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-[10px] font-bold border bg-white border-cream-dark text-bronze-light hover:bg-cream-light hover:text-primary hover:border-primary/30 transition-all h-10"
+                            >
+                                <Sparkles size={12} />
+                                {t(preset.labelKey)}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Layout Mode */}
             {showLayout && (

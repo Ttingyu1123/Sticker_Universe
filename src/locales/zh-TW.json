@@ -2126,6 +2126,13 @@
       "freeform": "自由排版",
       "freeformHint": "拖曳移動照片，右下圓點縮放，點擊置頂"
     },
+    "presets": {
+      "title": "快速風格",
+      "scrapbook": "剪貼簿",
+      "polaroidWall": "拍立得牆",
+      "magazine": "雜誌",
+      "cleanGrid": "乾淨網格"
+    },
     "draft": {
       "found": "上次的拼貼還在（{{count}} 張照片）",
       "resume": "繼續編輯",
@@ -2212,6 +2219,8 @@
     "heroBadge": "Hero",
     "export": {
       "title": "輸出設定",
+      "allSizes": "多尺寸 ZIP",
+      "allSizesHint": "一次匯出 1:1、9:16、16:9 三種尺寸打包下載",
       "custom": "自訂",
       "customWidthTitle": "自訂輸出寬度",
       "widthHint": "寬度(px)，高度依比例自動計算",
@@ -2220,6 +2229,7 @@
     },
     "toast": {
       "downloadFailed": "下載失敗",
+      "batchExported": "已匯出 1:1／9:16／16:9 三種尺寸",
       "saveFailed": "儲存到作品集失敗",
       "apiKeyIssue": "API 金鑰有誤，請確認金鑰是否正確。",
       "generateFailed": "生成失敗：{{message}}"

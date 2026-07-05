@@ -18,7 +18,7 @@ interface PhotoCanvasProps {
 }
 
 export interface PhotoCanvasHandle {
-    exportImage: (format: 'png' | 'jpeg', scale: number) => Promise<string>;
+    exportImage: (format: 'png' | 'jpeg', scale: number, overrides?: Partial<CollageSettings>) => Promise<string>;
 }
 
 // Helper: Draw rounded rectangle path
@@ -627,12 +627,15 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
 
     // Expose export function
     useImperativeHandle(ref, () => ({
-        exportImage: async (format: 'png' | 'jpeg', scale: number) => {
+        // overrides lets callers export the same composition at a different
+        // ratio (multi-size bundle) without touching the live settings
+        exportImage: async (format: 'png' | 'jpeg', scale: number, overrides?: Partial<CollageSettings>) => {
+            const baseSettings = { ...settings, ...(overrides ?? {}) };
             const canvas = document.createElement('canvas');
             const { width, height } = getCanvasDimensions(
-                settings.ratio,
-                settings.customRatioW,
-                settings.customRatioH,
+                baseSettings.ratio,
+                baseSettings.customRatioW,
+                baseSettings.customRatioH,
                 scale
             );
             canvas.width = width;
@@ -640,14 +643,14 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
             const ctx = canvas.getContext('2d');
             if (!ctx) throw new Error("Could not create canvas context");
 
-            if (format === 'jpeg' && settings.backgroundColor === 'transparent') {
+            if (format === 'jpeg' && baseSettings.backgroundColor === 'transparent') {
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, width, height);
             }
 
-            let effectiveSettings = settings;
-            if (format === 'jpeg' && settings.backgroundColor === 'transparent') {
-                effectiveSettings = { ...settings, backgroundColor: '#ffffff' };
+            let effectiveSettings = baseSettings;
+            if (format === 'jpeg' && baseSettings.backgroundColor === 'transparent') {
+                effectiveSettings = { ...baseSettings, backgroundColor: '#ffffff' };
             }
 
             renderCollageToContext(ctx, width, height, scale, images, effectiveSettings, imageCache.current);

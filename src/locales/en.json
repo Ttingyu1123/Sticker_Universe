@@ -2006,6 +2006,13 @@
       "freeform": "Freeform",
       "freeformHint": "Drag to move, corner dot to resize, click brings to front"
     },
+    "presets": {
+      "title": "Quick Styles",
+      "scrapbook": "Scrapbook",
+      "polaroidWall": "Polaroid Wall",
+      "magazine": "Magazine",
+      "cleanGrid": "Clean Grid"
+    },
     "draft": {
       "found": "Your last collage is still here ({{count}} photos)",
       "resume": "Resume",
@@ -2095,6 +2102,8 @@
     "heroBadge": "Hero",
     "export": {
       "title": "Export Settings",
+      "allSizes": "All Sizes ZIP",
+      "allSizesHint": "Export 1:1, 9:16 and 16:9 in one zip",
       "custom": "Custom",
       "customWidthTitle": "Custom output width",
       "widthHint": "Width (px), height auto-calculated by ratio",
@@ -2103,6 +2112,7 @@
     },
     "toast": {
       "downloadFailed": "Download failed",
+      "batchExported": "Exported 1:1, 9:16 and 16:9 sizes",
       "saveFailed": "Failed to save to gallery",
       "apiKeyIssue": "API Key issue. Please check your key.",
       "generateFailed": "Generation failed: {{message}}"
