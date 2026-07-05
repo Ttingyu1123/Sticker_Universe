@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { calculateFrames, getCaptionHeight, getCanvasDimensions } from '../utils/geometry';
 import { generateTornEdgePoints } from '../utils/tornEdge';
+import { resolveFreeformFrames, MIN_FREEFORM_SIZE } from '../utils/freeform';
 import { drawBackgroundPreset } from '../utils/backgroundPresets';
-import { CollageSettings, ImageFrame, UploadedImage } from '../types';
+import { CollageSettings, FreeformRect, ImageFrame, LayoutType, UploadedImage } from '../types';
 
 interface PhotoCanvasProps {
     images: UploadedImage[];
@@ -10,6 +11,7 @@ interface PhotoCanvasProps {
     onCanvasReady: (dataUrl: string) => void;
     onImageUpdate?: (id: string, updates: Partial<UploadedImage>) => void;
     onImageSwap?: (id1: string, id2: string) => void;
+    onImageToFront?: (id: string) => void;
     className?: string;
     style?: React.CSSProperties;
     interactive?: boolean;
@@ -201,19 +203,23 @@ const renderCollageToContext = (
     const effectiveHeight = height - globalCapH;
 
     const hasTopCaption = captionPos === 'top' || captionPos === 'both';
-    const frames = calculateFrames(
-        images.length,
-        settings.layout,
-        width,
-        effectiveHeight,
-        settings.gap * scaleFactor,
-        settings.padding * scaleFactor,
-        heroIndices.length > 0 ? heroIndices : undefined,
-        captionPos,
-        hasTopCaption ? topFontSize * scaleFactor : undefined,
-        topHR,
-        settings.bentoVariant ?? 0
-    );
+    // FREEFORM uses the full canvas as its basis (frames may overlap the
+    // caption strip — placement is entirely user-managed)
+    const frames = settings.layout === LayoutType.FREEFORM
+        ? resolveFreeformFrames(images.map(img => img.freeform), width, height)
+        : calculateFrames(
+            images.length,
+            settings.layout,
+            width,
+            effectiveHeight,
+            settings.gap * scaleFactor,
+            settings.padding * scaleFactor,
+            heroIndices.length > 0 ? heroIndices : undefined,
+            captionPos,
+            hasTopCaption ? topFontSize * scaleFactor : undefined,
+            topHR,
+            settings.bentoVariant ?? 0
+        );
 
     if (images.length === 0) return frames;
 
@@ -585,6 +591,7 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
     onCanvasReady,
     onImageUpdate,
     onImageSwap,
+    onImageToFront,
     className,
     style,
     interactive = false
@@ -593,19 +600,27 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
     const imageCache = useRef<Map<string, HTMLImageElement>>(new Map());
     const framesRef = useRef<ImageFrame[]>([]);
 
+    const isFreeform = settings.layout === LayoutType.FREEFORM;
+
     // Dragging State
+    // mode: 'image' pans the photo inside its frame (classic layouts);
+    // 'frame-move'/'frame-resize' manipulate the frame itself (FREEFORM)
     const dragRef = useRef<{
         activeId: string | null;
         startX: number;
         startY: number;
         initialOffsetX: number;
         initialOffsetY: number;
+        mode: 'image' | 'frame-move' | 'frame-resize';
+        initialRect: FreeformRect | null;
     }>({
         activeId: null,
         startX: 0,
         startY: 0,
         initialOffsetX: 0,
-        initialOffsetY: 0
+        initialOffsetY: 0,
+        mode: 'image',
+        initialRect: null
     });
 
     const [isDragging, setIsDragging] = useState(false);
@@ -726,10 +741,19 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
         const clickX = (e.clientX - rect.left) * scaleX;
         const clickY = (e.clientY - rect.top) * scaleY;
 
-        const clickedIndex = framesRef.current.findIndex(f =>
+        const hitTest = (f: ImageFrame) =>
             clickX >= f.x && clickX <= f.x + f.width &&
-            clickY >= f.y && clickY <= f.y + f.height
-        );
+            clickY >= f.y && clickY <= f.y + f.height;
+
+        // FREEFORM frames may overlap: pick the topmost (last drawn)
+        let clickedIndex = -1;
+        if (isFreeform) {
+            for (let i = framesRef.current.length - 1; i >= 0; i--) {
+                if (hitTest(framesRef.current[i])) { clickedIndex = i; break; }
+            }
+        } else {
+            clickedIndex = framesRef.current.findIndex(hitTest);
+        }
 
         if (clickedIndex !== -1) {
             const img = images[clickedIndex];
@@ -751,6 +775,25 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
 
                 lastClickRef.current = { id: img.id, time: now };
 
+                let mode: 'image' | 'frame-move' | 'frame-resize' = 'image';
+                let initialRect: FreeformRect | null = null;
+                if (isFreeform) {
+                    const f = framesRef.current[clickedIndex];
+                    const canvas = canvasRef.current;
+                    const handleZone = Math.max(24, Math.min(f.width, f.height) * 0.15);
+                    const inResize =
+                        clickX >= f.x + f.width - handleZone &&
+                        clickY >= f.y + f.height - handleZone;
+                    mode = inResize ? 'frame-resize' : 'frame-move';
+                    initialRect = {
+                        x: f.x / canvas.width,
+                        y: f.y / canvas.height,
+                        width: f.width / canvas.width,
+                        height: f.height / canvas.height,
+                    };
+                    if (onImageToFront) onImageToFront(img.id);
+                }
+
                 setIsDragging(true);
                 dragRef.current = {
                     activeId: img.id,
@@ -758,6 +801,8 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
                     startY: e.clientY,
                     initialOffsetX: img.offsetX,
                     initialOffsetY: img.offsetY,
+                    mode,
+                    initialRect,
                 };
                 (e.target as HTMLElement).setPointerCapture(e.pointerId);
                 // Select image in parent
@@ -769,28 +814,51 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
     const handlePointerMove = (e: React.PointerEvent) => {
         if (!isDragging || !dragRef.current.activeId || !canvasRef.current) return;
 
-        const { startX, startY, initialOffsetX, initialOffsetY, activeId } = dragRef.current;
+        const { startX, startY, initialOffsetX, initialOffsetY, activeId, mode, initialRect } = dragRef.current;
 
-        const rect = canvasRef.current.getBoundingClientRect();
+        const canvas = canvasRef.current;
+        const rect = canvas.getBoundingClientRect();
         // Use average scale to handle non-square pixels roughly, though usually square
-        const scaleMult = canvasRef.current.width / rect.width;
+        const scaleMult = canvas.width / rect.width;
+        const scaleMultY = canvas.height / rect.height;
 
         // We calculate delta in Screen Space
         const deltaX = (e.clientX - startX) * scaleMult;
-        const deltaY = (e.clientY - startY) * scaleMult;
+        const deltaY = (e.clientY - startY) * scaleMultY;
+
+        if (!onImageUpdate) return;
+
+        if (mode === 'frame-move' && initialRect) {
+            const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+            // Allow partial off-canvas, but keep a grabbable sliver visible
+            onImageUpdate(activeId, {
+                freeform: {
+                    ...initialRect,
+                    x: clamp(initialRect.x + deltaX / canvas.width, -initialRect.width + 0.04, 0.96),
+                    y: clamp(initialRect.y + deltaY / canvas.height, -initialRect.height + 0.04, 0.96),
+                },
+            });
+            return;
+        }
+
+        if (mode === 'frame-resize' && initialRect) {
+            const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+            onImageUpdate(activeId, {
+                freeform: {
+                    ...initialRect,
+                    width: clamp(initialRect.width + deltaX / canvas.width, MIN_FREEFORM_SIZE, 2),
+                    height: clamp(initialRect.height + deltaY / canvas.height, MIN_FREEFORM_SIZE, 2),
+                },
+            });
+            return;
+        }
 
         // We store Offset in Screen Space (relative to the un-rotated frame center conceptually)
         // The render function handles mapping this back to the rotated coordinate system
-
-        // Only update position if we are NOT intending to swap (drag threshold logic or mode could be added later)
-        // For now, we update position live, which feels responsive.
-
-        if (onImageUpdate) {
-            onImageUpdate(activeId, {
-                offsetX: initialOffsetX + deltaX,
-                offsetY: initialOffsetY + deltaY
-            });
-        }
+        onImageUpdate(activeId, {
+            offsetX: initialOffsetX + deltaX,
+            offsetY: initialOffsetY + deltaY
+        });
     };
 
     const handlePointerUp = (e: React.PointerEvent) => {
@@ -801,7 +869,8 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
             // Only if moved significantly to differentiate from a click/nudge
             const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
 
-            if (dist > 20 && activeId && canvasRef.current && onImageSwap) { // Threshold for drag vs click
+            // No drop-swap in FREEFORM — frames are freely positioned, not slots
+            if (dist > 20 && activeId && canvasRef.current && onImageSwap && dragRef.current.mode === 'image') { // Threshold for drag vs click
                 const rect = canvasRef.current.getBoundingClientRect();
                 const scaleX = canvasRef.current.width / rect.width;
                 const scaleY = canvasRef.current.height / rect.height;
@@ -843,16 +912,40 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
         }
     };
 
+    // Frame affordances for FREEFORM: dashed outline + SE resize dot.
+    // Pure DOM overlay (pointer-events none) so exports stay clean.
+    const overlay = (() => {
+        if (!interactive || !isFreeform || images.length === 0) return null;
+        const { width, height } = getCanvasDimensions(
+            settings.ratio, settings.customRatioW, settings.customRatioH, 1);
+        const rects = resolveFreeformFrames(images.map(img => img.freeform), width, height);
+        return rects.map((f, i) => (
+            <div
+                key={images[i].id}
+                className="absolute border-2 border-dashed border-primary/50 pointer-events-none"
+                style={{
+                    left: `${(f.x / width) * 100}%`,
+                    top: `${(f.y / height) * 100}%`,
+                    width: `${(f.width / width) * 100}%`,
+                    height: `${(f.height / height) * 100}%`,
+                }}
+            >
+                <div className="absolute bottom-0 right-0 w-3.5 h-3.5 translate-x-1/2 translate-y-1/2 bg-primary rounded-full border-2 border-white shadow" />
+            </div>
+        ));
+    })();
+
     return (
-        <div className={className} style={style}>
+        <div className={`${className ?? ''} relative`} style={style}>
             <canvas
                 ref={canvasRef}
-                className={`w-full h-full object-contain touch-none ${interactive ? 'cursor-grab active:cursor-grabbing' : ''}`}
+                className={`w-full h-full object-contain touch-none ${interactive ? (isFreeform ? 'cursor-move' : 'cursor-grab active:cursor-grabbing') : ''}`}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
                 onPointerLeave={handlePointerUp}
             />
+            {overlay}
         </div>
     );
 });

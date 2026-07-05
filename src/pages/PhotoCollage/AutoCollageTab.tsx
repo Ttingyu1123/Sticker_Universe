@@ -6,6 +6,7 @@ import { PhotoCanvas, PhotoCanvasHandle } from './components/PhotoCanvas';
 import { generateImage } from './geminiService';
 import { generateOpenAiImage } from '../Generator/services/openaiImageService';
 import { calculateFrames, getCanvasDimensions } from './utils/geometry';
+import { normalizeFrames, resolveFreeformFrames } from './utils/freeform';
 import { useTranslation } from 'react-i18next';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { saveStickerToDB } from '../../db';
@@ -460,7 +461,8 @@ export const AutoCollageTab: React.FC = () => {
     }, [images, settings.customRatioH, settings.customRatioW, settings.gap, settings.padding, settings.ratio, settings.bentoVariant]);
 
     useEffect(() => {
-        if (!settings.autoAvoidBlank || images.length === 0) return;
+        // FREEFORM is user-managed; never auto-switch away from it
+        if (!settings.autoAvoidBlank || images.length === 0 || settings.layout === LayoutType.FREEFORM) return;
 
         const threshold = settings.autoAvoidBlankThreshold ?? 0.12;
         const currentBlank = getBlankRatioForLayout(settings.layout);
@@ -546,19 +548,21 @@ export const AutoCollageTab: React.FC = () => {
             .map((img, idx) => (img.isHero ? idx : -1))
             .filter((idx) => idx !== -1);
 
-        const frames = calculateFrames(
-            images.length,
-            settings.layout,
-            canvasW,
-            canvasH,
-            settings.gap * exportScale,
-            settings.padding * exportScale,
-            heroIndices.length > 0 ? heroIndices : undefined,
-            undefined,
-            undefined,
-            1.8,
-            settings.bentoVariant ?? 0
-        );
+        const frames = settings.layout === LayoutType.FREEFORM
+            ? resolveFreeformFrames(images.map(img => img.freeform), canvasW, canvasH)
+            : calculateFrames(
+                images.length,
+                settings.layout,
+                canvasW,
+                canvasH,
+                settings.gap * exportScale,
+                settings.padding * exportScale,
+                heroIndices.length > 0 ? heroIndices : undefined,
+                undefined,
+                undefined,
+                1.8,
+                settings.bentoVariant ?? 0
+            );
 
         let maxFactor = 1;
 
@@ -830,6 +834,13 @@ export const AutoCollageTab: React.FC = () => {
                                 onCanvasReady={() => { }}
                                 onImageUpdate={(id, updates) => updateImageProperty(id, updates)}
                                 onImageSwap={handleImageSwap}
+                                onImageToFront={(id) => {
+                                    setImages(prev => {
+                                        const idx = prev.findIndex(img => img.id === id);
+                                        if (idx === -1 || idx === prev.length - 1) return prev;
+                                        return [...prev.slice(0, idx), ...prev.slice(idx + 1), prev[idx]];
+                                    });
+                                }}
                             />
                         </div>
                     )}
@@ -1062,6 +1073,22 @@ export const AutoCollageTab: React.FC = () => {
                         settings={settings}
                         onUpdate={(s) => {
                             if (s.layout !== settings.layout) saveCheckpoint();
+                            // Entering FREEFORM: freeze the current arrangement as the
+                            // starting point, so users tweak what they already see
+                            if (s.layout === LayoutType.FREEFORM && settings.layout !== LayoutType.FREEFORM && images.length > 0) {
+                                const { width, height } = getCanvasDimensions(
+                                    settings.ratio, settings.customRatioW, settings.customRatioH, 1);
+                                const heroIdx = images
+                                    .map((img, idx) => (img.isHero ? idx : -1))
+                                    .filter((idx) => idx !== -1);
+                                const current = calculateFrames(
+                                    images.length, settings.layout, width, height,
+                                    settings.gap, settings.padding,
+                                    heroIdx.length > 0 ? heroIdx : undefined,
+                                    undefined, undefined, 1.8, settings.bentoVariant ?? 0);
+                                const rects = normalizeFrames(current, width, height);
+                                setImages(prev => prev.map((img, i) => ({ ...img, freeform: rects[i] ?? img.freeform })));
+                            }
                             setSettings(s);
                         }}
                         imageCount={images.length}

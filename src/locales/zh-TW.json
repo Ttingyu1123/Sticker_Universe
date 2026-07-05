@@ -2122,7 +2122,9 @@
       "diagonal": "對角線",
       "ySplit": "Y 形分割",
       "bento": "便當格",
-      "bentoHint": "再點一次換排法"
+      "bentoHint": "再點一次換排法",
+      "freeform": "自由排版",
+      "freeformHint": "拖曳移動照片，右下圓點縮放，點擊置頂"
     },
     "fit": {
       "title": "圖片填滿",

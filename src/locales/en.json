@@ -2002,7 +2002,9 @@
       "crossFocus": "Cross Focus",
       "ySplit": "Y-Split",
       "bento": "Bento",
-      "bentoHint": "Click again for another arrangement"
+      "bentoHint": "Click again for another arrangement",
+      "freeform": "Freeform",
+      "freeformHint": "Drag to move, corner dot to resize, click brings to front"
     },
     "fit": {
       "title": "Image Fit",

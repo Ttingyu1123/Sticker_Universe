@@ -30,6 +30,7 @@ import {
     SquareSplitHorizontal,
     Scissors,
     Sticker,
+    Move,
     ALargeSmall,
     Plus,
     Type,
@@ -101,6 +102,7 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                             { id: LayoutType.L_RIGHT, label: t('collage.layout.lRight'), icon: SquareSplitHorizontal, minCount: 2 },
                             { id: LayoutType.T_SHAPE, label: t('collage.layout.tShape'), icon: ALargeSmall, minCount: 2 },
                             { id: LayoutType.CROSS_FOCUS, label: t('collage.layout.crossFocus'), icon: Plus, minCount: 5 },
+                            { id: LayoutType.FREEFORM, label: t('collage.layout.freeform'), icon: Move },
                         ].map(type => (
                             <button
                                 key={type.id}
@@ -111,7 +113,11 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                                         handleChange('layout', type.id);
                                     }
                                 }}
-                                title={type.id === LayoutType.BENTO ? t('collage.layout.bentoHint') : undefined}
+                                title={
+                                    type.id === LayoutType.BENTO ? t('collage.layout.bentoHint')
+                                        : type.id === LayoutType.FREEFORM ? t('collage.layout.freeformHint')
+                                            : undefined
+                                }
                                 disabled={
                                     (type.id === LayoutType.CENTER && imageCount < 3) ||
                                     (type.id === LayoutType.BENTO && imageCount < 3) ||

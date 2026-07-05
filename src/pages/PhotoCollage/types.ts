@@ -16,6 +16,17 @@ export enum LayoutType {
 
     // Phase 2: Bento box — mixed-size cells on a 6x6 unit grid (3-8 photos)
     BENTO = 'BENTO',
+
+    // Phase 3: user-positioned frames (drag / resize / z-order)
+    FREEFORM = 'FREEFORM',
+}
+
+// Normalized (0-1 of canvas size) frame stored per image for FREEFORM layout
+export interface FreeformRect {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
 
 export enum AspectRatio {
@@ -78,6 +89,7 @@ export interface UploadedImage {
     offsetY: number;
     isHero?: boolean; // Hero photo gets 1.5-2x size and prominent placement
     caption?: string;
+    freeform?: FreeformRect; // frame position/size in FREEFORM layout
 }
 
 // Represents a calculated frame for an image on the canvas
