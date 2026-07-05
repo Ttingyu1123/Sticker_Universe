@@ -13,6 +13,9 @@ export enum LayoutType {
     L_RIGHT = 'L_RIGHT',                 // L-shape: big right, stack left
     T_SHAPE = 'T_SHAPE',                 // T-shape: top bar + bottom grid
     CROSS_FOCUS = 'CROSS_FOCUS',         // Cross: center big + 4 corners
+
+    // Phase 2: Bento box — mixed-size cells on a 6x6 unit grid (3-8 photos)
+    BENTO = 'BENTO',
 }
 
 export enum AspectRatio {
@@ -43,6 +46,8 @@ export interface CollageSettings {
     padding: number;
     cornerRadius: number;
     frameStyle: 'normal' | 'film' | 'polaroid'; // New: Frame decoration
+    imageFit?: 'cover' | 'blur-fill'; // cover: crop to fill; blur-fill: contain + blurred cover underlay
+    bentoVariant?: number; // 0-2: base / mirrored-x / mirrored-y BENTO template
     shadow: number; // New: 0 to 100 opacity/blur mix
     customRatioW: number;
     customRatioH: number;

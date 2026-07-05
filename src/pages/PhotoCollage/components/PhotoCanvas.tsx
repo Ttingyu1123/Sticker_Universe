@@ -171,7 +171,8 @@ const renderCollageToContext = (
         heroIndices.length > 0 ? heroIndices : undefined,
         captionPos,
         hasTopCaption ? topFontSize * scaleFactor : undefined,
-        topHR
+        topHR,
+        settings.bentoVariant ?? 0
     );
 
     if (images.length === 0) return frames;
@@ -348,6 +349,23 @@ const renderCollageToContext = (
 
         ctx.translate(clipCenterX, clipCenterY); // Move to center of visible image area
 
+        // Blur-fill mode: blurred cover-scaled underlay fills the letterbox area
+        // left by the contain-scaled photo. Drawn before user rotation so the
+        // backdrop stays aligned with the frame, not the photo.
+        if (settings.imageFit === 'blur-fill') {
+            const coverScale = Math.max(clipW / img.width, clipH / img.height);
+            const containScale = Math.min(clipW / img.width, clipH / img.height);
+            if (coverScale / containScale > 1.01) {
+                // 1.06 overscan hides the transparent halo blur creates at edges
+                const uW = img.width * coverScale * 1.06;
+                const uH = img.height * coverScale * 1.06;
+                ctx.save();
+                ctx.filter = `blur(${Math.max(6, Math.min(clipW, clipH) * 0.03)}px)`;
+                ctx.drawImage(img, -uW / 2, -uH / 2, uW, uH);
+                ctx.restore();
+            }
+        }
+
         // Apply User Rotation
         ctx.rotate((userRotation * Math.PI) / 180);
 
@@ -365,8 +383,11 @@ const renderCollageToContext = (
         const scaleX = reqW / img.width;
         const scaleY = reqH / img.height;
 
-        // Choose the larger scale to ensure coverage (cover mode)
-        const baseScale = Math.max(scaleX, scaleY);
+        // cover: larger scale crops to fill; blur-fill: smaller scale shows the
+        // whole photo (contain) over the blurred underlay
+        const baseScale = settings.imageFit === 'blur-fill'
+            ? Math.min(scaleX, scaleY)
+            : Math.max(scaleX, scaleY);
 
         const renderW = img.width * baseScale * imgScale;
         const renderH = img.height * baseScale * imgScale;

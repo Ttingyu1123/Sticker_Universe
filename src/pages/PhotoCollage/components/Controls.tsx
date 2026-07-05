@@ -17,6 +17,9 @@ import {
     BrickWall,
     PanelLeft,
     Shuffle,
+    LayoutDashboard,
+    Crop,
+    Expand,
     Minimize2,
     Sparkles,
     Film,
@@ -85,6 +88,7 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                             { id: LayoutType.HORIZONTAL, label: t('collage.layout.cols'), icon: Columns },
                             { id: LayoutType.VERTICAL, label: t('collage.layout.rows'), icon: Rows },
                             // Feature removed as it duplicates L-Left
+                            { id: LayoutType.BENTO, label: t('collage.layout.bento'), icon: LayoutDashboard, minCount: 3 },
                             { id: LayoutType.MASONRY, label: t('collage.layout.masonry'), icon: BrickWall },
                             { id: LayoutType.CENTER, label: t('collage.layout.center'), icon: PanelLeft },
                             { id: LayoutType.SCATTER, label: t('collage.layout.scatter'), icon: Shuffle },
@@ -98,9 +102,17 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                         ].map(type => (
                             <button
                                 key={type.id}
-                                onClick={() => handleChange('layout', type.id)}
+                                onClick={() => {
+                                    if (type.id === LayoutType.BENTO && settings.layout === LayoutType.BENTO) {
+                                        handleChange('bentoVariant', ((settings.bentoVariant ?? 0) + 1) % 3);
+                                    } else {
+                                        handleChange('layout', type.id);
+                                    }
+                                }}
+                                title={type.id === LayoutType.BENTO ? t('collage.layout.bentoHint') : undefined}
                                 disabled={
                                     (type.id === LayoutType.CENTER && imageCount < 3) ||
+                                    (type.id === LayoutType.BENTO && imageCount < 3) ||
                                     (type.id === LayoutType.L_LEFT && imageCount < 2) ||
                                     (type.id === LayoutType.L_RIGHT && imageCount < 2) ||
                                     (type.id === LayoutType.T_SHAPE && imageCount < 2) ||
@@ -110,6 +122,7 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                                     ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
                                     : 'bg-white border-cream-dark text-bronze-light hover:bg-cream-light hover:text-primary hover:border-primary/30'
                                     } ${((type.id === LayoutType.CENTER && imageCount < 3) ||
+                                        (type.id === LayoutType.BENTO && imageCount < 3) ||
                                         (type.id === LayoutType.L_LEFT && imageCount < 2) ||
                                         (type.id === LayoutType.L_RIGHT && imageCount < 2) ||
                                         (type.id === LayoutType.T_SHAPE && imageCount < 2) ||
@@ -118,7 +131,12 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                                     }`}
                             >
                                 <type.icon size={20} />
-                                <span className="mt-1">{type.label}</span>
+                                <span className="mt-1">
+                                    {type.label}
+                                    {type.id === LayoutType.BENTO && settings.layout === LayoutType.BENTO
+                                        ? ` ${(settings.bentoVariant ?? 0) + 1}/3`
+                                        : ''}
+                                </span>
                             </button>
                         ))}
 
@@ -133,6 +151,29 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                     </div>
                 </div>
             )}
+
+            {/* Image Fit */}
+            <div>
+                <Label>{t('collage.fit.title')}</Label>
+                <div className="grid grid-cols-2 gap-2">
+                    {[
+                        { id: 'cover' as const, label: t('collage.fit.cover'), icon: Crop },
+                        { id: 'blur-fill' as const, label: t('collage.fit.blurFill'), icon: Expand },
+                    ].map(mode => (
+                        <button
+                            key={mode.id}
+                            onClick={() => handleChange('imageFit', mode.id)}
+                            className={`flex items-center justify-center gap-2 p-2 rounded-xl border text-[10px] font-bold transition-all h-12 ${(settings.imageFit ?? 'cover') === mode.id
+                                ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
+                                : 'bg-white border-cream-dark text-bronze-light hover:bg-cream-light hover:text-primary hover:border-primary/30'
+                                }`}
+                        >
+                            <mode.icon size={16} />
+                            <span>{mode.label}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
 
             {/* Frame Style */}
             <div>

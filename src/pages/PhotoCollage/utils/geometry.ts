@@ -58,7 +58,8 @@ export const calculateFrames = (
     heroIndices?: number[],
     captionPosition?: CaptionPosition,
     captionFontSize?: number,
-    captionHeightRatio: number = 1.8
+    captionHeightRatio: number = 1.8,
+    bentoVariant: number = 0
 ): ImageFrame[] => {
     // Effective area after padding
     const w = containerWidth - padding * 2;
@@ -204,6 +205,60 @@ export const calculateFrames = (
                     }
                 }
             }
+            break;
+        }
+
+        case LayoutType.BENTO: {
+            // Mixed-size cells on a 6x6 unit grid. Templates cover 3-8 photos;
+            // outside that range the look degenerates, so reuse GRID.
+            if (count < 3 || count > 8) {
+                return calculateFrames(count, LayoutType.GRID, containerWidth, containerHeight, gap, padding, heroIndices, captionPosition, captionFontSize, captionHeightRatio);
+            }
+
+            // [col, row, colSpan, rowSpan] in 6x6 units; each template tiles the full grid
+            const BENTO_TEMPLATES: Record<number, number[][]> = {
+                3: [[0, 0, 4, 6], [4, 0, 2, 3], [4, 3, 2, 3]],
+                4: [[0, 0, 4, 4], [4, 0, 2, 2], [4, 2, 2, 2], [0, 4, 6, 2]],
+                5: [[0, 0, 4, 3], [4, 0, 2, 3], [0, 3, 2, 3], [2, 3, 2, 3], [4, 3, 2, 3]],
+                6: [[0, 0, 2, 4], [2, 0, 4, 2], [2, 2, 2, 2], [4, 2, 2, 2], [0, 4, 3, 2], [3, 4, 3, 2]],
+                7: [[0, 0, 4, 2], [4, 0, 2, 2], [0, 2, 2, 2], [2, 2, 2, 2], [4, 2, 2, 2], [0, 4, 3, 2], [3, 4, 3, 2]],
+                8: [[0, 0, 3, 2], [3, 0, 3, 2], [0, 2, 2, 2], [2, 2, 2, 2], [4, 2, 2, 2], [0, 4, 2, 2], [2, 4, 2, 2], [4, 4, 2, 2]],
+            };
+            const UNITS = 6;
+
+            const variant = ((Math.trunc(bentoVariant) % 3) + 3) % 3;
+            let cells = BENTO_TEMPLATES[count];
+            if (variant === 1) {
+                cells = cells.map(([c, r, cs, rs]) => [UNITS - c - cs, r, cs, rs]);
+            } else if (variant === 2) {
+                cells = cells.map(([c, r, cs, rs]) => [c, UNITS - r - rs, cs, rs]);
+            }
+
+            const unitW = w / UNITS;
+            const unitH = h / UNITS;
+            const halfGap = gap / 2;
+
+            // Inset internal edges by half the gap; outer edges stay flush
+            const cellFrames: ImageFrame[] = cells.map(([c, r, cs, rs]) => {
+                const x0 = startX + c * unitW + (c > 0 ? halfGap : 0);
+                const y0 = startY + r * unitH + (r > 0 ? halfGap : 0);
+                const x1 = startX + (c + cs) * unitW - (c + cs < UNITS ? halfGap : 0);
+                const y1 = startY + (r + rs) * unitH - (r + rs < UNITS ? halfGap : 0);
+                return { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
+            });
+
+            if (heroIndices && heroIndices.length > 0) {
+                const hero = heroIndices[0];
+                let largest = 0;
+                cellFrames.forEach((f, i) => {
+                    if (f.width * f.height > cellFrames[largest].width * cellFrames[largest].height) largest = i;
+                });
+                const tmp = cellFrames[hero];
+                cellFrames[hero] = cellFrames[largest];
+                cellFrames[largest] = tmp;
+            }
+
+            frames.push(...cellFrames);
             break;
         }
 

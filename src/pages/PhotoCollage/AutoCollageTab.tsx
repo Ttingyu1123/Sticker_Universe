@@ -59,6 +59,8 @@ export const AutoCollageTab: React.FC = () => {
         cornerRadius: 0,
         shadow: 0,
         frameStyle: 'normal',
+        imageFit: 'cover',
+        bentoVariant: 0,
         backgroundColor: '#ffffff',
         customGradientEnabled: false,
         customGradientStart: '#ff9a9e',
@@ -443,14 +445,18 @@ export const AutoCollageTab: React.FC = () => {
             height,
             settings.gap,
             settings.padding,
-            heroIndices.length > 0 ? heroIndices : undefined
+            heroIndices.length > 0 ? heroIndices : undefined,
+            undefined,
+            undefined,
+            1.8,
+            settings.bentoVariant ?? 0
         );
 
         const usedArea = frames.reduce((acc, frame) => acc + Math.max(0, frame.width * frame.height), 0);
         const totalArea = Math.max(1, width * height);
         const coverage = Math.min(1, usedArea / totalArea);
         return 1 - coverage;
-    }, [images, settings.customRatioH, settings.customRatioW, settings.gap, settings.padding, settings.ratio]);
+    }, [images, settings.customRatioH, settings.customRatioW, settings.gap, settings.padding, settings.ratio, settings.bentoVariant]);
 
     useEffect(() => {
         if (!settings.autoAvoidBlank || images.length === 0) return;
@@ -546,7 +552,11 @@ export const AutoCollageTab: React.FC = () => {
             canvasH,
             settings.gap * exportScale,
             settings.padding * exportScale,
-            heroIndices.length > 0 ? heroIndices : undefined
+            heroIndices.length > 0 ? heroIndices : undefined,
+            undefined,
+            undefined,
+            1.8,
+            settings.bentoVariant ?? 0
         );
 
         let maxFactor = 1;

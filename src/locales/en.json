@@ -2000,7 +2000,14 @@
       "lRight": "L-Right",
       "tShape": "T-Shape",
       "crossFocus": "Cross Focus",
-      "ySplit": "Y-Split"
+      "ySplit": "Y-Split",
+      "bento": "Bento",
+      "bentoHint": "Click again for another arrangement"
+    },
+    "fit": {
+      "title": "Image Fit",
+      "cover": "Crop to Fill",
+      "blurFill": "Fit + Blur BG"
     },
     "frameStyle": {
       "title": "Frame Style",

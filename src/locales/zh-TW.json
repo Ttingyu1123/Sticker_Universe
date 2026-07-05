@@ -2120,7 +2120,14 @@
       "crossFocus": "十字焦點",
       "focus": "重點",
       "diagonal": "對角線",
-      "ySplit": "Y 形分割"
+      "ySplit": "Y 形分割",
+      "bento": "便當格",
+      "bentoHint": "再點一次換排法"
+    },
+    "fit": {
+      "title": "圖片填滿",
+      "cover": "裁切填滿",
+      "blurFill": "完整＋模糊底"
     },
     "frameStyle": {
       "title": "邊框樣式",
