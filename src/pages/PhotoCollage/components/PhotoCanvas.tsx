@@ -23,6 +23,12 @@ export interface PhotoCanvasHandle {
     exportImage: (format: 'png' | 'jpeg', scale: number, overrides?: Partial<CollageSettings>) => Promise<string>;
 }
 
+// Interactive preview draws from downscaled ImageBitmaps (smooth drags with
+// 12MP phone photos); export always draws from the full-resolution originals
+type DrawableImage = HTMLImageElement | ImageBitmap;
+const PREVIEW_LONG_EDGE = 1600;
+const PREVIEW_THRESHOLD = 2000;
+
 // Helper: Draw rounded rectangle path
 const roundRect = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
     const radius = Math.min(Number(r) || 0, w / 2, h / 2);
@@ -180,7 +186,7 @@ const renderCollageToContext = (
     scaleFactor: number,
     images: UploadedImage[],
     settings: CollageSettings,
-    imageCache: Map<string, HTMLImageElement>
+    imageCache: Map<string, DrawableImage>
 ): ImageFrame[] => {
 
     // 1. Draw Background
@@ -601,6 +607,7 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
 }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const imageCache = useRef<Map<string, HTMLImageElement>>(new Map());
+    const previewCache = useRef<Map<string, ImageBitmap>>(new Map());
     const framesRef = useRef<ImageFrame[]>([]);
 
     const isFreeform = settings.layout === LayoutType.FREEFORM;
@@ -685,7 +692,13 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
             canvas.height = height;
         }
 
-        const frames = renderCollageToContext(ctx, width, height, scale, images, settings, imageCache.current);
+        // Preview draws from downscaled bitmaps where available
+        const drawCache = new Map<string, DrawableImage>();
+        for (const imgData of images) {
+            const drawable = previewCache.current.get(imgData.id) ?? imageCache.current.get(imgData.id);
+            if (drawable) drawCache.set(imgData.id, drawable);
+        }
+        const frames = renderCollageToContext(ctx, width, height, scale, images, settings, drawCache);
         framesRef.current = frames;
 
         // Notify parent only if not dragging to prevent spamming
@@ -718,6 +731,42 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
 
             await Promise.all(promises);
             if (isCancelled) return;
+
+            // 1b. Downscale large photos for the interactive preview
+            if (typeof createImageBitmap === 'function') {
+                await Promise.all(images.map(async (imgData) => {
+                    if (previewCache.current.has(imgData.id)) return;
+                    const full = imageCache.current.get(imgData.id);
+                    if (!full) return;
+                    const longEdge = Math.max(full.width, full.height);
+                    if (longEdge <= PREVIEW_THRESHOLD) return;
+                    const s = PREVIEW_LONG_EDGE / longEdge;
+                    try {
+                        const bitmap = await createImageBitmap(full, {
+                            resizeWidth: Math.round(full.width * s),
+                            resizeHeight: Math.round(full.height * s),
+                            resizeQuality: 'high',
+                        });
+                        if (isCancelled) bitmap.close();
+                        else previewCache.current.set(imgData.id, bitmap);
+                    } catch {
+                        // downscale is an optimization only — full-res fallback
+                    }
+                }));
+                if (isCancelled) return;
+            }
+
+            // 1c. Evict caches for removed images (bitmaps hold real memory)
+            const alive = new Set(images.map(imgData => imgData.id));
+            for (const key of [...imageCache.current.keys()]) {
+                if (!alive.has(key)) imageCache.current.delete(key);
+            }
+            for (const key of [...previewCache.current.keys()]) {
+                if (!alive.has(key)) {
+                    previewCache.current.get(key)?.close();
+                    previewCache.current.delete(key);
+                }
+            }
 
             // 2. Draw with RAF for smooth performance
             animationFrameId = requestAnimationFrame(draw);
