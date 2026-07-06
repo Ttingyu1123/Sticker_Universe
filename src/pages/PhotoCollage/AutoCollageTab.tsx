@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { X, Download, Image as ImageIcon, Trash2, ZoomIn, ZoomOut, Edit2, Check, Wand2, RotateCw, Scaling, Plus, FolderHeart, Save, Star, Key, Sparkles, Type, Package } from 'lucide-react';
+import { X, Download, Image as ImageIcon, Trash2, ZoomIn, ZoomOut, Edit2, Check, Wand2, RotateCw, Scaling, Plus, FolderHeart, Save, Star, Key, Sparkles, Type, Package, FolderOpen } from 'lucide-react';
 import { AspectRatio, CollageSettings, LayoutType, UploadedImage } from './types';
 import { Controls } from './components/Controls';
 import { PhotoCanvas, PhotoCanvasHandle } from './components/PhotoCanvas';
@@ -7,7 +7,7 @@ import { generateImage } from './geminiService';
 import { generateOpenAiImage } from '../Generator/services/openaiImageService';
 import { calculateFrames, getCanvasDimensions } from './utils/geometry';
 import { normalizeFrames, resolveFreeformFrames } from './utils/freeform';
-import { saveDraft, peekDraft, loadDraft, clearDraft } from './utils/draftStore';
+import { saveDraft, peekDraft, loadDraft, clearDraft, saveProject, listProjects, loadProject, deleteProject } from './utils/draftStore';
 import { useTranslation } from 'react-i18next';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { saveStickerToDB } from '../../db';
@@ -158,6 +158,68 @@ export const AutoCollageTab: React.FC = () => {
         clearDraft().catch(() => { });
         draftDecidedRef.current = true;
         setDraftPrompt(null);
+    };
+
+    // Named projects: re-editable saves on top of the single autosave slot
+    const [showProjectsModal, setShowProjectsModal] = useState(false);
+    const [projectList, setProjectList] = useState<{ id: string; name: string; savedAt: number; count: number }[]>([]);
+    const [projectName, setProjectName] = useState('');
+    const projectsModalRef = useModalA11y<HTMLDivElement>({ isOpen: showProjectsModal, onClose: () => setShowProjectsModal(false) });
+
+    const refreshProjects = async () => {
+        try {
+            setProjectList(await listProjects());
+        } catch (err) {
+            console.error('Failed to list projects', err);
+        }
+    };
+
+    const handleOpenProjects = () => {
+        setShowProjectsModal(true);
+        void refreshProjects();
+    };
+
+    const handleSaveProject = async () => {
+        if (images.length === 0) return;
+        const name = projectName.trim() || new Date().toLocaleString();
+        try {
+            await saveProject(name, images, settings);
+            setProjectName('');
+            await refreshProjects();
+            showToast(t('collage.projects.saved'), 'success');
+        } catch (err) {
+            console.error('Failed to save project', err);
+            showToast(t('collage.toast.saveFailed'), 'error');
+        }
+    };
+
+    const handleLoadProject = async (id: string) => {
+        try {
+            const project = await loadProject(id);
+            if (!project) {
+                showToast(t('collage.draft.loadFailed'), 'error');
+                return;
+            }
+            saveCheckpoint(); // current work stays one Ctrl+Z away
+            setImages(project.images);
+            setSettings(project.settings);
+            draftDecidedRef.current = true;
+            setDraftPrompt(null);
+            setShowProjectsModal(false);
+            showToast(t('collage.projects.loaded', { name: project.name }), 'success');
+        } catch (err) {
+            console.error('Failed to load project', err);
+            showToast(t('collage.draft.loadFailed'), 'error');
+        }
+    };
+
+    const handleDeleteProject = async (id: string) => {
+        try {
+            await deleteProject(id);
+            await refreshProjects();
+        } catch (err) {
+            console.error('Failed to delete project', err);
+        }
     };
 
     // History State
@@ -676,6 +738,69 @@ export const AutoCollageTab: React.FC = () => {
     return (
         <div className="flex flex-col md:flex-row w-full bg-cream-light relative px-4 md:px-0 md:h-[calc(100vh-5rem)] min-h-0 md:overflow-hidden md:-m-6">
 
+            {showProjectsModal && (
+                <div className="fixed inset-0 z-50 bg-bronze-text/30 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div
+                        ref={projectsModalRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="collage-projects-modal-title"
+                        className="w-full max-w-md bg-white rounded-3xl border border-cream-dark shadow-2xl p-6 space-y-4">
+                        <div className="flex items-center justify-between gap-3">
+                            <h3 id="collage-projects-modal-title" className="text-lg font-black text-bronze">{t('collage.projects.title')}</h3>
+                            <button onClick={() => setShowProjectsModal(false)} className="text-bronze-light hover:text-bronze">
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={projectName}
+                                onChange={(e) => setProjectName(e.target.value)}
+                                placeholder={t('collage.projects.namePlaceholder')}
+                                className="flex-1 px-3 py-2 rounded-xl border border-cream-dark bg-cream-light/50 text-sm text-bronze-text focus:outline-none focus:border-primary"
+                            />
+                            <button
+                                onClick={handleSaveProject}
+                                disabled={images.length === 0}
+                                className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-black hover:bg-primary-hover transition-colors disabled:opacity-50"
+                            >
+                                {t('collage.projects.saveCurrent')}
+                            </button>
+                        </div>
+
+                        <div className="max-h-72 overflow-y-auto space-y-2">
+                            {projectList.length === 0 ? (
+                                <p className="text-xs text-bronze-text/60 text-center py-6">{t('collage.projects.empty')}</p>
+                            ) : projectList.map(project => (
+                                <div key={project.id} className="flex items-center gap-3 p-3 rounded-xl border border-cream-dark bg-cream/40">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-bold text-bronze-text truncate">{project.name}</p>
+                                        <p className="text-[11px] text-bronze-text/60">
+                                            {new Date(project.savedAt).toLocaleString()} · {t('collage.projects.photos', { count: project.count })}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => handleLoadProject(project.id)}
+                                        className="px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-black hover:bg-primary-hover transition-colors"
+                                    >
+                                        {t('collage.projects.load')}
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteProject(project.id)}
+                                        className="p-1.5 text-bronze-light hover:text-red-500 transition-colors"
+                                        title={t('collage.projects.delete')}
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {showKeyModal && (
                 <div className="fixed inset-0 z-50 bg-bronze-text/30 backdrop-blur-sm flex items-center justify-center p-4">
                     <div
@@ -864,6 +989,14 @@ export const AutoCollageTab: React.FC = () => {
                     </div>
 
                     <div className="pointer-events-auto flex items-center gap-2">
+                        <button
+                            onClick={handleOpenProjects}
+                            className="bg-cream/90 backdrop-blur shadow-sm text-bronze-text px-3 md:px-4 py-2 rounded-xl border border-cream-dark flex items-center gap-2 font-black hover:bg-cream-light transition-colors"
+                            title={t('collage.projects.title')}
+                        >
+                            <FolderOpen size={16} />
+                            <span className="hidden xs:inline">{t('collage.projects.title')}</span>
+                        </button>
                         <button
                             onClick={handleSaveToGallery}
                             disabled={isSaving}

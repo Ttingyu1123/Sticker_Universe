@@ -2126,6 +2126,17 @@
       "freeform": "自由排版",
       "freeformHint": "拖曳移動照片，右下圓點縮放，點擊置頂"
     },
+    "projects": {
+      "title": "我的專案",
+      "saveCurrent": "另存專案",
+      "namePlaceholder": "專案名稱（留空用日期）",
+      "empty": "還沒有存過專案",
+      "load": "載入",
+      "delete": "刪除",
+      "saved": "專案已儲存，隨時可回來繼續編輯",
+      "loaded": "已載入「{{name}}」",
+      "photos": "{{count}} 張照片"
+    },
     "presets": {
       "title": "快速風格",
       "scrapbook": "剪貼簿",

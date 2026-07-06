@@ -2006,6 +2006,17 @@
       "freeform": "Freeform",
       "freeformHint": "Drag to move, corner dot to resize, click brings to front"
     },
+    "projects": {
+      "title": "My Projects",
+      "saveCurrent": "Save Project",
+      "namePlaceholder": "Project name (blank = date)",
+      "empty": "No saved projects yet",
+      "load": "Load",
+      "delete": "Delete",
+      "saved": "Project saved — come back and edit anytime",
+      "loaded": "Loaded \"{{name}}\"",
+      "photos": "{{count}} photos"
+    },
     "presets": {
       "title": "Quick Styles",
       "scrapbook": "Scrapbook",
