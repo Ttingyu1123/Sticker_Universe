@@ -206,6 +206,20 @@ export const Controls: React.FC<ControlsProps> = ({ settings, onUpdate, imageCou
                         </button>
                     ))}
                 </div>
+                {settings.imageFit === 'blur-fill' && (
+                    <div className="mt-3 space-y-2">
+                        <div className="flex justify-between text-xs font-bold text-bronze-light">
+                            <span>{t('collage.fit.dim')}</span>
+                            <span>{settings.blurFillDim ?? 0}%</span>
+                        </div>
+                        <input
+                            type="range" min="0" max="70" step="5"
+                            value={settings.blurFillDim ?? 0}
+                            onChange={(e) => handleChange('blurFillDim', parseInt(e.target.value))}
+                            className="w-full h-1.5 bg-cream-dark rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                    </div>
+                )}
             </div>
 
             {/* Frame Style */}

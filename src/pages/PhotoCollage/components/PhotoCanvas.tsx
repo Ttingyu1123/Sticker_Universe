@@ -435,6 +435,13 @@ const renderCollageToContext = (
                 ctx.filter = `blur(${Math.max(6, Math.min(clipW, clipH) * 0.03)}px)`;
                 ctx.drawImage(img, -uW / 2, -uH / 2, uW, uH);
                 ctx.restore();
+
+                // Optional darkening so the sharp photo pops off the backdrop
+                const dim = Math.min(70, Math.max(0, settings.blurFillDim ?? 0));
+                if (dim > 0) {
+                    ctx.fillStyle = `rgba(0, 0, 0, ${dim / 100})`;
+                    ctx.fillRect(-clipW / 2, -clipH / 2, clipW, clipH);
+                }
             }
         }
 

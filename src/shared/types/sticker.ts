@@ -6,4 +6,5 @@ export interface Sticker {
     qcIssues?: string[];
     timestamp: number;
     description?: string;
+    collageProjectId?: string; // links back to a re-editable PhotoCollage project
 }

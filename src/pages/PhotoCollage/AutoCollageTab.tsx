@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { X, Download, Image as ImageIcon, Trash2, ZoomIn, ZoomOut, Edit2, Check, Wand2, RotateCw, Scaling, Plus, FolderHeart, Save, Star, Key, Sparkles, Type, Package, FolderOpen } from 'lucide-react';
 import { AspectRatio, CollageSettings, LayoutType, UploadedImage } from './types';
 import { Controls } from './components/Controls';
@@ -112,7 +113,7 @@ export const AutoCollageTab: React.FC = () => {
         let cancelled = false;
         peekDraft()
             .then(d => {
-                if (cancelled) return;
+                if (cancelled || draftDecidedRef.current) return; // e.g. a ?project= load already decided
                 if (d) setDraftPrompt({ count: d.count });
                 else draftDecidedRef.current = true;
             })
@@ -221,6 +222,21 @@ export const AutoCollageTab: React.FC = () => {
             console.error('Failed to delete project', err);
         }
     };
+
+    // Deep link from Gallery: /photo-collage?project=<id> loads that project
+    const [searchParams, setSearchParams] = useSearchParams();
+    const projectParamHandledRef = useRef(false);
+    useEffect(() => {
+        const projectId = searchParams.get('project');
+        if (!projectId || projectParamHandledRef.current) return;
+        projectParamHandledRef.current = true;
+        draftDecidedRef.current = true; // deep link wins over the resume prompt
+        void handleLoadProject(projectId);
+        const next = new URLSearchParams(searchParams);
+        next.delete('project');
+        setSearchParams(next, { replace: true });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams, setSearchParams]);
 
     // History State
     const [, setHistory] = useState<{
@@ -524,12 +540,23 @@ export const AutoCollageTab: React.FC = () => {
         try {
             const dataUrl = await canvasRef.current.exportImage('png', exportScale);
 
+            // Also snapshot a re-editable project so the Gallery card can
+            // link back into the editor
+            let collageProjectId: string | undefined;
+            try {
+                const project = await saveProject(new Date().toLocaleString(), images, settings);
+                collageProjectId = project.id;
+            } catch (projectErr) {
+                console.error('Companion project save failed', projectErr);
+            }
+
             const newSticker = {
                 id: crypto.randomUUID(),
                 imageUrl: dataUrl,
                 phrase: `Collage ${exportWidth}px ${new Date().toLocaleString()}`,
                 timestamp: Date.now(),
-                description: 'Created with Photo Collage'
+                description: 'Created with Photo Collage',
+                collageProjectId
             };
 
             await saveStickerToDB(newSticker);

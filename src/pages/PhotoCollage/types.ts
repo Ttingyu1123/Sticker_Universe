@@ -59,6 +59,7 @@ export interface CollageSettings {
     frameStyle: 'normal' | 'film' | 'polaroid' | 'torn'; // Frame decoration; torn = jagged paper deckle
     tapeDecoration?: boolean; // washi tape strips across two corners of each photo
     imageFit?: 'cover' | 'blur-fill'; // cover: crop to fill; blur-fill: contain + blurred cover underlay
+    blurFillDim?: number; // 0-70: darken the blurred underlay so the photo pops
     bentoVariant?: number; // 0-2: base / mirrored-x / mirrored-y BENTO template
     shadow: number; // New: 0 to 100 opacity/blur mix
     customRatioW: number;

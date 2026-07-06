@@ -275,6 +275,7 @@
   "gallery": {
     "title": "Collection",
     "subtitle": "Your Creative Works",
+    "reEditCollage": "Re-edit Collage",
     "empty": "No saved stickers yet.",
     "emptyDesc": "Go to Generator to create some magic!",
     "download": "Download",
@@ -2033,7 +2034,8 @@
     "fit": {
       "title": "Image Fit",
       "cover": "Crop to Fill",
-      "blurFill": "Fit + Blur BG"
+      "blurFill": "Fit + Blur BG",
+      "dim": "Backdrop Dim"
     },
     "frameStyle": {
       "title": "Frame Style",

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Trash2, Download, Image as ImageIcon, Search, FileArchive, Palette, Layers, MoreHorizontal, CheckCircle2, Circle, Upload, FileText, X, Maximize2, Share2, Copy } from 'lucide-react';
+import { Trash2, Download, Image as ImageIcon, Search, FileArchive, Palette, Layers, MoreHorizontal, CheckCircle2, Circle, Upload, FileText, X, Maximize2, Share2, Copy, Grid2X2 } from 'lucide-react';
 import { getAllStickersFromDB, deleteStickerFromDB, clearAllStickersFromDB, saveStickerToDB } from '../../db';
 import type { Sticker } from '../../shared/types/sticker';
 import JSZip from 'jszip';
@@ -88,6 +88,16 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
                                 <Layers size={12} /> {t('editor.tabs.packager')}
                             </button>
                         </div>
+                        {sticker.collageProjectId && (
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); navigate(`/photo-collage?project=${sticker.collageProjectId}`); }}
+                                    className="px-3 py-1.5 bg-white/10 hover:bg-white text-white hover:text-bronze-text rounded-lg text-[10px] font-bold backdrop-blur-md transition-all border border-white/20 flex items-center gap-1.5"
+                                >
+                                    <Grid2X2 size={12} /> {t('gallery.reEditCollage')}
+                                </button>
+                            </div>
+                        )}
 
                         <div className="w-full h-px bg-white/20 my-1"></div>
 
