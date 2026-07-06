@@ -955,6 +955,7 @@ export const AutoCollageTab: React.FC = () => {
                                 onCanvasReady={() => { }}
                                 onImageUpdate={(id, updates) => updateImageProperty(id, updates)}
                                 onImageSwap={handleImageSwap}
+                                onInteractionStart={saveCheckpoint}
                                 onImageToFront={(id) => {
                                     setImages(prev => {
                                         const idx = prev.findIndex(img => img.id === id);

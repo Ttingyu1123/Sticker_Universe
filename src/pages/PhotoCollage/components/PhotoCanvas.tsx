@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { calculateFrames, getCaptionHeight, getCanvasDimensions } from '../utils/geometry';
 import { generateTornEdgePoints } from '../utils/tornEdge';
-import { resolveFreeformFrames, MIN_FREEFORM_SIZE } from '../utils/freeform';
+import { resolveFreeformFrames, snapFreeformRect, MIN_FREEFORM_SIZE } from '../utils/freeform';
 import { drawBackgroundPreset } from '../utils/backgroundPresets';
 import { CollageSettings, FreeformRect, ImageFrame, LayoutType, UploadedImage } from '../types';
 
@@ -12,6 +12,8 @@ interface PhotoCanvasProps {
     onImageUpdate?: (id: string, updates: Partial<UploadedImage>) => void;
     onImageSwap?: (id1: string, id2: string) => void;
     onImageToFront?: (id: string) => void;
+    /** Fired once when a drag actually starts moving — parent snapshots undo history here */
+    onInteractionStart?: () => void;
     className?: string;
     style?: React.CSSProperties;
     interactive?: boolean;
@@ -592,6 +594,7 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
     onImageUpdate,
     onImageSwap,
     onImageToFront,
+    onInteractionStart,
     className,
     style,
     interactive = false
@@ -613,6 +616,7 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
         initialOffsetY: number;
         mode: 'image' | 'frame-move' | 'frame-resize';
         initialRect: FreeformRect | null;
+        checkpointed: boolean;
     }>({
         activeId: null,
         startX: 0,
@@ -620,10 +624,13 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
         initialOffsetX: 0,
         initialOffsetY: 0,
         mode: 'image',
-        initialRect: null
+        initialRect: null,
+        checkpointed: false
     });
 
     const [isDragging, setIsDragging] = useState(false);
+    // Alignment guide lines shown while a freeform frame is being dragged
+    const [snapGuides, setSnapGuides] = useState<{ x: number[]; y: number[] }>({ x: [], y: [] });
 
     // Expose export function
     useImperativeHandle(ref, () => ({
@@ -783,7 +790,13 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
                 if (isFreeform) {
                     const f = framesRef.current[clickedIndex];
                     const canvas = canvasRef.current;
-                    const handleZone = Math.max(24, Math.min(f.width, f.height) * 0.15);
+                    // Hit zone sized in CSS px (44px touch target on mobile),
+                    // converted to canvas px; capped so tiny frames stay movable
+                    const zoneCss = e.pointerType === 'touch' ? 44 : 18;
+                    const handleZone = Math.min(
+                        Math.max(zoneCss * scaleX, Math.min(f.width, f.height) * 0.15),
+                        Math.min(f.width, f.height) * 0.5
+                    );
                     const inResize =
                         clickX >= f.x + f.width - handleZone &&
                         clickY >= f.y + f.height - handleZone;
@@ -806,6 +819,7 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
                     initialOffsetY: img.offsetY,
                     mode,
                     initialRect,
+                    checkpointed: false,
                 };
                 (e.target as HTMLElement).setPointerCapture(e.pointerId);
                 // Select image in parent
@@ -831,15 +845,29 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
 
         if (!onImageUpdate) return;
 
+        // Snapshot undo history once, when the pointer actually starts moving
+        // (a plain click never pollutes the history)
+        if (!dragRef.current.checkpointed && Math.hypot(e.clientX - startX, e.clientY - startY) > 3) {
+            dragRef.current.checkpointed = true;
+            if (onInteractionStart) onInteractionStart();
+        }
+
         if (mode === 'frame-move' && initialRect) {
             const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
             // Allow partial off-canvas, but keep a grabbable sliver visible
+            const proposed = {
+                ...initialRect,
+                x: clamp(initialRect.x + deltaX / canvas.width, -initialRect.width + 0.04, 0.96),
+                y: clamp(initialRect.y + deltaY / canvas.height, -initialRect.height + 0.04, 0.96),
+            };
+            const otherRects = images
+                .filter(img => img.id !== activeId)
+                .map(img => img.freeform)
+                .filter((r): r is FreeformRect => !!r);
+            const snapped = snapFreeformRect(proposed, otherRects);
+            setSnapGuides({ x: snapped.guidesX, y: snapped.guidesY });
             onImageUpdate(activeId, {
-                freeform: {
-                    ...initialRect,
-                    x: clamp(initialRect.x + deltaX / canvas.width, -initialRect.width + 0.04, 0.96),
-                    y: clamp(initialRect.y + deltaY / canvas.height, -initialRect.height + 0.04, 0.96),
-                },
+                freeform: { ...proposed, x: snapped.x, y: snapped.y },
             });
             return;
         }
@@ -865,6 +893,7 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
     };
 
     const handlePointerUp = (e: React.PointerEvent) => {
+        setSnapGuides({ x: [], y: [] });
         if (isDragging) {
             const { activeId, startX, startY } = dragRef.current;
 
@@ -938,6 +967,27 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
         ));
     })();
 
+    const guideLines = (!interactive || !isFreeform) ? null : (
+        <>
+            {snapGuides.x.map(gx => (
+                <div
+                    key={`gx-${gx}`}
+                    className="absolute top-0 bottom-0 w-px bg-primary pointer-events-none"
+                    data-snap-guide="x"
+                    style={{ left: `${gx * 100}%` }}
+                />
+            ))}
+            {snapGuides.y.map(gy => (
+                <div
+                    key={`gy-${gy}`}
+                    className="absolute left-0 right-0 h-px bg-primary pointer-events-none"
+                    data-snap-guide="y"
+                    style={{ top: `${gy * 100}%` }}
+                />
+            ))}
+        </>
+    );
+
     return (
         <div className={`${className ?? ''} relative`} style={style}>
             <canvas
@@ -949,6 +999,7 @@ export const PhotoCanvas = forwardRef<PhotoCanvasHandle, PhotoCanvasProps>(({
                 onPointerLeave={handlePointerUp}
             />
             {overlay}
+            {guideLines}
         </div>
     );
 });

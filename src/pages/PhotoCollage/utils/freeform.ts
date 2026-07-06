@@ -36,6 +36,58 @@ export const resolveFreeformFrames = (
     });
 };
 
+/** How close (fraction of canvas) an edge must be to a guide before it snaps. */
+export const SNAP_THRESHOLD = 0.008;
+
+export interface SnapResult {
+    x: number;
+    y: number;
+    guidesX: number[];
+    guidesY: number[];
+}
+
+/**
+ * Snaps a dragged frame onto alignment guides: canvas edges/center and the
+ * edges/centers of the other frames. Returns the adjusted position plus the
+ * guide lines that matched (for the visual overlay). Move-only — width and
+ * height are never changed.
+ */
+export const snapFreeformRect = (
+    rect: FreeformRect,
+    others: FreeformRect[],
+    threshold: number = SNAP_THRESHOLD
+): SnapResult => {
+    const candX = new Set<number>([0, 0.5, 1]);
+    const candY = new Set<number>([0, 0.5, 1]);
+    for (const o of others) {
+        candX.add(o.x); candX.add(o.x + o.width); candX.add(o.x + o.width / 2);
+        candY.add(o.y); candY.add(o.y + o.height); candY.add(o.y + o.height / 2);
+    }
+
+    const bestShift = (edges: number[], candidates: Set<number>) => {
+        let best: { delta: number; guide: number } | null = null;
+        for (const c of candidates) {
+            for (const e of edges) {
+                const delta = c - e;
+                if (Math.abs(delta) <= threshold && (!best || Math.abs(delta) < Math.abs(best.delta))) {
+                    best = { delta, guide: c };
+                }
+            }
+        }
+        return best;
+    };
+
+    const sx = bestShift([rect.x, rect.x + rect.width / 2, rect.x + rect.width], candX);
+    const sy = bestShift([rect.y, rect.y + rect.height / 2, rect.y + rect.height], candY);
+
+    return {
+        x: rect.x + (sx?.delta ?? 0),
+        y: rect.y + (sy?.delta ?? 0),
+        guidesX: sx ? [sx.guide] : [],
+        guidesY: sy ? [sy.guide] : [],
+    };
+};
+
 /** Inverse of resolveFreeformFrames — used when entering freeform mode to keep the current layout. */
 export const normalizeFrames = (
     frames: ImageFrame[],
