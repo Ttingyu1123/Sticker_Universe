@@ -543,6 +543,15 @@
           "背景替換"
         ]
       },
+      "printPreflight": {
+        "title": "印前檢查",
+        "desc": "AI 圖印刷前風險檢查：有效 DPI、銳利度、噪點與色偏",
+        "features": [
+          "有效 DPI 估算",
+          "1:1 實體尺寸模擬",
+          "店家報告匯出"
+        ]
+      },
       "gallery": {
         "title": "作品集",
         "desc": "統一管理所有創作，隨時查看和下載",
@@ -2512,5 +2521,121 @@
     "transparent": "透明",
     "uploadImage": "上傳圖片",
     "moreTools": "更多工具"
+  },
+  "printPreflight": {
+    "title": "印前檢查",
+    "disclaimer": "本工具是印刷前風險檢查，不保證實際印刷結果。正式輸出仍需依印刷店規格、紙材、ICC Profile、CMYK 轉換與打樣結果確認。",
+    "upload": {
+      "title": "上傳 AI 圖",
+      "hint": "PNG、JPG、WebP。先評估海報/名片/帆布輸出風險。",
+      "select": "選擇圖片",
+      "fromGallery": "從作品集選取",
+      "galleryImageName": "作品集圖片"
+    },
+    "settings": {
+      "title": "輸出設定",
+      "preset": "用途尺寸",
+      "custom": "自訂尺寸",
+      "width": "寬度 mm",
+      "height": "高度 mm",
+      "viewingDistance": "觀看距離",
+      "bleed": "出血 mm",
+      "fineDetail": "圖片內含小字或細線"
+    },
+    "distance": {
+      "handheld": "手持近看：名片、貼紙、照片",
+      "wall": "近距離牆面：A4、A3 掛畫",
+      "poster": "一般海報：A2、A1",
+      "large": "大圖輸出：帆布、看板"
+    },
+    "presets": {
+      "sticker": "貼紙",
+      "businessCard": "名片",
+      "postcard": "明信片",
+      "a4": "A4 海報",
+      "a3": "A3 海報",
+      "a2": "A2 海報",
+      "a1": "A1 海報",
+      "b2": "B2 海報",
+      "canvas": "帆布大圖"
+    },
+    "preview": {
+      "empty": "上傳圖片後會在這裡看到預覽與分數",
+      "simTitle": "1:1 實體尺寸模擬",
+      "simHint": "以螢幕約 96 DPI 估算，拖曳可平移檢視"
+    },
+    "info": {
+      "sourceSize": "原圖尺寸",
+      "targetOutput": "目標輸出",
+      "effectiveDpi": "有效 DPI",
+      "usage": "用途"
+    },
+    "status": {
+      "pending": "等待圖片",
+      "analyzing": "分析中…",
+      "good": "良好",
+      "warning": "注意",
+      "bad": "高風險"
+    },
+    "score": {
+      "title": "綜合評分",
+      "notEvaluated": "尚未評估"
+    },
+    "metrics": {
+      "dpi": {
+        "title": "有效 DPI（依輸出尺寸估算）",
+        "required": "需求",
+        "acceptable": "可接受",
+        "maxSize": "建議最大輸出",
+        "rotated": "以旋轉 90° 計算",
+        "hint": {
+          "good": "解析度足夠，此尺寸可放心送印。",
+          "warning": "解析度偏低，近看會偏軟，建議先放大（如 Upscayl）或縮小輸出尺寸。",
+          "bad": "解析度不足，印出來會明顯模糊，請改用更高解析度的圖或大幅縮小輸出尺寸。"
+        }
+      },
+      "sharpness": {
+        "title": "銳利度",
+        "hint": {
+          "good": "細節清晰，放大輸出仍可維持品質。",
+          "warning": "整體偏軟，建議檢查原圖是否經過放大或重新生成更高解析度版本。",
+          "bad": "影像明顯模糊，印刷後會更明顯，建議重新生成或更換素材。"
+        }
+      },
+      "noise": {
+        "title": "壓縮 / 噪點",
+        "hint": {
+          "good": "噪點與壓縮痕跡輕微，可直接送印。",
+          "warning": "有可見噪點或 JPEG 壓縮痕跡，建議用原始 PNG 或先降噪處理。",
+          "bad": "噪點/壓縮痕跡嚴重，印刷後會出現顆粒或色塊，請改用未壓縮的原圖。"
+        }
+      },
+      "gamut": {
+        "title": "CMYK 色偏風險估算",
+        "hint": {
+          "good": "高飽和色比例低，印刷色偏風險小。",
+          "warning": "含較多螢光感高飽和色，印出來會比螢幕暗沉，重要色請先與店家打樣確認。",
+          "bad": "大面積高飽和色（霓虹藍/紫/亮綠），CMYK 印刷會明顯變濁，建議調整配色或接受色差。"
+        }
+      }
+    },
+    "report": {
+      "title": "檢查報告",
+      "desc": "下載一份可交給印刷店或廣告店參考的數據摘要，包含有效 DPI、可印尺寸、風險項目與建議下一步。",
+      "download": "下載給店家看的報告",
+      "copyInquiry": "複製送印詢問文字",
+      "copied": "已複製到剪貼簿",
+      "copyFailed": "複製失敗"
+    },
+    "reportText": {
+      "header": "=== AI 圖印刷前檢查報告（前端估算）===",
+      "file": "檔案",
+      "withBleed": "含出血 {{bleed}}mm 為 {{w}} x {{h}} mm",
+      "footer": "注意：本報告為瀏覽器端估算，未包含 ICC Profile、CMYK 轉換與紙材差異，正式輸出請以印刷店打樣為準。",
+      "inquiry": "您好，想詢問輸出一張 {{w}} x {{h}} mm（出血 {{bleed}}mm）的圖，檔案是 {{pxW}} x {{pxH}} px 的 PNG/JPG，換算約 {{dpi}} DPI，請問這個解析度可以印嗎？需要另外調整或補出血嗎？"
+    },
+    "errors": {
+      "loadFailed": "圖片載入失敗，請確認檔案格式（PNG/JPG/WebP）"
+    }
   }
 }

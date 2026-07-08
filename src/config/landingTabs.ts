@@ -242,6 +242,14 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
                 titleKey: 'landing.tabs.idPhotoPrint.title',
                 descKey: 'landing.tabs.idPhotoPrint.desc',
                 featuresKey: 'landing.tabs.idPhotoPrint.features'
+            },
+            {
+                id: 'print-preflight',
+                icon: 'ScanSearch',
+                path: '/print-preflight',
+                titleKey: 'landing.tabs.printPreflight.title',
+                descKey: 'landing.tabs.printPreflight.desc',
+                featuresKey: 'landing.tabs.printPreflight.features'
             }
         ]
     },

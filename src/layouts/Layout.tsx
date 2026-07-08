@@ -34,6 +34,7 @@ export const Layout = () => {
     const getPageTitle = () => {
         const path = location.pathname;
         if (path.startsWith('/print-sheet')) return t('app.printSheet') || 'Print Studio';
+        if (path.startsWith('/print-preflight')) return t('printPreflight.title') || 'Print Preflight';
         if (path.startsWith('/generator')) return t('generator.title') || 'Generator';
         if (path.startsWith('/svg-converter')) return t('app.svgConverter') || 'SVG Magic';
         if (path.startsWith('/gallery')) return t('app.gallery') || 'Gallery';

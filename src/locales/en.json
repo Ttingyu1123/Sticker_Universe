@@ -454,6 +454,15 @@
         "desc": "Standard ID Specifications",
         "features": "Precise Sizing • Print Preview"
       },
+      "printPreflight": {
+        "title": "Print Preflight",
+        "desc": "Pre-print risk check for AI images: effective DPI, sharpness, noise, color shift",
+        "features": [
+          "Effective DPI estimate",
+          "1:1 physical size simulation",
+          "Print shop report export"
+        ]
+      },
       "gallery": {
         "title": "Gallery",
         "desc": "Manage Creative Output",
@@ -2423,6 +2432,122 @@
       "saveSomeFailed": "Failed to save some images.",
       "copied": "Copied to clipboard!",
       "copyFailed": "Copy failed"
+    }
+  },
+  "printPreflight": {
+    "title": "Print Preflight",
+    "disclaimer": "This tool is a pre-print risk check and does not guarantee actual print results. Final output still depends on your print shop's specs, paper stock, ICC profile, CMYK conversion, and proofing.",
+    "upload": {
+      "title": "Upload AI Image",
+      "hint": "PNG, JPG, WebP. Assess poster/card/canvas output risk before sending to print.",
+      "select": "Choose Image",
+      "fromGallery": "From Gallery",
+      "galleryImageName": "Gallery image"
+    },
+    "settings": {
+      "title": "Output Settings",
+      "preset": "Target Size",
+      "custom": "Custom size",
+      "width": "Width mm",
+      "height": "Height mm",
+      "viewingDistance": "Viewing Distance",
+      "bleed": "Bleed mm",
+      "fineDetail": "Image contains small text or thin lines"
+    },
+    "distance": {
+      "handheld": "Handheld: cards, stickers, photos",
+      "wall": "Close wall: A4, A3 prints",
+      "poster": "Poster: A2, A1",
+      "large": "Large format: canvas, signage"
+    },
+    "presets": {
+      "sticker": "Sticker",
+      "businessCard": "Business Card",
+      "postcard": "Postcard",
+      "a4": "A4 Poster",
+      "a3": "A3 Poster",
+      "a2": "A2 Poster",
+      "a1": "A1 Poster",
+      "b2": "B2 Poster",
+      "canvas": "Canvas Large Format"
+    },
+    "preview": {
+      "empty": "Upload an image to see the preview and score here",
+      "simTitle": "1:1 Physical Size Simulation",
+      "simHint": "Estimated at ~96 screen DPI; drag to pan"
+    },
+    "info": {
+      "sourceSize": "Source Size",
+      "targetOutput": "Target Output",
+      "effectiveDpi": "Effective DPI",
+      "usage": "Usage"
+    },
+    "status": {
+      "pending": "Waiting for image",
+      "analyzing": "Analyzing…",
+      "good": "Good",
+      "warning": "Caution",
+      "bad": "High Risk"
+    },
+    "score": {
+      "title": "Overall Score",
+      "notEvaluated": "Not evaluated"
+    },
+    "metrics": {
+      "dpi": {
+        "title": "Effective DPI (for target size)",
+        "required": "Required",
+        "acceptable": "Acceptable",
+        "maxSize": "Max recommended output",
+        "rotated": "computed with 90° rotation",
+        "hint": {
+          "good": "Resolution is sufficient — safe to print at this size.",
+          "warning": "Resolution is on the low side; it will look soft up close. Upscale first (e.g. Upscayl) or reduce the output size.",
+          "bad": "Not enough resolution — the print will be visibly blurry. Use a higher-resolution image or print much smaller."
+        }
+      },
+      "sharpness": {
+        "title": "Sharpness",
+        "hint": {
+          "good": "Details are crisp and will hold up at print size.",
+          "warning": "Overall soft; check whether the source was upscaled, or regenerate at higher resolution.",
+          "bad": "Visibly blurry — printing will make it worse. Regenerate or replace the image."
+        }
+      },
+      "noise": {
+        "title": "Compression / Noise",
+        "hint": {
+          "good": "Noise and compression artifacts are minimal — good to print.",
+          "warning": "Visible noise or JPEG artifacts; use the original PNG or denoise first.",
+          "bad": "Heavy noise/compression artifacts will show as grain or banding in print. Use an uncompressed original."
+        }
+      },
+      "gamut": {
+        "title": "CMYK Color Shift Risk",
+        "hint": {
+          "good": "Few highly saturated colors — low risk of visible color shift.",
+          "warning": "Contains neon-like saturated colors that will print duller than on screen. Proof critical colors with your print shop.",
+          "bad": "Large areas of highly saturated color (neon blue/purple/green) will turn muddy in CMYK. Adjust the palette or accept the shift."
+        }
+      }
+    },
+    "report": {
+      "title": "Check Report",
+      "desc": "Download a data summary you can hand to your print shop, including effective DPI, printable size, risk items, and suggested next steps.",
+      "download": "Download report for print shop",
+      "copyInquiry": "Copy print inquiry text",
+      "copied": "Copied to clipboard",
+      "copyFailed": "Copy failed"
+    },
+    "reportText": {
+      "header": "=== AI Image Print Preflight Report (browser estimate) ===",
+      "file": "File",
+      "withBleed": "{{w}} x {{h}} mm including {{bleed}}mm bleed",
+      "footer": "Note: this report is a browser-side estimate and does not cover ICC profiles, CMYK conversion, or paper stock. Confirm with a proof from your print shop.",
+      "inquiry": "Hi, I'd like to print an image at {{w}} x {{h}} mm ({{bleed}}mm bleed). The file is {{pxW}} x {{pxH}} px PNG/JPG, roughly {{dpi}} DPI at that size. Is this resolution OK to print, and do I need to adjust anything or add bleed?"
+    },
+    "errors": {
+      "loadFailed": "Failed to load image. Please check the file format (PNG/JPG/WebP)."
     }
   }
 }
