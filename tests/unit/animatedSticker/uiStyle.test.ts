@@ -53,4 +53,10 @@ describe('animated sticker page readability', () => {
         expect(complianceSource).toContain('loopCount');
         expect(complianceSource).toContain('hasTransparency');
     });
+
+    it('reminds users about the two additional images required for submission', () => {
+        expect(appSource).toContain("t('animatedSticker.submissionReminderTitle')");
+        expect(appSource).toContain("t('animatedSticker.mainImageRequirement')");
+        expect(appSource).toContain("t('animatedSticker.tabImageRequirement')");
+    });
 });

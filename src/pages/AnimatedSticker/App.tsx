@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import {
+    BadgeInfo,
     Check,
     Download,
     FileVideo2,
@@ -538,6 +539,30 @@ const AnimatedStickerApp = () => {
                             >
                                 <Package size={18} /> {t('animatedSticker.downloadZip')}
                             </button>
+                        </div>
+                    </div>
+
+                    <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-secondary-hover/70 bg-secondary/35 p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-start gap-3">
+                            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-primary/15 bg-white text-primary shadow-sm">
+                                <BadgeInfo size={19} />
+                            </div>
+                            <div>
+                                <p className="text-sm font-black text-bronze-text">
+                                    {t('animatedSticker.submissionReminderTitle')}
+                                </p>
+                                <p className="mt-1 text-xs font-medium leading-5 text-bronze-light">
+                                    {t('animatedSticker.submissionReminderHint')}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="grid shrink-0 gap-2 sm:grid-cols-2">
+                            <div className="rounded-xl border border-cream-dark bg-cream-light px-3 py-2 text-sm font-black text-bronze-text shadow-sm">
+                                {t('animatedSticker.mainImageRequirement')}
+                            </div>
+                            <div className="rounded-xl border border-cream-dark bg-cream-light px-3 py-2 text-sm font-black text-bronze-text shadow-sm">
+                                {t('animatedSticker.tabImageRequirement')}
+                            </div>
                         </div>
                     </div>
 
