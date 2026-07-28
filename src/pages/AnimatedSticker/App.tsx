@@ -28,6 +28,7 @@ import {
     saveStickerBackgroundColor,
 } from '../../features/sprite-sheet-generator/backgroundColor';
 import { StickerResultCard } from './components/StickerResultCard';
+import { MainImageMaker } from './components/MainImageMaker';
 import { VideoBoardPreview } from './components/VideoBoardPreview';
 import type {
     AnimatedStickerResult,
@@ -567,11 +568,14 @@ const AnimatedStickerApp = () => {
                     </div>
 
                     {results.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-                            {results.map((result) => (
-                                <StickerResultCard key={result.index} result={result} onDownload={handleDownloadOne} />
-                            ))}
-                        </div>
+                        <>
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                                {results.map((result) => (
+                                    <StickerResultCard key={result.index} result={result} onDownload={handleDownloadOne} />
+                                ))}
+                            </div>
+                            <MainImageMaker results={results} />
+                        </>
                     ) : (
                         <div className="grid min-h-64 place-items-center rounded-3xl border border-dashed border-cream-dark bg-cream-light p-8 text-center">
                             <div>

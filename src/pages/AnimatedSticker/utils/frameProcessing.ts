@@ -116,6 +116,82 @@ export const getContainRect = (
     };
 };
 
+export const getSquareCropRect = (
+    sourceWidth: number,
+    sourceHeight: number,
+    position = 0.5,
+): GridCellRect => {
+    const width = Math.max(1, sourceWidth);
+    const height = Math.max(1, sourceHeight);
+    const size = Math.min(width, height);
+    const safePosition = Math.max(0, Math.min(1, position));
+
+    return {
+        x: (width - size) * safePosition,
+        y: (height - size) * safePosition,
+        width: size,
+        height: size,
+    };
+};
+
+export const resizeSquareRgbaFrame = (
+    frame: Uint8ClampedArray,
+    sourceWidth: number,
+    sourceHeight: number,
+    targetSize: number,
+    position = 0.5,
+): Uint8ClampedArray => {
+    const width = Math.max(1, Math.round(sourceWidth));
+    const height = Math.max(1, Math.round(sourceHeight));
+    const size = Math.max(1, Math.round(targetSize));
+    if (frame.length !== width * height * 4) {
+        throw new RangeError('RGBA frame dimensions do not match its pixel data.');
+    }
+
+    const crop = getSquareCropRect(width, height, position);
+    const scale = crop.width / size;
+    const output = new Uint8ClampedArray(size * size * 4);
+
+    for (let targetY = 0; targetY < size; targetY += 1) {
+        const sourceY = Math.max(0, Math.min(height - 1, crop.y + (targetY + 0.5) * scale - 0.5));
+        const y0 = Math.floor(sourceY);
+        const y1 = Math.min(height - 1, y0 + 1);
+        const yWeight = sourceY - y0;
+
+        for (let targetX = 0; targetX < size; targetX += 1) {
+            const sourceX = Math.max(0, Math.min(width - 1, crop.x + (targetX + 0.5) * scale - 0.5));
+            const x0 = Math.floor(sourceX);
+            const x1 = Math.min(width - 1, x0 + 1);
+            const xWeight = sourceX - x0;
+            const samples = [
+                { offset: (y0 * width + x0) * 4, weight: (1 - xWeight) * (1 - yWeight) },
+                { offset: (y0 * width + x1) * 4, weight: xWeight * (1 - yWeight) },
+                { offset: (y1 * width + x0) * 4, weight: (1 - xWeight) * yWeight },
+                { offset: (y1 * width + x1) * 4, weight: xWeight * yWeight },
+            ];
+            const outputOffset = (targetY * size + targetX) * 4;
+            const alpha = samples.reduce(
+                (total, sample) => total + (frame[sample.offset + 3] / 255) * sample.weight,
+                0,
+            );
+
+            for (let channel = 0; channel < 3; channel += 1) {
+                const premultiplied = samples.reduce(
+                    (total, sample) => total
+                        + frame[sample.offset + channel]
+                        * (frame[sample.offset + 3] / 255)
+                        * sample.weight,
+                    0,
+                );
+                output[outputOffset + channel] = alpha > 0 ? Math.round(premultiplied / alpha) : 0;
+            }
+            output[outputOffset + 3] = Math.round(alpha * 255);
+        }
+    }
+
+    return output;
+};
+
 export const parseHexColor = (value: string): RgbColor => {
     const normalized = value.trim().replace(/^#/, '');
     if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return { r: 255, g: 255, b: 255 };

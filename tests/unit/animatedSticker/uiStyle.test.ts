@@ -59,4 +59,9 @@ describe('animated sticker page readability', () => {
         expect(appSource).toContain("t('animatedSticker.mainImageRequirement')");
         expect(appSource).toContain("t('animatedSticker.tabImageRequirement')");
     });
+
+    it('offers an integrated 240x240 APNG main-image maker', () => {
+        expect(appSource).toContain("from './components/MainImageMaker'");
+        expect(appSource).toContain('<MainImageMaker results={results}');
+    });
 });

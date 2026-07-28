@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import * as frameProcessing from '../../../src/pages/AnimatedSticker/utils/frameProcessing';
 import {
     applyChromaKey,
     calculateStabilizationOffsets,
@@ -50,6 +51,49 @@ describe('animated sticker 4x2 full-canvas geometry', () => {
 
     it('samples frames evenly while excluding the duplicate end point', () => {
         expect(getSampleTimes(1, 3, 4)).toEqual([1, 1.5, 2, 2.5]);
+    });
+
+    it('creates a positionable square crop for the 240x240 main image', () => {
+        const cropper = (frameProcessing as typeof frameProcessing & {
+            getSquareCropRect?: (width: number, height: number, position: number) => {
+                x: number;
+                y: number;
+                width: number;
+                height: number;
+            };
+        }).getSquareCropRect;
+
+        expect(cropper).toBeTypeOf('function');
+        expect(cropper?.(320, 270, 0)).toEqual({ x: 0, y: 0, width: 270, height: 270 });
+        expect(cropper?.(320, 270, 0.5)).toEqual({ x: 25, y: 0, width: 270, height: 270 });
+        expect(cropper?.(320, 270, 1)).toEqual({ x: 50, y: 0, width: 270, height: 270 });
+    });
+
+    it('crops and resizes RGBA pixels using the selected main-image position', () => {
+        const resize = (frameProcessing as typeof frameProcessing & {
+            resizeSquareRgbaFrame?: (
+                frame: Uint8ClampedArray,
+                width: number,
+                height: number,
+                targetSize: number,
+                position: number,
+            ) => Uint8ClampedArray;
+        }).resizeSquareRgbaFrame;
+        const frame = new Uint8ClampedArray(4 * 2 * 4);
+        for (let y = 0; y < 2; y += 1) {
+            for (let x = 0; x < 4; x += 1) {
+                const offset = (y * 4 + x) * 4;
+                frame[offset] = x * 10;
+                frame[offset + 3] = 255;
+            }
+        }
+
+        expect(resize).toBeTypeOf('function');
+        const output = resize?.(frame, 4, 2, 2, 1);
+        expect(Array.from(output ?? [])).toEqual([
+            20, 0, 0, 255, 30, 0, 0, 255,
+            20, 0, 0, 255, 30, 0, 0, 255,
+        ]);
     });
 });
 
