@@ -182,7 +182,7 @@ export default async function handler(req: any, res: any) {
             return;
         }
 
-        const payload = await response.json();
+        const payload = await response.json() as any;
         const imageBase64 = payload.data?.[0]?.b64_json;
 
         if (!imageBase64) {

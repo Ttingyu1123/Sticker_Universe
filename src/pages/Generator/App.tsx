@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import {
-  Calendar, Sparkles, Key, FileArchive, Download, Scissors, User, BookOpen, Heart, ZoomIn, Clock, Copy, FileText
+  Calendar, Sparkles, Key, FileArchive, Download, Scissors, User, BookOpen, Heart, ZoomIn, Clock, Copy, FileText, PanelsTopLeft
 } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveStickerToDB } from '../../db';
@@ -22,13 +23,15 @@ import GreetingCardTab from './components/GreetingCardTab';
 import MangaMasterTab from './components/MangaMasterTab';
 import PortraitMasterTab from './components/PortraitMasterTab';
 import CharacterCreateTab from './components/CharacterCreateTab';
+import SpriteSheetGeneratorTab from '../../features/sprite-sheet-generator/SpriteSheetGeneratorTab';
 
-const TAB_IDS = ['sticker', 'holiday', 'greeting', 'image-gen', 'cinematic', 'headshot', 'manga', 'portrait', 'character-create'] as const;
+const TAB_IDS = ['sticker', 'holiday', 'greeting', 'image-gen', 'cinematic', 'headshot', 'manga', 'portrait', 'character-create', 'sprite-sheet'] as const;
 type TabId = typeof TAB_IDS[number];
 
 const App: React.FC = () => {
   const { t } = useTranslation();
   const { showToast } = useToast();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<TabId>('sticker');
   const [providerKeys, setProviderKeys] = useState<Record<AiProvider, string>>({ gemini: '', openai: '' });
   const [tabProviders, setTabProviders] = useState<Record<TabId, AiProvider>>(
@@ -76,6 +79,7 @@ const App: React.FC = () => {
 
     if (openAiStored) {
       setTabProvider('image-gen', 'openai');
+      setTabProvider('sprite-sheet', 'openai');
       syncKeyModalState('openai', nextKeys);
       setShowKeyModal(true);
       return;
@@ -84,6 +88,13 @@ const App: React.FC = () => {
     syncKeyModalState('gemini', nextKeys);
     setShowKeyModal(true);
   }, []);
+
+  useEffect(() => {
+    const requestedTab = new URLSearchParams(location.search).get('tab');
+    if (requestedTab && TAB_IDS.includes(requestedTab as TabId)) {
+      setActiveTab(requestedTab as TabId);
+    }
+  }, [location.search]);
 
   // Persistent History for Image Gen
   useEffect(() => {
@@ -445,13 +456,20 @@ const App: React.FC = () => {
         {/* Tab Navigation */}
         <div className="flex flex-col gap-3 bg-cream backdrop-blur rounded-[2rem] p-3 sm:p-4 border border-cream-dark shadow-sm">
           {/* Tabs - Grid Layout for Better Visibility */}
-          <div className="grid grid-cols-4 sm:grid-cols-9 gap-2">
+          <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-10 gap-2">
             <button
               onClick={() => setActiveTab('image-gen')}
               className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'image-gen' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
             >
               <Sparkles size={18} className="sm:w-4 sm:h-4" />
               <span className="text-center leading-tight">{t('generator.tabs.imageGen')}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('sprite-sheet')}
+              className={`px-2 py-2 rounded-xl text-sm font-black transition-all flex flex-col items-center justify-center gap-1 h-20 sm:h-auto sm:flex-row ${activeTab === 'sprite-sheet' ? 'bg-primary text-white shadow-md' : 'bg-white/80 text-bronze-light hover:text-bronze-text hover:bg-white border border-cream-dark/30'}`}
+            >
+              <PanelsTopLeft size={18} className="sm:w-4 sm:h-4" />
+              <span className="text-center leading-tight">{t('spriteSheet.navTitle')}</span>
             </button>
             <button
               onClick={() => setActiveTab('sticker')}
@@ -534,7 +552,14 @@ const App: React.FC = () => {
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
           >
-            {activeTab === 'sticker' ? (
+            {activeTab === 'sprite-sheet' ? (
+              <SpriteSheetGeneratorTab
+                provider={tabProviders['sprite-sheet']}
+                apiKeys={providerKeys}
+                onProviderChange={(p) => setTabProvider('sprite-sheet', p)}
+                onNeedApiKey={handleOpenKeyModal}
+              />
+            ) : activeTab === 'sticker' ? (
               <StyleStickerTab
                 provider={tabProviders.sticker}
                 apiKeys={providerKeys}

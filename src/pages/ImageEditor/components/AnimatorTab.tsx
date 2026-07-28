@@ -11,6 +11,7 @@ import { useModalA11y } from '../../../hooks/useModalA11y';
 import UPNG from 'upng-js';
 import GIF from 'gif.js';
 import { toPng } from 'html-to-image';
+import { Link } from 'react-router-dom';
 import { LayerCanvas, LayerProperties } from '../../../features/animator-core';
 import type { Layer, AnimationType } from '../../../features/animator-core';
 // import { v4 as uuidv4 } from 'uuid'; 
@@ -297,6 +298,12 @@ const AnimatorTab = () => {
                     </span>
                 </div>
                 <div className="flex gap-2">
+                    <Link
+                        to="/animated-sticker"
+                        className="px-3 py-1.5 bg-bronze-text text-white rounded-lg hover:bg-primary-hover font-bold flex items-center gap-2 border border-bronze-text text-sm shadow-sm transition-colors"
+                    >
+                        <Video size={16} /> {t('animatedSticker.openVideoCutter')}
+                    </Link>
                     <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} title="Upload" />
                     <button onClick={() => setShowGallery(true)} className="px-3 py-1.5 bg-white text-bronze-light rounded-lg hover:bg-cream-light hover:text-primary font-bold flex items-center gap-2 border border-cream-dark text-sm shadow-sm transition-colors">
                         <ImageIcon size={16} /> {t('animator.sticker')}

@@ -73,6 +73,15 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
                 featuresKey: 'landing.tabs.characterCreate.features'
             },
             {
+                id: 'sprite-sheet-generator',
+                icon: 'PanelsTopLeft',
+                path: '/generator',
+                tab: 'sprite-sheet',
+                titleKey: 'landing.tabs.spriteSheetGenerator.title',
+                descKey: 'landing.tabs.spriteSheetGenerator.desc',
+                featuresKey: 'landing.tabs.spriteSheetGenerator.features'
+            },
+            {
                 id: 'cinematic-poster',
                 icon: 'Film',
                 path: '/generator',
@@ -139,8 +148,7 @@ export const LANDING_CATEGORIES: CategoryConfig[] = [
             {
                 id: 'animator',
                 icon: 'Video',
-                path: '/image-editor',
-                tab: 'animator',
+                path: '/animated-sticker',
                 titleKey: 'landing.tabs.animator.title',
                 descKey: 'landing.tabs.animator.desc',
                 featuresKey: 'landing.tabs.animator.features'

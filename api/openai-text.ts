@@ -3,7 +3,9 @@ import { rejectBadOrigin, clampNumber, exceedsLength } from './_guard';
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
 
 const ALLOWED_MODELS = new Set(['gpt-5-mini', 'gpt-5-nano']);
-const MAX_INPUT_LENGTH = 64_000;
+// Multimodal planning requests include a browser-compressed reference image.
+// Keep this below typical serverless body limits while allowing a 1024px JPEG data URL.
+const MAX_INPUT_LENGTH = 2_500_000;
 const MAX_INSTRUCTIONS_LENGTH = 16_000;
 const MAX_OUTPUT_TOKENS_CAP = 4096;
 

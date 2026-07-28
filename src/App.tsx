@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Navigate, Routes, Route, useLocation } from 'react-router-dom';
 import { Layout } from './layouts/Layout';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
@@ -15,6 +15,7 @@ const ImageEditorApp = React.lazy(() => import('./pages/ImageEditor/App'));
 const PhotoCollageApp = React.lazy(() => import('./pages/PhotoCollage/App'));
 const DrawingStudioApp = React.lazy(() => import('./pages/DrawingStudio/App'));
 const PrintPreflightApp = React.lazy(() => import('./pages/PrintPreflight/App'));
+const AnimatedStickerApp = React.lazy(() => import('./pages/AnimatedSticker/App'));
 
 const Loading = () => (
     <div className="flex items-center justify-center min-h-[50vh]">
@@ -72,6 +73,16 @@ function App() {
                         <PageRoute className="p-6 max-w-[1920px] mx-auto">
                             <ImageEditorApp />
                         </PageRoute>
+                    } />
+
+                    <Route path="/animated-sticker" element={
+                        <PageRoute>
+                            <AnimatedStickerApp />
+                        </PageRoute>
+                    } />
+
+                    <Route path="/sprite-sheet-generator" element={
+                        <Navigate to="/generator?tab=sprite-sheet" replace />
                     } />
 
                     <Route path="/photo-collage/*" element={

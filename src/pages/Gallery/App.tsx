@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Trash2, Download, Image as ImageIcon, Search, FileArchive, Palette, Layers, MoreHorizontal, CheckCircle2, Circle, Upload, FileText, X, Maximize2, Share2, Copy, Grid2X2 } from 'lucide-react';
+import { Trash2, Download, Image as ImageIcon, Search, FileArchive, Palette, Layers, MoreHorizontal, CheckCircle2, Circle, Upload, FileText, X, Maximize2, Share2, Copy, Grid2X2, BrainCircuit, ArrowRight } from 'lucide-react';
 import { getAllStickersFromDB, deleteStickerFromDB, clearAllStickersFromDB, saveStickerToDB } from '../../db';
 import type { Sticker } from '../../shared/types/sticker';
 import JSZip from 'jszip';
@@ -28,6 +28,7 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [showOverlay, setShowOverlay] = useState(false);
+    const isStickerPlan = sticker.project?.type === 'sprite-sheet-plan';
 
     // Toggle overlay on click for mobile devices (only if NOT in selection mode)
     const handleCardClick = () => {
@@ -46,6 +47,7 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
         >
             <div className="aspect-square bg-cream-light/50 rounded-xl overflow-hidden relative" style={{ backgroundImage: 'radial-gradient(#d6ccc2 1px, transparent 1px)', backgroundSize: '8px 8px' }}>
                 <img src={sticker.imageUrl} alt={sticker.phrase} className="w-full h-full object-contain p-4" loading="lazy" />
+                {isStickerPlan && <div className="absolute left-2 top-2 flex items-center gap-1.5 rounded-full border border-primary/15 bg-white/90 px-2.5 py-1.5 text-xs font-black text-primary shadow-sm backdrop-blur"><BrainCircuit size={13} /> {t('gallery.stickerPlanBadge')}</div>}
 
                 {/* Selection Indicator (Visible in Selection Mode) */}
                 {isSelectionMode && (
@@ -72,7 +74,10 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
                 {/* Overlay Actions (Only if NOT in selection mode) */}
                 {!isSelectionMode && (
                     <div className={`absolute inset-0 bg-bronze-text/80 backdrop-blur-[2px] transition-all duration-300 flex flex-col items-center justify-center gap-3 p-4 z-10 ${showOverlay ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto'}`}>
-                        <div className="flex items-center gap-2">
+                        {isStickerPlan ? <button
+                            onClick={(e) => { e.stopPropagation(); navigate(`/generator?tab=sprite-sheet&plan=${encodeURIComponent(sticker.id)}`); }}
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-3 text-sm font-black text-bronze-text shadow-lg transition-all hover:bg-secondary-hover"
+                        ><BrainCircuit size={17} /> {t('gallery.continueStickerPlan')} <ArrowRight size={15} /></button> : <><div className="flex items-center gap-2">
                             <button
                                 onClick={(e) => { e.stopPropagation(); navigate('/image-editor', { state: { image: sticker.imageUrl, tab: 'smart-remove' } }); }}
                                 className="px-3 py-1.5 bg-white/10 hover:bg-white text-white hover:text-bronze-text rounded-lg text-[10px] font-bold backdrop-blur-md transition-all border border-white/20 flex items-center gap-1.5 w-full justify-center"
@@ -87,8 +92,8 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
                             >
                                 <Layers size={12} /> {t('editor.tabs.packager')}
                             </button>
-                        </div>
-                        {sticker.collageProjectId && (
+                        </div></>}
+                        {!isStickerPlan && sticker.collageProjectId && (
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={(e) => { e.stopPropagation(); navigate(`/photo-collage?project=${sticker.collageProjectId}`); }}
@@ -189,6 +194,7 @@ const StickerCard: React.FC<StickerCardProps> = ({ sticker, onDelete, onDownload
 const App = () => {
     const { t } = useTranslation();
     const { showToast } = useToast();
+    const navigate = useNavigate();
     const [stickers, setStickers] = useState<Sticker[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -489,9 +495,11 @@ const App = () => {
         setIsSelectionMode(false);
     };
 
-    const filteredStickers = stickers.filter(s =>
-        s.phrase.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredStickers = stickers.filter((sticker) => {
+        const query = searchTerm.toLowerCase();
+        return sticker.phrase.toLowerCase().includes(query)
+            || sticker.description?.toLowerCase().includes(query);
+    });
 
 
 
@@ -732,6 +740,10 @@ const App = () => {
                                 </div>
 
                                 <div className="p-6 border-t border-cream-dark bg-white shrink-0 flex flex-wrap justify-end gap-3">
+                                    {viewingSticker.project?.type === 'sprite-sheet-plan' && <button
+                                        onClick={() => navigate(`/generator?tab=sprite-sheet&plan=${encodeURIComponent(viewingSticker.id)}`)}
+                                        className="mr-auto flex items-center gap-2 rounded-xl bg-secondary px-4 py-2 text-sm font-black text-bronze-text shadow-sm transition-colors hover:bg-secondary-hover"
+                                    ><BrainCircuit size={16} /> {t('gallery.continueStickerPlan')} <ArrowRight size={15} /></button>}
                                     <button
                                         onClick={() => handleCopyText(viewingSticker)}
                                         className="px-3 py-2 bg-cream hover:bg-cream-dark text-bronze-text rounded-xl font-bold text-sm transition-all flex items-center gap-2"

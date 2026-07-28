@@ -1,0 +1,59 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
+const source = readFileSync(
+    resolve(process.cwd(), 'src/features/sprite-sheet-generator/SpriteSheetGeneratorTab.tsx'),
+    'utf8',
+);
+const gallerySource = readFileSync(
+    resolve(process.cwd(), 'src/pages/Gallery/App.tsx'),
+    'utf8',
+);
+
+describe('sprite sheet page readability', () => {
+    it('does not use sub-12px utility text in the page UI', () => {
+        expect(source).not.toMatch(/text-\[(?:9|10|11)px\]/);
+    });
+
+    it('alternates mint-ice and cream surfaces for visible panel contrast', () => {
+        expect(source).toContain('border border-cream-dark bg-cream-light');
+        expect(source).toContain('border border-cream-dark bg-cream');
+    });
+
+    it('enlarges the shared provider switcher only within this page', () => {
+        expect(source).toContain('[&_button]:text-sm');
+        expect(source).toContain('[&_button]:py-3');
+    });
+
+    it('shows the AI background-color recommendation in art direction', () => {
+        expect(source).toContain("t('spriteSheet.backgroundAiRecommended')");
+        expect(source).toContain('backgroundRecommendation.reason');
+    });
+
+    it('draws the generated-image guide over all eight full-canvas cells', () => {
+        expect(source).not.toContain('left-[5%] top-[16.25%]');
+        expect(source).toContain('absolute inset-0 grid grid-cols-4 grid-rows-2');
+    });
+
+    it('auto-saves an editable draft after planning changes', () => {
+        expect(source).toContain('SPRITE_SHEET_DRAFT_ID');
+        expect(source).toContain('createSpriteSheetPlanGalleryItem');
+        expect(source).toContain("t('spriteSheet.draftSaved')");
+    });
+
+    it('lets a saved text plan resume from Gallery', () => {
+        expect(gallerySource).toContain("sticker.project?.type === 'sprite-sheet-plan'");
+        expect(gallerySource).toContain('tab=sprite-sheet&plan=');
+        expect(gallerySource).toContain("t('gallery.continueStickerPlan')");
+    });
+
+    it('lets a completed batch be selected, regenerated, or re-planned in place', () => {
+        expect(source).toContain('editingBatchIndex');
+        expect(source).toContain('handleSelectBatch');
+        expect(source).toContain('replaceStickerBatch');
+        expect(source).toContain('getSeriesConceptsExcludingBatch');
+        expect(source).toContain("t('spriteSheet.regenerateBatchImage'");
+        expect(source).toContain("t('spriteSheet.replanBatch'");
+    });
+});

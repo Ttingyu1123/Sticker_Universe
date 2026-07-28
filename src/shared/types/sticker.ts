@@ -7,4 +7,9 @@ export interface Sticker {
     timestamp: number;
     description?: string;
     collageProjectId?: string; // links back to a re-editable PhotoCollage project
+    project?: {
+        type: string;
+        version: number;
+        data: unknown;
+    };
 }

@@ -1,0 +1,102 @@
+import { describe, expect, it } from 'vitest';
+import {
+    applyChromaKey,
+    calculateStabilizationOffsets,
+    DEFAULT_GRID_CALIBRATION,
+    getCombinedOpaqueBounds,
+    getGridCellRect,
+    getOpaqueBounds,
+    getSampleTimes,
+    setGridGuide,
+    parseHexColor,
+    shiftRgbaFrame,
+    STICKER_COUNT,
+} from '../../../src/pages/AnimatedSticker/utils/frameProcessing';
+
+const createFrame = (width: number, height: number, x: number, y: number) => {
+    const frame = new Uint8ClampedArray(width * height * 4);
+    const offset = (y * width + x) * 4;
+    frame[offset] = 40;
+    frame[offset + 1] = 80;
+    frame[offset + 2] = 120;
+    frame[offset + 3] = 255;
+    return frame;
+};
+
+describe('animated sticker 4x2 full-canvas geometry', () => {
+    it('uses the LINE-supported 8-sticker count', () => {
+        expect(STICKER_COUNT).toBe(8);
+    });
+
+    it('cuts the complete 720p canvas into eight exact 320x360 cells', () => {
+        expect(getGridCellRect(1280, 720, 0)).toEqual({ x: 0, y: 0, width: 320, height: 360 });
+        expect(getGridCellRect(1280, 720, 7)).toEqual({ x: 960, y: 360, width: 320, height: 360 });
+    });
+
+    it('uses movable guide ratios for non-uniform Grok video cells', () => {
+        const calibration = {
+            columnGuides: [0.23, 0.49, 0.76] as [number, number, number],
+            rowGuide: 0.53,
+        };
+        expect(getGridCellRect(1000, 500, 0, calibration)).toEqual({ x: 0, y: 0, width: 230, height: 265 });
+        expect(getGridCellRect(1000, 500, 7, calibration)).toEqual({ x: 760, y: 265, width: 240, height: 235 });
+    });
+
+    it('keeps dragged guides ordered with enough room for every cell', () => {
+        expect(setGridGuide(DEFAULT_GRID_CALIBRATION, 'column', 0, 0.49).columnGuides[0]).toBe(0.42);
+        expect(setGridGuide(DEFAULT_GRID_CALIBRATION, 'column', 2, 0.51).columnGuides[2]).toBe(0.58);
+        expect(setGridGuide(DEFAULT_GRID_CALIBRATION, 'row', 0, 0.99).rowGuide).toBe(0.92);
+    });
+
+    it('samples frames evenly while excluding the duplicate end point', () => {
+        expect(getSampleTimes(1, 3, 4)).toEqual([1, 1.5, 2, 2.5]);
+    });
+});
+
+describe('animated sticker background removal', () => {
+    it('parses a six-digit key color', () => {
+        expect(parseHexColor('#11aaFF')).toEqual({ r: 17, g: 170, b: 255 });
+    });
+
+    it('makes matching background pixels transparent while preserving the subject', () => {
+        const rgba = new Uint8ClampedArray([
+            255, 255, 255, 255,
+            20, 30, 40, 255,
+        ]);
+        const keyed = applyChromaKey(rgba, { r: 255, g: 255, b: 255 }, 20);
+        expect(keyed[3]).toBe(0);
+        expect(keyed[7]).toBe(255);
+    });
+});
+
+describe('animated sticker stabilization', () => {
+    it('finds the visible silhouette bounds from alpha', () => {
+        const frame = createFrame(6, 6, 4, 3);
+        expect(getOpaqueBounds(frame, 6, 6)).toEqual({ left: 4, top: 3, right: 4, bottom: 3 });
+    });
+
+    it('uses one union silhouette for all frames so animation scale stays stable', () => {
+        const frames = [createFrame(6, 6, 1, 2), createFrame(6, 6, 4, 5)];
+        expect(getCombinedOpaqueBounds(frames, 6, 6)).toEqual({
+            left: 1,
+            top: 2,
+            right: 4,
+            bottom: 5,
+        });
+    });
+
+    it('calculates bounded corrections toward the median anchor', () => {
+        const frames = [createFrame(8, 8, 2, 2), createFrame(8, 8, 6, 6)];
+        expect(calculateStabilizationOffsets(frames, 8, 8, 1, 18)).toEqual([
+            { x: 2, y: 2 },
+            { x: -2, y: -2 },
+        ]);
+    });
+
+    it('moves RGBA pixels without wrapping at canvas edges', () => {
+        const frame = createFrame(4, 4, 1, 1);
+        const shifted = shiftRgbaFrame(frame, 4, 4, { x: 1, y: 2 });
+        expect(shifted[(3 * 4 + 2) * 4 + 3]).toBe(255);
+        expect(shifted[(1 * 4 + 1) * 4 + 3]).toBe(0);
+    });
+});

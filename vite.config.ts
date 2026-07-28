@@ -1,13 +1,54 @@
 import { defineConfig } from 'vite'
+import type { Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
+import openAiImageHandler from './api/openai-image'
+import openAiTextHandler from './api/openai-text'
 
 // https://vitejs.dev/config/
 import { VitePWA } from 'vite-plugin-pwa'
 
+type LocalApiHandler = (req: unknown, res: unknown) => Promise<void>;
+
+interface LocalApiResponse {
+    status: (statusCode: number) => LocalApiResponse;
+    json: (payload: unknown) => void;
+}
+
+const localVercelApiPlugin = (): Plugin => ({
+    name: 'local-vercel-api-functions',
+    apply: 'serve',
+    configureServer(server) {
+        const registerHandler = (route: string, handler: LocalApiHandler) => {
+            server.middlewares.use(route, async (req, res, next) => {
+                const apiResponse: LocalApiResponse = {
+                    status(statusCode) {
+                        res.statusCode = statusCode;
+                        return apiResponse;
+                    },
+                    json(payload) {
+                        if (!res.headersSent) res.setHeader('Content-Type', 'application/json; charset=utf-8');
+                        res.end(JSON.stringify(payload));
+                    },
+                };
+
+                try {
+                    await handler(req, apiResponse);
+                } catch (error) {
+                    if (!res.writableEnded) next(error);
+                }
+            });
+        };
+
+        registerHandler('/api/openai-image', openAiImageHandler);
+        registerHandler('/api/openai-text', openAiTextHandler);
+    },
+});
+
 export default defineConfig({
     plugins: [
+        localVercelApiPlugin(),
         react(),
         tailwindcss(),
         VitePWA({

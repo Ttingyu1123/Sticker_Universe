@@ -3,6 +3,9 @@ const getErrorMessage = async (response: Response) => {
         const payload = await response.json();
         return payload.error?.message || payload.message || `OpenAI request failed (${response.status})`;
     } catch {
+        if (response.status === 404) {
+            return 'OpenAI image proxy endpoint is unavailable (404). Restart `npm run dev` so the local API middleware is loaded.';
+        }
         return `OpenAI request failed (${response.status})`;
     }
 };
