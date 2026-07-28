@@ -63,14 +63,20 @@ export const encodeAnimatedPng = (
     durationMs: number,
     colorCount: number,
 ): { buffer: ArrayBuffer; loopCount: number } => {
-    const frameDelay = durationMs / frames.length;
+    const roundedDurationMs = Math.round(durationMs);
+    const baseFrameDelay = Math.floor(roundedDurationMs / frames.length);
+    const remainder = roundedDurationMs % frames.length;
+    const frameDelays = Array.from(
+        { length: frames.length },
+        (_, index) => baseFrameDelay + (index < remainder ? 1 : 0),
+    );
     const buffers = frames.map((frame) => new Uint8ClampedArray(frame).buffer);
     const encoded = UPNG.encode(
         buffers,
         width,
         height,
         colorCount,
-        new Array(frames.length).fill(frameDelay),
+        frameDelays,
     );
     const loopCount = getLineLoopCount(durationMs / 1000);
     return { buffer: setApngLoopCount(encoded, loopCount), loopCount };

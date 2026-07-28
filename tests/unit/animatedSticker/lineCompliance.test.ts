@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+    encodeAnimatedPng,
     getApngLoopCount,
     getLineLoopCount,
     setApngLoopCount,
@@ -17,6 +18,41 @@ const createApngHeader = (loopCount = 0): ArrayBuffer => {
     return bytes.buffer;
 };
 
+const createDistinctFrames = (frameCount: number, width: number, height: number): Uint8ClampedArray[] => (
+    Array.from({ length: frameCount }, (_, frameIndex) => {
+        const frame = new Uint8ClampedArray(width * height * 4);
+        for (let y = 0; y < height; y += 1) {
+            for (let x = 0; x < width; x += 1) {
+                const offset = (y * width + x) * 4;
+                frame[offset] = (x * 31 + frameIndex * 17) % 256;
+                frame[offset + 1] = (y * 29 + frameIndex * 23) % 256;
+                frame[offset + 2] = (x * y + frameIndex * 41) % 256;
+                frame[offset + 3] = (x + frameIndex) % width < width / 2 ? 255 : 100;
+            }
+        }
+        return frame;
+    })
+);
+
+const readApngDurationMs = (buffer: ArrayBuffer): number => {
+    const bytes = new Uint8Array(buffer);
+    const view = new DataView(buffer);
+    let offset = 8;
+    let durationMs = 0;
+    while (offset + 12 <= bytes.length) {
+        const length = view.getUint32(offset);
+        const typeOffset = offset + 4;
+        const type = String.fromCharCode(...bytes.slice(typeOffset, typeOffset + 4));
+        if (type === 'fcTL' && length >= 26) {
+            const numerator = view.getUint16(typeOffset + 24);
+            const denominator = view.getUint16(typeOffset + 26) || 100;
+            durationMs += (numerator * 1000) / denominator;
+        }
+        offset = typeOffset + 4 + length + 4;
+    }
+    return durationMs;
+};
+
 describe('LINE APNG loop encoding', () => {
     it('chooses a finite loop count whose total playback stays within four seconds', () => {
         expect([1, 2, 3, 4].map(getLineLoopCount)).toEqual([4, 2, 1, 1]);
@@ -27,6 +63,14 @@ describe('LINE APNG loop encoding', () => {
         expect(getApngLoopCount(patched)).toBe(2);
         expect(new DataView(patched).getUint32(24)).not.toBe(0);
     });
+
+    it.each([1000, 2000, 3000, 4000])(
+        'encodes 12 frames to exactly %i ms',
+        (durationMs) => {
+            const encoded = encodeAnimatedPng(createDistinctFrames(12, 16, 16), 16, 16, durationMs, 0);
+            expect(readApngDurationMs(encoded.buffer)).toBe(durationMs);
+        },
+    );
 });
 
 describe('LINE animated sticker validation', () => {
