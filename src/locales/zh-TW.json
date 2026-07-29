@@ -2767,7 +2767,7 @@
     "frameCount": "APNG 畫格數",
     "outputDuration": "輸出播放時間",
     "removeBackground": "純色背景去除",
-    "removeBackgroundHint": "會自動帶入貼圖企劃頁選定的顏色；仍可依影片實際背景調整色碼與容差。",
+    "removeBackgroundHint": "上傳後會自動偵測影片首幀的純色背景；仍可依實際畫面調整色碼與容差。",
     "backgroundColor": "要移除的背景顏色",
     "tolerance": "去背容差",
     "stabilize": "角色位置防抖",

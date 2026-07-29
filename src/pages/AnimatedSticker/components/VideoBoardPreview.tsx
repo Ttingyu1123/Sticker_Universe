@@ -13,6 +13,7 @@ interface VideoBoardPreviewProps {
     src: string | null;
     videoRef: React.RefObject<HTMLVideoElement | null>;
     onLoadedMetadata: () => void;
+    onLoadedData: () => void;
     gridCalibration: GridCalibration;
     disabled?: boolean;
     onCalibrationChange: (calibration: GridCalibration) => void;
@@ -22,6 +23,7 @@ export const VideoBoardPreview = ({
     src,
     videoRef,
     onLoadedMetadata,
+    onLoadedData,
     gridCalibration: calibration,
     disabled = false,
     onCalibrationChange,
@@ -87,8 +89,9 @@ export const VideoBoardPreview = ({
                         src={src}
                         controls
                         playsInline
-                        preload="metadata"
+                        preload="auto"
                         onLoadedMetadata={onLoadedMetadata}
+                        onLoadedData={onLoadedData}
                         className="block w-full"
                     />
                 ) : (

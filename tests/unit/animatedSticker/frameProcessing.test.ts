@@ -198,6 +198,33 @@ describe('animated sticker 4x2 full-canvas geometry', () => {
 });
 
 describe('animated sticker background removal', () => {
+    it('detects the video background from border pixels instead of using the white fallback', () => {
+        const detectBackground = (frameProcessing as typeof frameProcessing & {
+            detectSolidBackgroundColor?: (
+                rgba: Uint8ClampedArray,
+                width: number,
+                height: number,
+            ) => string | null;
+        }).detectSolidBackgroundColor;
+        const width = 12;
+        const height = 8;
+        const rgba = new Uint8ClampedArray(width * height * 4);
+
+        for (let y = 0; y < height; y += 1) {
+            for (let x = 0; x < width; x += 1) {
+                const offset = (y * width + x) * 4;
+                const isForeground = x >= 3 && x <= 8 && y >= 2 && y <= 5;
+                rgba[offset] = isForeground ? 220 : 24;
+                rgba[offset + 1] = isForeground ? 40 : 196;
+                rgba[offset + 2] = isForeground ? 60 : 86;
+                rgba[offset + 3] = 255;
+            }
+        }
+
+        expect(detectBackground).toBeTypeOf('function');
+        expect(detectBackground?.(rgba, width, height)).toBe('#18c456');
+    });
+
     it('parses a six-digit key color', () => {
         expect(parseHexColor('#11aaFF')).toEqual({ r: 17, g: 170, b: 255 });
     });

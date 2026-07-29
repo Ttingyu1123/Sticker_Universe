@@ -40,6 +40,12 @@ describe('animated sticker page readability', () => {
         expect(previewSource).toContain("src ? 'relative bg-bronze-text'");
     });
 
+    it('detects the solid background after the uploaded video has decoded its first frame', () => {
+        expect(previewSource).toContain('onLoadedData={onLoadedData}');
+        expect(appSource).toContain('detectVideoBackgroundColor(video)');
+        expect(appSource).toContain('onLoadedData={handleLoadedData}');
+    });
+
     it('offers one-click compression for oversized APNG results', () => {
         expect(appSource).toContain('handleCompressResults');
         expect(appSource).toContain("t('animatedSticker.compressButton'");

@@ -39,7 +39,12 @@ import type {
     ProcessingSettings,
     VideoMetadata,
 } from './types';
-import { DEFAULT_GRID_CALIBRATION, MAX_LINE_FILE_SIZE, STICKER_COUNT } from './utils/frameProcessing';
+import {
+    DEFAULT_GRID_CALIBRATION,
+    detectVideoBackgroundColor,
+    MAX_LINE_FILE_SIZE,
+    STICKER_COUNT,
+} from './utils/frameProcessing';
 import { compressAnimatedSticker } from './utils/compression';
 import { processVideoBoard } from './utils/videoProcessing';
 
@@ -185,6 +190,15 @@ const AnimatedStickerApp = () => {
             startTime: 0,
             endTime: Math.min(duration, 4),
         }));
+    };
+
+    const handleLoadedData = () => {
+        const video = videoRef.current;
+        if (!video) return;
+        const detectedColor = detectVideoBackgroundColor(video);
+        if (!detectedColor) return;
+        saveStickerBackgroundColor(detectedColor);
+        setSettings((current) => ({ ...current, backgroundColor: detectedColor }));
     };
 
     const handleProcess = async () => {
@@ -339,6 +353,7 @@ const AnimatedStickerApp = () => {
                             src={videoUrl}
                             videoRef={videoRef}
                             onLoadedMetadata={handleLoadedMetadata}
+                            onLoadedData={handleLoadedData}
                             gridCalibration={settings.gridCalibration}
                             disabled={isProcessing || isCompressing}
                             onCalibrationChange={(gridCalibration) => {

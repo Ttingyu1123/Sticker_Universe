@@ -37,6 +37,63 @@ export interface FrameOffset {
     y: number;
 }
 
+export const detectSolidBackgroundColor = (
+    rgba: Uint8ClampedArray,
+    width: number,
+    height: number,
+): string | null => {
+    if (width < 1 || height < 1 || rgba.length < width * height * 4) return null;
+
+    const borderDepth = Math.max(1, Math.ceil(Math.min(width, height) * 0.08));
+    const buckets = new Map<string, { count: number; r: number; g: number; b: number }>();
+
+    for (let y = 0; y < height; y += 1) {
+        for (let x = 0; x < width; x += 1) {
+            if (x >= borderDepth && x < width - borderDepth
+                && y >= borderDepth && y < height - borderDepth) continue;
+            const offset = (y * width + x) * 4;
+            if (rgba[offset + 3] === 0) continue;
+            const r = rgba[offset];
+            const g = rgba[offset + 1];
+            const b = rgba[offset + 2];
+            const key = `${r >> 4},${g >> 4},${b >> 4}`;
+            const bucket = buckets.get(key) ?? { count: 0, r: 0, g: 0, b: 0 };
+            bucket.count += 1;
+            bucket.r += r;
+            bucket.g += g;
+            bucket.b += b;
+            buckets.set(key, bucket);
+        }
+    }
+
+    const dominant = [...buckets.values()].sort((a, b) => b.count - a.count)[0];
+    if (!dominant) return null;
+    const toHex = (channel: number) => Math.round(channel / dominant.count)
+        .toString(16)
+        .padStart(2, '0');
+    return `#${toHex(dominant.r)}${toHex(dominant.g)}${toHex(dominant.b)}`;
+};
+
+export const detectVideoBackgroundColor = (video: HTMLVideoElement): string | null => {
+    if (video.videoWidth < 1 || video.videoHeight < 1) return null;
+
+    const sampleWidth = Math.min(320, video.videoWidth);
+    const sampleHeight = Math.max(1, Math.round(video.videoHeight * sampleWidth / video.videoWidth));
+    const canvas = document.createElement('canvas');
+    canvas.width = sampleWidth;
+    canvas.height = sampleHeight;
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    if (!context) return null;
+
+    try {
+        context.drawImage(video, 0, 0, sampleWidth, sampleHeight);
+        const frame = context.getImageData(0, 0, sampleWidth, sampleHeight);
+        return detectSolidBackgroundColor(frame.data, sampleWidth, sampleHeight);
+    } catch {
+        return null;
+    }
+};
+
 export const getGridCellRect = (
     width: number,
     height: number,

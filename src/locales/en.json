@@ -2683,7 +2683,7 @@
     "frameCount": "APNG frame count",
     "outputDuration": "Output playback time",
     "removeBackground": "Remove solid background",
-    "removeBackgroundHint": "Uses the color selected on the sticker planning page when available; adjust it to match the actual video background.",
+    "removeBackgroundHint": "Automatically detects the solid background from the video's first frame; adjust the color and tolerance when needed.",
     "backgroundColor": "Background color to remove",
     "tolerance": "Key tolerance",
     "stabilize": "Stabilize character position",
