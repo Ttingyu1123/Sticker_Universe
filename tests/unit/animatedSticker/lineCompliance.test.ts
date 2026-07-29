@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import UPNG from 'upng-js';
+import * as apng from '../../../src/pages/AnimatedSticker/utils/apng';
 import {
     encodeAnimatedPng,
     getApngLoopCount,
@@ -54,6 +56,30 @@ const readApngDurationMs = (buffer: ArrayBuffer): number => {
 };
 
 describe('LINE APNG loop encoding', () => {
+    it('keeps the full RGBA color data when encoding a static tab PNG', () => {
+        const encodeStatic = (apng as typeof apng & {
+            encodeStaticPng?: (
+                frame: Uint8ClampedArray,
+                width: number,
+                height: number,
+            ) => ArrayBuffer;
+        }).encodeStaticPng;
+        const frame = new Uint8ClampedArray(257 * 4);
+        for (let index = 0; index < 257; index += 1) {
+            const offset = index * 4;
+            frame[offset] = index % 256;
+            frame[offset + 1] = Math.floor(index / 2) % 256;
+            frame[offset + 2] = Math.floor(index / 3) % 256;
+            frame[offset + 3] = index % 5 === 0 ? 128 : 255;
+        }
+
+        expect(encodeStatic).toBeTypeOf('function');
+        if (!encodeStatic) return;
+        const decoded = UPNG.decode(encodeStatic(frame, 257, 1));
+        const rgba = new Uint8ClampedArray(UPNG.toRGBA8(decoded)[0]);
+        expect(rgba).toEqual(frame);
+    });
+
     it('chooses a finite loop count whose total playback stays within four seconds', () => {
         expect([1, 2, 3, 4].map(getLineLoopCount)).toEqual([4, 2, 1, 1]);
     });

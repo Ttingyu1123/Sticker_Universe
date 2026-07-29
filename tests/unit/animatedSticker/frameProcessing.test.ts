@@ -95,6 +95,106 @@ describe('animated sticker 4x2 full-canvas geometry', () => {
             20, 0, 0, 255, 30, 0, 0, 255,
         ]);
     });
+
+    it('creates a vertically positionable 96x74 cover crop for the tab image', () => {
+        const cropper = (frameProcessing as typeof frameProcessing & {
+            getAspectCropRect?: (
+                width: number,
+                height: number,
+                targetWidth: number,
+                targetHeight: number,
+                position: number,
+            ) => { x: number; y: number; width: number; height: number };
+        }).getAspectCropRect;
+
+        expect(cropper).toBeTypeOf('function');
+        const top = cropper?.(320, 270, 96, 74, 0);
+        const center = cropper?.(320, 270, 96, 74, 0.5);
+        const bottom = cropper?.(320, 270, 96, 74, 1);
+        expect(top).toEqual({ x: 0, y: 0, width: 320, height: 320 * 74 / 96 });
+        expect(center?.y).toBeCloseTo((270 - 320 * 74 / 96) / 2);
+        expect(bottom?.y).toBeCloseTo(270 - 320 * 74 / 96);
+    });
+
+    it('resizes a selected rectangular crop to the exact tab dimensions', () => {
+        const resize = (frameProcessing as typeof frameProcessing & {
+            resizeRgbaFrameToAspect?: (
+                frame: Uint8ClampedArray,
+                width: number,
+                height: number,
+                targetWidth: number,
+                targetHeight: number,
+                position: number,
+            ) => Uint8ClampedArray;
+        }).resizeRgbaFrameToAspect;
+        const frame = new Uint8ClampedArray(2 * 4 * 4);
+        for (let y = 0; y < 4; y += 1) {
+            for (let x = 0; x < 2; x += 1) {
+                const offset = (y * 2 + x) * 4;
+                frame[offset] = y * 10 + x;
+                frame[offset + 3] = 255;
+            }
+        }
+
+        expect(resize).toBeTypeOf('function');
+        expect(Array.from(resize?.(frame, 2, 4, 2, 1, 1) ?? [])).toEqual([
+            30, 0, 0, 255, 31, 0, 0, 255,
+        ]);
+    });
+
+    it('adds transparent breathing room when the tab image is scaled down', () => {
+        const resize = (frameProcessing as typeof frameProcessing & {
+            resizeRgbaFrameWithZoom?: (
+                frame: Uint8ClampedArray,
+                width: number,
+                height: number,
+                targetWidth: number,
+                targetHeight: number,
+                position: number,
+                zoom: number,
+            ) => Uint8ClampedArray;
+        }).resizeRgbaFrameWithZoom;
+        const frame = new Uint8ClampedArray(2 * 2 * 4);
+        for (let offset = 0; offset < frame.length; offset += 4) {
+            frame[offset] = 120;
+            frame[offset + 3] = 255;
+        }
+
+        expect(resize).toBeTypeOf('function');
+        const output = resize?.(frame, 2, 2, 4, 4, 0.5, 0.5);
+        expect(output?.length).toBe(4 * 4 * 4);
+        expect(output?.[3]).toBe(0);
+        expect(output?.[(1 * 4 + 1) * 4 + 3]).toBe(255);
+        expect(output?.[(2 * 4 + 2) * 4 + 3]).toBe(255);
+        expect(output?.[(3 * 4 + 3) * 4 + 3]).toBe(0);
+    });
+
+    it('preserves the coverage of fine details during a large downscale', () => {
+        const resize = (frameProcessing as typeof frameProcessing & {
+            resizeRgbaFrameWithZoom?: (
+                frame: Uint8ClampedArray,
+                width: number,
+                height: number,
+                targetWidth: number,
+                targetHeight: number,
+                position: number,
+                zoom: number,
+            ) => Uint8ClampedArray;
+        }).resizeRgbaFrameWithZoom;
+        const frame = new Uint8ClampedArray(4 * 4 * 4);
+        frame[0] = 255;
+        frame[1] = 255;
+        frame[2] = 255;
+        frame[3] = 255;
+
+        const output = resize?.(frame, 4, 4, 1, 1, 0.5, 1);
+
+        expect(output?.[0]).toBe(255);
+        expect(output?.[1]).toBe(255);
+        expect(output?.[2]).toBe(255);
+        expect(output?.[3]).toBeGreaterThanOrEqual(15);
+        expect(output?.[3]).toBeLessThanOrEqual(17);
+    });
 });
 
 describe('animated sticker background removal', () => {

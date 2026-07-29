@@ -116,67 +116,149 @@ export const getContainRect = (
     };
 };
 
-export const getSquareCropRect = (
+export const getAspectCropRect = (
     sourceWidth: number,
     sourceHeight: number,
+    targetWidth: number,
+    targetHeight: number,
     position = 0.5,
 ): GridCellRect => {
     const width = Math.max(1, sourceWidth);
     const height = Math.max(1, sourceHeight);
-    const size = Math.min(width, height);
+    const targetRatio = Math.max(1, targetWidth) / Math.max(1, targetHeight);
+    const sourceRatio = width / height;
     const safePosition = Math.max(0, Math.min(1, position));
 
+    if (sourceRatio > targetRatio) {
+        const cropWidth = height * targetRatio;
+        return {
+            x: (width - cropWidth) * safePosition,
+            y: 0,
+            width: cropWidth,
+            height,
+        };
+    }
+
+    const cropHeight = width / targetRatio;
+
     return {
-        x: (width - size) * safePosition,
-        y: (height - size) * safePosition,
-        width: size,
-        height: size,
+        x: 0,
+        y: (height - cropHeight) * safePosition,
+        width,
+        height: cropHeight,
     };
 };
 
-export const resizeSquareRgbaFrame = (
+export const getSquareCropRect = (
+    sourceWidth: number,
+    sourceHeight: number,
+    position = 0.5,
+): GridCellRect => getAspectCropRect(sourceWidth, sourceHeight, 1, 1, position);
+
+export const resizeRgbaFrameWithZoom = (
     frame: Uint8ClampedArray,
     sourceWidth: number,
     sourceHeight: number,
-    targetSize: number,
+    targetWidth: number,
+    targetHeight: number,
     position = 0.5,
+    zoom = 1,
 ): Uint8ClampedArray => {
     const width = Math.max(1, Math.round(sourceWidth));
     const height = Math.max(1, Math.round(sourceHeight));
-    const size = Math.max(1, Math.round(targetSize));
+    const outputWidth = Math.max(1, Math.round(targetWidth));
+    const outputHeight = Math.max(1, Math.round(targetHeight));
     if (frame.length !== width * height * 4) {
         throw new RangeError('RGBA frame dimensions do not match its pixel data.');
     }
 
-    const crop = getSquareCropRect(width, height, position);
-    const scale = crop.width / size;
-    const output = new Uint8ClampedArray(size * size * 4);
+    const safePosition = Math.max(0, Math.min(1, position));
+    const safeZoom = Math.max(0.05, zoom);
+    const scale = Math.max(outputWidth / width, outputHeight / height) * safeZoom;
+    const renderedWidth = width * scale;
+    const renderedHeight = height * scale;
+    const sourceRatio = width / height;
+    const targetRatio = outputWidth / outputHeight;
+    const offsetX = (outputWidth - renderedWidth)
+        * (sourceRatio > targetRatio ? safePosition : 0.5);
+    const offsetY = (outputHeight - renderedHeight)
+        * (sourceRatio < targetRatio ? safePosition : 0.5);
+    const output = new Uint8ClampedArray(outputWidth * outputHeight * 4);
 
-    for (let targetY = 0; targetY < size; targetY += 1) {
-        const sourceY = Math.max(0, Math.min(height - 1, crop.y + (targetY + 0.5) * scale - 0.5));
+    for (let targetY = 0; targetY < outputHeight; targetY += 1) {
+        if (scale < 1) {
+            const sourceTop = (targetY - offsetY) / scale;
+            const sourceBottom = (targetY + 1 - offsetY) / scale;
+            const firstSourceY = Math.floor(sourceTop);
+            const lastSourceY = Math.ceil(sourceBottom) - 1;
+
+            for (let targetX = 0; targetX < outputWidth; targetX += 1) {
+                const sourceLeft = (targetX - offsetX) / scale;
+                const sourceRight = (targetX + 1 - offsetX) / scale;
+                const firstSourceX = Math.floor(sourceLeft);
+                const lastSourceX = Math.ceil(sourceRight) - 1;
+                const sampleArea = (sourceRight - sourceLeft) * (sourceBottom - sourceTop);
+                const outputOffset = (targetY * outputWidth + targetX) * 4;
+                let alpha = 0;
+                const premultiplied = [0, 0, 0];
+
+                for (let sourceY = firstSourceY; sourceY <= lastSourceY; sourceY += 1) {
+                    if (sourceY < 0 || sourceY >= height) continue;
+                    const overlapY = Math.max(0, Math.min(sourceBottom, sourceY + 1) - Math.max(sourceTop, sourceY));
+                    for (let sourceX = firstSourceX; sourceX <= lastSourceX; sourceX += 1) {
+                        if (sourceX < 0 || sourceX >= width) continue;
+                        const overlapX = Math.max(0, Math.min(sourceRight, sourceX + 1) - Math.max(sourceLeft, sourceX));
+                        const weight = (overlapX * overlapY) / sampleArea;
+                        if (weight <= 0) continue;
+                        const sourceOffset = (sourceY * width + sourceX) * 4;
+                        const sourceAlpha = frame[sourceOffset + 3] / 255;
+                        alpha += sourceAlpha * weight;
+                        for (let channel = 0; channel < 3; channel += 1) {
+                            premultiplied[channel] += frame[sourceOffset + channel] * sourceAlpha * weight;
+                        }
+                    }
+                }
+
+                for (let channel = 0; channel < 3; channel += 1) {
+                    output[outputOffset + channel] = alpha > 0
+                        ? Math.round(premultiplied[channel] / alpha)
+                        : 0;
+                }
+                output[outputOffset + 3] = Math.round(alpha * 255);
+            }
+            continue;
+        }
+
+        const sourceY = (targetY + 0.5 - offsetY) / scale - 0.5;
         const y0 = Math.floor(sourceY);
-        const y1 = Math.min(height - 1, y0 + 1);
+        const y1 = y0 + 1;
         const yWeight = sourceY - y0;
 
-        for (let targetX = 0; targetX < size; targetX += 1) {
-            const sourceX = Math.max(0, Math.min(width - 1, crop.x + (targetX + 0.5) * scale - 0.5));
+        for (let targetX = 0; targetX < outputWidth; targetX += 1) {
+            const sourceX = (targetX + 0.5 - offsetX) / scale - 0.5;
             const x0 = Math.floor(sourceX);
-            const x1 = Math.min(width - 1, x0 + 1);
+            const x1 = x0 + 1;
             const xWeight = sourceX - x0;
             const samples = [
-                { offset: (y0 * width + x0) * 4, weight: (1 - xWeight) * (1 - yWeight) },
-                { offset: (y0 * width + x1) * 4, weight: xWeight * (1 - yWeight) },
-                { offset: (y1 * width + x0) * 4, weight: (1 - xWeight) * yWeight },
-                { offset: (y1 * width + x1) * 4, weight: xWeight * yWeight },
-            ];
-            const outputOffset = (targetY * size + targetX) * 4;
-            const alpha = samples.reduce(
+                { x: x0, y: y0, weight: (1 - xWeight) * (1 - yWeight) },
+                { x: x1, y: y0, weight: xWeight * (1 - yWeight) },
+                { x: x0, y: y1, weight: (1 - xWeight) * yWeight },
+                { x: x1, y: y1, weight: xWeight * yWeight },
+            ].map((sample) => ({
+                ...sample,
+                offset: sample.x >= 0 && sample.x < width && sample.y >= 0 && sample.y < height
+                    ? (sample.y * width + sample.x) * 4
+                    : -1,
+            }));
+            const visibleSamples = samples.filter((sample) => sample.offset >= 0);
+            const outputOffset = (targetY * outputWidth + targetX) * 4;
+            const alpha = visibleSamples.reduce(
                 (total, sample) => total + (frame[sample.offset + 3] / 255) * sample.weight,
                 0,
             );
 
             for (let channel = 0; channel < 3; channel += 1) {
-                const premultiplied = samples.reduce(
+                const premultiplied = visibleSamples.reduce(
                     (total, sample) => total
                         + frame[sample.offset + channel]
                         * (frame[sample.offset + 3] / 255)
@@ -191,6 +273,38 @@ export const resizeSquareRgbaFrame = (
 
     return output;
 };
+
+export const resizeRgbaFrameToAspect = (
+    frame: Uint8ClampedArray,
+    sourceWidth: number,
+    sourceHeight: number,
+    targetWidth: number,
+    targetHeight: number,
+    position = 0.5,
+): Uint8ClampedArray => resizeRgbaFrameWithZoom(
+    frame,
+    sourceWidth,
+    sourceHeight,
+    targetWidth,
+    targetHeight,
+    position,
+    1,
+);
+
+export const resizeSquareRgbaFrame = (
+    frame: Uint8ClampedArray,
+    sourceWidth: number,
+    sourceHeight: number,
+    targetSize: number,
+    position = 0.5,
+): Uint8ClampedArray => resizeRgbaFrameToAspect(
+    frame,
+    sourceWidth,
+    sourceHeight,
+    targetSize,
+    targetSize,
+    position,
+);
 
 export const parseHexColor = (value: string): RgbColor => {
     const normalized = value.trim().replace(/^#/, '');

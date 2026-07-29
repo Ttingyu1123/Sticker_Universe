@@ -6,6 +6,7 @@ const readSource = (relativePath: string) => readFileSync(resolve(process.cwd(),
 const appSource = readSource('src/pages/AnimatedSticker/App.tsx');
 const previewSource = readSource('src/pages/AnimatedSticker/components/VideoBoardPreview.tsx');
 const resultCardSource = readSource('src/pages/AnimatedSticker/components/StickerResultCard.tsx');
+const tabMakerSource = readSource('src/pages/AnimatedSticker/components/TabImageMaker.tsx');
 const videoProcessingSource = readSource('src/pages/AnimatedSticker/utils/videoProcessing.ts');
 const compressionSource = readSource('src/pages/AnimatedSticker/utils/compression.ts');
 const complianceSource = readSource('src/pages/AnimatedSticker/utils/lineCompliance.ts');
@@ -63,5 +64,23 @@ describe('animated sticker page readability', () => {
     it('offers an integrated 240x240 APNG main-image maker', () => {
         expect(appSource).toContain("from './components/MainImageMaker'");
         expect(appSource).toContain('<MainImageMaker results={results}');
+    });
+
+    it('places a 96x74 static tab-image maker below the main-image maker', () => {
+        expect(appSource).toContain("from './components/TabImageMaker'");
+        expect(appSource).toContain('<TabImageMaker results={results}');
+        expect(appSource.indexOf('<TabImageMaker')).toBeGreaterThan(appSource.indexOf('<MainImageMaker'));
+    });
+
+    it('lets users scale the subject down or up in the tab image', () => {
+        expect(tabMakerSource).toContain('imageScale');
+        expect(tabMakerSource).toContain("t('animatedSticker.tabMakerScale')");
+        expect(tabMakerSource).toContain('min={50}');
+        expect(tabMakerSource).toContain('max={180}');
+    });
+
+    it('exports the small tab image without reusing the sticker color limit', () => {
+        expect(tabMakerSource).toContain('encodeStaticPng(previewFrame');
+        expect(tabMakerSource).not.toContain('selectedResult.colorCount');
     });
 });

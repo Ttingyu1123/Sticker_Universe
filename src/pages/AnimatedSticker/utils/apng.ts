@@ -81,3 +81,14 @@ export const encodeAnimatedPng = (
     const loopCount = getLineLoopCount(durationMs / 1000);
     return { buffer: setApngLoopCount(encoded, loopCount), loopCount };
 };
+
+export const encodeStaticPng = (
+    frame: Uint8ClampedArray,
+    width: number,
+    height: number,
+): ArrayBuffer => UPNG.encode(
+    [new Uint8ClampedArray(frame).buffer],
+    width,
+    height,
+    0,
+);

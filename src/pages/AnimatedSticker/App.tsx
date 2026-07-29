@@ -29,6 +29,7 @@ import {
 } from '../../features/sprite-sheet-generator/backgroundColor';
 import { StickerResultCard } from './components/StickerResultCard';
 import { MainImageMaker } from './components/MainImageMaker';
+import { TabImageMaker } from './components/TabImageMaker';
 import { VideoBoardPreview } from './components/VideoBoardPreview';
 import type {
     AnimatedStickerResult,
@@ -575,6 +576,7 @@ const AnimatedStickerApp = () => {
                                 ))}
                             </div>
                             <MainImageMaker results={results} />
+                            <TabImageMaker results={results} />
                         </>
                     ) : (
                         <div className="grid min-h-64 place-items-center rounded-3xl border border-dashed border-cream-dark bg-cream-light p-8 text-center">
