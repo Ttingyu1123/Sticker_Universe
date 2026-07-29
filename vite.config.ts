@@ -5,6 +5,7 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import openAiImageHandler from './api/openai-image'
 import openAiTextHandler from './api/openai-text'
+import aiVideoHandler from './api/ai-video'
 
 // https://vitejs.dev/config/
 import { VitePWA } from 'vite-plugin-pwa'
@@ -43,6 +44,7 @@ const localVercelApiPlugin = (): Plugin => ({
 
         registerHandler('/api/openai-image', openAiImageHandler);
         registerHandler('/api/openai-text', openAiTextHandler);
+        registerHandler('/api/ai-video', aiVideoHandler);
     },
 });
 

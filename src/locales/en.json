@@ -1,5 +1,6 @@
 {
   "app": {
+    "aiVideo": "AI Video Generator",
     "title": "CreativeOS",
     "subtitle": "Creative Suite",
     "apps": "Apps",
@@ -2602,7 +2603,56 @@
       "loadFailed": "Failed to load image. Please check the file format (PNG/JPG/WebP)."
     }
   },
+  "aiVideo": {
+    "eyebrow": "AI VIDEO WORKFLOW",
+    "title": "Animate your 4×2 sticker board",
+    "subtitle": "Upload a 16:9 eight-cell sticker board and generate a locked-camera MP4 with Gemini Veo or Grok. Tasks stay on this device and completed videos can go straight to the animated-sticker cutter.",
+    "source": "Source image",
+    "sourceTitle": "Choose a 4×2 board to animate",
+    "sourceAlt": "AI video source image",
+    "emptySource": "Waiting for a 16:9 4×2 sticker board",
+    "upload": "Upload image",
+    "gallery": "Choose from Gallery",
+    "sourceHint": "A 1280×720 image works best. Keep every character, caption, and effect inside its own cell.",
+    "directionTitle": "Choose a model and review motion direction",
+    "getKey": "Get API key",
+    "rememberKey": "Remember this key in this browser",
+    "prompt": "Animation prompt",
+    "promptPlaceholder": "Upload an image to create a grid-safe motion prompt",
+    "generate": "Generate a 4-second AI video",
+    "submitting": "Submitting task…",
+    "generating": "AI is generating the video…",
+    "leaveHint": "You may leave this page. The latest task will be restored and checked when you return. Do not clear this site's data.",
+    "result": "Result",
+    "resultTitle": "Preview and send to the animated-sticker cutter",
+    "generatingHint": "Video generation usually takes several minutes. The task ID is saved on this device, so this page does not need to stay open.",
+    "completed": "Video complete",
+    "completedHint": "Play it first to ensure each character stays in its cell, then send it to the adjustable-grid cutter.",
+    "download": "Download MP4",
+    "openCutter": "Open animated-sticker cutter",
+    "failed": "Video generation failed",
+    "emptyResult": "No generation started",
+    "emptyResultHint": "Choose a source image, model, and API key to create a video task.",
+    "savedLocally": "The source image, task state, and downloaded video are saved in this browser",
+    "toast": {
+      "submitted": "Video task submitted. You can come back later.",
+      "completed": "AI video is ready"
+    },
+    "errors": {
+      "imageOnly": "Upload a PNG, JPG, or WebP image",
+      "invalidKey": "The API key format looks invalid",
+      "promptRequired": "Enter an animation prompt",
+      "failed": "The video provider reported a failed task",
+      "statusFailed": "Could not check video progress: {{reason}}",
+      "generateFailed": "Video generation failed: {{reason}}",
+      "noVideo": "No completed video is available to download"
+    }
+  },
   "animatedSticker": {
+    "generateVideoWithAi": "Generate a 4×2 MP4 with AI",
+    "aiVideoLoaded": "The AI-generated MP4 is loaded",
+    "aiVideoMissing": "The downloaded AI video was not found. Return to AI Video and download it again.",
+    "aiVideoLoadFailed": "Could not load the AI video: {{reason}}",
     "navTitle": "Video Stickers",
     "openVideoCutter": "MP4 Video Cutter",
     "eyebrow": "MP4 Animated Sticker Workbench",
@@ -2728,6 +2778,8 @@
     }
   },
   "spriteSheet": {
+    "animateWithAi": "Animate with AI",
+    "aiVideoHandoffFailed": "Could not open AI video generation: {{reason}}",
     "collectionEyebrow": "AI Sticker Collection Director",
     "collectionTitle": "Turn one character into 8 useful stickers",
     "collectionSubtitle": "Upload a reference image. AI proposes 8 sticker ideas and a chroma-key color chosen to avoid the character, then lets you edit everything before generation.",

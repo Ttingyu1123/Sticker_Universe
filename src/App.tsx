@@ -16,6 +16,7 @@ const PhotoCollageApp = React.lazy(() => import('./pages/PhotoCollage/App'));
 const DrawingStudioApp = React.lazy(() => import('./pages/DrawingStudio/App'));
 const PrintPreflightApp = React.lazy(() => import('./pages/PrintPreflight/App'));
 const AnimatedStickerApp = React.lazy(() => import('./pages/AnimatedSticker/App'));
+const AiVideoApp = React.lazy(() => import('./pages/AiVideo/App'));
 
 const Loading = () => (
     <div className="flex items-center justify-center min-h-[50vh]">
@@ -78,6 +79,12 @@ function App() {
                     <Route path="/animated-sticker" element={
                         <PageRoute>
                             <AnimatedStickerApp />
+                        </PageRoute>
+                    } />
+
+                    <Route path="/ai-video" element={
+                        <PageRoute>
+                            <AiVideoApp />
                         </PageRoute>
                     } />
 

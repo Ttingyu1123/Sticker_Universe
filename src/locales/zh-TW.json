@@ -1,5 +1,6 @@
 {
   "app": {
+    "aiVideo": "AI 動畫生成",
     "title": "創意作業系統",
     "subtitle": "創意套件",
     "apps": "應用程式",
@@ -2686,7 +2687,56 @@
       "loadFailed": "圖片載入失敗，請確認檔案格式（PNG/JPG/WebP）"
     }
   },
+  "aiVideo": {
+    "eyebrow": "AI VIDEO WORKFLOW",
+    "title": "讓 4×2 貼圖畫布直接動起來",
+    "subtitle": "上傳 16:9 的八格貼圖圖片，使用 Gemini Veo 或 Grok 生成固定鏡頭 MP4；任務會保存在這台裝置，完成後可直接送往動態貼圖切割頁。",
+    "source": "來源圖片",
+    "sourceTitle": "選擇要製作動畫的 4×2 畫布",
+    "sourceAlt": "AI 動畫來源圖",
+    "emptySource": "等待一張 16:9 的 4×2 貼圖畫布",
+    "upload": "上傳圖片",
+    "gallery": "從作品集選擇",
+    "sourceHint": "建議使用 1280×720 圖片，並確保每個人物、文字和特效都留在自己的格子內。",
+    "directionTitle": "選擇模型並確認動作指令",
+    "getKey": "取得 API Key",
+    "rememberKey": "記住這組 Key（只儲存在此瀏覽器）",
+    "prompt": "動畫提示詞",
+    "promptPlaceholder": "上傳圖片後會自動建立保護 4×2 格線的動畫提示詞",
+    "generate": "生成 4 秒 AI 動畫",
+    "submitting": "正在送出任務…",
+    "generating": "AI 正在生成影片…",
+    "leaveHint": "可離開此分頁；回來後會載入最近任務並繼續查詢。請勿清除本站資料。",
+    "result": "生成結果",
+    "resultTitle": "預覽與交給動態貼圖切割器",
+    "generatingHint": "影片生成通常需要數分鐘。任務編號已保存在這台裝置，不需要一直停留在本頁。",
+    "completed": "影片已完成",
+    "completedHint": "請先播放檢查人物是否都留在原格，再送往可調格線的動態貼圖頁。",
+    "download": "下載 MP4",
+    "openCutter": "送往動態貼圖切割",
+    "failed": "影片生成失敗",
+    "emptyResult": "尚未開始生成",
+    "emptyResultHint": "選擇來源圖片、模型與 API Key 後即可建立影片任務。",
+    "savedLocally": "來源圖、任務狀態與下載完成的影片已保存在此瀏覽器",
+    "toast": {
+      "submitted": "影片任務已送出，可以稍後回來查看",
+      "completed": "AI 動畫已完成"
+    },
+    "errors": {
+      "imageOnly": "請上傳 PNG、JPG 或 WebP 圖片",
+      "invalidKey": "API Key 格式不正確，請重新確認",
+      "promptRequired": "請填寫動畫提示詞",
+      "failed": "影片服務回報生成失敗",
+      "statusFailed": "查詢影片進度失敗：{{reason}}",
+      "generateFailed": "影片生成失敗：{{reason}}",
+      "noVideo": "找不到可下載的完成影片"
+    }
+  },
   "animatedSticker": {
+    "generateVideoWithAi": "使用 AI 生成 4×2 MP4",
+    "aiVideoLoaded": "AI 生成的 MP4 已載入",
+    "aiVideoMissing": "找不到已下載的 AI 影片，請回動畫生成頁重新下載",
+    "aiVideoLoadFailed": "載入 AI 影片失敗：{{reason}}",
     "navTitle": "影片動態貼圖",
     "openVideoCutter": "MP4 影片切割器",
     "eyebrow": "MP4 動態貼圖工作台",
@@ -2812,6 +2862,8 @@
     }
   },
   "spriteSheet": {
+    "animateWithAi": "用 AI 生成動畫",
+    "aiVideoHandoffFailed": "無法開啟 AI 動畫生成頁：{{reason}}",
     "collectionEyebrow": "AI 貼圖企劃總監",
     "collectionTitle": "從一個角色，設計 8 種實用貼圖",
     "collectionSubtitle": "上傳參考圖片後，AI 會分析角色造型，建議 8 種聊天貼圖與較不會誤刪角色的去背背景色；每一格都能修改，再生成 4×2 畫布。",

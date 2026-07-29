@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Sparkles, Palette, Home, FolderHeart, Printer, ArrowLeft, BookOpen, Grid, PenTool, Film } from 'lucide-react';
+import { Sparkles, Palette, Home, FolderHeart, Printer, ArrowLeft, BookOpen, Grid, PenTool, Film, Video } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
@@ -41,6 +41,7 @@ export const Layout = () => {
         // Added specifically for consistency
         if (path.startsWith('/image-editor')) return t('editor.title') || 'Image Editor';
         if (path.startsWith('/animated-sticker')) return t('animatedSticker.navTitle');
+        if (path.startsWith('/ai-video')) return t('app.aiVideo');
         if (path.startsWith('/photo-collage')) return t('collage.title') || 'Photo Collage';
         if (path.startsWith('/drawing-studio')) return t('app.drawingStudio', { defaultValue: 'Drawing Studio' });
 
@@ -81,6 +82,7 @@ export const Layout = () => {
                     <NavItem to="/generator" icon={Sparkles} label={t('app.generator')} />
                     <NavItem to="/image-editor" icon={Palette} label={t('editor.title') || 'Image Editor'} />
                     <NavItem to="/animated-sticker" icon={Film} label={t('animatedSticker.navTitle')} />
+                    <NavItem to="/ai-video" icon={Video} label={t('app.aiVideo')} />
                     <NavItem to="/photo-collage" icon={Grid} label={t('collage.title') || 'Photo Collage'} />
                     <NavItem to="/drawing-studio" icon={PenTool} label={t('app.drawingStudio', { defaultValue: 'Drawing Studio' })} />
 

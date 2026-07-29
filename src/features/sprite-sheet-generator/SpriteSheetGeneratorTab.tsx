@@ -28,6 +28,9 @@ import { generateGeminiImage, generateOpenAiImage } from '../image-generation-co
 import { isApiKeyError, isValidApiKey } from '../../shared/geminiApiKey';
 import type { AiProvider } from '../../shared/geminiApiKey';
 import { safeLoadFromLocalStorage, safeSaveToLocalStorage } from '../../shared/localStorage';
+import { createAiVideoDraft } from '../ai-video/jobs';
+import { dataUrlToBlob } from '../ai-video/image';
+import { buildStickerVideoPrompt } from '../ai-video/prompt';
 import type { SpriteSheetStyle, StickerConcept } from './types';
 import {
     loadStickerBackgroundColor,
@@ -471,6 +474,21 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
         }
     };
 
+    const handleOpenAiVideo = async () => {
+        if (!resultImage) return;
+        try {
+            const job = await createAiVideoDraft({
+                sourceImage: dataUrlToBlob(resultImage),
+                sourceName: `sticker-collection-4x2-${Date.now()}.png`,
+                prompt: buildStickerVideoPrompt(concepts),
+            });
+            navigate(`/ai-video?job=${job.id}`);
+        } catch (error) {
+            const reason = error instanceof Error ? error.message : String(error);
+            showToast(t('spriteSheet.aiVideoHandoffFailed', { reason }), 'error');
+        }
+    };
+
     const clearReference = () => {
         void deleteStickerFromDB(SPRITE_SHEET_DRAFT_ID);
         setReferenceImage(null);
@@ -568,7 +586,7 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
                 </section>
 
                 <section className="mt-6 rounded-[2rem] border border-cream-dark bg-cream-light p-5 shadow-sm md:p-7">
-                    <div className="mb-6 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-primary">04 · {t('spriteSheet.result')}</p><h3 className="mt-1 text-2xl font-black text-bronze-text">{t('spriteSheet.collectionResultTitle')}</h3><p className="mt-2 text-sm leading-6 text-bronze-light">{t('spriteSheet.resultHint')}</p></div>{resultImage && <div className="flex flex-wrap gap-2"><button type="button" onClick={() => saveAs(resultImage, `sticker-collection-4x2-${Date.now()}.png`)} className="flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-white shadow-lg shadow-primary/20 hover:bg-primary-hover"><Download size={17} /> {t('spriteSheet.downloadPng')}</button><button type="button" onClick={() => void copyText(t('spriteSheet.collectionVideoPrompt', { background: backgroundColor.toUpperCase() }), t('spriteSheet.toast.videoPromptCopied'))} className="flex items-center gap-2 rounded-xl border border-cream-dark bg-cream px-4 py-3 text-sm font-black text-bronze-text hover:bg-white hover:text-primary"><Film size={17} /> {t('spriteSheet.copyVideoPrompt')}</button></div>}</div>
+                    <div className="mb-6 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-primary">04 · {t('spriteSheet.result')}</p><h3 className="mt-1 text-2xl font-black text-bronze-text">{t('spriteSheet.collectionResultTitle')}</h3><p className="mt-2 text-sm leading-6 text-bronze-light">{t('spriteSheet.resultHint')}</p></div>{resultImage && <div className="flex flex-wrap gap-2"><button type="button" onClick={() => saveAs(resultImage, `sticker-collection-4x2-${Date.now()}.png`)} className="flex items-center gap-2 rounded-xl border border-cream-dark bg-cream px-4 py-3 text-sm font-black text-bronze-text hover:bg-white hover:text-primary"><Download size={17} /> {t('spriteSheet.downloadPng')}</button><button type="button" onClick={() => void copyText(t('spriteSheet.collectionVideoPrompt', { background: backgroundColor.toUpperCase() }), t('spriteSheet.toast.videoPromptCopied'))} className="flex items-center gap-2 rounded-xl border border-cream-dark bg-cream px-4 py-3 text-sm font-black text-bronze-text hover:bg-white hover:text-primary"><Film size={17} /> {t('spriteSheet.copyVideoPrompt')}</button><button type="button" onClick={() => void handleOpenAiVideo()} className="flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-white shadow-lg shadow-primary/20 hover:bg-primary-hover"><Sparkles size={17} /> {t('spriteSheet.animateWithAi')} <ArrowRight size={15} /></button></div>}</div>
                     {resultImage ? <div><div className="relative overflow-hidden rounded-3xl border border-cream-dark bg-bronze-text p-2 shadow-xl"><div className="relative overflow-hidden rounded-2xl"><img src={resultImage} alt={t('spriteSheet.resultAlt')} className="block w-full" /><div className="pointer-events-none absolute inset-0 grid grid-cols-4 grid-rows-2 overflow-hidden border border-white/55">{Array.from({ length: SPRITE_FRAME_COUNT }, (_, index) => <div key={index} className="relative border-b border-r border-dashed border-white/45"><span className="absolute left-2 top-2 rounded-md bg-bronze-text/75 px-2 py-1 text-xs font-black text-white">{String(index + 1).padStart(2, '0')}</span></div>)}</div></div></div><div className="mt-5 grid gap-3 md:grid-cols-3"><div className="rounded-2xl border border-cream-dark bg-cream p-4"><p className="text-xs font-black uppercase tracking-wider text-primary">1</p><p className="mt-1 text-sm font-black text-bronze-text">{t('spriteSheet.nextDownload')}</p></div><div className="rounded-2xl border border-cream-dark bg-cream p-4"><p className="text-xs font-black uppercase tracking-wider text-primary">2</p><p className="mt-1 text-sm font-black text-bronze-text">{t('spriteSheet.nextAnimate')}</p></div><Link to="/animated-sticker" className="group rounded-2xl bg-primary p-4 text-white transition-colors hover:bg-primary-hover"><p className="text-xs font-black uppercase tracking-wider text-white/70">3</p><p className="mt-1 flex items-center justify-between text-sm font-black">{t('spriteSheet.nextCut')} <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" /></p></Link></div></div> : <div className="grid min-h-72 place-items-center rounded-3xl border border-dashed border-cream-dark bg-cream p-8 text-center"><div><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-primary shadow-sm"><ImageIcon size={27} /></div><p className="mt-4 text-base font-black text-bronze-text">{t('spriteSheet.emptyCollectionResultTitle')}</p><p className="mt-2 max-w-md text-sm leading-6 text-bronze-light">{t('spriteSheet.emptyCollectionResultHint')}</p></div></div>}
                 </section>
                 {lastPrompt && <div className="mt-4 flex justify-center"><button type="button" onClick={handleGenerate} disabled={isGenerating} className="flex items-center gap-2 text-sm font-black text-bronze-light hover:text-primary disabled:opacity-50"><RefreshCw size={15} /> {t('spriteSheet.regenerate')}</button></div>}

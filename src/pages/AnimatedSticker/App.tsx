@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import {
+    ArrowRight,
     BadgeInfo,
     Check,
     Download,
@@ -23,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../components/shared/ToastProvider';
+import { getAiVideoJob } from '../../db';
 import {
     loadStickerBackgroundColor,
     saveStickerBackgroundColor,
@@ -83,6 +85,8 @@ const AnimatedStickerApp = () => {
     const inputRef = useRef<HTMLInputElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const resultsRef = useRef<AnimatedStickerResult[]>([]);
+    const loadedVideoJobRef = useRef<string | null>(null);
+    const [searchParams] = useSearchParams();
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
     const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
     const [settings, setSettings] = useState<ProcessingSettings>(createDefaultSettings);
@@ -142,6 +146,29 @@ const AnimatedStickerApp = () => {
         setSettings(createDefaultSettings());
         resetResults();
     };
+
+    useEffect(() => {
+        const videoJobId = searchParams.get('videoJob');
+        if (!videoJobId || loadedVideoJobRef.current === videoJobId) return;
+        loadedVideoJobRef.current = videoJobId;
+        void getAiVideoJob(videoJobId).then((videoJob) => {
+            if (!videoJob?.videoBlob) {
+                showToast(t('animatedSticker.aiVideoMissing'), 'error');
+                return;
+            }
+            const file = new File(
+                [videoJob.videoBlob],
+                `ai-video-${videoJob.provider}-${videoJob.id}.mp4`,
+                { type: 'video/mp4' },
+            );
+            loadFile(file);
+            showToast(t('animatedSticker.aiVideoLoaded'), 'success');
+        }).catch((error) => {
+            showToast(t('animatedSticker.aiVideoLoadFailed', {
+                reason: error instanceof Error ? error.message : String(error),
+            }), 'error');
+        });
+    }, [searchParams]);
 
     const handleLoadedMetadata = () => {
         const video = videoRef.current;
@@ -350,6 +377,9 @@ const AnimatedStickerApp = () => {
                             {videoUrl ? t('animatedSticker.replaceVideo') : t('animatedSticker.uploadVideo')}
                             <span className="hidden text-xs font-bold text-bronze-light/70 sm:inline">MP4 · {t('animatedSticker.localOnly')}</span>
                         </button>
+                        <Link to="/ai-video" className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-primary/25 bg-white px-5 py-4 text-base font-black text-primary shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/45 hover:bg-cream-light">
+                            <Sparkles size={19} /> {t('animatedSticker.generateVideoWithAi')} <ArrowRight size={16} />
+                        </Link>
                     </section>
 
                     <aside className="rounded-[2rem] border border-cream-dark bg-cream-light p-5 shadow-sm md:p-6">
