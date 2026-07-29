@@ -6,7 +6,7 @@ import EditorTab from './components/EditorTab';
 import PackagerTab from './components/PackagerTab';
 import SmartRemoveTab from './components/SmartRemoveTab';
 import AnimatorTab from './components/AnimatorTab';
-import ImageResizerTab from './components/ImageResizerTab';
+import CropResizeTab from './components/CropResizeTab';
 import SvgConverterTab from './components/SvgConverterTab';
 import OutpaintTab from './components/OutpaintTab';
 import LocalRedrawTab from './components/LocalRedrawTab';
@@ -197,7 +197,7 @@ const ImageEditorApp: React.FC = () => {
                         </TabPanel>
                         <TabPanel id="resize" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 overflow-y-auto custom-scrollbar">
                             <Suspense fallback={<div className="flex items-center justify-center h-full">Loading...</div>}>
-                                <ImageResizerTab />
+                                <CropResizeTab />
                             </Suspense>
                         </TabPanel>
                         <TabPanel id="svg" className="flex-1 w-full outline-none animate-in fade-in zoom-in-95 duration-300 overflow-y-auto custom-scrollbar">
