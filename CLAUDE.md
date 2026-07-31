@@ -32,11 +32,15 @@ npm run e2e              # Playwright E2E 測試
 | 路徑 | 頁面 | 說明 |
 |------|------|------|
 | `/` | Landing | 功能入口首頁 |
-| `/generator/*` | Generator | AI 圖像生成，9 個子功能 Tab |
+| `/generator/*` | Generator | AI 圖像生成，10 個子功能 Tab（含 sprite-sheet 貼圖分鏡表） |
 | `/image-editor/*` | ImageEditor | 圖像編輯套件，8 個子功能 Tab |
+| `/animated-sticker` | AnimatedSticker | LINE 動態貼圖製作：影片＋4×2 格線抽幀 → 8 張 320×270 APNG，含主圖/頁籤圖產生器、LINE 規格驗證與自動壓縮 |
+| `/ai-video` | AiVideo | AI 影片生成（Gemini Veo / Grok），走 `api/ai-video.ts` proxy，job 存 IndexedDB `aiVideoJobs` |
+| `/sprite-sheet-generator` | — | 302 轉址至 `/generator?tab=sprite-sheet` |
 | `/photo-collage/*` | PhotoCollage | 照片拼貼，含 AI 自動排版、文字標注（字型/大小/顏色） |
 | `/drawing-studio/*` | DrawingStudio | 手繪畫布，含筆刷/圖層 |
 | `/print-sheet` | PrintSheet | 貼紙/證件照列印版面 |
+| `/print-preflight` | PrintPreflight | 列印前檢查：DPI/銳利度/噪點/CMYK 風險 |
 | `/gallery` | Gallery | IndexedDB 作品瀏覽庫 |
 | `/layer-lab` | LayerLab | 進階圖層合成/遮罩實驗室 |
 
@@ -44,8 +48,8 @@ npm run e2e              # Playwright E2E 測試
 
 ```
 src/
-├── pages/       # 各功能頁面（Landing/Generator/ImageEditor/PhotoCollage/DrawingStudio/PrintSheet/Gallery/LayerLab/Editor/Packager/Eraser）
-├── features/    # 可重用 Feature Cores（re-export 模式，不含業務邏輯）
+├── pages/       # 各功能頁面（Landing/Generator/ImageEditor/AnimatedSticker/AiVideo/PhotoCollage/DrawingStudio/PrintSheet/PrintPreflight/Gallery/LayerLab/Editor/Packager/Eraser/Animator/SpriteSheetGenerator）
+├── features/    # `*-core/` 是 re-export 模式（不含業務邏輯）；`ai-video/`、`sprite-sheet-generator/` 是含實際邏輯的 feature 模組（服務層/prompt 組裝/持久化）
 ├── components/  # 跨頁面共用元件（GalleryPicker、LinePreviewModal、shared/、ui/）
 ├── shared/      # 共用工具函式（geminiApiKey、localStorage、types/）
 ├── locales/     # i18n 翻譯檔（en.json、zh-TW.json、landing_en.json）
@@ -80,6 +84,8 @@ src/
 | `framer-motion` | 頁面/元件動畫 |
 | `dompurify` | SVG/HTML sanitize（防 XSS） |
 | `idb` | IndexedDB Promise 封裝 |
+| `upng-js` | APNG 編碼（動態貼圖輸出，`AnimatedSticker/utils/apng.ts`） |
+| `file-saver` | Blob 下載（單張圖仍優先走 `useImageShare`） |
 
 ### PWA 設定
 
@@ -168,17 +174,26 @@ src/
 - `GoogleGenAI` 實例在 `geminiService.ts` 有 Map 快取（clientCache），同 key 不重複建立
 - `@imgly/background-removal` 模型資料由 `copy-imgly-assets.js` 在 `postinstall` 複製到 `public/imgly-data/`
 - GIF 動畫使用 `gif.js` Web Worker（`public/gif.worker.js`），不要移動此檔案位置
+- 本地 dev 的 `/api/*`（openai-image / openai-text / ai-video）由 `vite.config.ts` 的 `localVercelApiPlugin` 直接掛載 serverless handler，不需要 `vercel dev`；新增 api handler 時記得在該 plugin 註冊
 - Code review 記錄存 `docs/code-review-YYYY-MM-DD.md`，不建立 `tasks/` 目錄
 
 ---
 
 ## AI Provider 架構
 
-- **雙 provider（Gemini / OpenAI）覆蓋範圍**：Generator 全部 9 個 tab、PhotoCollage `AutoCollageTab`、ImageEditor `LocalRedrawTab` / `OutpaintTab`。
-- API key 分開儲存：`gemini_api_key` / `openai_api_key`（localStorage 或 sessionStorage，統一走 `src/shared/geminiApiKey.ts`）。
+- **雙 provider（Gemini / OpenAI）覆蓋範圍**：Generator 全部 10 個 tab、PhotoCollage `AutoCollageTab`、ImageEditor `LocalRedrawTab` / `OutpaintTab`。
+- API key 分開儲存：`gemini_api_key` / `openai_api_key`（localStorage 或 sessionStorage，統一走 `src/shared/geminiApiKey.ts`）；AiVideo 的 Grok key 存 `grok_api_key`（`src/features/ai-video/apiKeys.ts`）。
 - **Gemini**：前端直連（BYOK）。**OpenAI**：一律走 Vercel proxy — 圖片生成/edit 走 `api/openai-image.ts`、文字走 `api/openai-text.ts`。
 - Proxy 有 abuse guard（`api/_guard.ts`）：同源 Origin 檢查、model allowlist、prompt/輸入長度與圖片數量上限。新 model 要先加進 allowlist。
 - Generator 的 per-tab provider 狀態集中在 `Generator/App.tsx` 的 `tabProviders: Record<TabId, AiProvider>`，不要新增獨立 useState。
+
+### AI 影片（AiVideo）
+
+- Provider：**Gemini Veo** 與 **Grok**（`api.x.ai`），皆 BYOK、一律走 `api/ai-video.ts` proxy（同樣套 `api/_guard.ts` 的 origin 檢查與 body 上限）。
+- **Model ID 寫死在 `api/ai-video.ts` server 端**，client 傳的 `model` 欄位會被忽略——換 model 要改 proxy，不是改前端。
+- 流程是兩段式：`create` 建 job → 前端輪詢 `status`；job（含 MP4 blob）存 IndexedDB `aiVideoJobs` store（`src/db.ts`，DB version 2），可經 `?job=` 參數跨 reload 續看。
+- 完成的 MP4 可轉送 `/animated-sticker?videoJob=<id>` 切幀做動態貼圖。
+- 新增上游網域時要同步更新 `vercel.json` 的 CSP（`media-src`/`connect-src`，目前含 `*.googleapis.com`、`*.x.ai`）。
 
 ## Available CLI Tools (OpenCLI)
 
