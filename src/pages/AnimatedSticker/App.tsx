@@ -33,6 +33,10 @@ import { StickerResultCard } from './components/StickerResultCard';
 import { MainImageMaker } from './components/MainImageMaker';
 import { TabImageMaker } from './components/TabImageMaker';
 import { VideoBoardPreview } from './components/VideoBoardPreview';
+import {
+    createAnimatedStickerBatchId,
+    saveAnimatedStickerResults,
+} from './gallery';
 import type {
     AnimatedStickerResult,
     ProcessingProgress,
@@ -91,6 +95,7 @@ const AnimatedStickerApp = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const resultsRef = useRef<AnimatedStickerResult[]>([]);
     const loadedVideoJobRef = useRef<string | null>(null);
+    const galleryBatchIdRef = useRef<string | null>(null);
     const [searchParams] = useSearchParams();
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
     const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
@@ -126,12 +131,33 @@ const AnimatedStickerApp = () => {
     };
 
     const resetResults = () => {
+        galleryBatchIdRef.current = null;
         setResults((current) => {
             current.forEach((result) => URL.revokeObjectURL(result.url));
             return [];
         });
         setProgress(null);
         setCompressionProgress(0);
+    };
+
+    const persistResultsInGallery = async (
+        nextResults: AnimatedStickerResult[],
+        batchId: string,
+    ) => {
+        try {
+            await saveAnimatedStickerResults(nextResults, {
+                batchId,
+                timestamp: Date.now(),
+                phrase: (number) => t('animatedSticker.galleryItemTitle', { number }),
+                description: t('animatedSticker.galleryItemDescription', {
+                    source: sourceFileName || t('animatedSticker.galleryUnknownSource'),
+                }),
+            });
+        } catch (error) {
+            showToast(t('animatedSticker.errors.gallerySaveFailed', {
+                reason: error instanceof Error ? error.message : String(error),
+            }), 'error');
+        }
     };
 
     const loadFile = (file: File) => {
@@ -211,7 +237,10 @@ const AnimatedStickerApp = () => {
 
         try {
             const processed = await processVideoBoard({ video, settings, onProgress: setProgress });
+            const batchId = createAnimatedStickerBatchId();
+            galleryBatchIdRef.current = batchId;
             setResults(processed);
+            await persistResultsInGallery(processed, batchId);
             showToast(t('animatedSticker.toast.ready'), 'success');
         } catch (error) {
             const reason = error instanceof Error ? error.message : String(error);
@@ -261,6 +290,9 @@ const AnimatedStickerApp = () => {
                 });
                 return compressedResults;
             });
+            if (galleryBatchIdRef.current) {
+                await persistResultsInGallery(compressedResults, galleryBatchIdRef.current);
+            }
             const remaining = compressedResults.filter((result) => result.sizeBytes >= MAX_LINE_FILE_SIZE).length;
             showToast(
                 remaining === 0

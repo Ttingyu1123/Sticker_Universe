@@ -2827,6 +2827,9 @@
     "compressing": "縮檔中 {{current}}／{{total}}",
     "compressedProfile": "{{colors}} 色 · {{frames}} 畫格",
     "downloadZip": "下載全部 ZIP",
+    "galleryItemTitle": "動態貼圖 {{number}}",
+    "galleryItemDescription": "來源影片：{{source}}",
+    "galleryUnknownSource": "上傳的影片",
     "resultAlt": "動態貼圖 {{number}} 預覽",
     "lineReady": "LINE 尺寸通過",
     "lineCompliant": "LINE 規格通過",
@@ -2858,7 +2861,8 @@
       "mp4Only": "目前僅支援 MP4 影片",
       "fileTooLarge": "影片超過 500 MB，請先縮短或壓縮",
       "processingFailed": "動態貼圖製作失敗：{{reason}}",
-      "compressionFailed": "動態貼圖縮檔失敗：{{reason}}"
+      "compressionFailed": "動態貼圖縮檔失敗：{{reason}}",
+      "gallerySaveFailed": "貼圖已完成，但存入作品集失敗：{{reason}}"
     }
   },
   "spriteSheet": {

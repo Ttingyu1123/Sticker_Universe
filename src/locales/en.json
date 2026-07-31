@@ -2743,6 +2743,9 @@
     "compressing": "Compressing {{current}}/{{total}}",
     "compressedProfile": "{{colors}} colors · {{frames}} frames",
     "downloadZip": "Download all as ZIP",
+    "galleryItemTitle": "Animated sticker {{number}}",
+    "galleryItemDescription": "Created from {{source}}",
+    "galleryUnknownSource": "uploaded video",
     "resultAlt": "Animated sticker {{number}} preview",
     "lineReady": "LINE size ready",
     "lineCompliant": "LINE requirements passed",
@@ -2774,7 +2777,8 @@
       "mp4Only": "Only MP4 video is currently supported",
       "fileTooLarge": "The video is larger than 500 MB. Trim or compress it first.",
       "processingFailed": "Animated sticker processing failed: {{reason}}",
-      "compressionFailed": "Animated sticker compression failed: {{reason}}"
+      "compressionFailed": "Animated sticker compression failed: {{reason}}",
+      "gallerySaveFailed": "The stickers are ready, but saving them to Gallery failed: {{reason}}"
     }
   },
   "spriteSheet": {

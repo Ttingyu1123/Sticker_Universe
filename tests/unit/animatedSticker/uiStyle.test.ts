@@ -61,6 +61,15 @@ describe('animated sticker page readability', () => {
         expect(resultCardSource).toContain('originalSizeBytes');
     });
 
+    it('saves generated APNG files to Gallery and updates the same records after compression', () => {
+        expect(appSource).toContain('createAnimatedStickerBatchId');
+        expect(appSource).toContain('saveAnimatedStickerResults');
+        expect(appSource).toContain('await persistResultsInGallery(processed, batchId)');
+        expect(appSource).toContain(
+            'await persistResultsInGallery(compressedResults, galleryBatchIdRef.current)',
+        );
+    });
+
     it('labels results from all LINE requirements instead of file size alone', () => {
         expect(resultCardSource).toContain('validateLineAnimatedSticker(result)');
         expect(resultCardSource).toContain("t('animatedSticker.lineCompliant')");
