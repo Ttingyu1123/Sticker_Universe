@@ -12,6 +12,10 @@ export const STYLE_PROMPTS: Record<SpriteSheetStyle, string> = {
     cel: 'High-quality cel-shaded animation art, confident dark linework, flat controlled colors, readable silhouette, production model-sheet consistency.',
     clay: 'Soft handcrafted 3D clay character, rounded forms, tactile clay material, gentle studio lighting, consistent sculpt and proportions.',
     sketch: 'Warm hand-drawn colored-pencil illustration, clean expressive strokes, restrained paper texture only on the character, consistent linework.',
+    'flat-vector': 'Clean flat vector sticker art, closed crisp contours, flat opaque color fills, no gradients, no textures, no transparency, and a simple readable silhouette.',
+    'bold-cartoon': 'Bold-outline cartoon sticker art, thick uniform dark outer linework, simplified shapes, solid opaque fills, no brush fringe, no soft shading, and a closed readable silhouette.',
+    'retro-comic': 'Retro comic sticker art, bold inked contours, limited flat palette, halftone texture only inside opaque shapes and never touching the outer silhouette, no paper texture, and no soft shadows.',
+    'pixel-art': 'Crisp native pixel art, hard-edged square pixel clusters, limited opaque palette, no anti-aliasing, no blur, no gradients, no glow, and no subpixel smoothing.',
 };
 
 const normalizeColor = (color: string): string => (

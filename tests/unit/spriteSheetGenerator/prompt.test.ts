@@ -7,6 +7,7 @@ import {
     SPRITE_ROWS,
     SPRITE_SHEET_HEIGHT,
     SPRITE_SHEET_WIDTH,
+    STYLE_PROMPTS,
 } from '../../../src/features/sprite-sheet-generator/prompt';
 import type { StickerConcept } from '../../../src/features/sprite-sheet-generator/types';
 
@@ -54,6 +55,26 @@ describe('sticker collection prompt', () => {
             backgroundColor: '#00FF00',
             includeText: false,
         })).toThrow('Exactly 8 sticker concepts are required');
+    });
+
+    it('defines four chroma-friendly visual style directions', () => {
+        expect(STYLE_PROMPTS['flat-vector']).toContain('flat opaque color fills');
+        expect(STYLE_PROMPTS['bold-cartoon']).toContain('thick uniform');
+        expect(STYLE_PROMPTS['retro-comic']).toContain('halftone');
+        expect(STYLE_PROMPTS['pixel-art']).toContain('no anti-aliasing');
+    });
+
+    it('includes the selected chroma-friendly style in the image prompt', () => {
+        const prompt = buildSpriteSheetPrompt({
+            concepts,
+            characterDescription: 'orange cat wearing a blue scarf',
+            style: 'pixel-art',
+            backgroundColor: '#00FF00',
+            includeText: true,
+        });
+
+        expect(prompt).toContain(STYLE_PROMPTS['pixel-art']);
+        expect(prompt).toContain('hard-edged square pixel clusters');
     });
 
     it('asks the planning model for image-specific, non-sensitive ideas', () => {
