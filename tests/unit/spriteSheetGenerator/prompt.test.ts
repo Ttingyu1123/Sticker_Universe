@@ -75,4 +75,17 @@ describe('sticker collection prompt', () => {
         expect(prompt).toContain('第 1 種獨特表情與動作');
         expect(prompt).toContain('This is the next batch in the same sticker series');
     });
+
+    it('requires the planning model to use user-specified captions verbatim', () => {
+        const prompt = buildConceptPlanningPrompt(
+            '角色是咖啡店吉祥物',
+            concepts.slice(0, 2),
+            ['路上小心', '我到家了'],
+        );
+
+        expect(prompt).toContain('REQUIRED CAPTIONS — USE VERBATIM');
+        expect(prompt).toContain('1. 路上小心');
+        expect(prompt).toContain('2. 我到家了');
+        expect(prompt).toContain('Do not alter, paraphrase, shorten, or add punctuation');
+    });
 });

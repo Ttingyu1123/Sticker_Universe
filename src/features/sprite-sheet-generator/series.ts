@@ -10,10 +10,122 @@ export interface StickerSeriesBatch {
     concepts: StickerConcept[];
 }
 
+export interface StickerSeriesArchive {
+    id: string;
+    name: string;
+    createdAt: number;
+    concepts: StickerConcept[];
+}
+
 const normalizeForComparison = (value: string): string => value
     .normalize('NFKC')
     .toLocaleLowerCase('zh-TW')
     .replace(/[\p{P}\p{S}\s]/gu, '');
+
+export const parseRequiredCaptions = (input: string): string[] => {
+    const seen = new Set<string>();
+    const captions: string[] = [];
+
+    for (const value of input.split(/[\n\r,，、]+/)) {
+        const caption = value.trim();
+        const normalized = normalizeForComparison(caption);
+        if (!normalized || seen.has(normalized)) continue;
+        seen.add(normalized);
+        captions.push(caption);
+        if (captions.length === MAX_SERIES_STICKERS) break;
+    }
+
+    return captions;
+};
+
+export const getRequiredCaptionsForBatch = (
+    requiredCaptions: string[],
+    batches: StickerSeriesBatch[],
+    editingBatchIndex: number | null,
+): string[] => {
+    const usedConcepts = editingBatchIndex === null
+        ? getSeriesConcepts(batches)
+        : getSeriesConceptsExcludingBatch(batches, editingBatchIndex);
+    const usedCaptions = new Set(usedConcepts.map((concept) => normalizeForComparison(concept.caption)));
+    return requiredCaptions
+        .filter((caption) => !usedCaptions.has(normalizeForComparison(caption)))
+        .slice(0, STICKERS_PER_BATCH);
+};
+
+export const findRequiredCaptionConflicts = (
+    requiredCaptions: string[],
+    excludedConcepts: StickerConcept[],
+): string[] => {
+    const excludedCaptions = new Set(
+        excludedConcepts.map((concept) => normalizeForComparison(concept.caption)),
+    );
+    return requiredCaptions.filter((caption) => (
+        excludedCaptions.has(normalizeForComparison(caption))
+    ));
+};
+
+export const createStickerSeriesArchive = (
+    name: string,
+    batches: StickerSeriesBatch[],
+    createdAt = Date.now(),
+): StickerSeriesArchive | null => {
+    const concepts = getSeriesConcepts(batches);
+    if (concepts.length === 0) return null;
+    return {
+        id: `series-${createdAt}`,
+        name: name.trim() || `系列 ${createdAt}`,
+        createdAt,
+        concepts: concepts.map((concept) => ({ ...concept })),
+    };
+};
+
+const isStickerConcept = (value: unknown): value is StickerConcept => {
+    if (!value || typeof value !== 'object') return false;
+    const concept = value as Partial<StickerConcept>;
+    return typeof concept.theme === 'string'
+        && concept.theme.trim().length > 0
+        && typeof concept.caption === 'string'
+        && concept.caption.trim().length > 0
+        && typeof concept.visual === 'string'
+        && concept.visual.trim().length > 0;
+};
+
+export const parseStickerSeriesArchives = (value: unknown): StickerSeriesArchive[] => {
+    if (!Array.isArray(value)) return [];
+    return value.flatMap((item) => {
+        if (!item || typeof item !== 'object') return [];
+        const archive = item as Partial<StickerSeriesArchive>;
+        if (
+            typeof archive.id !== 'string'
+            || archive.id.trim().length === 0
+            || typeof archive.name !== 'string'
+            || archive.name.trim().length === 0
+            || typeof archive.createdAt !== 'number'
+            || !Number.isFinite(archive.createdAt)
+            || !Array.isArray(archive.concepts)
+            || archive.concepts.length === 0
+            || !archive.concepts.every(isStickerConcept)
+        ) return [];
+        return [{
+            id: archive.id,
+            name: archive.name,
+            createdAt: archive.createdAt,
+            concepts: archive.concepts.map((concept) => ({ ...concept })),
+        }];
+    });
+};
+
+export const getSelectedArchiveConcepts = (
+    archives: StickerSeriesArchive[],
+    selectedIds: string[],
+): StickerConcept[] => {
+    const selected = new Set(selectedIds);
+    return archives.flatMap((archive) => (
+        selected.has(archive.id)
+            ? archive.concepts.map((concept) => ({ ...concept }))
+            : []
+    ));
+};
 
 const getBatchSignature = (concepts: StickerConcept[]): string => concepts
     .map((concept) => [concept.theme, concept.caption, concept.visual]

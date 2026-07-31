@@ -10,6 +10,7 @@ interface SuggestStickerConceptsOptions {
     referenceImage: string;
     characterNotes?: string;
     previousConcepts?: StickerConcept[];
+    requiredCaptions?: string[];
 }
 
 interface StickerConceptResponse {
@@ -52,6 +53,7 @@ const CONCEPT_SCHEMA = {
 export const buildConceptPlanningPrompt = (
     characterNotes = '',
     previousConcepts: StickerConcept[] = [],
+    requiredCaptions: string[] = [],
 ) => {
     const exclusionList = previousConcepts.length > 0
         ? `
@@ -67,6 +69,16 @@ ${previousConcepts.map((concept, index) => (
 - The new 8 concepts must add genuinely new communication needs and performances to the series.
 `
         : '';
+    const requiredCaptionList = requiredCaptions.length > 0
+        ? `
+REQUIRED CAPTIONS — USE VERBATIM:
+${requiredCaptions.map((caption, index) => `${index + 1}. ${caption}`).join('\n')}
+
+- Include every required caption exactly once among the 8 concepts.
+- Do not alter, paraphrase, shorten, or add punctuation to any required caption.
+- Design a distinct theme and visual performance that naturally supports each required caption.
+`
+        : '';
 
     return `
 Analyze the uploaded character reference and design a practical set of exactly 8 different LINE-style chat stickers for this specific character.
@@ -74,6 +86,7 @@ Analyze the uploaded character reference and design a practical set of exactly 8
 Character notes from the user:
 ${characterNotes.trim() || 'None. Infer only visible, non-sensitive design traits from the image.'}
 ${exclusionList}
+${requiredCaptionList}
 
 PLANNING GOALS:
 - Make the set feel authored for this character, not copied from a generic fixed prompt list.
@@ -111,6 +124,7 @@ const parseDataUrl = (dataUrl: string) => {
 const normalizeConcepts = (
     payload: StickerConceptResponse,
     previousConcepts: StickerConcept[] = [],
+    requiredCaptions: string[] = [],
 ): StickerConceptResponse => {
     const concepts = Array.isArray(payload?.concepts)
         ? payload.concepts.map((item) => ({
@@ -130,6 +144,16 @@ const normalizeConcepts = (
         throw new Error(`AI repeats earlier sticker content: ${repeated}`);
     }
 
+    const returnedCaptions = new Set(
+        concepts.map((concept) => concept.caption.normalize('NFKC').trim()),
+    );
+    const missingRequiredCaptions = requiredCaptions.filter((caption) => (
+        !returnedCaptions.has(caption.normalize('NFKC').trim())
+    ));
+    if (missingRequiredCaptions.length > 0) {
+        throw new Error(`AI is missing required sticker captions: ${missingRequiredCaptions.join('、')}`);
+    }
+
     return {
         characterSummary: String(payload?.characterSummary || '').trim().slice(0, 300),
         recommendedBackgroundColor: /^#[0-9a-fA-F]{6}$/.test(payload?.recommendedBackgroundColor || '')
@@ -146,8 +170,9 @@ export const suggestStickerConcepts = async ({
     referenceImage,
     characterNotes = '',
     previousConcepts = [],
+    requiredCaptions = [],
 }: SuggestStickerConceptsOptions): Promise<StickerConceptResponse> => {
-    const prompt = buildConceptPlanningPrompt(characterNotes, previousConcepts);
+    const prompt = buildConceptPlanningPrompt(characterNotes, previousConcepts, requiredCaptions);
 
     if (provider === 'openai') {
         const payload = await generateOpenAiJson<StickerConceptResponse>(
@@ -167,7 +192,7 @@ export const suggestStickerConcepts = async ({
                 maxOutputTokens: 4096,
             },
         );
-        return normalizeConcepts(payload, previousConcepts);
+        return normalizeConcepts(payload, previousConcepts, requiredCaptions);
     }
 
     const image = parseDataUrl(referenceImage);
@@ -184,5 +209,9 @@ export const suggestStickerConcepts = async ({
     });
     const text = response.text?.trim();
     if (!text) throw new Error('Gemini returned no sticker concepts.');
-    return normalizeConcepts(JSON.parse(text.replace(/```json\n?|\n?```/g, '').trim()), previousConcepts);
+    return normalizeConcepts(
+        JSON.parse(text.replace(/```json\n?|\n?```/g, '').trim()),
+        previousConcepts,
+        requiredCaptions,
+    );
 };

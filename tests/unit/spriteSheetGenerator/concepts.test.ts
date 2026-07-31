@@ -65,4 +65,28 @@ describe('OpenAI sticker concept planning', () => {
         const requestInput = generateOpenAiJsonMock.mock.calls[0][1][0].content[0].text;
         expect(requestInput).toContain(previousConcept.caption);
     });
+
+    it('accepts a plan containing every user-required caption', async () => {
+        const result = await suggestStickerConcepts({
+            provider: 'openai',
+            apiKey: 'sk-test-key',
+            referenceImage: 'data:image/jpeg;base64,AA==',
+            requiredCaptions: ['短句1', '短句8'],
+        });
+
+        expect(result.concepts.map((concept) => concept.caption)).toEqual(
+            expect.arrayContaining(['短句1', '短句8']),
+        );
+        const requestInput = generateOpenAiJsonMock.mock.calls[0][1][0].content[0].text;
+        expect(requestInput).toContain('REQUIRED CAPTIONS — USE VERBATIM');
+    });
+
+    it('rejects a plan that omits a user-required caption', async () => {
+        await expect(suggestStickerConcepts({
+            provider: 'openai',
+            apiKey: 'sk-test-key',
+            referenceImage: 'data:image/jpeg;base64,AA==',
+            requiredCaptions: ['一定要有'],
+        })).rejects.toThrow('missing required sticker captions: 一定要有');
+    });
 });
