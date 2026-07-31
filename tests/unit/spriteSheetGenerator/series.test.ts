@@ -22,6 +22,13 @@ const requiredCaptionControls = seriesControls as typeof seriesControls & {
         requiredCaptions: string[],
         excludedConcepts: StickerConcept[],
     ) => string[];
+    findMissingRequiredCaptions?: (
+        requiredCaptions: string[],
+        concepts: StickerConcept[],
+    ) => string[];
+    findOverlongRequiredCaptions?: (
+        requiredCaptions: string[],
+    ) => string[];
     createStickerSeriesArchive?: (
         name: string,
         batches: import('../../../src/features/sprite-sheet-generator/series').StickerSeriesBatch[],
@@ -84,6 +91,25 @@ describe('sticker collection series', () => {
             ['早安', '全新詞'],
             [{ theme: '問候', caption: '早 安！', visual: '揮手' }],
         )).toEqual(['早安']);
+    });
+
+    it('finds required captions removed from an edited batch', () => {
+        expect(requiredCaptionControls.findMissingRequiredCaptions).toBeTypeOf('function');
+        expect(requiredCaptionControls.findMissingRequiredCaptions?.(
+            ['早安', '路上小心'],
+            [
+                { theme: '問候', caption: '早安', visual: '揮手' },
+                { theme: '叮嚀', caption: '路上 小心', visual: '目送' },
+            ],
+        )).toEqual(['路上小心']);
+    });
+
+    it('finds required captions that exceed the sticker text limit', () => {
+        expect(requiredCaptionControls.findOverlongRequiredCaptions).toBeTypeOf('function');
+        expect(requiredCaptionControls.findOverlongRequiredCaptions?.([
+            '一二三四五六七八九十甲乙',
+            '一二三四五六七八九十甲乙丙',
+        ])).toEqual(['一二三四五六七八九十甲乙丙']);
     });
 
     it('archives completed batches as one named historical series', () => {

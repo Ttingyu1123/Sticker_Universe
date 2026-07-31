@@ -56,4 +56,32 @@ describe('sprite sheet page readability', () => {
         expect(source).toContain("t('spriteSheet.regenerateBatchImage'");
         expect(source).toContain("t('spriteSheet.replanBatch'");
     });
+
+    it('lets users name a series and enter captions that AI must include', () => {
+        expect(source).toContain("t('spriteSheet.seriesName')");
+        expect(source).toContain("t('spriteSheet.requiredCaptions')");
+        expect(source).toContain('requiredCaptionsInput');
+        expect(source).toContain('parseRequiredCaptions(requiredCaptionsInput)');
+        expect(source).toContain('requiredCaptions: batchRequiredCaptions');
+    });
+
+    it('lets users exclude selected historical series from new planning', () => {
+        expect(source).toContain("t('spriteSheet.previousSeries')");
+        expect(source).toContain('archivedSeries');
+        expect(source).toContain('excludedSeriesIds');
+        expect(source).toContain('getSelectedArchiveConcepts(archivedSeries, excludedSeriesIds)');
+    });
+
+    it('archives the current batches before starting a new series', () => {
+        expect(source).toContain('createStickerSeriesArchive(seriesName, completedBatches)');
+        expect(source).toContain('setArchivedSeries');
+        expect(source).toContain("t('spriteSheet.startNewSeries')");
+    });
+
+    it('blocks generation when edits remove required captions or reuse archived content', () => {
+        expect(source).toContain('findMissingRequiredCaptions(batchRequiredCaptions, concepts)');
+        expect(source).toContain('...selectedArchiveConcepts');
+        expect(source).toContain("t('spriteSheet.missingRequiredCaptions'");
+        expect(source).toContain("t('spriteSheet.seriesConflict'");
+    });
 });

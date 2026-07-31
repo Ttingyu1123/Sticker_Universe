@@ -24,6 +24,9 @@ const draft: SpriteSheetPlanDraft = {
     includeText: true,
     completedBatches: [],
     editingBatchIndex: null,
+    seriesName: '上班貓 Vol.2',
+    requiredCaptions: ['早安', '路上小心'],
+    excludedSeriesIds: ['series-1'],
 };
 
 describe('sprite-sheet plan persistence', () => {
@@ -58,5 +61,24 @@ describe('sprite-sheet plan persistence', () => {
         });
 
         expect(parseSpriteSheetPlanGalleryItem(item)?.editingBatchIndex).toBe(0);
+    });
+
+    it('restores safe defaults from plans saved before series controls existed', () => {
+        const item = createSpriteSheetPlanGalleryItem(draft, {
+            id: 'legacy-plan',
+            timestamp: 789,
+            title: '舊版企劃',
+        });
+        const data = item.project?.data as Record<string, unknown>;
+        delete data.seriesName;
+        delete data.requiredCaptions;
+        delete data.excludedSeriesIds;
+
+        expect(parseSpriteSheetPlanGalleryItem(item)).toEqual({
+            ...draft,
+            seriesName: '我的貼圖系列',
+            requiredCaptions: [],
+            excludedSeriesIds: [],
+        });
     });
 });

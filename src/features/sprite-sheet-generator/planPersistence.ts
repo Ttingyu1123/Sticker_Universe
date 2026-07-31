@@ -5,6 +5,7 @@ import type { StickerSeriesBatch } from './series';
 export const SPRITE_SHEET_PROJECT_TYPE = 'sprite-sheet-plan';
 export const SPRITE_SHEET_DRAFT_ID = 'sprite-sheet-plan-current-draft';
 const PROJECT_VERSION = 1;
+export const DEFAULT_STICKER_SERIES_NAME = '我的貼圖系列';
 
 export interface SpriteSheetPlanDraft {
     referenceImage: string;
@@ -20,6 +21,9 @@ export interface SpriteSheetPlanDraft {
     includeText: boolean;
     completedBatches: StickerSeriesBatch[];
     editingBatchIndex: number | null;
+    seriesName: string;
+    requiredCaptions: string[];
+    excludedSeriesIds: string[];
 }
 
 interface StoredSpriteSheetPlan extends Omit<SpriteSheetPlanDraft, 'referenceImage'> {}
@@ -45,6 +49,8 @@ const buildPlanDescription = (draft: SpriteSheetPlanDraft): string => {
         `- **去背色：** ${draft.backgroundColor.toUpperCase()}`,
         `- **選色原因：** ${backgroundReason}`,
         `- **系列進度：** ${draft.completedBatches.length * 8} / 24 張已生成`,
+        `- **系列名稱：** ${draft.seriesName}`,
+        `- **必做貼圖詞：** ${draft.requiredCaptions.join('、') || '未指定'}`,
         '',
         concepts,
     ].join('\n');
@@ -109,5 +115,14 @@ export const parseSpriteSheetPlanGalleryItem = (item: Sticker): SpriteSheetPlanD
             ...batch,
             concepts: batch.concepts.map((concept) => ({ ...concept })),
         })),
+        seriesName: typeof data.seriesName === 'string' && data.seriesName.trim()
+            ? data.seriesName
+            : DEFAULT_STICKER_SERIES_NAME,
+        requiredCaptions: Array.isArray(data.requiredCaptions)
+            ? data.requiredCaptions.filter((caption): caption is string => typeof caption === 'string').slice(0, 24)
+            : [],
+        excludedSeriesIds: Array.isArray(data.excludedSeriesIds)
+            ? data.excludedSeriesIds.filter((id): id is string => typeof id === 'string')
+            : [],
     };
 };

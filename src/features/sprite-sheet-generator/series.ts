@@ -3,6 +3,7 @@ import type { StickerConcept } from './types';
 export const STICKERS_PER_BATCH = 8;
 export const MAX_SERIES_BATCHES = 3;
 export const MAX_SERIES_STICKERS = STICKERS_PER_BATCH * MAX_SERIES_BATCHES;
+export const MAX_STICKER_CAPTION_LENGTH = 12;
 
 export interface StickerSeriesBatch {
     signature: string;
@@ -63,6 +64,24 @@ export const findRequiredCaptionConflicts = (
         excludedCaptions.has(normalizeForComparison(caption))
     ));
 };
+
+export const findMissingRequiredCaptions = (
+    requiredCaptions: string[],
+    concepts: StickerConcept[],
+): string[] => {
+    const captions = new Set(
+        concepts.map((concept) => concept.caption.normalize('NFKC').trim()),
+    );
+    return requiredCaptions.filter((caption) => (
+        !captions.has(caption.normalize('NFKC').trim())
+    ));
+};
+
+export const findOverlongRequiredCaptions = (
+    requiredCaptions: string[],
+): string[] => requiredCaptions.filter((caption) => (
+    caption.normalize('NFKC').trim().length > MAX_STICKER_CAPTION_LENGTH
+));
 
 export const createStickerSeriesArchive = (
     name: string,

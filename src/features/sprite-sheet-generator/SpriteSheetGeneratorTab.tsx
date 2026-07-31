@@ -41,24 +41,42 @@ import { fileToDataUrl, normalizeSpriteSheet, prepareAnalysisImage } from './ima
 import { buildSpriteSheetPrompt, SPRITE_FRAME_COUNT } from './prompt';
 import {
     createSpriteSheetPlanGalleryItem,
+    DEFAULT_STICKER_SERIES_NAME,
     parseSpriteSheetPlanGalleryItem,
     SPRITE_SHEET_DRAFT_ID,
     type SpriteSheetPlanDraft,
 } from './planPersistence';
 import {
     appendStickerBatch,
+    createStickerSeriesArchive,
     findConceptConflicts,
+    findMissingRequiredCaptions,
+    findOverlongRequiredCaptions,
+    findRequiredCaptionConflicts,
+    getRequiredCaptionsForBatch,
+    getSelectedArchiveConcepts,
     getSeriesConcepts,
     getSeriesConceptsExcludingBatch,
     isBatchInSeries,
     MAX_SERIES_BATCHES,
     MAX_SERIES_STICKERS,
+    parseRequiredCaptions,
+    parseStickerSeriesArchives,
     replaceStickerBatch,
+    type StickerSeriesArchive,
     type StickerSeriesBatch,
 } from './series';
 
 const STYLE_OPTIONS: SpriteSheetStyle[] = ['reference', 'chibi', 'cel', 'clay', 'sketch'];
 const SERIES_STORAGE_KEY = 'sprite-sheet-series-v1';
+const SERIES_ARCHIVE_STORAGE_KEY = 'sprite-sheet-series-archives-v1';
+const SERIES_PREFERENCES_STORAGE_KEY = 'sprite-sheet-series-preferences-v1';
+
+interface StickerSeriesPreferences {
+    seriesName: string;
+    requiredCaptionsInput: string;
+    excludedSeriesIds: string[];
+}
 
 const loadStickerSeries = (): StickerSeriesBatch[] => {
     if (typeof window === 'undefined') return [];
@@ -69,6 +87,39 @@ const loadStickerSeries = (): StickerSeriesBatch[] => {
         && Array.isArray(batch.concepts)
         && batch.concepts.length === SPRITE_FRAME_COUNT
     )).slice(0, MAX_SERIES_BATCHES);
+};
+
+const loadStickerSeriesArchives = (): StickerSeriesArchive[] => {
+    if (typeof window === 'undefined') return [];
+    return parseStickerSeriesArchives(
+        safeLoadFromLocalStorage<unknown>(SERIES_ARCHIVE_STORAGE_KEY),
+    );
+};
+
+const loadStickerSeriesPreferences = (
+    archives: StickerSeriesArchive[],
+): StickerSeriesPreferences => {
+    if (typeof window === 'undefined') {
+        return {
+            seriesName: DEFAULT_STICKER_SERIES_NAME,
+            requiredCaptionsInput: '',
+            excludedSeriesIds: [],
+        };
+    }
+    const stored = safeLoadFromLocalStorage<Partial<StickerSeriesPreferences>>(
+        SERIES_PREFERENCES_STORAGE_KEY,
+    );
+    return {
+        seriesName: typeof stored?.seriesName === 'string' && stored.seriesName.trim()
+            ? stored.seriesName
+            : DEFAULT_STICKER_SERIES_NAME,
+        requiredCaptionsInput: typeof stored?.requiredCaptionsInput === 'string'
+            ? stored.requiredCaptionsInput
+            : '',
+        excludedSeriesIds: Array.isArray(stored?.excludedSeriesIds)
+            ? stored.excludedSeriesIds.filter((id): id is string => typeof id === 'string')
+            : archives.map((archive) => archive.id),
+    };
 };
 
 interface SpriteSheetGeneratorTabProps {
@@ -84,6 +135,13 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
     const location = useLocation();
     const navigate = useNavigate();
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [initialSeriesControls] = useState(() => {
+        const archives = loadStickerSeriesArchives();
+        return {
+            archives,
+            preferences: loadStickerSeriesPreferences(archives),
+        };
+    });
     const [referenceImage, setReferenceImage] = useState<string | null>(null);
     const [characterDescription, setCharacterDescription] = useState('');
     const [characterSummary, setCharacterSummary] = useState('');
@@ -101,6 +159,16 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
     const [lastPrompt, setLastPrompt] = useState('');
     const [completedBatches, setCompletedBatches] = useState<StickerSeriesBatch[]>(loadStickerSeries);
     const [editingBatchIndex, setEditingBatchIndex] = useState<number | null>(null);
+    const [archivedSeries, setArchivedSeries] = useState<StickerSeriesArchive[]>(
+        initialSeriesControls.archives,
+    );
+    const [seriesName, setSeriesName] = useState(initialSeriesControls.preferences.seriesName);
+    const [requiredCaptionsInput, setRequiredCaptionsInput] = useState(
+        initialSeriesControls.preferences.requiredCaptionsInput,
+    );
+    const [excludedSeriesIds, setExcludedSeriesIds] = useState<string[]>(
+        initialSeriesControls.preferences.excludedSeriesIds,
+    );
     const [isDraftHydrated, setIsDraftHydrated] = useState(false);
     const [draftStatus, setDraftStatus] = useState<'idle' | 'saving' | 'saved' | 'restored'>('idle');
 
@@ -111,6 +179,18 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
 
     const hasCompletePlan = concepts.length === SPRITE_FRAME_COUNT && concepts.every((item) => item.theme.trim() && item.caption.trim() && item.visual.trim());
     const seriesConcepts = useMemo(() => getSeriesConcepts(completedBatches), [completedBatches]);
+    const requiredCaptions = useMemo(
+        () => parseRequiredCaptions(requiredCaptionsInput),
+        [requiredCaptionsInput],
+    );
+    const selectedArchiveConcepts = useMemo(
+        () => getSelectedArchiveConcepts(archivedSeries, excludedSeriesIds),
+        [archivedSeries, excludedSeriesIds],
+    );
+    const batchRequiredCaptions = useMemo(
+        () => getRequiredCaptionsForBatch(requiredCaptions, completedBatches, editingBatchIndex),
+        [completedBatches, editingBatchIndex, requiredCaptions],
+    );
     const completedStickerCount = seriesConcepts.length;
     const isSeriesComplete = completedStickerCount >= MAX_SERIES_STICKERS;
     const activeBatchNumber = editingBatchIndex === null
@@ -131,6 +211,9 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
             includeText,
             completedBatches,
             editingBatchIndex,
+            seriesName,
+            requiredCaptions,
+            excludedSeriesIds,
             ...overrides,
         };
     };
@@ -157,6 +240,9 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
                     setIncludeText(restored.includeText);
                     setCompletedBatches(restored.completedBatches);
                     setEditingBatchIndex(restored.editingBatchIndex);
+                    setSeriesName(restored.seriesName);
+                    setRequiredCaptionsInput(restored.requiredCaptions.join('\n'));
+                    setExcludedSeriesIds(restored.excludedSeriesIds);
                     setResultImage(null);
                     setLastPrompt('');
                     saveStickerBackgroundColor(restored.backgroundColor);
@@ -190,6 +276,14 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
     }, [navigate, requestedPlanId, t]);
 
     useEffect(() => {
+        safeSaveToLocalStorage(SERIES_PREFERENCES_STORAGE_KEY, {
+            seriesName,
+            requiredCaptionsInput,
+            excludedSeriesIds,
+        } satisfies StickerSeriesPreferences);
+    }, [excludedSeriesIds, requiredCaptionsInput, seriesName]);
+
+    useEffect(() => {
         if (!isDraftHydrated || !referenceImage || concepts.length !== SPRITE_FRAME_COUNT) return;
         setDraftStatus('saving');
         const timer = window.setTimeout(() => {
@@ -208,7 +302,7 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
         }, 400);
 
         return () => window.clearTimeout(timer);
-    }, [activeBatchNumber, backgroundColor, backgroundRecommendation, characterDescription, characterSummary, completedBatches, concepts, includeText, isDraftHydrated, referenceImage, style, t]);
+    }, [activeBatchNumber, backgroundColor, backgroundRecommendation, characterDescription, characterSummary, completedBatches, concepts, excludedSeriesIds, includeText, isDraftHydrated, referenceImage, requiredCaptions, seriesName, style, t]);
 
     const prompt = useMemo(() => hasCompletePlan ? buildSpriteSheetPrompt({
         concepts,
@@ -245,6 +339,32 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
             showToast(t('spriteSheet.seriesComplete'), 'error');
             return;
         }
+        const currentSeriesPreviousConcepts = targetBatchIndex === null
+            ? seriesConcepts
+            : getSeriesConceptsExcludingBatch(completedBatches, targetBatchIndex);
+        const previousConcepts = [...currentSeriesPreviousConcepts, ...selectedArchiveConcepts];
+        const batchRequiredCaptions = getRequiredCaptionsForBatch(
+            requiredCaptions,
+            completedBatches,
+            targetBatchIndex,
+        );
+        const overlongRequiredCaptions = findOverlongRequiredCaptions(batchRequiredCaptions);
+        if (overlongRequiredCaptions.length > 0) {
+            showToast(t('spriteSheet.requiredCaptionTooLong', {
+                values: overlongRequiredCaptions.join('、'),
+            }), 'error');
+            return;
+        }
+        const requiredConflicts = findRequiredCaptionConflicts(
+            batchRequiredCaptions,
+            selectedArchiveConcepts,
+        );
+        if (requiredConflicts.length > 0) {
+            showToast(t('spriteSheet.requiredCaptionConflict', {
+                values: requiredConflicts.join('、'),
+            }), 'error');
+            return;
+        }
 
         setIsSuggesting(true);
         setResultImage(null);
@@ -255,9 +375,8 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
                 apiKey: activeKey,
                 referenceImage: analysisImage,
                 characterNotes: characterDescription,
-                previousConcepts: targetBatchIndex === null
-                    ? seriesConcepts
-                    : getSeriesConceptsExcludingBatch(completedBatches, targetBatchIndex),
+                previousConcepts,
+                requiredCaptions: batchRequiredCaptions,
             });
             setCharacterSummary(plan.characterSummary);
             setConcepts(plan.concepts);
@@ -394,9 +513,20 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
         const isEditingBatch = editingBatchIndex !== null
             && Boolean(completedBatches[editingBatchIndex]);
         const batchAlreadyRecorded = isBatchInSeries(completedBatches, concepts);
-        const conceptsToCompare = isEditingBatch
+        const missingRequiredCaptions = findMissingRequiredCaptions(batchRequiredCaptions, concepts);
+        if (missingRequiredCaptions.length > 0) {
+            showToast(t('spriteSheet.missingRequiredCaptions', {
+                values: missingRequiredCaptions.join('、'),
+            }), 'error');
+            return;
+        }
+        const currentSeriesConceptsToCompare = isEditingBatch
             ? getSeriesConceptsExcludingBatch(completedBatches, editingBatchIndex)
             : seriesConcepts;
+        const conceptsToCompare = [
+            ...currentSeriesConceptsToCompare,
+            ...selectedArchiveConcepts,
+        ];
         if (isEditingBatch) {
             const conflicts = findConceptConflicts(concepts, conceptsToCompare);
             if (conflicts.length > 0) {
@@ -502,15 +632,30 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
 
     const resetSeries = () => {
         if (!window.confirm(t('spriteSheet.resetSeriesConfirm'))) return;
+        const archive = createStickerSeriesArchive(seriesName, completedBatches);
+        if (archive) {
+            setArchivedSeries((current) => {
+                const updated = [archive, ...current.filter((item) => item.id !== archive.id)];
+                safeSaveToLocalStorage(SERIES_ARCHIVE_STORAGE_KEY, updated);
+                return updated;
+            });
+            setExcludedSeriesIds((current) => (
+                current.includes(archive.id) ? current : [...current, archive.id]
+            ));
+        }
         setCompletedBatches([]);
         setEditingBatchIndex(null);
         safeSaveToLocalStorage(SERIES_STORAGE_KEY, []);
+        setSeriesName(t('spriteSheet.nextSeriesDefaultName', {
+            number: archivedSeries.length + 2,
+        }));
+        setRequiredCaptionsInput('');
         setConcepts([]);
         setResultImage(null);
         setLastPrompt('');
         setDraftStatus('idle');
         void deleteStickerFromDB(SPRITE_SHEET_DRAFT_ID);
-        showToast(t('spriteSheet.seriesResetToast'), 'success');
+        showToast(t('spriteSheet.seriesArchivedToast'), 'success');
     };
 
     return (
@@ -540,6 +685,70 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
                     <section className="rounded-[2rem] border border-cream-dark bg-cream-light p-5 shadow-sm md:p-7">
                         <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-primary">02 · API & ART DIRECTION</p><h3 className="mt-1 text-2xl font-black text-bronze-text">{t('spriteSheet.planSettingsTitle')}</h3></div><button type="button" onClick={() => onNeedApiKey(provider)} className="flex items-center gap-2 rounded-xl border border-cream-dark bg-cream px-3.5 py-2.5 text-xs font-black text-bronze-text hover:border-primary/40 hover:bg-white hover:text-primary"><KeyRound size={16} /> {t('spriteSheet.changeKey')}</button></div>
                         <div className="mt-5 [&_button]:py-3 [&_button]:text-sm"><ProviderSwitcher value={provider} onChange={onProviderChange} disabled={isSuggesting || isGenerating} /></div>
+                        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+                            <div className="rounded-2xl border border-cream-dark bg-cream p-4">
+                                <label className="block text-sm font-black text-bronze-text">
+                                    {t('spriteSheet.seriesName')}
+                                    <input
+                                        value={seriesName}
+                                        maxLength={60}
+                                        disabled={isSuggesting || isGenerating}
+                                        onChange={(event) => setSeriesName(event.target.value)}
+                                        placeholder={t('spriteSheet.seriesNamePlaceholder')}
+                                        className="mt-2 w-full rounded-xl border border-cream-dark bg-white px-3.5 py-3 text-base font-bold text-bronze-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    />
+                                </label>
+                                <label className="mt-4 block text-sm font-black text-bronze-text">
+                                    {t('spriteSheet.requiredCaptions')}
+                                    <textarea
+                                        value={requiredCaptionsInput}
+                                        rows={4}
+                                        disabled={isSuggesting || isGenerating}
+                                        onChange={(event) => {
+                                            setRequiredCaptionsInput(event.target.value);
+                                            setResultImage(null);
+                                        }}
+                                        placeholder={t('spriteSheet.requiredCaptionsPlaceholder')}
+                                        className="mt-2 w-full resize-y rounded-xl border border-cream-dark bg-white px-3.5 py-3 text-base font-medium leading-6 text-bronze-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    />
+                                </label>
+                                <div className="mt-3 flex items-center justify-between gap-3 text-xs font-bold text-bronze-light">
+                                    <span>{t('spriteSheet.requiredCaptionsCount', {
+                                        count: requiredCaptions.length,
+                                        total: MAX_SERIES_STICKERS,
+                                    })}</span>
+                                    <span>{t('spriteSheet.nextBatchRequiredCount', {
+                                        count: batchRequiredCaptions.length,
+                                    })}</span>
+                                </div>
+                                {requiredCaptions.length > 0 && <div className="mt-3 flex flex-wrap gap-2">
+                                    {requiredCaptions.map((caption) => <span key={caption} className="rounded-full border border-primary/15 bg-white px-3 py-1.5 text-xs font-bold text-primary">{caption}</span>)}
+                                </div>}
+                            </div>
+                            <div className="rounded-2xl border border-cream-dark bg-cream p-4">
+                                <p className="text-sm font-black text-bronze-text">{t('spriteSheet.previousSeries')}</p>
+                                <p className="mt-1 text-xs font-medium leading-5 text-bronze-light">{t('spriteSheet.previousSeriesHint')}</p>
+                                {archivedSeries.length > 0 ? <div className="mt-3 space-y-2">
+                                    {archivedSeries.map((archive) => <label key={archive.id} className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-cream-dark bg-white px-3.5 py-3">
+                                        <span>
+                                            <span className="block text-sm font-black text-bronze-text">{archive.name}</span>
+                                            <span className="mt-1 block text-xs font-bold text-bronze-light">{t('spriteSheet.archivedSeriesCount', { count: archive.concepts.length })}</span>
+                                        </span>
+                                        <input
+                                            type="checkbox"
+                                            checked={excludedSeriesIds.includes(archive.id)}
+                                            disabled={isSuggesting || isGenerating}
+                                            onChange={(event) => setExcludedSeriesIds((current) => (
+                                                event.target.checked
+                                                    ? [...new Set([...current, archive.id])]
+                                                    : current.filter((id) => id !== archive.id)
+                                            ))}
+                                            className="h-5 w-5 accent-primary"
+                                        />
+                                    </label>)}
+                                </div> : <p className="mt-4 rounded-xl border border-dashed border-cream-dark bg-white/70 p-3 text-sm font-medium leading-6 text-bronze-light">{t('spriteSheet.noPreviousSeries')}</p>}
+                            </div>
+                        </div>
                         <div className="mt-6"><p className="mb-2 text-sm font-black text-bronze-text">{t('spriteSheet.styleLabel')}</p><div className="grid grid-cols-2 gap-2 sm:grid-cols-5">{STYLE_OPTIONS.map((option) => <button key={option} type="button" onClick={() => setStyle(option)} className={`rounded-xl border px-3 py-3 text-sm font-black transition-all ${style === option ? 'border-primary bg-primary text-white shadow-sm' : 'border-cream-dark bg-cream text-bronze-light hover:border-primary/30 hover:bg-white hover:text-primary'}`}>{t(`spriteSheet.styles.${option}`)}</button>)}</div></div>
                         <div className="mt-6 grid gap-3 sm:grid-cols-2">
                             <label className="flex items-center justify-between gap-4 rounded-2xl border border-cream-dark bg-cream p-4"><span><span className="block text-sm font-black text-bronze-text">{t('spriteSheet.background')}</span><span className="mt-1 block text-xs text-bronze-light">{backgroundColor.toUpperCase()}</span></span><input type="color" value={backgroundColor} onChange={(event) => updateBackgroundColor(event.target.value)} className="h-11 w-14 cursor-pointer rounded-lg border-0 bg-transparent" /></label>
@@ -558,7 +767,7 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
                                 <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t('spriteSheet.seriesTitle')}</p>
                                 <p className="mt-1 text-sm font-bold text-bronze-text">{t('spriteSheet.seriesProgress', { count: completedStickerCount, total: MAX_SERIES_STICKERS })}</p>
                             </div>
-                            {completedBatches.length > 0 && <button type="button" onClick={resetSeries} className="rounded-xl border border-cream-dark bg-white px-3.5 py-2.5 text-xs font-black text-bronze-light transition-colors hover:border-primary/40 hover:text-primary">{t('spriteSheet.resetSeries')}</button>}
+                            {completedBatches.length > 0 && <button type="button" onClick={resetSeries} className="rounded-xl border border-cream-dark bg-white px-3.5 py-2.5 text-xs font-black text-bronze-light transition-colors hover:border-primary/40 hover:text-primary">{t('spriteSheet.startNewSeries')}</button>}
                         </div>
                         <div className="p-4">
                             <div className="grid grid-cols-3 gap-2">
