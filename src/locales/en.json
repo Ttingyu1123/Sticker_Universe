@@ -2881,7 +2881,11 @@
       "chibi": "Cute chibi",
       "cel": "Cel animation",
       "clay": "3D clay",
-      "sketch": "Pencil sketch"
+      "sketch": "Pencil sketch",
+      "flat-vector": "Flat vector",
+      "bold-cartoon": "Bold cartoon",
+      "retro-comic": "Retro comic",
+      "pixel-art": "Pixel art"
     },
     "presetLabels": {
       "wave": "Wave",

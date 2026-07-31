@@ -2965,7 +2965,11 @@
       "chibi": "可愛 Q 版",
       "cel": "賽璐璐動畫",
       "clay": "3D 黏土",
-      "sketch": "色鉛筆手繪"
+      "sketch": "色鉛筆手繪",
+      "flat-vector": "扁平向量",
+      "bold-cartoon": "粗線條卡通",
+      "retro-comic": "復古漫畫",
+      "pixel-art": "像素藝術"
     },
     "presetLabels": {
       "wave": "揮手",

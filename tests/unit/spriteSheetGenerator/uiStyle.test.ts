@@ -10,6 +10,14 @@ const gallerySource = readFileSync(
     resolve(process.cwd(), 'src/pages/Gallery/App.tsx'),
     'utf8',
 );
+const zhTw = JSON.parse(readFileSync(
+    resolve(process.cwd(), 'src/locales/zh-TW.json'),
+    'utf8',
+)) as { spriteSheet: { styles: Record<string, string> } };
+const en = JSON.parse(readFileSync(
+    resolve(process.cwd(), 'src/locales/en.json'),
+    'utf8',
+)) as { spriteSheet: { styles: Record<string, string> } };
 
 describe('sprite sheet page readability', () => {
     it('does not use sub-12px utility text in the page UI', () => {
@@ -24,6 +32,27 @@ describe('sprite sheet page readability', () => {
     it('enlarges the shared provider switcher only within this page', () => {
         expect(source).toContain('[&_button]:text-sm');
         expect(source).toContain('[&_button]:py-3');
+    });
+
+    it('shows all supported visual styles in a responsive three-column grid', () => {
+        expect(source).toContain('SPRITE_SHEET_STYLES.map');
+        expect(source).toContain('sm:grid-cols-3');
+        expect(source).toContain("t(`spriteSheet.styles.${option}`)");
+    });
+
+    it('provides localized names for the four chroma-friendly styles', () => {
+        expect(zhTw.spriteSheet.styles).toMatchObject({
+            'flat-vector': '扁平向量',
+            'bold-cartoon': '粗線條卡通',
+            'retro-comic': '復古漫畫',
+            'pixel-art': '像素藝術',
+        });
+        expect(en.spriteSheet.styles).toMatchObject({
+            'flat-vector': 'Flat vector',
+            'bold-cartoon': 'Bold cartoon',
+            'retro-comic': 'Retro comic',
+            'pixel-art': 'Pixel art',
+        });
     });
 
     it('shows the AI background-color recommendation in art direction', () => {

@@ -31,7 +31,7 @@ import { safeLoadFromLocalStorage, safeSaveToLocalStorage } from '../../shared/l
 import { createAiVideoDraft } from '../ai-video/jobs';
 import { dataUrlToBlob } from '../ai-video/image';
 import { buildStickerVideoPrompt } from '../ai-video/prompt';
-import type { SpriteSheetStyle, StickerConcept } from './types';
+import { SPRITE_SHEET_STYLES, type SpriteSheetStyle, type StickerConcept } from './types';
 import {
     loadStickerBackgroundColor,
     saveStickerBackgroundColor,
@@ -67,7 +67,6 @@ import {
     type StickerSeriesBatch,
 } from './series';
 
-const STYLE_OPTIONS: SpriteSheetStyle[] = ['reference', 'chibi', 'cel', 'clay', 'sketch'];
 const SERIES_STORAGE_KEY = 'sprite-sheet-series-v1';
 const SERIES_ARCHIVE_STORAGE_KEY = 'sprite-sheet-series-archives-v1';
 const SERIES_PREFERENCES_STORAGE_KEY = 'sprite-sheet-series-preferences-v1';
@@ -749,7 +748,7 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
                                 </div> : <p className="mt-4 rounded-xl border border-dashed border-cream-dark bg-white/70 p-3 text-sm font-medium leading-6 text-bronze-light">{t('spriteSheet.noPreviousSeries')}</p>}
                             </div>
                         </div>
-                        <div className="mt-6"><p className="mb-2 text-sm font-black text-bronze-text">{t('spriteSheet.styleLabel')}</p><div className="grid grid-cols-2 gap-2 sm:grid-cols-5">{STYLE_OPTIONS.map((option) => <button key={option} type="button" onClick={() => setStyle(option)} className={`rounded-xl border px-3 py-3 text-sm font-black transition-all ${style === option ? 'border-primary bg-primary text-white shadow-sm' : 'border-cream-dark bg-cream text-bronze-light hover:border-primary/30 hover:bg-white hover:text-primary'}`}>{t(`spriteSheet.styles.${option}`)}</button>)}</div></div>
+                        <div className="mt-6"><p className="mb-2 text-sm font-black text-bronze-text">{t('spriteSheet.styleLabel')}</p><div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{SPRITE_SHEET_STYLES.map((option) => <button key={option} type="button" onClick={() => setStyle(option)} className={`rounded-xl border px-3 py-3 text-sm font-black transition-all ${style === option ? 'border-primary bg-primary text-white shadow-sm' : 'border-cream-dark bg-cream text-bronze-light hover:border-primary/30 hover:bg-white hover:text-primary'}`}>{t(`spriteSheet.styles.${option}`)}</button>)}</div></div>
                         <div className="mt-6 grid gap-3 sm:grid-cols-2">
                             <label className="flex items-center justify-between gap-4 rounded-2xl border border-cream-dark bg-cream p-4"><span><span className="block text-sm font-black text-bronze-text">{t('spriteSheet.background')}</span><span className="mt-1 block text-xs text-bronze-light">{backgroundColor.toUpperCase()}</span></span><input type="color" value={backgroundColor} onChange={(event) => updateBackgroundColor(event.target.value)} className="h-11 w-14 cursor-pointer rounded-lg border-0 bg-transparent" /></label>
                             <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-cream-dark bg-cream p-4"><span><span className="block text-sm font-black text-bronze-text">{t('spriteSheet.includeText')}</span><span className="mt-1 block text-xs leading-5 text-bronze-light">{t('spriteSheet.includeTextHint')}</span></span><input type="checkbox" checked={includeText} onChange={(event) => setIncludeText(event.target.checked)} className="h-5 w-5 accent-primary" /></label>
