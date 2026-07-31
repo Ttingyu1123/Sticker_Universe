@@ -32,6 +32,7 @@ const requiredCaptionControls = seriesControls as typeof seriesControls & {
     createStickerSeriesArchive?: (
         name: string,
         batches: import('../../../src/features/sprite-sheet-generator/series').StickerSeriesBatch[],
+        fallbackName: string,
         createdAt?: number,
     ) => {
         id: string;
@@ -117,13 +118,32 @@ describe('sticker collection series', () => {
         const second = appendStickerBatch(first, createBatch('B'), 2);
 
         expect(requiredCaptionControls.createStickerSeriesArchive).toBeTypeOf('function');
-        expect(requiredCaptionControls.createStickerSeriesArchive?.(' 上班貓 Vol.1 ', second, 123))
+        expect(requiredCaptionControls.createStickerSeriesArchive?.(
+            ' 上班貓 Vol.1 ',
+            second,
+            'Untitled series',
+            123,
+        ))
             .toEqual({
                 id: 'series-123',
                 name: '上班貓 Vol.1',
                 createdAt: 123,
                 concepts: [...createBatch('A'), ...createBatch('B')],
             });
+    });
+
+    it('uses the caller-provided localized fallback for a blank archive name', () => {
+        const batch = appendStickerBatch([], createBatch('A'), 1);
+
+        expect(requiredCaptionControls.createStickerSeriesArchive?.(
+            '   ',
+            batch,
+            'Untitled series',
+            456,
+        )).toMatchObject({
+            id: 'series-456',
+            name: 'Untitled series',
+        });
     });
 
     it('loads only valid historical series data', () => {

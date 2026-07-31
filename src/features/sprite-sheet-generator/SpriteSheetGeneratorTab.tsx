@@ -41,7 +41,6 @@ import { fileToDataUrl, normalizeSpriteSheet, prepareAnalysisImage } from './ima
 import { buildSpriteSheetPrompt, SPRITE_FRAME_COUNT } from './prompt';
 import {
     createSpriteSheetPlanGalleryItem,
-    DEFAULT_STICKER_SERIES_NAME,
     parseSpriteSheetPlanGalleryItem,
     SPRITE_SHEET_DRAFT_ID,
     type SpriteSheetPlanDraft,
@@ -97,10 +96,11 @@ const loadStickerSeriesArchives = (): StickerSeriesArchive[] => {
 
 const loadStickerSeriesPreferences = (
     archives: StickerSeriesArchive[],
+    fallbackSeriesName: string,
 ): StickerSeriesPreferences => {
     if (typeof window === 'undefined') {
         return {
-            seriesName: DEFAULT_STICKER_SERIES_NAME,
+            seriesName: fallbackSeriesName,
             requiredCaptionsInput: '',
             excludedSeriesIds: [],
         };
@@ -111,7 +111,7 @@ const loadStickerSeriesPreferences = (
     return {
         seriesName: typeof stored?.seriesName === 'string' && stored.seriesName.trim()
             ? stored.seriesName
-            : DEFAULT_STICKER_SERIES_NAME,
+            : fallbackSeriesName,
         requiredCaptionsInput: typeof stored?.requiredCaptionsInput === 'string'
             ? stored.requiredCaptionsInput
             : '',
@@ -134,11 +134,12 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
     const location = useLocation();
     const navigate = useNavigate();
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const defaultSeriesName = t('spriteSheet.defaultSeriesName');
     const [initialSeriesControls] = useState(() => {
         const archives = loadStickerSeriesArchives();
         return {
             archives,
-            preferences: loadStickerSeriesPreferences(archives),
+            preferences: loadStickerSeriesPreferences(archives, defaultSeriesName),
         };
     });
     const [referenceImage, setReferenceImage] = useState<string | null>(null);
@@ -226,7 +227,9 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
                 const galleryItems = await getAllStickersFromDB();
                 const targetId = requestedPlanId || SPRITE_SHEET_DRAFT_ID;
                 const item = galleryItems.find((candidate) => candidate.id === targetId);
-                const restored = item ? parseSpriteSheetPlanGalleryItem(item) : null;
+                const restored = item
+                    ? parseSpriteSheetPlanGalleryItem(item, defaultSeriesName)
+                    : null;
 
                 if (restored && !cancelled) {
                     setReferenceImage(restored.referenceImage);
@@ -272,7 +275,7 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
         return () => {
             cancelled = true;
         };
-    }, [navigate, requestedPlanId, t]);
+    }, [defaultSeriesName, navigate, requestedPlanId, t]);
 
     useEffect(() => {
         safeSaveToLocalStorage(SERIES_PREFERENCES_STORAGE_KEY, {
@@ -631,7 +634,11 @@ const SpriteSheetGeneratorTab = ({ provider, apiKeys, onProviderChange, onNeedAp
 
     const resetSeries = () => {
         if (!window.confirm(t('spriteSheet.resetSeriesConfirm'))) return;
-        const archive = createStickerSeriesArchive(seriesName, completedBatches);
+        const archive = createStickerSeriesArchive(
+            seriesName,
+            completedBatches,
+            t('spriteSheet.unnamedSeries'),
+        );
         if (archive) {
             setArchivedSeries((current) => {
                 const updated = [archive, ...current.filter((item) => item.id !== archive.id)];

@@ -2817,6 +2817,8 @@
     "suggestFailed": "Sticker planning failed: {{reason}}",
     "needConcepts": "Create and complete all 8 sticker ideas before generating",
     "seriesTitle": "24-sticker continuing series",
+    "defaultSeriesName": "My sticker series",
+    "unnamedSeries": "Untitled series",
     "seriesName": "Series name",
     "seriesNamePlaceholder": "For example: Office Cat Vol. 2",
     "requiredCaptions": "Required sticker captions (12 characters each)",

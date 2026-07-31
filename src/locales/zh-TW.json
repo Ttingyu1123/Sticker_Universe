@@ -2901,6 +2901,8 @@
     "suggestFailed": "貼圖企劃失敗：{{reason}}",
     "needConcepts": "請先完成 8 種貼圖企劃，再生成圖片",
     "seriesTitle": "24 張系列續作",
+    "defaultSeriesName": "我的貼圖系列",
+    "unnamedSeries": "未命名系列",
     "seriesName": "系列名稱",
     "seriesNamePlaceholder": "例如：上班貓 Vol.2",
     "requiredCaptions": "必須包含的貼圖詞（每個最多 12 字）",

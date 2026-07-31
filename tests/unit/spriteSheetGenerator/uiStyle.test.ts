@@ -102,7 +102,8 @@ describe('sprite sheet page readability', () => {
     });
 
     it('archives the current batches before starting a new series', () => {
-        expect(source).toContain('createStickerSeriesArchive(seriesName, completedBatches)');
+        expect(source).toContain('createStickerSeriesArchive(');
+        expect(source).toContain("t('spriteSheet.unnamedSeries')");
         expect(source).toContain('setArchivedSeries');
         expect(source).toContain("t('spriteSheet.startNewSeries')");
     });

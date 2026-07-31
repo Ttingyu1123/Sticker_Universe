@@ -41,7 +41,7 @@ describe('sprite-sheet plan persistence', () => {
         expect(item.project?.type).toBe('sprite-sheet-plan');
         expect(item.description).toContain('短句 8');
         expect(item.description).toContain('角色沒有亮藍色');
-        expect(parseSpriteSheetPlanGalleryItem(item)).toEqual(draft);
+        expect(parseSpriteSheetPlanGalleryItem(item, 'My sticker series')).toEqual(draft);
     });
 
     it('uses one stable id for the automatically updated current draft', () => {
@@ -59,7 +59,7 @@ describe('sprite-sheet plan persistence', () => {
             title: '像素貼圖企劃',
         });
 
-        expect(parseSpriteSheetPlanGalleryItem(item)?.style).toBe('pixel-art');
+        expect(parseSpriteSheetPlanGalleryItem(item, 'My sticker series')?.style).toBe('pixel-art');
     });
 
     it('remembers which completed batch a resumed revision will replace', () => {
@@ -74,7 +74,7 @@ describe('sprite-sheet plan persistence', () => {
             title: '第一批新版',
         });
 
-        expect(parseSpriteSheetPlanGalleryItem(item)?.editingBatchIndex).toBe(0);
+        expect(parseSpriteSheetPlanGalleryItem(item, 'My sticker series')?.editingBatchIndex).toBe(0);
     });
 
     it('restores safe defaults from plans saved before series controls existed', () => {
@@ -88,9 +88,9 @@ describe('sprite-sheet plan persistence', () => {
         delete data.requiredCaptions;
         delete data.excludedSeriesIds;
 
-        expect(parseSpriteSheetPlanGalleryItem(item)).toEqual({
+        expect(parseSpriteSheetPlanGalleryItem(item, 'My sticker series')).toEqual({
             ...draft,
-            seriesName: '我的貼圖系列',
+            seriesName: 'My sticker series',
             requiredCaptions: [],
             excludedSeriesIds: [],
         });

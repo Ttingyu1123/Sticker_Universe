@@ -5,7 +5,6 @@ import type { StickerSeriesBatch } from './series';
 export const SPRITE_SHEET_PROJECT_TYPE = 'sprite-sheet-plan';
 export const SPRITE_SHEET_DRAFT_ID = 'sprite-sheet-plan-current-draft';
 const PROJECT_VERSION = 1;
-export const DEFAULT_STICKER_SERIES_NAME = '我的貼圖系列';
 
 export interface SpriteSheetPlanDraft {
     referenceImage: string;
@@ -75,7 +74,10 @@ export const createSpriteSheetPlanGalleryItem = (
     };
 };
 
-export const parseSpriteSheetPlanGalleryItem = (item: Sticker): SpriteSheetPlanDraft | null => {
+export const parseSpriteSheetPlanGalleryItem = (
+    item: Sticker,
+    fallbackSeriesName: string,
+): SpriteSheetPlanDraft | null => {
     if (item.project?.type !== SPRITE_SHEET_PROJECT_TYPE || item.project.version !== PROJECT_VERSION) {
         return null;
     }
@@ -117,7 +119,7 @@ export const parseSpriteSheetPlanGalleryItem = (item: Sticker): SpriteSheetPlanD
         })),
         seriesName: typeof data.seriesName === 'string' && data.seriesName.trim()
             ? data.seriesName
-            : DEFAULT_STICKER_SERIES_NAME,
+            : fallbackSeriesName,
         requiredCaptions: Array.isArray(data.requiredCaptions)
             ? data.requiredCaptions.filter((caption): caption is string => typeof caption === 'string').slice(0, 24)
             : [],

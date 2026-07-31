@@ -86,13 +86,14 @@ export const findOverlongRequiredCaptions = (
 export const createStickerSeriesArchive = (
     name: string,
     batches: StickerSeriesBatch[],
+    fallbackName: string,
     createdAt = Date.now(),
 ): StickerSeriesArchive | null => {
     const concepts = getSeriesConcepts(batches);
     if (concepts.length === 0) return null;
     return {
         id: `series-${createdAt}`,
-        name: name.trim() || `系列 ${createdAt}`,
+        name: name.trim() || fallbackName,
         createdAt,
         concepts: concepts.map((concept) => ({ ...concept })),
     };
