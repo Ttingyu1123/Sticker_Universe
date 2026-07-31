@@ -6,6 +6,9 @@ tsc_errors*.txt
 # CodeGraph index
 .codegraph/
 
+# Local git worktrees
+.worktrees/
+
 # Logs
 logs
 *.log
