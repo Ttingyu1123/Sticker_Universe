@@ -1,5 +1,5 @@
 import type { Sticker } from '../../shared/types/sticker';
-import type { SpriteSheetStyle, StickerConcept } from './types';
+import { SPRITE_SHEET_STYLES, type SpriteSheetStyle, type StickerConcept } from './types';
 import type { StickerSeriesBatch } from './series';
 
 export const SPRITE_SHEET_PROJECT_TYPE = 'sprite-sheet-plan';
@@ -90,7 +90,7 @@ export const parseSpriteSheetPlanGalleryItem = (item: Sticker): SpriteSheetPlanD
         || typeof data.characterSummary !== 'string'
         || typeof data.backgroundColor !== 'string'
         || typeof data.includeText !== 'boolean'
-        || !['reference', 'chibi', 'cel', 'clay', 'sketch'].includes(String(data.style))
+        || !SPRITE_SHEET_STYLES.includes(String(data.style) as SpriteSheetStyle)
     ) {
         return null;
     }

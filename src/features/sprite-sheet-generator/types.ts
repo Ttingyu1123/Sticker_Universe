@@ -1,13 +1,16 @@
-export type SpriteSheetStyle =
-    | 'reference'
-    | 'chibi'
-    | 'cel'
-    | 'clay'
-    | 'sketch'
-    | 'flat-vector'
-    | 'bold-cartoon'
-    | 'retro-comic'
-    | 'pixel-art';
+export const SPRITE_SHEET_STYLES = [
+    'reference',
+    'chibi',
+    'cel',
+    'clay',
+    'sketch',
+    'flat-vector',
+    'bold-cartoon',
+    'retro-comic',
+    'pixel-art',
+] as const;
+
+export type SpriteSheetStyle = typeof SPRITE_SHEET_STYLES[number];
 
 export interface StickerConcept {
     theme: string;

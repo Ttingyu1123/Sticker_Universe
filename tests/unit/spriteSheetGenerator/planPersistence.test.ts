@@ -48,6 +48,20 @@ describe('sprite-sheet plan persistence', () => {
         expect(SPRITE_SHEET_DRAFT_ID).toBe('sprite-sheet-plan-current-draft');
     });
 
+    it('preserves a chroma-friendly style when saving and restoring a plan', () => {
+        const pixelArtDraft: SpriteSheetPlanDraft = {
+            ...draft,
+            style: 'pixel-art',
+        };
+        const item = createSpriteSheetPlanGalleryItem(pixelArtDraft, {
+            id: 'pixel-art-plan',
+            timestamp: 321,
+            title: '像素貼圖企劃',
+        });
+
+        expect(parseSpriteSheetPlanGalleryItem(item)?.style).toBe('pixel-art');
+    });
+
     it('remembers which completed batch a resumed revision will replace', () => {
         const revision = {
             ...draft,
