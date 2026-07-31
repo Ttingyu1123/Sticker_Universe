@@ -87,12 +87,14 @@ export const VideoBoardPreview = ({
                     <video
                         ref={videoRef}
                         src={src}
-                        controls
+                        controls={!disabled}
+                        tabIndex={disabled ? -1 : undefined}
+                        aria-busy={disabled}
                         playsInline
                         preload="auto"
                         onLoadedMetadata={onLoadedMetadata}
                         onLoadedData={onLoadedData}
-                        className="block w-full"
+                        className={`block w-full ${disabled ? 'pointer-events-none' : ''}`}
                     />
                 ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center text-white/65">

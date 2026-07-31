@@ -36,8 +36,15 @@ describe('animated sticker page readability', () => {
     });
 
     it('sizes the loaded preview from the real video instead of forcing 16:9', () => {
-        expect(previewSource).toContain('className="block w-full"');
+        expect(previewSource).toContain('className={`block w-full');
         expect(previewSource).toContain("src ? 'relative bg-bronze-text'");
+    });
+
+    it('locks native video interaction while frames are being extracted', () => {
+        expect(previewSource).toContain('controls={!disabled}');
+        expect(previewSource).toContain('tabIndex={disabled ? -1 : undefined}');
+        expect(previewSource).toContain('aria-busy={disabled}');
+        expect(previewSource).toContain("disabled ? 'pointer-events-none' : ''");
     });
 
     it('detects the solid background after the uploaded video has decoded its first frame', () => {
