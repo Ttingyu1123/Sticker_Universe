@@ -44,7 +44,10 @@ describe('AI video generation workflow', () => {
     });
 
     it('provides both requested workflow shortcuts', () => {
-        const spriteSheet = source('src/features/sprite-sheet-generator/SpriteSheetGeneratorTab.tsx');
+        const spriteSheet = [
+            source('src/features/sprite-sheet-generator/SpriteSheetGeneratorTab.tsx'),
+            source('src/features/sprite-sheet-generator/useSpriteSheetGeneratorController.ts'),
+        ].join('\n');
         const animatedSticker = source('src/pages/AnimatedSticker/App.tsx');
         expect(spriteSheet).toContain('createAiVideoDraft');
         expect(spriteSheet).toContain("navigate(`/ai-video?job=${job.id}`)");
