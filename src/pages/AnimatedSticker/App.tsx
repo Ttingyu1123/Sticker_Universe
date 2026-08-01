@@ -29,6 +29,7 @@ import {
     loadStickerBackgroundColor,
     saveStickerBackgroundColor,
 } from '../../features/sprite-sheet-generator/backgroundColor';
+import { FrameTrimDialog } from './components/FrameTrimDialog';
 import { StickerResultCard } from './components/StickerResultCard';
 import { MainImageMaker } from './components/MainImageMaker';
 import { TabImageMaker } from './components/TabImageMaker';
@@ -50,6 +51,7 @@ import {
     STICKER_COUNT,
 } from './utils/frameProcessing';
 import { compressAnimatedSticker } from './utils/compression';
+import { trimAnimatedStickerFrames } from './utils/frameTrimming';
 import { processVideoBoard } from './utils/videoProcessing';
 
 const DEFAULT_SETTINGS: ProcessingSettings = {
@@ -106,6 +108,7 @@ const AnimatedStickerApp = () => {
     const [compressionProgress, setCompressionProgress] = useState(0);
     const [progress, setProgress] = useState<ProcessingProgress | null>(null);
     const [results, setResults] = useState<AnimatedStickerResult[]>([]);
+    const [editingResult, setEditingResult] = useState<AnimatedStickerResult | null>(null);
     const [sourceFileName, setSourceFileName] = useState('');
 
     useEffect(() => () => {
@@ -132,6 +135,7 @@ const AnimatedStickerApp = () => {
 
     const resetResults = () => {
         galleryBatchIdRef.current = null;
+        setEditingResult(null);
         setResults((current) => {
             current.forEach((result) => URL.revokeObjectURL(result.url));
             return [];
@@ -254,6 +258,38 @@ const AnimatedStickerApp = () => {
         saveAs(result.blob, `animated-sticker-${String(result.index + 1).padStart(2, '0')}.png`);
     };
 
+    const handleEditFrames = (result: AnimatedStickerResult) => {
+        setEditingResult(result);
+    };
+
+    const handleApplyFrameTrim = async (startIndex: number, endIndex: number) => {
+        if (!editingResult) return;
+
+        try {
+            const trimmedResult = trimAnimatedStickerFrames(
+                editingResult,
+                startIndex,
+                endIndex,
+            );
+            setResults((current) => current.map((result) => (
+                result.index === editingResult.index ? trimmedResult : result
+            )));
+            URL.revokeObjectURL(editingResult.url);
+            setEditingResult(null);
+
+            if (galleryBatchIdRef.current) {
+                await persistResultsInGallery([trimmedResult], galleryBatchIdRef.current);
+            }
+            showToast(t('animatedSticker.toast.trimmed', {
+                number: trimmedResult.index + 1,
+                count: trimmedResult.frameCount,
+            }), 'success');
+        } catch (error) {
+            const reason = error instanceof Error ? error.message : String(error);
+            showToast(t('animatedSticker.errors.trimFailed', { reason }), 'error');
+        }
+    };
+
     const handleDownloadZip = async () => {
         if (results.length === 0) return;
         const zip = new JSZip();
@@ -321,6 +357,13 @@ const AnimatedStickerApp = () => {
 
     return (
         <div className="relative min-h-full overflow-hidden bg-background px-4 py-8 md:px-8 lg:px-10">
+            {editingResult && (
+                <FrameTrimDialog
+                    result={editingResult}
+                    onApply={handleApplyFrameTrim}
+                    onClose={() => setEditingResult(null)}
+                />
+            )}
             <div className="pointer-events-none absolute -right-32 -top-40 h-[34rem] w-[34rem] rounded-full bg-secondary/35 blur-3xl" />
             <div className="pointer-events-none absolute -left-28 top-[42rem] h-80 w-80 rounded-full bg-primary-light/25 blur-3xl" />
 
@@ -649,7 +692,12 @@ const AnimatedStickerApp = () => {
                         <>
                             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                                 {results.map((result) => (
-                                    <StickerResultCard key={result.index} result={result} onDownload={handleDownloadOne} />
+                                    <StickerResultCard
+                                        key={result.index}
+                                        result={result}
+                                        onDownload={handleDownloadOne}
+                                        onEdit={handleEditFrames}
+                                    />
                                 ))}
                             </div>
                             <MainImageMaker results={results} />

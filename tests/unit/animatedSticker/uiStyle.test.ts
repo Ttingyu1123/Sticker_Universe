@@ -17,6 +17,8 @@ const tabMakerSource = readSource('src/pages/AnimatedSticker/components/TabImage
 const videoProcessingSource = readSource('src/pages/AnimatedSticker/utils/videoProcessing.ts');
 const compressionSource = readSource('src/pages/AnimatedSticker/utils/compression.ts');
 const complianceSource = readSource('src/pages/AnimatedSticker/utils/lineCompliance.ts');
+const enAnimatedSticker = JSON.parse(readSource('src/locales/en.json')).animatedSticker;
+const zhAnimatedSticker = JSON.parse(readSource('src/locales/zh-TW.json')).animatedSticker;
 const combinedSource = `${appSource}\n${previewSource}\n${resultCardSource}`;
 
 describe('animated sticker page readability', () => {
@@ -72,12 +74,50 @@ describe('animated sticker page readability', () => {
         expect(resultCardSource).toContain('onEdit');
         expect(resultCardSource).toContain("t('animatedSticker.editFrames'");
         expect(frameTrimDialogSource).toContain('MIN_ANIMATED_STICKER_FRAMES');
+        expect(frameTrimDialogSource).toContain('useModalA11y');
         expect(frameTrimDialogSource).toContain('<canvas');
         expect(frameTrimDialogSource).toContain('type="range"');
         expect(frameTrimDialogSource).toContain("t('animatedSticker.trimFirstFrame')");
         expect(frameTrimDialogSource).toContain("t('animatedSticker.trimLastFrame')");
         expect(frameTrimDialogSource).toContain("t('animatedSticker.trimReset')");
         expect(frameTrimDialogSource).toContain("t('animatedSticker.trimApply')");
+    });
+
+    it('replaces one trimmed result and updates its existing Gallery record', () => {
+        expect(appSource).toContain("from './components/FrameTrimDialog'");
+        expect(appSource).toContain('trimAnimatedStickerFrames(');
+        expect(appSource).toContain('setEditingResult(result)');
+        expect(appSource).toContain('result.index === editingResult.index ? trimmedResult : result');
+        expect(appSource).toContain('URL.revokeObjectURL(editingResult.url)');
+        expect(appSource).toContain(
+            'await persistResultsInGallery([trimmedResult], galleryBatchIdRef.current)',
+        );
+        expect(appSource).toContain('<FrameTrimDialog');
+        expect(appSource).toContain('onEdit={handleEditFrames}');
+    });
+
+    it('localizes every frame trimming action and outcome', () => {
+        const requiredKeys = [
+            'editFrames',
+            'trimTitle',
+            'trimDescription',
+            'trimStart',
+            'trimEnd',
+            'trimFirstFrame',
+            'trimLastFrame',
+            'trimReset',
+            'trimFrameCount',
+            'trimApply',
+        ];
+
+        requiredKeys.forEach((key) => {
+            expect(enAnimatedSticker[key]).toBeTruthy();
+            expect(zhAnimatedSticker[key]).toBeTruthy();
+        });
+        expect(enAnimatedSticker.toast.trimmed).toBeTruthy();
+        expect(zhAnimatedSticker.toast.trimmed).toBeTruthy();
+        expect(enAnimatedSticker.errors.trimFailed).toBeTruthy();
+        expect(zhAnimatedSticker.errors.trimFailed).toBeTruthy();
     });
 
     it('saves generated APNG files to Gallery and updates the same records after compression', () => {

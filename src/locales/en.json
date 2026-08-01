@@ -2774,6 +2774,16 @@
     },
     "overLimit": "Over 1 MB",
     "downloadOne": "Download animated sticker {{number}}",
+    "editFrames": "Edit frames in animated sticker {{number}}",
+    "trimTitle": "Trim sticker {{number}}",
+    "trimDescription": "Remove unwanted frames from the beginning or end. Keep at least {{minimum}} frames.",
+    "trimStart": "First frame to keep",
+    "trimEnd": "Last frame to keep",
+    "trimFirstFrame": "Remove first frame",
+    "trimLastFrame": "Remove last frame",
+    "trimReset": "Reset",
+    "trimFrameCount": "Keeping {{selected}} of {{total}} frames",
+    "trimApply": "Apply trim",
     "emptyOutputTitle": "No animations yet",
     "emptyOutputHint": "Upload a video and start processing to place all 8 APNG files here.",
     "frames": "frames",
@@ -2782,13 +2792,15 @@
     "toast": {
       "ready": "All 8 animated stickers are ready",
       "compressed": "Oversized stickers were compressed below 1 MB",
-      "compressionPartial": "Compression finished; {{count}} stickers are still over 1 MB"
+      "compressionPartial": "Compression finished; {{count}} stickers are still over 1 MB",
+      "trimmed": "Sticker {{number}} now keeps {{count}} frames"
     },
     "errors": {
       "mp4Only": "Only MP4 video is currently supported",
       "fileTooLarge": "The video is larger than 500 MB. Trim or compress it first.",
       "processingFailed": "Animated sticker processing failed: {{reason}}",
       "compressionFailed": "Animated sticker compression failed: {{reason}}",
+      "trimFailed": "Could not trim the animated sticker: {{reason}}",
       "gallerySaveFailed": "The stickers are ready, but saving them to Gallery failed: {{reason}}"
     }
   },

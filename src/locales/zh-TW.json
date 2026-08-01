@@ -2858,6 +2858,16 @@
     },
     "overLimit": "超過 1 MB",
     "downloadOne": "下載第 {{number}} 張動態貼圖",
+    "editFrames": "編輯第 {{number}} 張動態貼圖的畫格",
+    "trimTitle": "裁切第 {{number}} 張貼圖",
+    "trimDescription": "移除開頭或結尾不理想的畫格，至少需保留 {{minimum}} 格。",
+    "trimStart": "保留的第一格",
+    "trimEnd": "保留的最後一格",
+    "trimFirstFrame": "移除最前一格",
+    "trimLastFrame": "移除最後一格",
+    "trimReset": "重設",
+    "trimFrameCount": "保留 {{selected}}／{{total}} 格",
+    "trimApply": "套用裁切",
     "emptyOutputTitle": "還沒有輸出動畫",
     "emptyOutputHint": "上傳影片並開始製作後，8 張 APNG 會排列在這裡。",
     "frames": "畫格",
@@ -2866,13 +2876,15 @@
     "toast": {
       "ready": "8 張動態貼圖已製作完成",
       "compressed": "超標貼圖已智慧縮至 1 MB 以內",
-      "compressionPartial": "縮檔完成，仍有 {{count}} 張超過 1 MB"
+      "compressionPartial": "縮檔完成，仍有 {{count}} 張超過 1 MB",
+      "trimmed": "第 {{number}} 張貼圖已裁切為 {{count}} 格"
     },
     "errors": {
       "mp4Only": "目前僅支援 MP4 影片",
       "fileTooLarge": "影片超過 500 MB，請先縮短或壓縮",
       "processingFailed": "動態貼圖製作失敗：{{reason}}",
       "compressionFailed": "動態貼圖縮檔失敗：{{reason}}",
+      "trimFailed": "動態貼圖裁切失敗：{{reason}}",
       "gallerySaveFailed": "貼圖已完成，但存入作品集失敗：{{reason}}"
     }
   },

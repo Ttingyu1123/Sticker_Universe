@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { RotateCcw, Scissors, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useModalA11y } from '../../../hooks/useModalA11y';
 import type { AnimatedStickerResult } from '../types';
 import { MIN_ANIMATED_STICKER_FRAMES } from '../utils/frameTrimming';
 
@@ -53,6 +54,7 @@ const FrameThumbnail = ({ frame, width, height, selected, index }: FrameThumbnai
 
 export const FrameTrimDialog = ({ result, onApply, onClose }: FrameTrimDialogProps) => {
     const { t } = useTranslation();
+    const modalRef = useModalA11y<HTMLDivElement>({ isOpen: true, onClose });
     const totalFrames = result.sourceFrames.length;
     const minimumFrames = Math.min(MIN_ANIMATED_STICKER_FRAMES, totalFrames);
     const [startIndex, setStartIndex] = useState(0);
@@ -64,14 +66,6 @@ export const FrameTrimDialog = ({ result, onApply, onClose }: FrameTrimDialogPro
         setStartIndex(0);
         setEndIndex(totalFrames);
     }, [result.index, totalFrames]);
-
-    useEffect(() => {
-        const closeOnEscape = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') onClose();
-        };
-        window.addEventListener('keydown', closeOnEscape);
-        return () => window.removeEventListener('keydown', closeOnEscape);
-    }, [onClose]);
 
     const removeFirstFrame = () => {
         if (selectedCount > minimumFrames) setStartIndex((current) => current + 1);
@@ -88,6 +82,7 @@ export const FrameTrimDialog = ({ result, onApply, onClose }: FrameTrimDialogPro
 
     return (
         <div
+            ref={modalRef}
             className="fixed inset-0 z-[80] flex items-center justify-center bg-bronze-text/70 p-4 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
