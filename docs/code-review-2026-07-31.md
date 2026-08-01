@@ -13,19 +13,19 @@
 
 核心演算法（APNG duration/loop、frame 抽取、chroma key、caption 必做詞分配、proxy 安全）均正確且有測試佐證。問題集中在：專案慣例偏離（i18n 硬編碼、未走 useImageShare/saveStickerToDB）與資源防護缺口（無上限輪詢、無上限累積儲存）。
 
-## CRITICAL / HIGH（建議優先修）
+## CRITICAL / HIGH（2026-08-01 全數修復，逐條 re-grep + 閘門驗證：typecheck 綠、i18n 驗證過、Vitest 203/203）
 
-1. **[SpriteSheet] `src/features/sprite-sheet-generator/planPersistence.ts:8`** — `DEFAULT_STICKER_SERIES_NAME = '我的貼圖系列'` 硬編碼繁中，英文語系會直接顯示中文。改 i18n key，由呼叫端傳入翻譯字串。
-2. **[SpriteSheet] `src/features/sprite-sheet-generator/series.ts:95`** — 系列名空白時 fallback `` `系列 ${createdAt}` `` 硬編碼中文，且該分支無測試。同上修法＋補測試。
-3. **[SpriteSheet] `SpriteSheetGeneratorTab.tsx`（807 行）** — 超過專案 800 行硬上限。series-controls 的 state/effect/UI 應抽成 `useStickerSeriesControls` hook＋獨立子元件。
-4. **[AnimatedSticker] `src/pages/AnimatedSticker/App.tsx`（handleProcess）** — 生成的 8 張貼圖從未呼叫 `saveStickerToDB()`，只存 in-memory blob URL，關分頁即遺失、不進 Gallery。
-5. **[AnimatedSticker] `VideoBoardPreview.tsx:87-96` + `videoProcessing.ts:31-57`** — 處理期間原生 `<video controls>` 未鎖定，使用者手動拖曳會與程式化 seek 搶時序，抽幀可能對錯畫面或卡住。`isProcessing` 時遮罩或 `controls={!isProcessing}`。
+1. ~~**[SpriteSheet] `planPersistence.ts:8` 硬編碼「我的貼圖系列」**~~ — ✅ 已修（`0067040`），features/sprite-sheet-generator 全目錄 grep 零硬編碼中文。
+2. ~~**[SpriteSheet] `series.ts:95` fallback 硬編碼「系列 …」**~~ — ✅ 已修（`0067040`）。
+3. ~~**[SpriteSheet] `SpriteSheetGeneratorTab.tsx` 807 行超限**~~ — ✅ 已修（`6e0571b`）：拆成 32 行 shell + `useSpriteSheetGeneratorController.ts`（697 行）+ `components/SpriteSheetWorkspace.tsx`（186 行）。
+4. ~~**[AnimatedSticker] 生成結果不進 Gallery**~~ — ✅ 已修（`1cb143a`）：新增 `src/pages/AnimatedSticker/gallery.ts` 逐張 `saveStickerToDB()`，附單元測試。
+5. ~~**[AnimatedSticker] 處理期間 video 控制項未鎖定**~~ — ✅ 已修（`efd5faa`）：`VideoBoardPreview.tsx:90` `controls={!disabled}` + `pointer-events-none`。
 
-## MEDIUM
+## MEDIUM（2026-08-01 複查：以下三項仍未修，維持開放）
 
-6. **[AiVideo] `src/pages/AiVideo/App.tsx:102-168`** — 輪詢無次數/時間上限，卡住的 job 會永遠每 6 秒打一次。加 30 分鐘上限後轉 failed。
-7. **[AiVideo] `src/db.ts:74`** — `deleteAiVideoJob` 從未被呼叫；`aiVideoJobs` store 累積整支 MP4 無清理。每次存檔後修剪舊 job。
-8. **[SpriteSheet] `SpriteSheetGeneratorTab.tsx:633-659`** — `archivedSeries` 無筆數上限持續累加進 localStorage，建議留最近 10–20 筆。
+6. **[AiVideo] `src/pages/AiVideo/App.tsx:102-168`** — 輪詢無次數/時間上限，卡住的 job 會永遠每 6 秒打一次。加 30 分鐘上限後轉 failed。（未修）
+7. **[AiVideo] `src/db.ts:74`** — `deleteAiVideoJob` 從未被呼叫；`aiVideoJobs` store 累積整支 MP4 無清理。每次存檔後修剪舊 job。（未修）
+8. **[SpriteSheet] series archive** — `archivedSeries` 無筆數上限持續累加進 localStorage，建議留最近 10–20 筆。位置已隨拆檔移至 `useSpriteSheetGeneratorController.ts`。（未修）
 9. **[AnimatedSticker] `compression.ts:74-82`** — 壓縮後 spread 保留舊 `hasTransparency`/`hasMotion` 未重算，合規檢查可能顯示過時狀態。
 10. **[AnimatedSticker] 下載慣例** — 單張下載直接 `saveAs()`（App.tsx:225、MainImageMaker.tsx:110/241、TabImageMaker.tsx:71）未走 `useImageShare`；MainImageMaker.tsx:112、TabImageMaker.tsx:73 錯誤用本地紅框未走 `showToast`。
 11. **[測試品質] `tests/unit/*/uiStyle.test.ts`（三個功能都有）** — 斷言原始碼字串內容而非行為，重構即假紅。之後改 render + 屬性斷言。
