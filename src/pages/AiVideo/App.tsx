@@ -18,7 +18,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { GalleryPicker } from '../../components/GalleryPicker';
 import { useToast } from '../../components/shared/ToastProvider';
-import { getAiVideoJob, getLatestAiVideoJob, saveAiVideoJob } from '../../db';
+import { getAiVideoJob, getLatestAiVideoJob, pruneAiVideoJobs, saveAiVideoJob } from '../../db';
 import {
     getAiVideoApiKeyUrl,
     isValidAiVideoApiKey,
@@ -36,14 +36,16 @@ import {
 import { AI_VIDEO_MODELS } from '../../features/ai-video/types';
 import type { AiVideoJob, AiVideoProvider } from '../../features/ai-video/types';
 
+const POLL_TIMEOUT_MS = 30 * 60 * 1000;
+
 const providerOptions: Array<{
     id: AiVideoProvider;
     name: string;
-    note: string;
-    cost: string;
+    noteKey: string;
+    costKey: string;
 }> = [
-    { id: 'gemini', name: 'Gemini · Veo 3.1 Fast', note: '可沿用 Gemini Key（需 Veo 權限與付費額度）', cost: '約 US$0.40 / 4 秒' },
-    { id: 'grok', name: 'Grok Imagine Video', note: '需使用 xAI API Key', cost: '約 US$0.28 / 4 秒' },
+    { id: 'gemini', name: 'Gemini · Veo 3.1 Fast', noteKey: 'aiVideo.providers.gemini.note', costKey: 'aiVideo.providers.gemini.cost' },
+    { id: 'grok', name: 'Grok Imagine Video', noteKey: 'aiVideo.providers.grok.note', costKey: 'aiVideo.providers.grok.cost' },
 ];
 
 const AiVideoApp = () => {
@@ -76,6 +78,7 @@ const AiVideoApp = () => {
             setRememberKey(keyState?.remember ?? true);
         };
         void restore();
+        void pruneAiVideoJobs();
         return () => { active = false; };
     }, []);
 
@@ -103,8 +106,23 @@ const AiVideoApp = () => {
         if (!job?.requestId || !isWorking || !apiKey.trim()) return;
         let cancelled = false;
         let timer = 0;
+        const startedAt = Date.now();
 
         const poll = async () => {
+            if (Date.now() - startedAt > POLL_TIMEOUT_MS) {
+                const timedOut: AiVideoJob = {
+                    ...job,
+                    status: 'failed',
+                    error: t('aiVideo.errors.timeout'),
+                    updatedAt: Date.now(),
+                };
+                await saveAiVideoJob(timedOut);
+                if (!cancelled) {
+                    setJob(timedOut);
+                    showToast(t('aiVideo.errors.timeout'), 'error');
+                }
+                return;
+            }
             try {
                 const result = await getAiVideoTaskStatus(job.provider, apiKey.trim(), job.requestId!);
                 if (cancelled) return;
@@ -322,7 +340,7 @@ const AiVideoApp = () => {
                         <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">02 · API & MOTION DIRECTION</p>
                         <h3 className="mt-1 text-2xl font-black text-bronze-text">{t('aiVideo.directionTitle')}</h3>
                         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                            {providerOptions.map((option) => <button key={option.id} type="button" onClick={() => handleProviderChange(option.id)} disabled={isWorking || isSubmitting} className={`rounded-2xl border p-4 text-left transition-all ${provider === option.id ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20' : 'border-cream-dark bg-cream text-bronze-text hover:border-primary/30 hover:bg-white'}`}><span className="block text-base font-black">{option.name}</span><span className={`mt-1 block text-sm font-medium ${provider === option.id ? 'text-white/80' : 'text-bronze-light'}`}>{option.note}</span><span className={`mt-3 block text-xs font-black ${provider === option.id ? 'text-white' : 'text-primary'}`}>{option.cost}</span></button>)}
+                            {providerOptions.map((option) => <button key={option.id} type="button" onClick={() => handleProviderChange(option.id)} disabled={isWorking || isSubmitting} className={`rounded-2xl border p-4 text-left transition-all ${provider === option.id ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20' : 'border-cream-dark bg-cream text-bronze-text hover:border-primary/30 hover:bg-white'}`}><span className="block text-base font-black">{option.name}</span><span className={`mt-1 block text-sm font-medium ${provider === option.id ? 'text-white/80' : 'text-bronze-light'}`}>{t(option.noteKey)}</span><span className={`mt-3 block text-xs font-black ${provider === option.id ? 'text-white' : 'text-primary'}`}>{t(option.costKey)}</span></button>)}
                         </div>
 
                         <div className="mt-5 rounded-2xl border border-cream-dark bg-cream p-4">

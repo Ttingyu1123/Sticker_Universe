@@ -2645,7 +2645,18 @@
       "failed": "The video provider reported a failed task",
       "statusFailed": "Could not check video progress: {{reason}}",
       "generateFailed": "Video generation failed: {{reason}}",
-      "noVideo": "No completed video is available to download"
+      "noVideo": "No completed video is available to download",
+      "timeout": "The video task did not finish within 30 minutes and was stopped"
+    },
+    "providers": {
+      "gemini": {
+        "note": "Reuses your Gemini key (requires Veo access and paid quota)",
+        "cost": "≈ US$0.40 / 4 s"
+      },
+      "grok": {
+        "note": "Requires an xAI API key",
+        "cost": "≈ US$0.28 / 4 s"
+      }
     }
   },
   "animatedSticker": {

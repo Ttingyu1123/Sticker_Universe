@@ -2729,7 +2729,18 @@
       "failed": "影片服務回報生成失敗",
       "statusFailed": "查詢影片進度失敗：{{reason}}",
       "generateFailed": "影片生成失敗：{{reason}}",
-      "noVideo": "找不到可下載的完成影片"
+      "noVideo": "找不到可下載的完成影片",
+      "timeout": "影片任務超過 30 分鐘未完成，已停止查詢"
+    },
+    "providers": {
+      "gemini": {
+        "note": "可沿用 Gemini Key（需 Veo 權限與付費額度）",
+        "cost": "約 US$0.40 / 4 秒"
+      },
+      "grok": {
+        "note": "需使用 xAI API Key",
+        "cost": "約 US$0.28 / 4 秒"
+      }
     }
   },
   "animatedSticker": {

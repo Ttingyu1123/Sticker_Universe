@@ -4,6 +4,7 @@ export const STICKERS_PER_BATCH = 8;
 export const MAX_SERIES_BATCHES = 3;
 export const MAX_SERIES_STICKERS = STICKERS_PER_BATCH * MAX_SERIES_BATCHES;
 export const MAX_STICKER_CAPTION_LENGTH = 12;
+export const MAX_SERIES_ARCHIVES = 20;
 
 export interface StickerSeriesBatch {
     signature: string;
@@ -110,6 +111,14 @@ const isStickerConcept = (value: unknown): value is StickerConcept => {
         && concept.visual.trim().length > 0;
 };
 
+export const appendStickerSeriesArchive = (
+    archives: StickerSeriesArchive[],
+    archive: StickerSeriesArchive,
+): StickerSeriesArchive[] => [
+    archive,
+    ...archives.filter((item) => item.id !== archive.id),
+].slice(0, MAX_SERIES_ARCHIVES);
+
 export const parseStickerSeriesArchives = (value: unknown): StickerSeriesArchive[] => {
     if (!Array.isArray(value)) return [];
     return value.flatMap((item) => {
@@ -132,7 +141,7 @@ export const parseStickerSeriesArchives = (value: unknown): StickerSeriesArchive
             createdAt: archive.createdAt,
             concepts: archive.concepts.map((concept) => ({ ...concept })),
         }];
-    });
+    }).slice(0, MAX_SERIES_ARCHIVES);
 };
 
 export const getSelectedArchiveConcepts = (

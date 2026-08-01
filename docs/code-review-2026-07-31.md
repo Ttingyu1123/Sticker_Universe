@@ -21,11 +21,12 @@
 4. ~~**[AnimatedSticker] 生成結果不進 Gallery**~~ — ✅ 已修（`1cb143a`）：新增 `src/pages/AnimatedSticker/gallery.ts` 逐張 `saveStickerToDB()`，附單元測試。
 5. ~~**[AnimatedSticker] 處理期間 video 控制項未鎖定**~~ — ✅ 已修（`efd5faa`）：`VideoBoardPreview.tsx:90` `controls={!disabled}` + `pointer-events-none`。
 
-## MEDIUM（2026-08-01 複查：以下三項仍未修，維持開放）
+## MEDIUM（#6–#8 於 2026-08-01 由 Claude 修復，閘門：typecheck 綠、i18n 過、Vitest 206/206）
 
-6. **[AiVideo] `src/pages/AiVideo/App.tsx:102-168`** — 輪詢無次數/時間上限，卡住的 job 會永遠每 6 秒打一次。加 30 分鐘上限後轉 failed。（未修）
-7. **[AiVideo] `src/db.ts:74`** — `deleteAiVideoJob` 從未被呼叫；`aiVideoJobs` store 累積整支 MP4 無清理。每次存檔後修剪舊 job。（未修）
-8. **[SpriteSheet] series archive** — `archivedSeries` 無筆數上限持續累加進 localStorage，建議留最近 10–20 筆。位置已隨拆檔移至 `useSpriteSheetGeneratorController.ts`。（未修）
+6. ~~**[AiVideo] 輪詢無上限**~~ — ✅ 已修：`POLL_TIMEOUT_MS = 30 分鐘`，逾時將 job 轉 failed 並 toast（`aiVideo.errors.timeout`）。
+7. ~~**[AiVideo] `aiVideoJobs` 無清理**~~ — ✅ 已修：`db.ts` 新增 `pruneAiVideoJobs()`（留最近 10 筆），AiVideo 頁掛載時執行。
+8. ~~**[SpriteSheet] series archive 無上限**~~ — ✅ 已修：`series.ts` 新增 `MAX_SERIES_ARCHIVES = 20` + `appendStickerSeriesArchive()`（append 與 parse 兩端都 cap），附 3 個單元測試。
+   - 順手修：`AiVideo/App.tsx` `providerOptions` 的 note/cost 硬編碼中文（review 時漏抓，與 CRITICAL #1 同類）→ 移入 `aiVideo.providers.*` i18n 鍵。
 9. **[AnimatedSticker] `compression.ts:74-82`** — 壓縮後 spread 保留舊 `hasTransparency`/`hasMotion` 未重算，合規檢查可能顯示過時狀態。
 10. **[AnimatedSticker] 下載慣例** — 單張下載直接 `saveAs()`（App.tsx:225、MainImageMaker.tsx:110/241、TabImageMaker.tsx:71）未走 `useImageShare`；MainImageMaker.tsx:112、TabImageMaker.tsx:73 錯誤用本地紅框未走 `showToast`。
 11. **[測試品質] `tests/unit/*/uiStyle.test.ts`（三個功能都有）** — 斷言原始碼字串內容而非行為，重構即假紅。之後改 render + 屬性斷言。

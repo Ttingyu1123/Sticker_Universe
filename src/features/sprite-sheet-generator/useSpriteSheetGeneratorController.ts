@@ -22,6 +22,7 @@ import {
 import { buildSpriteSheetPrompt, SPRITE_FRAME_COUNT } from './prompt';
 import {
     appendStickerBatch,
+    appendStickerSeriesArchive,
     createStickerSeriesArchive,
     findConceptConflicts,
     findMissingRequiredCaptions,
@@ -622,7 +623,7 @@ export const useSpriteSheetGeneratorController = ({
         );
         if (archive) {
             setArchivedSeries((current) => {
-                const updated = [archive, ...current.filter((item) => item.id !== archive.id)];
+                const updated = appendStickerSeriesArchive(current, archive);
                 safeSaveToLocalStorage(SERIES_ARCHIVE_STORAGE_KEY, updated);
                 return updated;
             });

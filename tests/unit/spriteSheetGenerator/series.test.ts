@@ -245,4 +245,50 @@ describe('sticker collection series', () => {
             { index: 1, field: 'theme', value: '早安，問候' },
         ]);
     });
+
+    it('caps appended archives at the retention limit, newest first', () => {
+        const makeArchive = (id: number) => ({
+            id: `series-${id}`,
+            name: `Series ${id}`,
+            createdAt: id,
+            concepts: [{ theme: `t${id}`, caption: `c${id}`, visual: `v${id}` }],
+        });
+        const full = Array.from(
+            { length: seriesControls.MAX_SERIES_ARCHIVES },
+            (_, index) => makeArchive(index),
+        );
+
+        const appended = seriesControls.appendStickerSeriesArchive(full, makeArchive(999));
+
+        expect(appended).toHaveLength(seriesControls.MAX_SERIES_ARCHIVES);
+        expect(appended[0].id).toBe('series-999');
+        expect(appended.some((archive) => archive.id === full.at(-1)!.id)).toBe(false);
+    });
+
+    it('replaces an archive with the same id instead of duplicating it', () => {
+        const original = {
+            id: 'series-1',
+            name: 'Old',
+            createdAt: 1,
+            concepts: [{ theme: 't', caption: 'c', visual: 'v' }],
+        };
+        const replacement = { ...original, name: 'New' };
+
+        const appended = seriesControls.appendStickerSeriesArchive([original], replacement);
+
+        expect(appended).toHaveLength(1);
+        expect(appended[0].name).toBe('New');
+    });
+
+    it('drops parsed archives beyond the retention limit', () => {
+        const oversized = Array.from({ length: seriesControls.MAX_SERIES_ARCHIVES + 5 }, (_, index) => ({
+            id: `series-${index}`,
+            name: `Series ${index}`,
+            createdAt: index,
+            concepts: [{ theme: 't', caption: 'c', visual: 'v' }],
+        }));
+
+        expect(seriesControls.parseStickerSeriesArchives(oversized))
+            .toHaveLength(seriesControls.MAX_SERIES_ARCHIVES);
+    });
 });

@@ -75,3 +75,13 @@ export const deleteAiVideoJob = async (id: string) => {
     const db = await initDB();
     return db.delete(AI_VIDEO_STORE_NAME, id);
 };
+
+// Jobs carry full MP4 blobs; keep the store from growing without bound.
+const MAX_AI_VIDEO_JOBS = 10;
+
+export const pruneAiVideoJobs = async (keep = MAX_AI_VIDEO_JOBS) => {
+    const db = await initDB();
+    const jobs = await db.getAllFromIndex(AI_VIDEO_STORE_NAME, 'updatedAt');
+    const stale = jobs.slice(0, Math.max(0, jobs.length - keep));
+    await Promise.all(stale.map((job) => db.delete(AI_VIDEO_STORE_NAME, job.id)));
+};
