@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -6,6 +6,13 @@ const readSource = (relativePath: string) => readFileSync(resolve(process.cwd(),
 const appSource = readSource('src/pages/AnimatedSticker/App.tsx');
 const previewSource = readSource('src/pages/AnimatedSticker/components/VideoBoardPreview.tsx');
 const resultCardSource = readSource('src/pages/AnimatedSticker/components/StickerResultCard.tsx');
+const frameTrimDialogPath = resolve(
+    process.cwd(),
+    'src/pages/AnimatedSticker/components/FrameTrimDialog.tsx',
+);
+const frameTrimDialogSource = existsSync(frameTrimDialogPath)
+    ? readFileSync(frameTrimDialogPath, 'utf8')
+    : '';
 const tabMakerSource = readSource('src/pages/AnimatedSticker/components/TabImageMaker.tsx');
 const videoProcessingSource = readSource('src/pages/AnimatedSticker/utils/videoProcessing.ts');
 const compressionSource = readSource('src/pages/AnimatedSticker/utils/compression.ts');
@@ -59,6 +66,18 @@ describe('animated sticker page readability', () => {
         expect(appSource).toContain('overLimitCount > 0');
         expect(compressionSource).toContain('MAX_LINE_FILE_SIZE');
         expect(resultCardSource).toContain('originalSizeBytes');
+    });
+
+    it('offers per-sticker frame trimming with previews and guarded range controls', () => {
+        expect(resultCardSource).toContain('onEdit');
+        expect(resultCardSource).toContain("t('animatedSticker.editFrames'");
+        expect(frameTrimDialogSource).toContain('MIN_ANIMATED_STICKER_FRAMES');
+        expect(frameTrimDialogSource).toContain('<canvas');
+        expect(frameTrimDialogSource).toContain('type="range"');
+        expect(frameTrimDialogSource).toContain("t('animatedSticker.trimFirstFrame')");
+        expect(frameTrimDialogSource).toContain("t('animatedSticker.trimLastFrame')");
+        expect(frameTrimDialogSource).toContain("t('animatedSticker.trimReset')");
+        expect(frameTrimDialogSource).toContain("t('animatedSticker.trimApply')");
     });
 
     it('saves generated APNG files to Gallery and updates the same records after compression', () => {

@@ -1,4 +1,4 @@
-import { CheckCircle2, Download, TriangleAlert } from 'lucide-react';
+import { CheckCircle2, Download, Scissors, TriangleAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { AnimatedStickerResult } from '../types';
 import { formatFileSize } from '../utils/frameProcessing';
@@ -7,9 +7,10 @@ import { validateLineAnimatedSticker } from '../utils/lineCompliance';
 interface StickerResultCardProps {
     result: AnimatedStickerResult;
     onDownload: (result: AnimatedStickerResult) => void;
+    onEdit?: (result: AnimatedStickerResult) => void;
 }
 
-export const StickerResultCard = ({ result, onDownload }: StickerResultCardProps) => {
+export const StickerResultCard = ({ result, onDownload, onEdit }: StickerResultCardProps) => {
     const { t } = useTranslation();
     const validation = validateLineAnimatedSticker(result);
 
@@ -54,14 +55,26 @@ export const StickerResultCard = ({ result, onDownload }: StickerResultCardProps
                         })}
                     </p>
                 </div>
-                <button
-                    type="button"
-                    onClick={() => onDownload(result)}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cream-dark bg-cream text-bronze-light transition-colors hover:border-primary/40 hover:bg-white hover:text-primary"
-                    aria-label={t('animatedSticker.downloadOne', { number: result.index + 1 })}
-                >
-                    <Download size={18} />
-                </button>
+                <div className="flex shrink-0 gap-2">
+                    {onEdit && (
+                        <button
+                            type="button"
+                            onClick={() => onEdit(result)}
+                            className="flex h-10 w-10 items-center justify-center rounded-xl border border-cream-dark bg-cream text-bronze-light transition-colors hover:border-primary/40 hover:bg-white hover:text-primary"
+                            aria-label={t('animatedSticker.editFrames', { number: result.index + 1 })}
+                        >
+                            <Scissors size={17} />
+                        </button>
+                    )}
+                    <button
+                        type="button"
+                        onClick={() => onDownload(result)}
+                        className="flex h-10 w-10 items-center justify-center rounded-xl border border-cream-dark bg-cream text-bronze-light transition-colors hover:border-primary/40 hover:bg-white hover:text-primary"
+                        aria-label={t('animatedSticker.downloadOne', { number: result.index + 1 })}
+                    >
+                        <Download size={18} />
+                    </button>
+                </div>
             </div>
         </article>
     );
