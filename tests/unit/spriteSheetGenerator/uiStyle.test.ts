@@ -2,10 +2,19 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const source = readFileSync(
+const tabSource = readFileSync(
     resolve(process.cwd(), 'src/features/sprite-sheet-generator/SpriteSheetGeneratorTab.tsx'),
     'utf8',
 );
+const controllerSource = readFileSync(
+    resolve(process.cwd(), 'src/features/sprite-sheet-generator/useSpriteSheetGeneratorController.ts'),
+    'utf8',
+);
+const workspaceSource = readFileSync(
+    resolve(process.cwd(), 'src/features/sprite-sheet-generator/components/SpriteSheetWorkspace.tsx'),
+    'utf8',
+);
+const source = `${tabSource}\n${controllerSource}\n${workspaceSource}`;
 const gallerySource = readFileSync(
     resolve(process.cwd(), 'src/pages/Gallery/App.tsx'),
     'utf8',
@@ -20,6 +29,13 @@ const en = JSON.parse(readFileSync(
 )) as { spriteSheet: { styles: Record<string, string> } };
 
 describe('sprite sheet page readability', () => {
+    it('keeps the route component focused by delegating state and presentation', () => {
+        expect(tabSource.split(/\r?\n/).length).toBeLessThanOrEqual(500);
+        expect(workspaceSource.split(/\r?\n/).length).toBeLessThanOrEqual(500);
+        expect(tabSource).toContain("from './useSpriteSheetGeneratorController'");
+        expect(tabSource).toContain("from './components/SpriteSheetWorkspace'");
+    });
+
     it('does not use sub-12px utility text in the page UI', () => {
         expect(source).not.toMatch(/text-\[(?:9|10|11)px\]/);
     });
@@ -91,7 +107,7 @@ describe('sprite sheet page readability', () => {
         expect(source).toContain("t('spriteSheet.requiredCaptions')");
         expect(source).toContain('requiredCaptionsInput');
         expect(source).toContain('parseRequiredCaptions(requiredCaptionsInput)');
-        expect(source).toContain('requiredCaptions: batchRequiredCaptions');
+        expect(source).toContain('requiredCaptions: requiredForBatch');
     });
 
     it('lets users exclude selected historical series from new planning', () => {
