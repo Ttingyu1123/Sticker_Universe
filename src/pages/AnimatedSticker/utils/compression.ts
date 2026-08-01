@@ -77,6 +77,7 @@ export const compressAnimatedSticker = (
             url: URL.createObjectURL(blob),
             sizeBytes: blob.size,
             frameCount: selectedFrames.length,
+            sourceFrames: selectedFrames,
             colorCount: profile.colorCount,
             originalSizeBytes: result.originalSizeBytes ?? result.sizeBytes,
         };
