@@ -534,20 +534,30 @@ export const useSpriteSheetGeneratorController = ({
         setIsGenerating(true);
         setLastPrompt(prompt);
         try {
+            const model = provider === 'gemini'
+                ? 'gemini-3-pro-image-preview'
+                : 'gpt-image-2';
             const generated = provider === 'gemini'
-                ? await generateGeminiImage(activeKey, prompt, referenceImage, '16:9', 'gemini-3-pro-image-preview', '2K')
-                : await generateOpenAiImage(activeKey, prompt, referenceImage, '16:9', 'gpt-image-2', 'medium');
+                ? await generateGeminiImage(activeKey, prompt, referenceImage, '16:9', model, '2K')
+                : await generateOpenAiImage(activeKey, prompt, referenceImage, '16:9', model, 'medium');
             const normalized = await normalizeSpriteSheet(generated);
+            const generation = { prompt, provider, model };
             setResultImage(normalized);
             if (isEditingBatch && editingBatchIndex !== null) {
                 setCompletedBatches((current) => {
-                    const updated = replaceStickerBatch(current, editingBatchIndex, concepts);
+                    const updated = replaceStickerBatch(
+                        current,
+                        editingBatchIndex,
+                        concepts,
+                        Date.now(),
+                        generation,
+                    );
                     safeSaveToLocalStorage(SERIES_STORAGE_KEY, updated);
                     return updated;
                 });
             } else if (!batchAlreadyRecorded) {
                 setCompletedBatches((current) => {
-                    const updated = appendStickerBatch(current, concepts);
+                    const updated = appendStickerBatch(current, concepts, Date.now(), generation);
                     safeSaveToLocalStorage(SERIES_STORAGE_KEY, updated);
                     return updated;
                 });

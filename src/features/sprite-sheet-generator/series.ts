@@ -1,4 +1,5 @@
 import type { StickerConcept } from './types';
+import type { AiProvider } from '../../shared/geminiApiKey';
 
 export const STICKERS_PER_BATCH = 8;
 export const MAX_SERIES_BATCHES = 3;
@@ -10,6 +11,13 @@ export interface StickerSeriesBatch {
     signature: string;
     createdAt: number;
     concepts: StickerConcept[];
+    generation?: StickerBatchGeneration;
+}
+
+export interface StickerBatchGeneration {
+    prompt: string;
+    provider: AiProvider;
+    model: string;
 }
 
 export interface StickerSeriesArchive {
@@ -213,6 +221,7 @@ export const appendStickerBatch = (
     batches: StickerSeriesBatch[],
     concepts: StickerConcept[],
     createdAt = Date.now(),
+    generation?: StickerBatchGeneration,
 ): StickerSeriesBatch[] => {
     if (concepts.length !== STICKERS_PER_BATCH) {
         throw new Error(`A sticker batch must contain exactly ${STICKERS_PER_BATCH} stickers.`);
@@ -228,6 +237,7 @@ export const appendStickerBatch = (
         signature,
         createdAt,
         concepts: concepts.map((concept) => ({ ...concept })),
+        ...(generation ? { generation: { ...generation } } : {}),
     }];
 };
 
@@ -236,6 +246,7 @@ export const replaceStickerBatch = (
     batchIndex: number,
     concepts: StickerConcept[],
     createdAt = Date.now(),
+    generation?: StickerBatchGeneration,
 ): StickerSeriesBatch[] => {
     if (batchIndex < 0 || batchIndex >= batches.length) {
         throw new Error('The selected sticker batch does not exist.');
@@ -253,5 +264,6 @@ export const replaceStickerBatch = (
         signature,
         createdAt,
         concepts: concepts.map((concept) => ({ ...concept })),
+        ...(generation ? { generation: { ...generation } } : {}),
     } : batch);
 };
