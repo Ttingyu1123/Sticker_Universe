@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -14,6 +14,13 @@ const workspaceSource = readFileSync(
     resolve(process.cwd(), 'src/features/sprite-sheet-generator/components/SpriteSheetWorkspace.tsx'),
     'utf8',
 );
+const importDialogPath = resolve(
+    process.cwd(),
+    'src/features/sprite-sheet-generator/components/SeriesBackupImportDialog.tsx',
+);
+const importDialogSource = existsSync(importDialogPath)
+    ? readFileSync(importDialogPath, 'utf8')
+    : '';
 const seriesBackupSource = readFileSync(
     resolve(process.cwd(), 'src/features/sprite-sheet-generator/seriesBackup.ts'),
     'utf8',
@@ -26,11 +33,11 @@ const gallerySource = readFileSync(
 const zhTw = JSON.parse(readFileSync(
     resolve(process.cwd(), 'src/locales/zh-TW.json'),
     'utf8',
-)) as { spriteSheet: { styles: Record<string, string> } };
+)) as { spriteSheet: { styles: Record<string, string>; [key: string]: unknown } };
 const en = JSON.parse(readFileSync(
     resolve(process.cwd(), 'src/locales/en.json'),
     'utf8',
-)) as { spriteSheet: { styles: Record<string, string> } };
+)) as { spriteSheet: { styles: Record<string, string>; [key: string]: unknown } };
 
 describe('sprite sheet page readability', () => {
     it('keeps the route component focused by delegating state and presentation', () => {
@@ -156,6 +163,50 @@ describe('sprite sheet page readability', () => {
         expect(seriesBackupSource).toContain('id: project.id');
         expect(controllerSource).toContain('appendStickerSeriesArchive(current, archive)');
         expect(controllerSource).toContain('current.includes(archive.id)');
+    });
+
+    it('exposes explicit ZIP download and upload controls in the series workspace', () => {
+        expect(workspaceSource).toContain('backupInputRef');
+        expect(workspaceSource).toContain('accept=".zip,application/zip"');
+        expect(workspaceSource).toContain('handleDownloadSeriesBackup');
+        expect(workspaceSource).toContain('handleBackupFile(file)');
+        expect(workspaceSource).toContain("t('spriteSheet.seriesBackupDownload')");
+        expect(workspaceSource).toContain("t('spriteSheet.seriesBackupImport')");
+        expect(workspaceSource).toContain("event.currentTarget.value = ''");
+    });
+
+    it('confirms imported backup details and both import modes in an accessible dialog', () => {
+        expect(workspaceSource).toContain('<SeriesBackupImportDialog');
+        expect(importDialogSource).toContain('useModalA11y');
+        expect(importDialogSource).toContain('backup.promptCoverage');
+        expect(importDialogSource).toContain("t('spriteSheet.seriesBackupContinue')");
+        expect(importDialogSource).toContain("t('spriteSheet.seriesBackupAvoidRepeats')");
+        expect(importDialogSource).toContain("t('spriteSheet.seriesBackupPromptComplete')");
+        expect(importDialogSource).toContain("t('spriteSheet.seriesBackupPromptIncomplete'");
+    });
+
+    it('localizes every series backup action and outcome', () => {
+        const requiredKeys = [
+            'seriesBackupDownload',
+            'seriesBackupImport',
+            'seriesBackupImportTitle',
+            'seriesBackupImportHint',
+            'seriesBackupStickerCount',
+            'seriesBackupExportedAt',
+            'seriesBackupPromptComplete',
+            'seriesBackupPromptIncomplete',
+            'seriesBackupContinue',
+            'seriesBackupAvoidRepeats',
+            'seriesBackupDownloaded',
+            'seriesBackupExportFailed',
+            'seriesBackupImportFailed',
+            'seriesBackupContinued',
+            'seriesBackupAddedToExclusions',
+        ];
+        requiredKeys.forEach((key) => {
+            expect(zhTw.spriteSheet[key]).toBeTruthy();
+            expect(en.spriteSheet[key]).toBeTruthy();
+        });
     });
 
     it('blocks generation when edits remove required captions or reuse archived content', () => {

@@ -29,6 +29,7 @@ import {
 } from '../series';
 import { SPRITE_SHEET_STYLES } from '../types';
 import type { SpriteSheetGeneratorController } from '../useSpriteSheetGeneratorController';
+import { SeriesBackupImportDialog } from './SeriesBackupImportDialog';
 
 interface SpriteSheetWorkspaceProps {
     provider: AiProvider;
@@ -46,6 +47,7 @@ export const SpriteSheetWorkspace = ({
     const { t } = useTranslation();
     const {
         fileInputRef,
+        backupInputRef,
         referenceImage,
         characterDescription,
         setCharacterDescription,
@@ -90,6 +92,12 @@ export const SpriteSheetWorkspace = ({
         handleOpenAiVideo,
         clearReference,
         resetSeries,
+        pendingBackup,
+        handleDownloadSeriesBackup,
+        handleBackupFile,
+        handleContinueImportedSeries,
+        handleImportForDuplicateAvoidance,
+        closeBackupImport,
     } = controller;
 
     return (
@@ -156,7 +164,15 @@ export const SpriteSheetWorkspace = ({
                 <section className="mt-6 rounded-[2rem] border border-cream-dark bg-cream p-5 shadow-sm md:p-7">
                     <div className="mb-5 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-primary">03 · STICKER STORYBOARD</p><h3 className="mt-1 text-2xl font-black text-bronze-text">{t('spriteSheet.plannerTitle')}</h3><p className="mt-2 text-sm leading-6 text-bronze-light">{t('spriteSheet.plannerHint')}</p></div><div className="flex flex-wrap items-center gap-2">{concepts.length === SPRITE_FRAME_COUNT && draftStatus !== 'idle' && <div className="flex items-center gap-1.5 rounded-full border border-primary/15 bg-white px-3.5 py-2 text-xs font-black text-primary"><CloudCheck size={15} />{draftStatus === 'saving' ? t('spriteSheet.draftSaving') : draftStatus === 'restored' ? t('spriteSheet.draftRestored') : t('spriteSheet.draftSaved')}</div>}<div className={`rounded-full px-3.5 py-2 text-xs font-black ${hasCompletePlan ? 'bg-primary/10 text-primary' : 'bg-cream-light text-bronze-light'}`}>{concepts.length} / {SPRITE_FRAME_COUNT} {t('spriteSheet.planned')}</div></div></div>
                     <div className="mb-5 overflow-hidden rounded-2xl border border-cream-dark bg-cream-light">
-                        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-cream-dark/60 px-4 py-3"><div><p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t('spriteSheet.seriesTitle')}</p><p className="mt-1 text-sm font-bold text-bronze-text">{t('spriteSheet.seriesProgress', { count: completedStickerCount, total: MAX_SERIES_STICKERS })}</p></div>{completedBatches.length > 0 && <button type="button" onClick={resetSeries} className="rounded-xl border border-cream-dark bg-white px-3.5 py-2.5 text-xs font-black text-bronze-light transition-colors hover:border-primary/40 hover:text-primary">{t('spriteSheet.startNewSeries')}</button>}</div>
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-cream-dark/60 px-4 py-3">
+                            <div><p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{t('spriteSheet.seriesTitle')}</p><p className="mt-1 text-sm font-bold text-bronze-text">{t('spriteSheet.seriesProgress', { count: completedStickerCount, total: MAX_SERIES_STICKERS })}</p></div>
+                            <div className="flex flex-wrap gap-2">
+                                <input ref={backupInputRef} type="file" accept=".zip,application/zip" className="hidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) void handleBackupFile(file); event.currentTarget.value = ''; }} />
+                                <button type="button" onClick={() => backupInputRef.current?.click()} disabled={isSuggesting || isGenerating} className="flex items-center gap-2 rounded-xl border border-cream-dark bg-white px-3.5 py-2.5 text-xs font-black text-bronze-light transition-colors hover:border-primary/40 hover:text-primary disabled:opacity-45"><Upload size={15} /> {t('spriteSheet.seriesBackupImport')}</button>
+                                <button type="button" onClick={() => void handleDownloadSeriesBackup()} disabled={completedBatches.length === 0 || isSuggesting || isGenerating} className="flex items-center gap-2 rounded-xl border border-cream-dark bg-white px-3.5 py-2.5 text-xs font-black text-bronze-light transition-colors hover:border-primary/40 hover:text-primary disabled:opacity-45"><Download size={15} /> {t('spriteSheet.seriesBackupDownload')}</button>
+                                {completedBatches.length > 0 && <button type="button" onClick={resetSeries} className="rounded-xl border border-cream-dark bg-white px-3.5 py-2.5 text-xs font-black text-bronze-light transition-colors hover:border-primary/40 hover:text-primary">{t('spriteSheet.startNewSeries')}</button>}
+                            </div>
+                        </div>
                         <div className="p-4">
                             <div className="grid grid-cols-3 gap-2">
                                 {Array.from({ length: MAX_SERIES_BATCHES }, (_, index) => {
@@ -181,6 +197,7 @@ export const SpriteSheetWorkspace = ({
                 </section>
                 {lastPrompt && <div className="mt-4 flex justify-center"><button type="button" onClick={handleGenerate} disabled={isGenerating} className="flex items-center gap-2 text-sm font-black text-bronze-light hover:text-primary disabled:opacity-50"><RefreshCw size={15} /> {t('spriteSheet.regenerate')}</button></div>}
             </div>
+            {pendingBackup && <SeriesBackupImportDialog backup={pendingBackup} onContinue={handleContinueImportedSeries} onAvoidRepeats={handleImportForDuplicateAvoidance} onClose={closeBackupImport} />}
         </div>
     );
 };
