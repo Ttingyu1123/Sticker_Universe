@@ -14,7 +14,11 @@ const workspaceSource = readFileSync(
     resolve(process.cwd(), 'src/features/sprite-sheet-generator/components/SpriteSheetWorkspace.tsx'),
     'utf8',
 );
-const source = `${tabSource}\n${controllerSource}\n${workspaceSource}`;
+const seriesBackupSource = readFileSync(
+    resolve(process.cwd(), 'src/features/sprite-sheet-generator/seriesBackup.ts'),
+    'utf8',
+);
+const source = `${tabSource}\n${controllerSource}\n${workspaceSource}\n${seriesBackupSource}`;
 const gallerySource = readFileSync(
     resolve(process.cwd(), 'src/pages/Gallery/App.tsx'),
     'utf8',
@@ -122,6 +126,36 @@ describe('sprite sheet page readability', () => {
         expect(source).toContain("t('spriteSheet.unnamedSeries')");
         expect(source).toContain('setArchivedSeries');
         expect(source).toContain("t('spriteSheet.startNewSeries')");
+    });
+
+    it('downloads a portable backup and prepares uploaded backups for confirmation', () => {
+        expect(controllerSource).toContain("from 'file-saver'");
+        expect(controllerSource).toContain('createStickerSeriesBackup(');
+        expect(controllerSource).toContain('getStickerSeriesBackupFilename(');
+        expect(controllerSource).toContain('parseStickerSeriesBackup(file)');
+        expect(controllerSource).toContain('backupInputRef');
+        expect(controllerSource).toContain('pendingBackup');
+        expect(controllerSource).toContain('handleDownloadSeriesBackup');
+        expect(controllerSource).toContain('handleBackupFile');
+    });
+
+    it('continues an imported backup by restoring its full active-series state', () => {
+        expect(controllerSource).toContain('handleContinueImportedSeries');
+        expect(controllerSource).toContain('setReferenceImage(project.referenceImage)');
+        expect(controllerSource).toContain('setCharacterDescription(project.characterDescription)');
+        expect(controllerSource).toContain('setCharacterSummary(project.characterSummary)');
+        expect(controllerSource).toContain('setCompletedBatches(project.completedBatches)');
+        expect(controllerSource).toContain('setConcepts(project.draftConcepts)');
+        expect(controllerSource).toContain(
+            'safeSaveToLocalStorage(SERIES_STORAGE_KEY, project.completedBatches)',
+        );
+    });
+
+    it('imports a backup for duplicate avoidance without replacing the active series', () => {
+        expect(controllerSource).toContain('handleImportForDuplicateAvoidance');
+        expect(seriesBackupSource).toContain('id: project.id');
+        expect(controllerSource).toContain('appendStickerSeriesArchive(current, archive)');
+        expect(controllerSource).toContain('current.includes(archive.id)');
     });
 
     it('blocks generation when edits remove required captions or reuse archived content', () => {

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { saveAs } from 'file-saver';
 import { useToast } from '../../components/shared/ToastProvider';
 import { deleteStickerFromDB, getAllStickersFromDB, saveStickerToDB } from '../../db';
 import type { AiProvider } from '../../shared/geminiApiKey';
@@ -41,6 +42,15 @@ import {
     type StickerSeriesArchive,
     type StickerSeriesBatch,
 } from './series';
+import {
+    createSpriteSheetDraftFromBackup,
+    createStickerSeriesArchiveFromBackup,
+    createStickerSeriesBackup,
+    createStickerSeriesBackupProject,
+    getStickerSeriesBackupFilename,
+    parseStickerSeriesBackup,
+    type ParsedStickerSeriesBackup,
+} from './seriesBackup';
 import type { SpriteSheetStyle, StickerConcept } from './types';
 
 const SERIES_STORAGE_KEY = 'sprite-sheet-series-v1';
@@ -114,6 +124,7 @@ export const useSpriteSheetGeneratorController = ({
     const location = useLocation();
     const navigate = useNavigate();
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const backupInputRef = useRef<HTMLInputElement>(null);
     const defaultSeriesName = t('spriteSheet.defaultSeriesName');
     const [initialSeriesControls] = useState(() => {
         const archives = loadStickerSeriesArchives();
@@ -151,6 +162,7 @@ export const useSpriteSheetGeneratorController = ({
     );
     const [isDraftHydrated, setIsDraftHydrated] = useState(false);
     const [draftStatus, setDraftStatus] = useState<'idle' | 'saving' | 'saved' | 'restored'>('idle');
+    const [pendingBackup, setPendingBackup] = useState<ParsedStickerSeriesBackup | null>(null);
 
     const requestedPlanId = useMemo(
         () => new URLSearchParams(location.search).get('plan'),
@@ -624,6 +636,79 @@ export const useSpriteSheetGeneratorController = ({
         setDraftStatus('idle');
     };
 
+    const handleDownloadSeriesBackup = async () => {
+        const draft = createCurrentDraft();
+        if (!draft || completedBatches.length === 0) return;
+        const project = createStickerSeriesBackupProject(draft, t('spriteSheet.unnamedSeries'));
+        try {
+            saveAs(
+                await createStickerSeriesBackup(project),
+                getStickerSeriesBackupFilename(project.name),
+            );
+            showToast(t('spriteSheet.seriesBackupDownloaded'), 'success');
+        } catch (error) {
+            const reason = error instanceof Error ? error.message : String(error);
+            showToast(t('spriteSheet.seriesBackupExportFailed', { reason }), 'error');
+        }
+    };
+
+    const handleBackupFile = async (file: File) => {
+        try {
+            setPendingBackup(await parseStickerSeriesBackup(file));
+        } catch (error) {
+            const reason = error instanceof Error ? error.message : String(error);
+            showToast(t('spriteSheet.seriesBackupImportFailed', { reason }), 'error');
+        }
+    };
+
+    const handleContinueImportedSeries = async () => {
+        if (!pendingBackup) return;
+        const { project } = pendingBackup;
+        setReferenceImage(project.referenceImage);
+        setCharacterDescription(project.characterDescription);
+        setCharacterSummary(project.characterSummary);
+        setStyle(project.style);
+        setBackgroundColor(project.backgroundColor);
+        setBackgroundRecommendation(null);
+        setIncludeText(project.includeText);
+        setSeriesName(project.name);
+        setRequiredCaptionsInput(project.requiredCaptions.join('\n'));
+        setCompletedBatches(project.completedBatches);
+        setConcepts(project.draftConcepts);
+        setEditingBatchIndex(null);
+        setResultImage(null);
+        setLastPrompt(project.completedBatches.at(-1)?.generation?.prompt ?? '');
+        setDraftStatus('restored');
+        saveStickerBackgroundColor(project.backgroundColor);
+        safeSaveToLocalStorage(SERIES_STORAGE_KEY, project.completedBatches);
+        const restoredDraft = createSpriteSheetDraftFromBackup(project, excludedSeriesIds);
+        await saveStickerToDB(createSpriteSheetPlanGalleryItem(restoredDraft, {
+            id: SPRITE_SHEET_DRAFT_ID,
+            timestamp: Date.now(),
+            title: t('spriteSheet.galleryDraftTitle', {
+                batch: Math.min(project.completedBatches.length + 1, MAX_SERIES_BATCHES),
+            }),
+        }));
+        setPendingBackup(null);
+        showToast(t('spriteSheet.seriesBackupContinued'), 'success');
+    };
+
+    const handleImportForDuplicateAvoidance = () => {
+        if (!pendingBackup) return;
+        const { project } = pendingBackup;
+        const archive = createStickerSeriesArchiveFromBackup(project);
+        setArchivedSeries((current) => {
+            const updated = appendStickerSeriesArchive(current, archive);
+            safeSaveToLocalStorage(SERIES_ARCHIVE_STORAGE_KEY, updated);
+            return updated;
+        });
+        setExcludedSeriesIds((current) => (
+            current.includes(archive.id) ? current : [...current, archive.id]
+        ));
+        setPendingBackup(null);
+        showToast(t('spriteSheet.seriesBackupAddedToExclusions'), 'success');
+    };
+
     const resetSeries = () => {
         if (!window.confirm(t('spriteSheet.resetSeriesConfirm'))) return;
         const archive = createStickerSeriesArchive(
@@ -658,6 +743,7 @@ export const useSpriteSheetGeneratorController = ({
 
     return {
         fileInputRef,
+        backupInputRef,
         referenceImage,
         characterDescription,
         setCharacterDescription,
@@ -684,6 +770,7 @@ export const useSpriteSheetGeneratorController = ({
         excludedSeriesIds,
         setExcludedSeriesIds,
         draftStatus,
+        pendingBackup,
         hasCompletePlan,
         seriesConcepts,
         requiredCaptions,
@@ -701,6 +788,11 @@ export const useSpriteSheetGeneratorController = ({
         copyText,
         handleOpenAiVideo,
         clearReference,
+        handleDownloadSeriesBackup,
+        handleBackupFile,
+        handleContinueImportedSeries,
+        handleImportForDuplicateAvoidance,
+        closeBackupImport: () => setPendingBackup(null),
         resetSeries,
     };
 };

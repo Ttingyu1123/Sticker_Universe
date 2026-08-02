@@ -1,6 +1,12 @@
 import JSZip from 'jszip';
-import type { StickerSeriesBatch } from './series';
-import { MAX_SERIES_BATCHES, STICKERS_PER_BATCH } from './series';
+import type { SpriteSheetPlanDraft } from './planPersistence';
+import type { StickerSeriesArchive, StickerSeriesBatch } from './series';
+import {
+    getSeriesConcepts,
+    isBatchInSeries,
+    MAX_SERIES_BATCHES,
+    STICKERS_PER_BATCH,
+} from './series';
 import {
     SPRITE_SHEET_STYLES,
     type SpriteSheetStyle,
@@ -197,6 +203,58 @@ const getPromptCoverage = (batches: StickerSeriesBatch[]) => {
         complete: recorded === batches.length,
     };
 };
+
+export const createStickerSeriesBackupProject = (
+    draft: SpriteSheetPlanDraft,
+    fallbackName: string,
+): StickerSeriesBackupProject => {
+    const firstBatch = draft.completedBatches[0];
+    if (!firstBatch) throw new Error('Complete at least one sticker batch before exporting.');
+    return {
+        id: `series-${firstBatch.createdAt}`,
+        name: draft.seriesName.trim() || fallbackName,
+        createdAt: firstBatch.createdAt,
+        referenceImage: draft.referenceImage,
+        characterDescription: draft.characterDescription,
+        characterSummary: draft.characterSummary,
+        style: draft.style,
+        backgroundColor: draft.backgroundColor,
+        includeText: draft.includeText,
+        requiredCaptions: [...draft.requiredCaptions],
+        completedBatches: draft.completedBatches,
+        draftConcepts: isBatchInSeries(draft.completedBatches, draft.concepts)
+            ? []
+            : draft.concepts,
+    };
+};
+
+export const createSpriteSheetDraftFromBackup = (
+    project: StickerSeriesBackupProject,
+    excludedSeriesIds: string[],
+): SpriteSheetPlanDraft => ({
+    referenceImage: project.referenceImage,
+    characterDescription: project.characterDescription,
+    characterSummary: project.characterSummary,
+    concepts: project.draftConcepts,
+    style: project.style,
+    backgroundColor: project.backgroundColor,
+    backgroundRecommendation: null,
+    includeText: project.includeText,
+    completedBatches: project.completedBatches,
+    editingBatchIndex: null,
+    seriesName: project.name,
+    requiredCaptions: project.requiredCaptions,
+    excludedSeriesIds: [...excludedSeriesIds],
+});
+
+export const createStickerSeriesArchiveFromBackup = (
+    project: StickerSeriesBackupProject,
+): StickerSeriesArchive => ({
+    id: project.id,
+    name: project.name,
+    createdAt: project.createdAt,
+    concepts: getSeriesConcepts(project.completedBatches),
+});
 
 export const getStickerSeriesBackupFilename = (seriesName: string): string => {
     const safeName = seriesName
