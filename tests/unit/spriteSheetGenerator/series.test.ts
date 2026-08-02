@@ -233,6 +233,33 @@ describe('sticker collection series', () => {
         expect(replaced[2]).toEqual(third[2]);
     });
 
+    it('stores the exact generation metadata on a completed batch', () => {
+        const generation = {
+            prompt: 'Exact prompt sent to the image model',
+            provider: 'gemini',
+            model: 'gemini-3-pro-image-preview',
+        };
+
+        const batches = appendStickerBatch([], createBatch('A'), 1, generation);
+
+        expect(batches[0].generation).toEqual(generation);
+        expect(batches[0].generation).not.toBe(generation);
+    });
+
+    it('replaces generation metadata while keeping legacy prompt-less batches valid', () => {
+        const legacy = appendStickerBatch([], createBatch('A'), 1);
+        expect(legacy[0].generation).toBeUndefined();
+
+        const generation = {
+            prompt: 'Replacement prompt',
+            provider: 'openai',
+            model: 'gpt-image-2',
+        };
+        const replaced = replaceStickerBatch(legacy, 0, createBatch('R'), 2, generation);
+
+        expect(replaced[0].generation).toEqual(generation);
+    });
+
     it('detects reused captions and themes even when spacing or punctuation changes', () => {
         const used: StickerConcept[] = [{ theme: '早安問候', caption: '早安！', visual: '揮手微笑' }];
         const candidates: StickerConcept[] = [
