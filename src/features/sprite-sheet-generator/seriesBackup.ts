@@ -5,6 +5,7 @@ import {
     getSeriesConcepts,
     isBatchInSeries,
     MAX_SERIES_BATCHES,
+    normalizeRequiredCaptionGuidance,
     STICKERS_PER_BATCH,
 } from './series';
 import {
@@ -27,10 +28,12 @@ export interface StickerSeriesBackupProject {
     referenceImage: string;
     characterDescription: string;
     characterSummary: string;
+    contentGuidance: string;
     style: SpriteSheetStyle;
     backgroundColor: string;
     includeText: boolean;
     requiredCaptions: string[];
+    requiredCaptionGuidance: Record<string, string>;
     completedBatches: StickerSeriesBatch[];
     draftConcepts: StickerConcept[];
 }
@@ -133,6 +136,7 @@ const normalizeStoredProject = (value: unknown): StoredStickerSeriesBackupProjec
         || !Number.isFinite(value.createdAt)
         || typeof value.characterDescription !== 'string'
         || typeof value.characterSummary !== 'string'
+        || (value.contentGuidance !== undefined && typeof value.contentGuidance !== 'string')
         || !SPRITE_SHEET_STYLES.includes(value.style as SpriteSheetStyle)
         || typeof value.backgroundColor !== 'string'
         || !/^#[0-9a-f]{6}$/i.test(value.backgroundColor)
@@ -140,6 +144,7 @@ const normalizeStoredProject = (value: unknown): StoredStickerSeriesBackupProjec
         || !Array.isArray(value.requiredCaptions)
         || !value.requiredCaptions.every((caption) => typeof caption === 'string')
         || value.requiredCaptions.length > 24
+        || (value.requiredCaptionGuidance !== undefined && !isRecord(value.requiredCaptionGuidance))
         || !Array.isArray(value.completedBatches)
         || value.completedBatches.length === 0
         || value.completedBatches.length > MAX_SERIES_BATCHES
@@ -155,10 +160,16 @@ const normalizeStoredProject = (value: unknown): StoredStickerSeriesBackupProjec
         createdAt: value.createdAt,
         characterDescription: value.characterDescription,
         characterSummary: value.characterSummary,
+        contentGuidance: typeof value.contentGuidance === 'string'
+            ? value.contentGuidance.slice(0, 500)
+            : '',
         style: value.style as SpriteSheetStyle,
         backgroundColor: value.backgroundColor.toUpperCase(),
         includeText: value.includeText,
         requiredCaptions: value.requiredCaptions.map((caption) => caption.trim()).filter(Boolean),
+        requiredCaptionGuidance: normalizeRequiredCaptionGuidance(
+            value.requiredCaptionGuidance,
+        ),
         completedBatches: value.completedBatches.map(normalizeBatch),
         draftConcepts: normalizeConcepts(value.draftConcepts, value.draftConcepts.length),
     };
@@ -217,10 +228,12 @@ export const createStickerSeriesBackupProject = (
         referenceImage: draft.referenceImage,
         characterDescription: draft.characterDescription,
         characterSummary: draft.characterSummary,
+        contentGuidance: draft.contentGuidance,
         style: draft.style,
         backgroundColor: draft.backgroundColor,
         includeText: draft.includeText,
         requiredCaptions: [...draft.requiredCaptions],
+        requiredCaptionGuidance: { ...draft.requiredCaptionGuidance },
         completedBatches: draft.completedBatches,
         draftConcepts: isBatchInSeries(draft.completedBatches, draft.concepts)
             ? []
@@ -235,6 +248,7 @@ export const createSpriteSheetDraftFromBackup = (
     referenceImage: project.referenceImage,
     characterDescription: project.characterDescription,
     characterSummary: project.characterSummary,
+    contentGuidance: project.contentGuidance,
     concepts: project.draftConcepts,
     style: project.style,
     backgroundColor: project.backgroundColor,
@@ -244,6 +258,7 @@ export const createSpriteSheetDraftFromBackup = (
     editingBatchIndex: null,
     seriesName: project.name,
     requiredCaptions: project.requiredCaptions,
+    requiredCaptionGuidance: { ...project.requiredCaptionGuidance },
     excludedSeriesIds: [...excludedSeriesIds],
 });
 

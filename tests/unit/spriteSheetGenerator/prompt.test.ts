@@ -30,6 +30,10 @@ describe('sticker collection prompt', () => {
         const prompt = buildSpriteSheetPrompt({
             concepts,
             characterDescription: 'orange cat wearing a blue scarf',
+            contentGuidance: '欠揍又調皮的主題，每張都要有拖鞋',
+            requiredCaptionGuidance: {
+                '短句1': '跩臉吐舌，拿拖鞋挑釁',
+            },
             style: 'cel',
             backgroundColor: '#12ab34',
             includeText: true,
@@ -45,6 +49,10 @@ describe('sticker collection prompt', () => {
         expect(prompt).toContain('#12AB34');
         expect(prompt).toContain('must not use #12AB34');
         expect(prompt).toContain('Do not repeat the same pose');
+        expect(prompt).toContain('USER CONTENT DIRECTION — MUST HONOR');
+        expect(prompt).toContain('欠揍又調皮的主題，每張都要有拖鞋');
+        expect(prompt).toContain('include it in all 8 cells');
+        expect(prompt).toContain('Required content direction for this exact caption: 跩臉吐舌，拿拖鞋挑釁');
     });
 
     it('requires all 8 concepts before image generation', () => {
@@ -102,11 +110,29 @@ describe('sticker collection prompt', () => {
             '角色是咖啡店吉祥物',
             concepts.slice(0, 2),
             ['路上小心', '我到家了'],
+            '',
+            { '路上小心': '騎機車前戴好安全帽，認真揮手' },
         );
 
         expect(prompt).toContain('REQUIRED CAPTIONS — USE VERBATIM');
         expect(prompt).toContain('1. 路上小心');
         expect(prompt).toContain('2. 我到家了');
+        expect(prompt).toContain('路上小心 | REQUIRED CONTENT DIRECTION: 騎機車前戴好安全帽，認真揮手');
+        expect(prompt).toContain('Do not transfer it to another caption');
         expect(prompt).toContain('Do not alter, paraphrase, shorten, or add punctuation');
+    });
+
+    it('uses the user content direction as a required planning brief', () => {
+        const prompt = buildConceptPlanningPrompt(
+            '橘貓角色',
+            [],
+            [],
+            '整組走欠揍主題，畫面中要有拖鞋',
+        );
+
+        expect(prompt).toContain('USER CONTENT DIRECTION — REQUIRED');
+        expect(prompt).toContain('整組走欠揍主題，畫面中要有拖鞋');
+        expect(prompt).toContain('creative brief for the whole set');
+        expect(prompt).toContain('props, objects, actions, or relationships');
     });
 });

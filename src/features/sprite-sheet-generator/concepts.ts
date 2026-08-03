@@ -11,6 +11,8 @@ interface SuggestStickerConceptsOptions {
     characterNotes?: string;
     previousConcepts?: StickerConcept[];
     requiredCaptions?: string[];
+    contentGuidance?: string;
+    requiredCaptionGuidance?: Record<string, string>;
 }
 
 interface StickerConceptResponse {
@@ -54,6 +56,8 @@ export const buildConceptPlanningPrompt = (
     characterNotes = '',
     previousConcepts: StickerConcept[] = [],
     requiredCaptions: string[] = [],
+    contentGuidance = '',
+    requiredCaptionGuidance: Record<string, string> = {},
 ) => {
     const exclusionList = previousConcepts.length > 0
         ? `
@@ -72,11 +76,29 @@ ${previousConcepts.map((concept, index) => (
     const requiredCaptionList = requiredCaptions.length > 0
         ? `
 REQUIRED CAPTIONS — USE VERBATIM:
-${requiredCaptions.map((caption, index) => `${index + 1}. ${caption}`).join('\n')}
+${requiredCaptions.map((caption, index) => {
+        const direction = Object.prototype.hasOwnProperty.call(requiredCaptionGuidance, caption)
+            ? requiredCaptionGuidance[caption]?.trim().slice(0, 240)
+            : '';
+        return `${index + 1}. ${caption}${direction ? ` | REQUIRED CONTENT DIRECTION: ${direction}` : ''}`;
+    }).join('\n')}
 
 - Include every required caption exactly once among the 8 concepts.
 - Do not alter, paraphrase, shorten, or add punctuation to any required caption.
 - Design a distinct theme and visual performance that naturally supports each required caption.
+- When a required caption has its own content direction, follow it precisely in that caption's visual performance. Do not transfer it to another caption.
+`
+        : '';
+    const contentDirection = contentGuidance.trim().slice(0, 500);
+    const contentDirectionBlock = contentDirection
+        ? `
+USER CONTENT DIRECTION — REQUIRED:
+${contentDirection}
+
+- Treat this as the creative brief for the whole set, not as optional inspiration.
+- Carry the requested theme and mood across all 8 concepts.
+- Make explicitly requested props, objects, actions, or relationships clearly visible in each relevant visual direction.
+- If the user says an element must appear in every sticker, include it in all 8 concepts in varied, natural ways.
 `
         : '';
 
@@ -87,6 +109,7 @@ Character notes from the user:
 ${characterNotes.trim() || 'None. Infer only visible, non-sensitive design traits from the image.'}
 ${exclusionList}
 ${requiredCaptionList}
+${contentDirectionBlock}
 
 PLANNING GOALS:
 - Make the set feel authored for this character, not copied from a generic fixed prompt list.
@@ -171,8 +194,16 @@ export const suggestStickerConcepts = async ({
     characterNotes = '',
     previousConcepts = [],
     requiredCaptions = [],
+    contentGuidance = '',
+    requiredCaptionGuidance = {},
 }: SuggestStickerConceptsOptions): Promise<StickerConceptResponse> => {
-    const prompt = buildConceptPlanningPrompt(characterNotes, previousConcepts, requiredCaptions);
+    const prompt = buildConceptPlanningPrompt(
+        characterNotes,
+        previousConcepts,
+        requiredCaptions,
+        contentGuidance,
+        requiredCaptionGuidance,
+    );
 
     if (provider === 'openai') {
         const payload = await generateOpenAiJson<StickerConceptResponse>(

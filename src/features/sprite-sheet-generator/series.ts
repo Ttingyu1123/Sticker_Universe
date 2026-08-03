@@ -5,6 +5,7 @@ export const STICKERS_PER_BATCH = 8;
 export const MAX_SERIES_BATCHES = 3;
 export const MAX_SERIES_STICKERS = STICKERS_PER_BATCH * MAX_SERIES_BATCHES;
 export const MAX_STICKER_CAPTION_LENGTH = 12;
+export const MAX_CAPTION_GUIDANCE_LENGTH = 240;
 export const MAX_SERIES_ARCHIVES = 20;
 
 export interface StickerSeriesBatch {
@@ -47,6 +48,35 @@ export const parseRequiredCaptions = (input: string): string[] => {
 
     return captions;
 };
+
+export const normalizeRequiredCaptionGuidance = (
+    value: unknown,
+): Record<string, string> => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+    return Object.fromEntries(
+        Object.entries(value)
+            .filter(([caption, guidance]) => (
+                caption.trim()
+                && typeof guidance === 'string'
+                && guidance.trim()
+            ))
+            .slice(0, MAX_SERIES_STICKERS)
+            .map(([caption, guidance]) => [
+                caption.trim().slice(0, MAX_STICKER_CAPTION_LENGTH),
+                String(guidance).trim().slice(0, MAX_CAPTION_GUIDANCE_LENGTH),
+            ]),
+    );
+};
+
+export const selectRequiredCaptionGuidance = (
+    captions: string[],
+    guidance: Record<string, string>,
+): Record<string, string> => Object.fromEntries(captions.flatMap((caption) => {
+    const direction = Object.prototype.hasOwnProperty.call(guidance, caption)
+        ? guidance[caption]?.trim().slice(0, MAX_CAPTION_GUIDANCE_LENGTH)
+        : '';
+    return direction ? [[caption, direction]] : [];
+}));
 
 export const getRequiredCaptionsForBatch = (
     requiredCaptions: string[],

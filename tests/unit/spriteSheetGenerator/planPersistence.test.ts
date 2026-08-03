@@ -10,6 +10,7 @@ const draft: SpriteSheetPlanDraft = {
     referenceImage: 'data:image/png;base64,AA==',
     characterDescription: '粉紅色機器人女孩',
     characterSummary: '粉紅帽、機械手臂與透明心臟容器',
+    contentGuidance: '欠揍又調皮，每張都要有拖鞋',
     concepts: Array.from({ length: 8 }, (_, index) => ({
         theme: `主題 ${index + 1}`,
         caption: `短句 ${index + 1}`,
@@ -26,6 +27,10 @@ const draft: SpriteSheetPlanDraft = {
     editingBatchIndex: null,
     seriesName: '上班貓 Vol.2',
     requiredCaptions: ['早安', '路上小心'],
+    requiredCaptionGuidance: {
+        '早安': '睡眼惺忪抱著拖鞋',
+        '路上小心': '認真揮手提醒',
+    },
     excludedSeriesIds: ['series-1'],
 };
 
@@ -41,6 +46,8 @@ describe('sprite-sheet plan persistence', () => {
         expect(item.project?.type).toBe('sprite-sheet-plan');
         expect(item.description).toContain('短句 8');
         expect(item.description).toContain('角色沒有亮藍色');
+        expect(item.description).toContain('欠揍又調皮，每張都要有拖鞋');
+        expect(item.description).toContain('早安（睡眼惺忪抱著拖鞋）');
         expect(parseSpriteSheetPlanGalleryItem(item, 'My sticker series')).toEqual(draft);
     });
 
@@ -85,13 +92,17 @@ describe('sprite-sheet plan persistence', () => {
         });
         const data = item.project?.data as Record<string, unknown>;
         delete data.seriesName;
+        delete data.contentGuidance;
         delete data.requiredCaptions;
+        delete data.requiredCaptionGuidance;
         delete data.excludedSeriesIds;
 
         expect(parseSpriteSheetPlanGalleryItem(item, 'My sticker series')).toEqual({
             ...draft,
             seriesName: 'My sticker series',
+            contentGuidance: '',
             requiredCaptions: [],
+            requiredCaptionGuidance: {},
             excludedSeriesIds: [],
         });
     });

@@ -21,6 +21,8 @@ export interface StickerConcept {
 export interface SpriteSheetPromptOptions {
     concepts: StickerConcept[];
     characterDescription: string;
+    contentGuidance?: string;
+    requiredCaptionGuidance?: Record<string, string>;
     style: SpriteSheetStyle;
     backgroundColor: string;
     includeText: boolean;

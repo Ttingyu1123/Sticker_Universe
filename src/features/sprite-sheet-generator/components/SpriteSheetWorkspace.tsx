@@ -69,8 +69,12 @@ export const SpriteSheetWorkspace = ({
         archivedSeries,
         seriesName,
         setSeriesName,
+        contentGuidance,
+        setContentGuidance,
         requiredCaptionsInput,
         setRequiredCaptionsInput,
+        requiredCaptionGuidance,
+        setRequiredCaptionGuidance,
         excludedSeriesIds,
         setExcludedSeriesIds,
         draftStatus,
@@ -134,6 +138,11 @@ export const SpriteSheetWorkspace = ({
                                     <input value={seriesName} maxLength={60} disabled={isSuggesting || isGenerating} onChange={(event) => setSeriesName(event.target.value)} placeholder={t('spriteSheet.seriesNamePlaceholder')} className="mt-2 w-full rounded-xl border border-cream-dark bg-white px-3.5 py-3 text-base font-bold text-bronze-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/10" />
                                 </label>
                                 <label className="mt-4 block text-sm font-black text-bronze-text">
+                                    {t('spriteSheet.contentGuidance')}
+                                    <textarea value={contentGuidance} maxLength={500} rows={3} disabled={isSuggesting || isGenerating} onChange={(event) => { setContentGuidance(event.target.value); setResultImage(null); }} placeholder={t('spriteSheet.contentGuidancePlaceholder')} className="mt-2 w-full resize-y rounded-xl border border-cream-dark bg-white px-3.5 py-3 text-base font-medium leading-6 text-bronze-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/10" />
+                                </label>
+                                <p className="mt-2 text-xs font-medium leading-5 text-bronze-light">{t('spriteSheet.contentGuidanceHint')}</p>
+                                <label className="mt-4 block text-sm font-black text-bronze-text">
                                     {t('spriteSheet.requiredCaptions')}
                                     <textarea value={requiredCaptionsInput} rows={4} disabled={isSuggesting || isGenerating} onChange={(event) => { setRequiredCaptionsInput(event.target.value); setResultImage(null); }} placeholder={t('spriteSheet.requiredCaptionsPlaceholder')} className="mt-2 w-full resize-y rounded-xl border border-cream-dark bg-white px-3.5 py-3 text-base font-medium leading-6 text-bronze-text outline-none focus:border-primary focus:ring-2 focus:ring-primary/10" />
                                 </label>
@@ -141,7 +150,11 @@ export const SpriteSheetWorkspace = ({
                                     <span>{t('spriteSheet.requiredCaptionsCount', { count: requiredCaptions.length, total: MAX_SERIES_STICKERS })}</span>
                                     <span>{t('spriteSheet.nextBatchRequiredCount', { count: batchRequiredCaptions.length })}</span>
                                 </div>
-                                {requiredCaptions.length > 0 && <div className="mt-3 flex flex-wrap gap-2">{requiredCaptions.map((caption) => <span key={caption} className="rounded-full border border-primary/15 bg-white px-3 py-1.5 text-xs font-bold text-primary">{caption}</span>)}</div>}
+                                {requiredCaptions.length > 0 && <div className="mt-4 rounded-xl border border-primary/15 bg-white/75 p-3">
+                                    <p className="text-xs font-black uppercase tracking-wider text-primary">{t('spriteSheet.requiredCaptionGuidanceTitle')}</p>
+                                    <p className="mt-1 text-xs font-medium leading-5 text-bronze-light">{t('spriteSheet.requiredCaptionGuidanceHint')}</p>
+                                    <div className="mt-3 max-h-80 space-y-2 overflow-y-auto pr-1">{requiredCaptions.map((caption) => <label key={caption} className="grid gap-2 rounded-xl border border-cream-dark bg-white p-2.5 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center"><span className="inline-flex w-fit rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-black text-primary">{caption}</span><input value={requiredCaptionGuidance[caption] || ''} maxLength={240} disabled={isSuggesting || isGenerating} onChange={(event) => { const value = event.target.value; setRequiredCaptionGuidance((current) => ({ ...current, [caption]: value })); setResultImage(null); }} aria-label={t('spriteSheet.requiredCaptionGuidanceAria', { caption })} placeholder={t('spriteSheet.requiredCaptionGuidancePlaceholder')} className="min-w-0 rounded-lg border border-cream-dark bg-cream-light px-3 py-2 text-sm font-medium text-bronze-text outline-none placeholder:text-bronze-light/55 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" /></label>)}</div>
+                                </div>}
                             </div>
                             <div className="rounded-2xl border border-cream-dark bg-cream p-4">
                                 <p className="text-sm font-black text-bronze-text">{t('spriteSheet.previousSeries')}</p>

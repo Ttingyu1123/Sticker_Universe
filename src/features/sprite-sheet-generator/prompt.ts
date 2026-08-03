@@ -31,6 +31,8 @@ const sanitizeConcept = (concept: StickerConcept): StickerConcept => ({
 export const buildSpriteSheetPrompt = ({
     concepts,
     characterDescription,
+    contentGuidance = '',
+    requiredCaptionGuidance = {},
     style,
     backgroundColor,
     includeText,
@@ -40,13 +42,20 @@ export const buildSpriteSheetPrompt = ({
     }
 
     const safeDescription = characterDescription.trim() || 'Use the attached character reference as the exact identity and design source.';
+    const safeContentGuidance = contentGuidance.trim().slice(0, 500);
     const safeColor = normalizeColor(backgroundColor);
     const cellPlan = concepts.map((rawConcept, index) => {
         const concept = sanitizeConcept(rawConcept);
         const captionInstruction = includeText
             ? `Render this exact Traditional Chinese caption: "${concept.caption}".`
             : `Do not render text; use "${concept.caption}" only as the intended chat meaning.`;
-        return `CELL ${index + 1} — ${concept.theme || `Sticker ${index + 1}`}: ${captionInstruction} Visual performance: ${concept.visual}.`;
+        const captionDirection = Object.prototype.hasOwnProperty.call(
+            requiredCaptionGuidance,
+            concept.caption,
+        )
+            ? requiredCaptionGuidance[concept.caption]?.trim().slice(0, 240)
+            : '';
+        return `CELL ${index + 1} — ${concept.theme || `Sticker ${index + 1}`}: ${captionInstruction} Visual performance: ${concept.visual}.${captionDirection ? ` Required content direction for this exact caption: ${captionDirection}.` : ''}`;
     }).join('\n');
 
     return `
@@ -69,6 +78,11 @@ CHARACTER LOCK:
 - Keep the character clearly recognizable while changing pose, facial expression, gesture, and small supporting props to fit each sticker meaning.
 - Do not redesign, age, recolor, mirror, or replace the character.
 - Style direction: ${STYLE_PROMPTS[style]}
+
+${safeContentGuidance ? `USER CONTENT DIRECTION — MUST HONOR:
+- ${safeContentGuidance}
+- Apply this direction throughout the collection. Explicitly requested themes, moods, props, objects, actions, or relationships must be clearly visible in the applicable cells.
+- If the direction says something must appear in every sticker, include it in all 8 cells while varying how it is used.` : ''}
 
 EIGHT DISTINCT STICKERS — FOLLOW EACH CELL EXACTLY:
 ${cellPlan}

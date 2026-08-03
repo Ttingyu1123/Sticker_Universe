@@ -36,9 +36,11 @@ import {
     isBatchInSeries,
     MAX_SERIES_BATCHES,
     MAX_SERIES_STICKERS,
+    normalizeRequiredCaptionGuidance,
     parseRequiredCaptions,
     parseStickerSeriesArchives,
     replaceStickerBatch,
+    selectRequiredCaptionGuidance,
     type StickerSeriesArchive,
     type StickerSeriesBatch,
 } from './series';
@@ -59,7 +61,9 @@ const SERIES_PREFERENCES_STORAGE_KEY = 'sprite-sheet-series-preferences-v1';
 
 interface StickerSeriesPreferences {
     seriesName: string;
+    contentGuidance: string;
     requiredCaptionsInput: string;
+    requiredCaptionGuidance: Record<string, string>;
     excludedSeriesIds: string[];
 }
 
@@ -88,7 +92,9 @@ const loadStickerSeriesPreferences = (
     if (typeof window === 'undefined') {
         return {
             seriesName: fallbackSeriesName,
+            contentGuidance: '',
             requiredCaptionsInput: '',
+            requiredCaptionGuidance: {},
             excludedSeriesIds: [],
         };
     }
@@ -99,9 +105,15 @@ const loadStickerSeriesPreferences = (
         seriesName: typeof stored?.seriesName === 'string' && stored.seriesName.trim()
             ? stored.seriesName
             : fallbackSeriesName,
+        contentGuidance: typeof stored?.contentGuidance === 'string'
+            ? stored.contentGuidance.slice(0, 500)
+            : '',
         requiredCaptionsInput: typeof stored?.requiredCaptionsInput === 'string'
             ? stored.requiredCaptionsInput
             : '',
+        requiredCaptionGuidance: normalizeRequiredCaptionGuidance(
+            stored?.requiredCaptionGuidance,
+        ),
         excludedSeriesIds: Array.isArray(stored?.excludedSeriesIds)
             ? stored.excludedSeriesIds.filter((id): id is string => typeof id === 'string')
             : archives.map((archive) => archive.id),
@@ -154,8 +166,14 @@ export const useSpriteSheetGeneratorController = ({
         initialSeriesControls.archives,
     );
     const [seriesName, setSeriesName] = useState(initialSeriesControls.preferences.seriesName);
+    const [contentGuidance, setContentGuidance] = useState(
+        initialSeriesControls.preferences.contentGuidance,
+    );
     const [requiredCaptionsInput, setRequiredCaptionsInput] = useState(
         initialSeriesControls.preferences.requiredCaptionsInput,
+    );
+    const [requiredCaptionGuidance, setRequiredCaptionGuidance] = useState(
+        initialSeriesControls.preferences.requiredCaptionGuidance,
     );
     const [excludedSeriesIds, setExcludedSeriesIds] = useState<string[]>(
         initialSeriesControls.preferences.excludedSeriesIds,
@@ -183,6 +201,10 @@ export const useSpriteSheetGeneratorController = ({
         () => getRequiredCaptionsForBatch(requiredCaptions, completedBatches, editingBatchIndex),
         [completedBatches, editingBatchIndex, requiredCaptions],
     );
+    const savedRequiredCaptionGuidance = useMemo(
+        () => selectRequiredCaptionGuidance(requiredCaptions, requiredCaptionGuidance),
+        [requiredCaptionGuidance, requiredCaptions],
+    );
     const completedStickerCount = seriesConcepts.length;
     const isSeriesComplete = completedStickerCount >= MAX_SERIES_STICKERS;
     const activeBatchNumber = editingBatchIndex === null
@@ -206,7 +228,9 @@ export const useSpriteSheetGeneratorController = ({
             completedBatches,
             editingBatchIndex,
             seriesName,
+            contentGuidance,
             requiredCaptions,
+            requiredCaptionGuidance: savedRequiredCaptionGuidance,
             excludedSeriesIds,
             ...overrides,
         };
@@ -237,7 +261,9 @@ export const useSpriteSheetGeneratorController = ({
                     setCompletedBatches(restored.completedBatches);
                     setEditingBatchIndex(restored.editingBatchIndex);
                     setSeriesName(restored.seriesName);
+                    setContentGuidance(restored.contentGuidance);
                     setRequiredCaptionsInput(restored.requiredCaptions.join('\n'));
+                    setRequiredCaptionGuidance(restored.requiredCaptionGuidance);
                     setExcludedSeriesIds(restored.excludedSeriesIds);
                     setResultImage(null);
                     setLastPrompt('');
@@ -274,10 +300,12 @@ export const useSpriteSheetGeneratorController = ({
     useEffect(() => {
         safeSaveToLocalStorage(SERIES_PREFERENCES_STORAGE_KEY, {
             seriesName,
+            contentGuidance,
             requiredCaptionsInput,
+            requiredCaptionGuidance: savedRequiredCaptionGuidance,
             excludedSeriesIds,
         } satisfies StickerSeriesPreferences);
-    }, [excludedSeriesIds, requiredCaptionsInput, seriesName]);
+    }, [contentGuidance, excludedSeriesIds, requiredCaptionsInput, savedRequiredCaptionGuidance, seriesName]);
 
     useEffect(() => {
         if (!isDraftHydrated || !referenceImage || concepts.length !== SPRITE_FRAME_COUNT) return;
@@ -296,15 +324,17 @@ export const useSpriteSheetGeneratorController = ({
         }, 400);
 
         return () => window.clearTimeout(timer);
-    }, [activeBatchNumber, backgroundColor, backgroundRecommendation, characterDescription, characterSummary, completedBatches, concepts, excludedSeriesIds, includeText, isDraftHydrated, referenceImage, requiredCaptions, seriesName, style, t]);
+    }, [activeBatchNumber, backgroundColor, backgroundRecommendation, characterDescription, characterSummary, completedBatches, concepts, contentGuidance, excludedSeriesIds, includeText, isDraftHydrated, referenceImage, requiredCaptions, savedRequiredCaptionGuidance, seriesName, style, t]);
 
     const prompt = useMemo(() => hasCompletePlan ? buildSpriteSheetPrompt({
         concepts,
         characterDescription: characterDescription || characterSummary,
+        contentGuidance,
+        requiredCaptionGuidance: savedRequiredCaptionGuidance,
         style,
         backgroundColor,
         includeText,
-    }) : '', [backgroundColor, characterDescription, characterSummary, concepts, hasCompletePlan, includeText, style]);
+    }) : '', [backgroundColor, characterDescription, characterSummary, concepts, contentGuidance, hasCompletePlan, includeText, savedRequiredCaptionGuidance, style]);
 
     const ensureKey = () => {
         const key = apiKeys[provider]?.trim();
@@ -342,6 +372,10 @@ export const useSpriteSheetGeneratorController = ({
             completedBatches,
             targetBatchIndex,
         );
+        const requiredGuidanceForBatch = selectRequiredCaptionGuidance(
+            requiredForBatch,
+            requiredCaptionGuidance,
+        );
         const overlongRequiredCaptions = findOverlongRequiredCaptions(requiredForBatch);
         if (overlongRequiredCaptions.length > 0) {
             showToast(t('spriteSheet.requiredCaptionTooLong', {
@@ -371,6 +405,8 @@ export const useSpriteSheetGeneratorController = ({
                 characterNotes: characterDescription,
                 previousConcepts,
                 requiredCaptions: requiredForBatch,
+                contentGuidance,
+                requiredCaptionGuidance: requiredGuidanceForBatch,
             });
             setCharacterSummary(plan.characterSummary);
             setConcepts(plan.concepts);
@@ -672,7 +708,9 @@ export const useSpriteSheetGeneratorController = ({
         setBackgroundRecommendation(null);
         setIncludeText(project.includeText);
         setSeriesName(project.name);
+        setContentGuidance(project.contentGuidance);
         setRequiredCaptionsInput(project.requiredCaptions.join('\n'));
+        setRequiredCaptionGuidance(project.requiredCaptionGuidance);
         setCompletedBatches(project.completedBatches);
         setConcepts(project.draftConcepts);
         setEditingBatchIndex(null);
@@ -732,7 +770,9 @@ export const useSpriteSheetGeneratorController = ({
         setSeriesName(t('spriteSheet.nextSeriesDefaultName', {
             number: archivedSeries.length + 2,
         }));
+        setContentGuidance('');
         setRequiredCaptionsInput('');
+        setRequiredCaptionGuidance({});
         setConcepts([]);
         setResultImage(null);
         setLastPrompt('');
@@ -765,8 +805,12 @@ export const useSpriteSheetGeneratorController = ({
         archivedSeries,
         seriesName,
         setSeriesName,
+        contentGuidance,
+        setContentGuidance,
         requiredCaptionsInput,
         setRequiredCaptionsInput,
+        requiredCaptionGuidance,
+        setRequiredCaptionGuidance,
         excludedSeriesIds,
         setExcludedSeriesIds,
         draftStatus,

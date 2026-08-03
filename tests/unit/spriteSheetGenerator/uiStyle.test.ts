@@ -121,6 +121,13 @@ describe('sprite sheet page readability', () => {
         expect(source).toContain('requiredCaptions: requiredForBatch');
     });
 
+    it('lets every required caption define its own visual direction', () => {
+        expect(source).toContain("t('spriteSheet.requiredCaptionGuidanceTitle')");
+        expect(source).toContain('requiredCaptionGuidance[caption]');
+        expect(source).toContain('setRequiredCaptionGuidance');
+        expect(source).toContain('requiredCaptionGuidance: requiredGuidanceForBatch');
+    });
+
     it('lets users exclude selected historical series from new planning', () => {
         expect(source).toContain("t('spriteSheet.previousSeries')");
         expect(source).toContain('archivedSeries');

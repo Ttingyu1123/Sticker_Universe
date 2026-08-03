@@ -32,10 +32,14 @@ const createProject = (): StickerSeriesBackupProject => ({
     referenceImage: REFERENCE_IMAGE,
     characterDescription: 'A round orange cat',
     characterSummary: 'Orange cat with a striped tail',
+    contentGuidance: 'Cheeky theme with a slipper in every sticker',
     style: 'bold-cartoon',
     backgroundColor: '#00FF00',
     includeText: true,
     requiredCaptions: ['Hello', 'Thanks'],
+    requiredCaptionGuidance: {
+        Hello: 'Sleepy wave while holding a slipper',
+    },
     completedBatches: appendStickerBatch([], createConcepts('A'), 124, {
             prompt: 'The exact full image-generation prompt',
             provider: 'gemini',
@@ -65,6 +69,7 @@ describe('portable sticker series backups', () => {
             referenceImage: project.referenceImage,
             characterDescription: project.characterDescription,
             characterSummary: project.characterSummary,
+            contentGuidance: project.contentGuidance,
             concepts: project.completedBatches[0].concepts,
             style: project.style,
             backgroundColor: project.backgroundColor,
@@ -74,6 +79,7 @@ describe('portable sticker series backups', () => {
             editingBatchIndex: null,
             seriesName: project.name,
             requiredCaptions: project.requiredCaptions,
+            requiredCaptionGuidance: project.requiredCaptionGuidance,
             excludedSeriesIds: ['older-series'],
         };
 
@@ -116,6 +122,25 @@ describe('portable sticker series backups', () => {
         expect(rawManifest).not.toContain('apiKey');
         expect(rawManifest).not.toContain('generatedImage');
         expect(rawManifest).not.toContain(REFERENCE_IMAGE);
+    });
+
+    it('restores an empty content direction from backups created before the field existed', async () => {
+        const project = createProject();
+        const storedProject: Record<string, unknown> = { ...project };
+        delete storedProject.referenceImage;
+        delete storedProject.contentGuidance;
+        delete storedProject.requiredCaptionGuidance;
+
+        const parsed = await parseStickerSeriesBackup(await buildZip({
+            format: STICKER_SERIES_BACKUP_FORMAT,
+            version: STICKER_SERIES_BACKUP_VERSION,
+            exportedAt: 456,
+            referenceImageFile: 'reference-image.png',
+            project: storedProject,
+        }));
+
+        expect(parsed.project.contentGuidance).toBe('');
+        expect(parsed.project.requiredCaptionGuidance).toEqual({});
     });
 
     it('supports legacy completed batches whose original prompts were not recorded', async () => {

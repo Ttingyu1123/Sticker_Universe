@@ -1,6 +1,6 @@
 import type { Sticker } from '../../shared/types/sticker';
 import { SPRITE_SHEET_STYLES, type SpriteSheetStyle, type StickerConcept } from './types';
-import type { StickerSeriesBatch } from './series';
+import { normalizeRequiredCaptionGuidance, type StickerSeriesBatch } from './series';
 
 export const SPRITE_SHEET_PROJECT_TYPE = 'sprite-sheet-plan';
 export const SPRITE_SHEET_DRAFT_ID = 'sprite-sheet-plan-current-draft';
@@ -10,6 +10,7 @@ export interface SpriteSheetPlanDraft {
     referenceImage: string;
     characterDescription: string;
     characterSummary: string;
+    contentGuidance: string;
     concepts: StickerConcept[];
     style: SpriteSheetStyle;
     backgroundColor: string;
@@ -22,6 +23,7 @@ export interface SpriteSheetPlanDraft {
     editingBatchIndex: number | null;
     seriesName: string;
     requiredCaptions: string[];
+    requiredCaptionGuidance: Record<string, string>;
     excludedSeriesIds: string[];
 }
 
@@ -36,6 +38,10 @@ interface CreatePlanItemOptions {
 const buildPlanDescription = (draft: SpriteSheetPlanDraft): string => {
     const character = draft.characterSummary || draft.characterDescription || '未填寫角色描述';
     const backgroundReason = draft.backgroundRecommendation?.reason || '使用者手動選擇';
+    const requiredCaptions = draft.requiredCaptions.map((caption) => {
+        const guidance = draft.requiredCaptionGuidance[caption];
+        return guidance ? `${caption}（${guidance}）` : caption;
+    }).join('、') || '未指定';
     const concepts = draft.concepts.map((concept, index) => [
         `## ${String(index + 1).padStart(2, '0')} · ${concept.caption}`,
         `- **用途：** ${concept.theme}`,
@@ -49,7 +55,8 @@ const buildPlanDescription = (draft: SpriteSheetPlanDraft): string => {
         `- **選色原因：** ${backgroundReason}`,
         `- **系列進度：** ${draft.completedBatches.length * 8} / 24 張已生成`,
         `- **系列名稱：** ${draft.seriesName}`,
-        `- **必做貼圖詞：** ${draft.requiredCaptions.join('、') || '未指定'}`,
+        `- **貼圖內容／主題：** ${draft.contentGuidance || '未指定'}`,
+        `- **必做貼圖詞：** ${requiredCaptions}`,
         '',
         concepts,
     ].join('\n');
@@ -101,6 +108,9 @@ export const parseSpriteSheetPlanGalleryItem = (
         referenceImage: item.imageUrl,
         characterDescription: data.characterDescription,
         characterSummary: data.characterSummary,
+        contentGuidance: typeof data.contentGuidance === 'string'
+            ? data.contentGuidance.slice(0, 500)
+            : '',
         concepts: data.concepts.map((concept) => ({ ...concept })),
         style: data.style as SpriteSheetStyle,
         backgroundColor: data.backgroundColor,
@@ -123,6 +133,9 @@ export const parseSpriteSheetPlanGalleryItem = (
         requiredCaptions: Array.isArray(data.requiredCaptions)
             ? data.requiredCaptions.filter((caption): caption is string => typeof caption === 'string').slice(0, 24)
             : [],
+        requiredCaptionGuidance: normalizeRequiredCaptionGuidance(
+            data.requiredCaptionGuidance,
+        ),
         excludedSeriesIds: Array.isArray(data.excludedSeriesIds)
             ? data.excludedSeriesIds.filter((id): id is string => typeof id === 'string')
             : [],

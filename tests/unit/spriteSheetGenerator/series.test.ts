@@ -13,6 +13,11 @@ import {
 
 const requiredCaptionControls = seriesControls as typeof seriesControls & {
     parseRequiredCaptions?: (input: string) => string[];
+    normalizeRequiredCaptionGuidance?: (value: unknown) => Record<string, string>;
+    selectRequiredCaptionGuidance?: (
+        captions: string[],
+        guidance: Record<string, string>,
+    ) => Record<string, string>;
     getRequiredCaptionsForBatch?: (
         requiredCaptions: string[],
         batches: import('../../../src/features/sprite-sheet-generator/series').StickerSeriesBatch[],
@@ -74,6 +79,25 @@ describe('sticker collection series', () => {
     it('limits one series to 24 required captions', () => {
         const input = Array.from({ length: 30 }, (_, index) => `貼圖詞${index + 1}`).join('\n');
         expect(requiredCaptionControls.parseRequiredCaptions?.(input)).toHaveLength(24);
+    });
+
+    it('normalizes and selects per-caption content directions', () => {
+        expect(requiredCaptionControls.normalizeRequiredCaptionGuidance).toBeTypeOf('function');
+        expect(requiredCaptionControls.selectRequiredCaptionGuidance).toBeTypeOf('function');
+        const normalized = requiredCaptionControls.normalizeRequiredCaptionGuidance?.({
+            ' 早安 ': ' 睡眼惺忪抱著拖鞋 ',
+            '路上小心': ' ',
+            invalid: 123,
+        }) || {};
+
+        expect(normalized).toEqual({ 早安: '睡眼惺忪抱著拖鞋' });
+        expect(requiredCaptionControls.selectRequiredCaptionGuidance?.(
+            ['早安', '晚安'],
+            { ...normalized, 晚安: '蓋著棉被揮手', 不相關: '不應保留' },
+        )).toEqual({
+            早安: '睡眼惺忪抱著拖鞋',
+            晚安: '蓋著棉被揮手',
+        });
     });
 
     it('allocates only required captions not used outside the active batch', () => {
